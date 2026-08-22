@@ -1,0 +1,75 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-my-stats-front
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: read
+      packages: read
+
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SSH kalitini o'rnatish
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Image nomini hisoblash
+        id: img
+        run: echo "FRONT_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:latest" >> "$GITHUB_OUTPUT"
+
+      - name: infra fayllarini serverga ko'chirish
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" "mkdir -p $DEPLOY_PATH"
+          rsync -az \
+            --include='infra/' --include='infra/***' \
+            --exclude='*' \
+            ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+
+      - name: Serverda deploy
+        env:
+          FRONT_IMAGE: ${{ steps.img.outputs.FRONT_IMAGE }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" \
+            "DEPLOY_PATH='$DEPLOY_PATH' \
+             FRONT_IMAGE='$FRONT_IMAGE' \
+             GHCR_USER='$GHCR_USER' \
+             GHCR_TOKEN='$GHCR_TOKEN' \
+             bash $DEPLOY_PATH/infra/deploy.sh"
+
+      - name: Sog'liq tekshiruvi
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" \
+            "for i in \$(seq 1 20); do \
+               curl -fsS http://127.0.0.1:8071/ >/dev/null && exit 0; \
+               sleep 3; \
+             done; \
+             echo 'Health check FAILED'; \
+             docker logs --tail 40 my-stats-front; \
+             exit 1"
