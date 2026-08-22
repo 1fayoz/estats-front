@@ -11,3 +11,9 @@ services:
     environment:
       NODE_ENV: production
     restart: unless-stopped
+    # Loglar cheklanmasa disk to'ladi. Bu server umumiy, shuning uchun
+    # /etc/docker/daemon.json ga tegilmaydi (u demonni qayta ishga tushirib,
+    # boshqa loyihalarni ham uzadi) — cheklov shu yerda, faqat o'zimizga.
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
