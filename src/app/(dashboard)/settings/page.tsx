@@ -1,7 +1,10 @@
 "use client";
 
-import { Store, Bell, Palette, KeyRound } from "lucide-react";
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { KeyRound, LogOut, Palette, RefreshCw, ShieldCheck, Store } from "lucide-react";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,50 +13,133 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { useUserStore } from "@/stores/user-store";
+import { ApiError, login } from "@/lib/api";
+import { MIN_TOKEN_LENGTH, isValidTokenFormat } from "@/lib/auth";
 
 export default function SettingsPage() {
-  const { username, storeName, setUser } = useUserStore();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
+
+  const accessToken = useUserStore((s) => s.accessToken);
+  const storeName = useUserStore((s) => s.storeName);
+  const shops = useUserStore((s) => s.shops);
+  const signIn = useUserStore((s) => s.signIn);
+  const signOut = useUserStore((s) => s.signOut);
+
+  const [newToken, setNewToken] = React.useState("");
+  const [saving, setSaving] = React.useState(false);
+
+  /** Re-authenticating with a fresh Uzum token replaces the one stored server-side. */
+  const onSave = async () => {
+    const clean = newToken.trim();
+    if (clean.length < MIN_TOKEN_LENGTH || !isValidTokenFormat(clean)) {
+      toast.error(`Token yaroqsiz ko'rinishda (kamida ${MIN_TOKEN_LENGTH} belgi)`);
+      return;
+    }
+    setSaving(true);
+    try {
+      const { accessToken: jwt, user } = await login(clean);
+      signIn(jwt, user);
+      setNewToken("");
+      toast.success("Token yangilandi va serverda saqlandi.");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Token yangilanmadi.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onDisconnect = () => {
+    signOut();
+    toast.success("Sessiya yopildi");
+    router.push("/");
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Sozlamalar"
-        description="Do'kon ma'lumotlari, mavzu va bildirishnomalarni boshqaring."
+        description="Uzum ulanishi va tashqi ko'rinishni boshqaring."
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Store className="h-4 w-4" /> Do'kon profili
+              <KeyRound className="h-4 w-4" /> Uzum ulanishi
             </CardTitle>
-            <CardDescription>Uzum Marketdagi do'kon ma'lumotlaringiz</CardDescription>
+            <CardDescription>
+              Uzum tokeni serverda saqlanadi — brauzerda faqat sessiya kaliti turadi.
+              Token yangilansa, keyingi sinxronizatsiyalar yangisi bilan ishlaydi.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="username">Uzum username</Label>
-              <Input
-                id="username"
-                defaultValue={username ?? ""}
-                onChange={(e) => setUser({ username: e.target.value, storeName: storeName ?? undefined })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="storeName">Do'kon nomi</Label>
-              <Input
-                id="storeName"
-                defaultValue={storeName ?? ""}
-                onChange={(e) => setUser({ username: username ?? "", storeName: e.target.value })}
-              />
-            </div>
             <div className="flex items-center justify-between rounded-lg border bg-muted/40 p-3 text-sm">
-              <div>
-                <div className="font-medium">Hisob holati</div>
-                <div className="text-xs text-muted-foreground">Demo rejim faol</div>
+              <div className="min-w-0">
+                <div className="font-medium">{storeName ?? "Ulanmagan"}</div>
+                <div className="text-xs text-muted-foreground">
+                  {accessToken ? "Sessiya faol" : "Sessiya yo'q"}
+                </div>
               </div>
-              <Badge variant="success">Faol</Badge>
+              <Badge variant={accessToken ? "success" : "secondary"}>
+                {accessToken ? "Faol" : "Yo'q"}
+              </Badge>
             </div>
+
+            {shops.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <Store className="h-3.5 w-3.5" /> Ulangan do'konlar ({shops.length})
+                </div>
+                {shops.map((shop) => (
+                  <div
+                    key={shop.id}
+                    className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm"
+                  >
+                    <span className="font-medium">{shop.name}</span>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      #{shop.shopId}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-1.5 border-t pt-4">
+              <Label htmlFor="newToken">Tokenni yangilash</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="newToken"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="••••••••••••••••"
+                  value={newToken}
+                  onChange={(e) => setNewToken(e.target.value)}
+                  className="font-mono text-sm"
+                />
+                <Button size="sm" onClick={onSave} disabled={saving}>
+                  {saving ? (
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                  )}
+                  Saqlash
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Yangi token Uzum'da tekshiriladi. Yaroqsiz bo'lsa saqlanmaydi.
+              </p>
+            </div>
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-destructive hover:text-destructive"
+              onClick={onDisconnect}
+              disabled={!accessToken}
+            >
+              <LogOut className="h-3.5 w-3.5" /> Chiqish
+            </Button>
           </CardContent>
         </Card>
 
@@ -78,7 +164,11 @@ export default function SettingsPage() {
                 >
                   <div
                     className={`h-10 w-10 rounded-md border ${
-                      t === "light" ? "bg-white" : t === "dark" ? "bg-zinc-900" : "bg-gradient-to-br from-white to-zinc-900"
+                      t === "light"
+                        ? "bg-white"
+                        : t === "dark"
+                          ? "bg-zinc-900"
+                          : "bg-gradient-to-br from-white to-zinc-900"
                     }`}
                   />
                   <span className="capitalize">
@@ -86,58 +176,6 @@ export default function SettingsPage() {
                   </span>
                 </button>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-4 w-4" /> Bildirishnomalar
-            </CardTitle>
-            <CardDescription>Qaysi hodisalar haqida xabardor bo'lishni xohlaysiz</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {[
-              { label: "Yangi buyurtma", desc: "Har bir yangi buyurtma uchun" },
-              { label: "Qoldiq tugashi", desc: "Mahsulot 10 donadan kam qolganda" },
-              { label: "SEO pozitsiya o'zgarishi", desc: "Top 10 ga kirish/chiqishda" },
-              { label: "Yangi salbiy sharh", desc: "Reyting 3 yulduzdan past bo'lganda" },
-            ].map((n) => (
-              <label key={n.label} className="flex items-center justify-between gap-3 rounded-lg border p-3">
-                <div>
-                  <div className="font-medium">{n.label}</div>
-                  <div className="text-xs text-muted-foreground">{n.desc}</div>
-                </div>
-                <input
-                  type="checkbox"
-                  defaultChecked
-                  className="h-4 w-4 accent-[var(--primary)]"
-                />
-              </label>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <KeyRound className="h-4 w-4" /> API integratsiyasi
-            </CardTitle>
-            <CardDescription>
-              Telegram bot va Chrome kengaytmasini ulang
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="rounded-lg border bg-muted/40 p-3 font-mono text-xs">
-              ms_demo_token_•••••_2026_a8f7c
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm">Tokenni nusxa olish</Button>
-              <Button size="sm" variant="outline">Yangilash</Button>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Token orqali @mystats_bot botiga ulanib, avtomatik hisobotlarni olishingiz mumkin.
             </div>
           </CardContent>
         </Card>

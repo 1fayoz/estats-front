@@ -31,12 +31,12 @@ export function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const { username, storeName, signOut } = useUserStore();
+  const { storeName, signOut } = useUserStore();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
 
-  const initials = (storeName || username || "MS")
+  const initials = (storeName || "MS")
     .split(/[\s_]/)
     .map((p) => p[0])
     .slice(0, 2)
@@ -89,7 +89,7 @@ export function Topbar() {
                 </AvatarFallback>
               </Avatar>
               <div className="hidden flex-col items-start leading-none sm:flex">
-                <span className="text-xs font-semibold">@{username ?? "guest"}</span>
+                <span className="text-xs font-semibold">{storeName ?? "Do'kon"}</span>
                 <span className="text-[10px] text-muted-foreground">Premium seller</span>
               </div>
             </button>
@@ -97,7 +97,7 @@ export function Topbar() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>{storeName ?? username}</span>
+                <span>{storeName ?? "Do'kon"}</span>
                 <span className="text-[10px] font-normal text-muted-foreground">
                   Uzum Market do'koni
                 </span>
