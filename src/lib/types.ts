@@ -274,3 +274,50 @@ export interface Paginated<T> {
   page: number;
   pages: number;
 }
+
+// ── bozor (uzum.uz ochiq katalogi) ───────────────────────────────────────────
+
+export interface MarketProduct {
+  productId: number;
+  title: string;
+  price: number;
+  fullPrice: number | null;
+  discountPercent: number | null;
+  rating: number | null;
+  reviews: number;
+  orders: number;
+  image: string | null;
+  category: string | null;
+  url: string;
+}
+
+export interface MarketStats {
+  count: number;
+  min: number;
+  max: number;
+  median: number;
+  average: number;
+}
+
+export interface ProductMarket {
+  query: string;
+  total: number;
+  items: MarketProduct[];
+  stats: MarketStats;
+  myPrice: number | null;
+  /** Mendan arzon sotayotganlar ulushi (0–100). */
+  cheaperShare: number;
+  breakEvenPrice: number | null;
+  profitAtMarketMin: number | null;
+  profitAtMarketMedian: number | null;
+  canMatchCheapest: boolean;
+  note: string | null;
+}
+
+/** Bozor tokenining holati. Tokenning o'zi hech qachon qaytarilmaydi. */
+export interface MarketTokenStatus {
+  configured: boolean;
+  expiresAt: string | null;
+  expiresInMinutes: number | null;
+  isExpired: boolean;
+}

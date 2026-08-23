@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
+import { MarketCard } from "@/features/warehouse/components/market-card";
 import { fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -116,6 +117,8 @@ export default function ProductDetailPage() {
       )}
 
       <BreakEvenCard economics={data.economics} />
+
+      <MarketCard productId={id} />
 
       <Card>
         <CardHeader>

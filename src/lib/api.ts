@@ -15,6 +15,8 @@ import type {
   PnlReport,
   ProductDetail,
   Sale,
+  MarketTokenStatus,
+  ProductMarket,
   SalesCoverage,
   SalesSyncResult,
   Shop,
@@ -196,6 +198,25 @@ export const fetchSales = (params: { warehouseProductId?: number; page?: number;
 
 export const fetchPnl = (from: string, to: string, allProducts = false) =>
   request<PnlReport>(`/warehouse/pnl${qs({ from, to, all_products: allProducts })}`);
+
+// ── bozor (raqobatchilar) ────────────────────────────────────────────────────
+
+/** Where one of my goods sits in the public Uzum catalog. */
+export const fetchProductMarket = (productId: number) =>
+  request<ProductMarket>(`/market/product/${productId}`);
+
+export const searchMarket = (q: string, limit = 20) =>
+  request<ProductMarket>(`/market/search${qs({ q, limit })}`);
+
+export const fetchMarketTokenStatus = () =>
+  request<MarketTokenStatus>("/market/token", { shopScoped: false });
+
+export const updateMarketToken = (token: string) =>
+  request<MarketTokenStatus>("/market/token", {
+    method: "PUT",
+    shopScoped: false,
+    body: JSON.stringify({ token }),
+  });
 
 // ── moliya (Uzum's own ledger) ───────────────────────────────────────────────
 
