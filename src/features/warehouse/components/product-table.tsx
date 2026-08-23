@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { PackagePlus, PackageX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -27,13 +28,21 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
 
   return (
     <div className="overflow-x-auto rounded-xl border">
-      <table className="w-full min-w-[900px] text-sm">
+      <table className="w-full min-w-[1040px] text-sm">
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
             <th className="px-4 py-3 text-left font-medium">Tovar</th>
             <th className="px-3 py-3 text-right font-medium">Uzum narxi</th>
             <th className="px-3 py-3 text-right font-medium">Tan narx</th>
-            <th className="px-3 py-3 text-right font-medium">Qoldiq</th>
+            <th className="px-3 py-3 text-right font-medium" title="Butun davr bo'yicha kirim">
+              Keldi
+            </th>
+            <th className="px-3 py-3 text-right font-medium" title="Butun davr bo'yicha sotuv">
+              Sotildi
+            </th>
+            <th className="px-3 py-3 text-right font-medium" title="Keldi − sotildi">
+              Qoldiq
+            </th>
             <th className="px-3 py-3 text-right font-medium">Zaxira qiymati</th>
             <th className="px-3 py-3 text-right font-medium">Uzum qoldig'i</th>
             <th className="px-4 py-3 text-right font-medium" />
@@ -91,6 +100,12 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
                     <Badge variant="secondary">kiritilmagan</Badge>
                   )}
                 </td>
+                <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
+                  {formatNumber(item.totalIntakeQuantity)}
+                </td>
+                <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
+                  {formatNumber(item.totalSoldQuantity)}
+                </td>
                 <td className="px-3 py-3 text-right tabular-nums font-medium">
                   {formatNumber(item.stockQuantity)}
                 </td>
@@ -101,9 +116,14 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
                   {item.marketplaceStock ?? 0}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Button size="sm" variant="outline" onClick={() => onIntake(item)}>
-                    <PackagePlus className="h-3.5 w-3.5" /> Kirim
-                  </Button>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <Button size="sm" variant="outline" onClick={() => onIntake(item)}>
+                      <PackagePlus className="h-3.5 w-3.5" /> Kirim
+                    </Button>
+                    <Button size="sm" variant="ghost" asChild>
+                      <Link href={`/warehouse/${item.id}`}>Batafsil</Link>
+                    </Button>
+                  </div>
                 </td>
               </tr>
             );

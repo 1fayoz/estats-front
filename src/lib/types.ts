@@ -5,18 +5,39 @@ export interface Shop {
   id: number;
   shopId: number;
   name: string;
+  isDefault: boolean;
+  hasToken: boolean;
+  currency: string;
+  /** Sotuv tarixining qaysi qismi yuklangani — qoldiqni to'g'ri o'qish uchun. */
+  salesSyncedFrom: string | null;
+  salesSyncedTo: string | null;
+  salesSyncedAt: string | null;
 }
 
 export interface Me {
   id: number;
-  storeName: string | null;
+  email: string;
+  fullName: string | null;
+  image: string | null;
   shops: Shop[];
-  hasToken: boolean;
 }
 
 export interface LoginResponse {
   accessToken: string;
   user: Me;
+}
+
+export interface ShopCreateResult {
+  created: Shop[];
+  updated: Shop[];
+  message: string;
+}
+
+export interface SalesCoverage {
+  from: string | null;
+  to: string | null;
+  syncedAt: string | null;
+  isComplete: boolean;
 }
 
 /** A warehouse good: the Uzum SKU plus our own cost/stock truth. */
@@ -43,6 +64,41 @@ export interface WarehouseProduct {
   stockValue: number;
   warehouseId: number | null;
   syncedAt: string | null;
+  /** Butun davr bo'yicha — qoldiq = keldi − sotildi ekani ko'rinib tursin. */
+  totalIntakeQuantity: number;
+  totalSoldQuantity: number;
+}
+
+/** "Buncha qo'ysam — buncha foyda" jadvalining bitta qatori. */
+export interface PriceRung {
+  price: number;
+  payout: number;
+  profit: number;
+  margin: number;
+  isCurrent: boolean;
+}
+
+/** Dona boshiga pul qayerga ketishi va qaysi narxdan foyda boshlanishi. */
+export interface UnitEconomics {
+  unitCost: number;
+  avgSellPrice: number;
+  commissionRate: number;
+  logisticsPerUnit: number;
+  breakEvenPrice: number | null;
+  isEstimated: boolean;
+  hasCost: boolean;
+  priceLadder: PriceRung[];
+}
+
+export interface SalesPeriod {
+  period: string;
+  soldQuantity: number;
+  orders: number;
+  gross: number;
+  revenue: number;
+  cogs: number;
+  profit: number;
+  avgPrice: number;
 }
 
 /** One goods arrival (kirim) at its own cost price — what FIFO consumes from. */
@@ -134,6 +190,16 @@ export interface ProductPnl {
   /** Units sold with no intake behind them — their cost is unknown, not zero. */
   uncoveredQuantity: number;
   isCosted: boolean;
+  totalIntakeQuantity: number;
+  totalIntakeCost: number;
+  totalSoldQuantity: number;
+  totalRevenue: number;
+  totalCogs: number;
+  totalProfit: number;
+  minSellPrice: number | null;
+  maxSellPrice: number | null;
+  lastSellPrice: number | null;
+  economics: UnitEconomics;
 }
 
 export interface PnlTotals {
@@ -178,6 +244,15 @@ export interface ProductDetail {
   onHand: number;
   stockValue: number;
   uncoveredQuantity: number;
+  totalIntakeQuantity: number;
+  totalSoldQuantity: number;
+  totalRevenue: number;
+  totalCogs: number;
+  totalProfit: number;
+  economics: UnitEconomics;
+  daily: SalesPeriod[];
+  monthly: SalesPeriod[];
+  yearly: SalesPeriod[];
 }
 
 export interface SyncStatus {

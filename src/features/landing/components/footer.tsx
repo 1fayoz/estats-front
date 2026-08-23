@@ -61,9 +61,8 @@ export function LandingFooter() {
             Huquqiy
           </div>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/" className="hover:text-primary">Ommaviy oferta</Link></li>
-            <li><Link href="/" className="hover:text-primary">Foydalanish shartlari</Link></li>
-            <li><Link href="/" className="hover:text-primary">Maxfiylik siyosati</Link></li>
+            <li><Link href="/terms" className="hover:text-primary">Foydalanish shartlari</Link></li>
+            <li><Link href="/privacy" className="hover:text-primary">Maxfiylik siyosati</Link></li>
           </ul>
           <div className="mt-4 flex gap-2">
             <a className="flex h-8 w-8 items-center justify-center rounded-md border bg-card text-muted-foreground transition-colors hover:bg-accent">

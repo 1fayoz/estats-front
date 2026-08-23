@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Bell, LogOut, Moon, Search, Settings, Store, Sun } from "lucide-react";
+import { Bell, LogOut, Moon, Settings, Store, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -18,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUserStore } from "@/stores/user-store";
+import { ShopSwitcher } from "./shop-switcher";
 import { ALL_NAV_ITEMS } from "@/config/nav";
 
 function getPageTitle(pathname: string): string {
@@ -31,13 +31,15 @@ export function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const { storeName, signOut } = useUserStore();
+  const user = useUserStore((s) => s.user);
+  const signOut = useUserStore((s) => s.signOut);
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
 
-  const initials = (storeName || "MS")
-    .split(/[\s_]/)
+  const displayName = user?.fullName || user?.email || "MyStats";
+  const initials = displayName
+    .split(/[\s_@.]/)
     .map((p) => p[0])
     .slice(0, 2)
     .join("")
@@ -46,22 +48,17 @@ export function Topbar() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-xl md:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="hidden flex-col md:flex">
+        <div className="hidden min-w-0 flex-col md:flex">
           <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
-            {pathname.startsWith("/dashboard") && pathname !== "/dashboard" ? "Bo'lim" : "Dashboard"}
+            Bo&apos;lim
           </span>
           <h1 className="truncate text-lg font-semibold leading-tight">{getPageTitle(pathname)}</h1>
         </div>
 
-        <div className="relative ml-auto hidden w-full max-w-sm md:block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Mahsulot, kalit so'z yoki raqobatchini qidiring..."
-            className="h-9 pl-9"
-          />
-          <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:flex">
-            ⌘K
-          </kbd>
+        {/* Magazin almashtirgich — butun ilova qaysi magazinni ko'rsatayotgani
+            har doim ko'rinib tursin. */}
+        <div className="ml-auto">
+          <ShopSwitcher />
         </div>
       </div>
 
@@ -89,24 +86,26 @@ export function Topbar() {
                 </AvatarFallback>
               </Avatar>
               <div className="hidden flex-col items-start leading-none sm:flex">
-                <span className="text-xs font-semibold">{storeName ?? "Do'kon"}</span>
-                <span className="text-[10px] text-muted-foreground">Premium seller</span>
+                <span className="max-w-[140px] truncate text-xs font-semibold">{displayName}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  {user?.shops.length ?? 0} ta magazin
+                </span>
               </div>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>{storeName ?? "Do'kon"}</span>
-                <span className="text-[10px] font-normal text-muted-foreground">
-                  Uzum Market do'koni
+                <span className="truncate">{displayName}</span>
+                <span className="truncate text-[10px] font-normal text-muted-foreground">
+                  {user?.email}
                 </span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Store className="h-4 w-4" /> Do'kon profili
-              <Badge variant="info" className="ml-auto">live</Badge>
+            <DropdownMenuItem onClick={() => router.push("/settings")}>
+              <Store className="h-4 w-4" /> Magazinlar
+              <Badge variant="info" className="ml-auto">{user?.shops.length ?? 0}</Badge>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push("/settings")}>
               <Settings className="h-4 w-4" /> Sozlamalar

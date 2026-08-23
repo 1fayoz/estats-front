@@ -15,7 +15,10 @@ import type {
   PnlReport,
   ProductDetail,
   Sale,
+  SalesCoverage,
   SalesSyncResult,
+  Shop,
+  ShopCreateResult,
   SyncStatus,
   WarehouseProduct,
 } from "./types";
@@ -45,23 +48,26 @@ export class ApiError extends Error {
  * `api` is imported by the auth store itself, so going through the store would be a
  * circular import; localStorage is the same source of truth either way.
  */
-function readToken(): string | null {
-  if (typeof window === "undefined") return null;
+function readPersisted(): { accessToken?: string | null; activeShopId?: number | null } {
+  if (typeof window === "undefined") return {};
   try {
     const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw)?.state?.accessToken ?? null;
+    return raw ? (JSON.parse(raw)?.state ?? {}) : {};
   } catch {
-    return null;
+    return {};
   }
 }
 
 async function request<T>(
   path: string,
-  init: RequestInit & { auth?: boolean } = {}
+  init: RequestInit & { auth?: boolean; shopScoped?: boolean } = {}
 ): Promise<T> {
-  const { auth = true, headers, ...rest } = init;
-  const token = auth ? readToken() : null;
+  const { auth = true, shopScoped = true, headers, ...rest } = init;
+  const persisted = auth ? readPersisted() : {};
+  const token = persisted.accessToken ?? null;
+  // Every shop-scoped call carries the active shop. The server re-checks that the
+  // shop belongs to the caller, so this header selects data — it never grants it.
+  const shopId = shopScoped ? persisted.activeShopId : null;
 
   let response: Response;
   try {
@@ -72,6 +78,7 @@ async function request<T>(
         Accept: "application/json",
         ...(rest.body ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(shopId ? { "X-Shop-Id": String(shopId) } : {}),
         ...headers,
       },
     });
@@ -104,15 +111,41 @@ const qs = (params: Record<string, string | number | boolean | undefined | null>
 
 // ── auth ─────────────────────────────────────────────────────────────────────
 
-/** Exchange an Uzum seller token for a session. The Uzum token stays on the server. */
-export const login = (token: string) =>
-  request<LoginResponse>("/auth/login", {
+/** Exchange a Google ID token for a session. */
+export const googleLogin = (idToken: string) =>
+  request<LoginResponse>("/auth/google", {
     method: "POST",
     auth: false,
+    shopScoped: false,
+    body: JSON.stringify({ idToken }),
+  });
+
+export const fetchMe = () => request<Me>("/auth/me", { shopScoped: false });
+
+// ── magazinlar ───────────────────────────────────────────────────────────────
+
+export const fetchShops = () => request<Shop[]>("/auth/shops", { shopScoped: false });
+
+/** Add every shop an Uzum token can reach. Re-submitting a token refreshes it. */
+export const addShops = (token: string) =>
+  request<ShopCreateResult>("/auth/shops", {
+    method: "POST",
+    shopScoped: false,
     body: JSON.stringify({ token: token.trim() }),
   });
 
-export const fetchMe = () => request<Me>("/auth/me");
+export const updateShop = (
+  id: number,
+  payload: { name?: string; token?: string; isDefault?: boolean }
+) =>
+  request<Shop>(`/auth/shops/${id}`, {
+    method: "PATCH",
+    shopScoped: false,
+    body: JSON.stringify(payload),
+  });
+
+export const deleteShop = (id: number) =>
+  request<void>(`/auth/shops/${id}`, { method: "DELETE", shopScoped: false });
 
 // ── ombor (goods) ────────────────────────────────────────────────────────────
 
@@ -145,6 +178,10 @@ export const deleteIntake = (id: number) =>
 
 export const syncSales = (from: string, to: string) =>
   request<SalesSyncResult>(`/warehouse/sales/sync${qs({ from, to })}`, { method: "POST" });
+
+/** Which slice of sales history is loaded — context for the on-hand figure. */
+export const fetchSalesCoverage = () =>
+  request<SalesCoverage>("/warehouse/sales/coverage");
 
 export const fetchSales = (params: { warehouseProductId?: number; page?: number; size?: number } = {}) =>
   request<Paginated<Sale>>(

@@ -3,16 +3,15 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, KeyRound, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useUserStore } from "@/stores/user-store";
-import { ApiError, login } from "@/lib/api";
-import { MIN_TOKEN_LENGTH, isValidTokenFormat } from "@/lib/auth";
+import { ApiError, googleLogin } from "@/lib/api";
+
+import { GoogleButton } from "./google-button";
 
 export function LoginForm() {
   const router = useRouter();
@@ -20,38 +19,27 @@ export function LoginForm() {
   const accessToken = useUserStore((s) => s.accessToken);
   const hydrated = useUserStore((s) => s.hydrated);
 
-  const [token, setTokenInput] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-
   const alreadyConnected = hydrated && Boolean(accessToken);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = token.trim();
-    if (clean.length < MIN_TOKEN_LENGTH || !isValidTokenFormat(clean)) {
-      toast.error(`Token yaroqsiz ko'rinishda (kamida ${MIN_TOKEN_LENGTH} belgi)`);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // The backend validates the token against Uzum, remembers it, and returns a JWT.
-      const { accessToken: jwt, user } = await login(clean);
-      signIn(jwt, user);
-      toast.success(
-        user.storeName
-          ? `"${user.storeName}" do'koni ulandi.`
-          : "Token qabul qilindi."
-      );
-      router.push("/warehouse");
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "Kirishda kutilmagan xatolik.";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const onCredential = React.useCallback(
+    async (idToken: string) => {
+      setLoading(true);
+      try {
+        const { accessToken: jwt, user } = await googleLogin(idToken);
+        signIn(jwt, user);
+        toast.success(`Xush kelibsiz, ${user.fullName || user.email}`);
+        // Magazini bo'lmagan yangi foydalanuvchini darhol qo'shish sahifasiga
+        // olib boramiz — bo'sh ombor ko'rsatib chalkashtirmaymiz.
+        router.push(user.shops.length ? "/warehouse" : "/settings");
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : "Kirishda xatolik.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router, signIn]
+  );
 
   return (
     <motion.div
@@ -63,14 +51,14 @@ export function LoginForm() {
       <Card className="border-border/60 bg-card/80 shadow-2xl shadow-primary/5 backdrop-blur-xl">
         <CardHeader className="space-y-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl">Uzum tokeni bilan kiring</CardTitle>
+            <CardTitle className="text-2xl">Kirish</CardTitle>
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="h-4 w-4" />
             </div>
           </div>
           <CardDescription>
-            Uzum Seller kabinetingizdagi API tokenini kiriting. Do'koningiz, tovarlaringiz
-            va sotuvlaringiz shu token orqali yuklanadi.
+            Google akkauntingiz bilan kiring. Uzum tokenini keyin, magazin qo'shayotganda
+            kiritasiz — bitta hisobga bir nechta magazin ulash mumkin.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,57 +79,26 @@ export function LoginForm() {
                 className="w-full text-base"
                 onClick={() => router.push("/warehouse")}
               >
-                Omborga o'tish
+                Kabinetga o'tish
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           ) : (
-            <form onSubmit={onSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="token">Uzum Seller API tokeni</Label>
-                <div className="relative">
-                  <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="token"
-                    autoFocus
-                    autoComplete="off"
-                    spellCheck={false}
-                    placeholder="••••••••••••••••••••••••"
-                    value={token}
-                    onChange={(e) => setTokenInput(e.target.value)}
-                    className="h-12 pl-9 font-mono text-sm"
-                  />
+            <div className="space-y-5">
+              {loading ? (
+                <div className="flex h-11 items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Tekshirilmoqda...
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Token serverda saqlanadi va brauzerga qaytarilmaydi — bu yerda faqat
-                  sessiya kaliti qoladi.
-                </p>
-              </div>
-
-              <Button
-                type="submit"
-                variant="gradient"
-                size="lg"
-                className="w-full text-base"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Tekshirilmoqda...
-                  </>
-                ) : (
-                  <>
-                    Kirish
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
+              ) : (
+                <GoogleButton onCredential={onCredential} />
+              )}
 
               <p className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-                Token Uzum Seller kabinetingizdagi API bo'limidan olinadi.
+                Biz Google'dan faqat ismingiz va emailingizni olamiz. Uzum tokeningiz
+                serverda saqlanadi va brauzerga qaytarilmaydi.
               </p>
-            </form>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useUserStore } from "@/stores/user-store";
 import { ApiError, fetchMe } from "@/lib/api";
@@ -14,6 +14,7 @@ import { ApiError, fetchMe } from "@/lib/api";
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const accessToken = useUserStore((s) => s.accessToken);
   const hydrated = useUserStore((s) => s.hydrated);
   const setUser = useUserStore((s) => s.setUser);
@@ -35,6 +36,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         const me = await fetchMe();
         if (!active) return;
         setUser(me);
+        // Magazinsiz kabinetning boshqa sahifalari bo'sh — foydalanuvchini
+        // darhol magazin qo'shadigan joyga olib boramiz.
+        if (!me.shops.length && pathname !== "/settings") {
+          router.replace("/settings");
+          return;
+        }
         setChecked(true);
       } catch (err) {
         if (!active) return;
@@ -52,7 +59,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return () => {
       active = false;
     };
-  }, [hydrated, accessToken, router, setUser, signOut]);
+  }, [hydrated, accessToken, pathname, router, setUser, signOut]);
 
   if (!hydrated || !accessToken || !checked) {
     return (
