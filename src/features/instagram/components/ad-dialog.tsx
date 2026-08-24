@@ -175,25 +175,29 @@ export function AdDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="ad-age-min">Yoshi</Label>
-                <Input id="ad-age-min" inputMode="numeric" value={ageMin} onChange={(e) => setAgeMin(e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ad-age-max">gacha</Label>
-                <Input id="ad-age-max" inputMode="numeric" value={ageMax} onChange={(e) => setAgeMax(e.target.value)} />
+            {/* Jins alohida qatorda: uch tugma yosh maydonlari bilan bir
+                qatorga sig'maydi va oxirgisi kesilib qoladi. */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="ad-age-min">Yoshi</Label>
+                  <Input id="ad-age-min" inputMode="numeric" value={ageMin} onChange={(e) => setAgeMin(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ad-age-max">gacha</Label>
+                  <Input id="ad-age-max" inputMode="numeric" value={ageMax} onChange={(e) => setAgeMax(e.target.value)} />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label>Jinsi</Label>
-                <div className="flex gap-1">
+                <div className="grid grid-cols-3 gap-1.5">
                   {GENDERS.map((item) => (
                     <button
                       key={item.value}
                       type="button"
                       onClick={() => setGender(item.value)}
                       className={cn(
-                        "flex-1 rounded-md border px-1 py-1.5 text-xs transition-colors",
+                        "rounded-md border px-2 py-1.5 text-sm transition-colors",
                         gender === item.value ? "border-primary bg-primary/10" : "hover:bg-accent"
                       )}
                     >
