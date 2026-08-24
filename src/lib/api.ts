@@ -15,6 +15,7 @@ import type {
   PnlReport,
   ProductDetail,
   MarketTokenStatus,
+  MarketUploader,
   ProductMarket,
   Shop,
   ShopCreateResult,
@@ -202,6 +203,9 @@ export const fetchProductMarket = (productId: number) =>
 
 export const fetchMarketTokenStatus = () =>
   request<MarketTokenStatus>("/market/token", { shopScoped: false });
+
+export const fetchMarketUploader = () =>
+  request<MarketUploader>("/market/uploader", { shopScoped: false });
 
 export const updateMarketToken = (token: string) =>
   request<MarketTokenStatus>("/market/token", {

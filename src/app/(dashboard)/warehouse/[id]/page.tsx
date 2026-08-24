@@ -15,6 +15,7 @@ import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
+import { ProductGallery } from "@/features/warehouse/components/product-gallery";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
@@ -94,6 +95,8 @@ export default function ProductDetailPage() {
           </>
         }
       />
+
+      <ProductGallery images={p.images} title={p.title} uzumUrl={p.uzumUrl} />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Tile label="Jami keldi" value={`${formatNumber(data.totalIntakeQuantity)} dona`} />

@@ -64,6 +64,10 @@ export interface WarehouseProduct {
   stockValue: number;
   warehouseId: number | null;
   syncedAt: string | null;
+  /** To'liq galereya (bo'sh bo'lsa — faqat `image`). */
+  images: string[];
+  /** Tovarni Uzum'da ochish havolasi. */
+  uzumUrl: string | null;
   /** Butun davr bo'yicha — qoldiq = keldi − sotildi ekani ko'rinib tursin. */
   totalIntakeQuantity: number;
   totalSoldQuantity: number;
@@ -374,6 +378,13 @@ export interface ProductMarket {
 }
 
 /** Bozor tokenining holati. Tokenning o'zi hech qachon qaytarilmaydi. */
+/** Tokenni bir bosishda yuboradigan bookmarklet. */
+export interface MarketUploader {
+  key: string;
+  bookmarklet: string;
+  instructions: string[];
+}
+
 export interface MarketTokenStatus {
   configured: boolean;
   expiresAt: string | null;

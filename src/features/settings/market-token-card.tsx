@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, CheckCircle2, Globe, RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Globe, MousePointerClick, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ApiError, fetchMarketTokenStatus, updateMarketToken } from "@/lib/api";
+import { ApiError, fetchMarketTokenStatus, fetchMarketUploader, updateMarketToken } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import type { MarketTokenStatus } from "@/lib/types";
+import type { MarketTokenStatus, MarketUploader } from "@/lib/types";
 
 /**
  * Uzum market token — short-lived, so replacing it is a routine action.
@@ -22,13 +22,19 @@ import type { MarketTokenStatus } from "@/lib/types";
  */
 export function MarketTokenCard() {
   const [status, setStatus] = React.useState<MarketTokenStatus | null>(null);
+  const [uploader, setUploader] = React.useState<MarketUploader | null>(null);
   const [token, setToken] = React.useState("");
   const [saving, setSaving] = React.useState(false);
   const [forbidden, setForbidden] = React.useState(false);
 
   const load = React.useCallback(async () => {
     try {
-      setStatus(await fetchMarketTokenStatus());
+      const [next, up] = await Promise.all([
+        fetchMarketTokenStatus(),
+        fetchMarketUploader().catch(() => null),
+      ]);
+      setStatus(next);
+      setUploader(up);
       setForbidden(false);
     } catch (err) {
       // Admin bo'lmaganlarga bu blok umuman ko'rinmaydi.
@@ -83,8 +89,9 @@ export function MarketTokenCard() {
               <Globe className="h-4 w-4" /> Bozor ma&apos;lumoti
             </CardTitle>
             <CardDescription>
-              Raqobatchilar narxini ko&apos;rsatish uchun uzum.uz tokeni. U qisqa
-              muddatli (~3 soat), shuning uchun vaqti-vaqti bilan yangilab turasiz.
+              Raqobatchilar narxini ko&apos;rsatish uchun uzum.uz tokeni. U ~3 soat
+              yashaydi, lekin ma&apos;lumot 24 soat keshlanadi — ya&apos;ni kuniga bir
+              marta yangilash yetadi.
             </CardDescription>
           </div>
           {status && (
@@ -129,8 +136,36 @@ export function MarketTokenCard() {
           </div>
         )}
 
+        {uploader && (
+          <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <MousePointerClick className="h-4 w-4" /> Bir bosishda yangilash
+            </div>
+            <p className="text-xs text-muted-foreground">
+              To&apos;liq avtomatlashtirib bo&apos;lmaydi: tokenni yangilaydigan
+              kalit Uzum&apos;ning HttpOnly cookie&apos;sida turadi — u JavaScript&apos;ga
+              ham, bizning serverga ham ko&apos;rinmaydi, va Uzum sayti server
+              so&apos;rovlarini CAPTCHA bilan to&apos;sadi. Lekin brauzeringiz
+              tokenni allaqachon ushlab turadi — quyidagi xatcho&apos;p shuni oladi.
+            </p>
+            <a
+              href={uploader.bookmarklet}
+              onClick={(e) => e.preventDefault()}
+              draggable
+              className="inline-flex cursor-grab items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary active:cursor-grabbing"
+            >
+              <MousePointerClick className="h-3.5 w-3.5" /> MyStats: token
+            </a>
+            <ol className="ml-4 list-decimal space-y-0.5 text-xs text-muted-foreground">
+              {uploader.instructions.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ol>
+          </div>
+        )}
+
         <div className="space-y-1.5">
-          <Label htmlFor="market-token">Yangi token</Label>
+          <Label htmlFor="market-token">Yoki tokenni qo&apos;lda kiriting</Label>
           <div className="flex gap-2">
             <Input
               id="market-token"
@@ -147,10 +182,9 @@ export function MarketTokenCard() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            uzum.uz&apos;ga kiring → DevTools → Network → istalgan so&apos;rovning{" "}
-            <span className="font-mono">Authorization</span> sarlavhasi.
-            &quot;Bearer&quot; so&apos;zi bilan nusxalasangiz ham bo&apos;ladi — o&apos;zi
-            olib tashlanadi.
+            uzum.uz&apos;ga kiring → DevTools → Application → Local Storage →{" "}
+            <span className="font-mono">auth_sdk_access_token</span>. &quot;Bearer&quot;
+            so&apos;zi bilan nusxalasangiz ham bo&apos;ladi — o&apos;zi olib tashlanadi.
           </p>
         </div>
       </CardContent>
