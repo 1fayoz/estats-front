@@ -21,6 +21,7 @@ jobs:
       # Build vaqtida NEXT_PUBLIC_* qiymatlari bundle'ga kiradi. CI'da bu faqat
       # kompilyatsiya uchun — haqiqiy qiymat image build bosqichida beriladi.
       NEXT_PUBLIC_API_URL: https://stats.chatx.uz/api/v1
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
@@ -63,5 +64,6 @@ jobs:
             ${{ env.IMAGE }}:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || 'https://stats.chatx.uz/api/v1' }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
