@@ -134,7 +134,7 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
                           title="Hisobda qoldiqqa qaytgan, lekin jismonan hali kelmagan"
                         >
                           <Truck className="h-3 w-3" />
-                          {formatNumber(item.pendingReturnQuantity)} yo&apos;lda
+                          {`${formatNumber(item.pendingReturnQuantity)} yo'lda`}
                         </div>
                       )}
                     </>
