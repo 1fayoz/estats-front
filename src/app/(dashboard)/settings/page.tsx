@@ -29,6 +29,7 @@ import { MIN_TOKEN_LENGTH, isValidTokenFormat } from "@/lib/auth";
 import type { Shop } from "@/lib/types";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
+import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -216,6 +217,8 @@ export default function SettingsPage() {
         {shops.length > 0 && <UzumSyncCard />}
 
         <MarketTokenCard />
+
+        {shops.length > 0 && <InstagramConnectCard />}
 
         <Card>
           <CardHeader>

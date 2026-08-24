@@ -16,6 +16,7 @@ import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
 import { ProductGallery } from "@/features/warehouse/components/product-gallery";
+import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
@@ -122,6 +123,8 @@ export default function ProductDetailPage() {
       <BreakEvenCard economics={data.economics} />
 
       <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
+
+      <ProductInstagramCard productId={id} />
 
       <MarketCard productId={id} />
 

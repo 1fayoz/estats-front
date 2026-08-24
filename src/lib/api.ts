@@ -6,9 +6,16 @@
 
 import { AUTH_STORAGE_KEY } from "./auth";
 import type {
+  AdPlan,
+  AdResult,
   ExpenseBurn,
   ExpenseDueItem,
   ExpenseMonth,
+  InstagramAccount,
+  InstagramAd,
+  InstagramCoverage,
+  InstagramChoices,
+  InstagramPost,
   Intake,
   IntakeInput,
   IntakeRow,
@@ -22,6 +29,7 @@ import type {
   MarketTokenStatus,
   MarketUploader,
   ProductMarket,
+  PublishPreview,
   RecurringExpense,
   Shop,
   ShopCreateResult,
@@ -286,3 +294,79 @@ export const payExpense = (id: number, periodKey: string, amount?: number) =>
 
 export const unpayExpense = (id: number, periodKey: string) =>
   request<void>(`/expenses/${id}/pay${qs({ period: periodKey })}`, { method: "DELETE" });
+
+// ── Instagram (backend socialift SDK orqali ishlaydi) ────────────────────────
+
+export const fetchInstagramAccount = () => request<InstagramAccount>("/instagram/account");
+
+export const fetchInstagramConnectUrl = () =>
+  request<{ url: string }>("/instagram/connect");
+
+export const fetchInstagramChoices = () => request<InstagramChoices>("/instagram/choices");
+
+export const selectInstagramAccount = (payload: {
+  pageId: string;
+  instagramId: string;
+  adAccountId?: string | null;
+}) => request<InstagramAccount>("/instagram/select", { method: "POST", body: JSON.stringify(payload) });
+
+export const disconnectInstagram = () =>
+  request<void>("/instagram/account", { method: "DELETE" });
+
+export const fetchInstagramPosts = (productId?: number) =>
+  request<InstagramPost[]>(`/instagram/posts${qs({ product_id: productId })}`);
+
+export const syncInstagramPosts = () =>
+  request<InstagramPost[]>("/instagram/posts/sync", { method: "POST" });
+
+export const linkPostToProducts = (postId: number, productIds: number[]) =>
+  request<InstagramPost>(`/instagram/posts/${postId}/link`, {
+    method: "POST",
+    body: JSON.stringify({ productIds }),
+  });
+
+export const unlinkPostFromProduct = (postId: number, productId: number) =>
+  request<void>(`/instagram/posts/${postId}/link/${productId}`, { method: "DELETE" });
+
+export const fetchPublishPreview = (productId: number) =>
+  request<PublishPreview>(`/instagram/publish/${productId}`);
+
+export const publishToInstagram = (payload: {
+  productId: number;
+  caption?: string;
+  images?: string[];
+}) => request<{ postId: number; mediaId: string; permalink: string | null }>("/instagram/publish", {
+  method: "POST",
+  body: JSON.stringify(payload),
+});
+
+export const fetchInstagramCoverage = () => request<InstagramCoverage>("/instagram/coverage");
+
+export interface AdInput {
+  postId: number;
+  dailyBudget: number;
+  goal: string;
+  ageMin: number;
+  ageMax: number;
+  gender?: string | null;
+  productId?: number | null;
+}
+
+export const fetchInstagramAds = () => request<InstagramAd[]>("/instagram/ads");
+
+export const planInstagramAd = (payload: AdInput) =>
+  request<AdPlan>("/instagram/ads/plan", { method: "POST", body: JSON.stringify(payload) });
+
+export const createInstagramAd = (payload: AdInput) =>
+  request<InstagramAd>("/instagram/ads", { method: "POST", body: JSON.stringify(payload) });
+
+export const startInstagramAd = (id: number) =>
+  request<InstagramAd>(`/instagram/ads/${id}/start`, { method: "POST" });
+
+export const stopInstagramAd = (id: number) =>
+  request<InstagramAd>(`/instagram/ads/${id}/stop`, { method: "POST" });
+
+export const deleteInstagramAd = (id: number) =>
+  request<void>(`/instagram/ads/${id}`, { method: "DELETE" });
+
+export const fetchAdResult = (id: number) => request<AdResult>(`/instagram/ads/${id}/result`);

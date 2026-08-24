@@ -576,3 +576,172 @@ export interface ExpenseBurn {
   isCovered: boolean;
   breakEvenDayOfMonth: number | null;
 }
+
+// ── Instagram ────────────────────────────────────────────────────────────────
+
+export interface InstagramAccount {
+  connected: boolean;
+  id: number | null;
+  username: string | null;
+  name: string | null;
+  profilePicture: string | null;
+  followers: number;
+  pageName: string | null;
+  adAccountId: string | null;
+  adAccountName: string | null;
+  adAccountCurrency: string | null;
+  canPublish: boolean;
+  canAdvertise: boolean;
+  tokenExpiresAt: string | null;
+  tokenExpiresSoon: boolean;
+  tokenExpired: boolean;
+  postsSyncedAt: string | null;
+  postCount: number;
+  /** Nima yetishmayotgani — tugmani jimgina yashirmaslik uchun. */
+  missing: string[];
+}
+
+export interface InstagramPage {
+  pageId: string;
+  pageName: string | null;
+  instagramId: string | null;
+  instagramUsername: string | null;
+  picture: string | null;
+}
+
+export interface InstagramAdAccount {
+  id: string;
+  name: string | null;
+  currency: string | null;
+  isActive: boolean;
+  minDailyBudget: number | null;
+}
+
+export interface InstagramChoices {
+  pages: InstagramPage[];
+  adAccounts: InstagramAdAccount[];
+  grantedScopes: string[];
+}
+
+export interface LinkedProduct {
+  id: number;
+  title: string;
+  image: string | null;
+}
+
+export interface InstagramPost {
+  id: number;
+  mediaId: string;
+  kind: "image" | "video" | "carousel" | "reel" | "story";
+  caption: string | null;
+  permalink: string | null;
+  thumbnail: string | null;
+  postedAt: string | null;
+  /** Nechta boshqa-boshqa odam ko'rgan. */
+  reach: number;
+  /** Nechta marta ko'rilgan — `reach` dan boshqa narsa. */
+  views: number;
+  likes: number;
+  comments: number;
+  saved: number;
+  /** Direct orqali jo'natilgan. */
+  shares: number;
+  totalInteractions: number;
+  profileVisits: number;
+  engagementRate: number | null;
+  insightsSyncedAt: string | null;
+  publishedByUs: boolean;
+  products: LinkedProduct[];
+  hasAd: boolean;
+}
+
+export interface PublishPreview {
+  productId: number;
+  title: string;
+  caption: string;
+  images: string[];
+  uzumUrl: string | null;
+  canPublish: boolean;
+  reason: string | null;
+}
+
+export interface CoverageItem {
+  productId: number;
+  title: string;
+  image: string | null;
+  imageCount: number;
+  stock: number;
+  soldQuantity: number;
+  price: number | null;
+  canPublish: boolean;
+  reason: string | null;
+}
+
+export interface InstagramCoverage {
+  total: number;
+  posted: number;
+  missing: number;
+  items: CoverageItem[];
+}
+
+export type AdGoal = "traffic" | "engagement" | "reach" | "messages";
+export type AdStatus = "draft" | "paused" | "active" | "finished" | "failed";
+
+export interface InstagramAd {
+  id: number;
+  title: string;
+  goal: AdGoal;
+  status: AdStatus;
+  productId: number | null;
+  productTitle: string | null;
+  postId: number | null;
+  permalink: string | null;
+  thumbnail: string | null;
+  dailyBudget: number;
+  currency: string | null;
+  audience: string | null;
+  startedAt: string | null;
+  stoppedAt: string | null;
+  spend: number;
+  impressions: number;
+  reach: number;
+  clicks: number;
+  costPerClick: number | null;
+  insightsSyncedAt: string | null;
+  error: string | null;
+}
+
+/** Reklama yoqishdan oldingi taxmin — pul sarflanmaydi. */
+export interface AdPlan {
+  dailyBudget: number;
+  currency: string | null;
+  minDailyBudget: number | null;
+  audience: string;
+  estimatedClicksLow: number;
+  estimatedClicksHigh: number;
+  /** Byudjetni qoplash uchun kerakli bosishlar soni. */
+  breakEvenClicks: number | null;
+  profitPerSale: number | null;
+  warning: string | null;
+}
+
+/**
+ * Reklama davridagi sotuv o'zgarishi.
+ *
+ * Meta bergan atribusiya EMAS — Instagram Uzum'dagi sotuvni ko'rmaydi.
+ * Bu reklama ishlagan kunlar bilan undan oldingi shuncha kunning solishtiruvi.
+ */
+export interface AdResult {
+  adId: number;
+  days: number;
+  spend: number;
+  unitsBefore: number;
+  unitsDuring: number;
+  profitBefore: number;
+  profitDuring: number;
+  unitsDelta: number;
+  profitDelta: number;
+  netAfterSpend: number;
+  isWorthIt: boolean | null;
+  note: string;
+}
