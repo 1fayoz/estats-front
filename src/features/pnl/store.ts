@@ -3,7 +3,7 @@
 import * as React from "react";
 import { create } from "zustand";
 
-import { fetchPnl, syncSales } from "@/lib/api";
+import { fetchPnl } from "@/lib/api";
 import { presetRange, rangeKey, type DateRange } from "@/lib/date-range";
 import type { PnlReport } from "@/lib/types";
 
@@ -25,11 +25,8 @@ interface PnlStore {
   setAllProducts: (value: boolean) => void;
   /** Keyed by `from_to_all`. In-memory only — a hard reload refetches. */
   entries: Record<string, CacheEntry>;
-  syncing: boolean;
 
   fetch: (range: DateRange, allProducts: boolean, force?: boolean) => Promise<void>;
-  /** Import Uzum sales for the range, then re-read the (now re-costed) report. */
-  importSales: (range: DateRange, allProducts: boolean) => Promise<string>;
 }
 
 const keyOf = (range: DateRange, all: boolean) => `${rangeKey(range)}_${all ? "all" : "active"}`;
@@ -40,7 +37,6 @@ export const usePnlStore = create<PnlStore>((set, get) => ({
   allProducts: false,
   setAllProducts: (allProducts) => set({ allProducts }),
   entries: {},
-  syncing: false,
 
   fetch: (range, allProducts, force = false) => {
     const key = keyOf(range, allProducts);
@@ -79,20 +75,6 @@ export const usePnlStore = create<PnlStore>((set, get) => ({
     return promise;
   },
 
-  importSales: async (range, allProducts) => {
-    set({ syncing: true });
-    try {
-      const result = await syncSales(range.from, range.to);
-      // Sales changed, so every cached range is stale — drop them all, not just this one.
-      set({ entries: {} });
-      await get().fetch(range, allProducts, true);
-      return result.unmatched > 0
-        ? `${result.fetched} ta sotuv yuklandi (${result.unmatched} tasi ombordagi tovarga bog'lanmadi)`
-        : `${result.fetched} ta sotuv yuklandi`;
-    } finally {
-      set({ syncing: false });
-    }
-  },
 }));
 
 /** Read the report for the current range, loading it on mount and on range change. */

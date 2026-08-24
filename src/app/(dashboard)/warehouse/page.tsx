@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { AlertTriangle, Boxes, RefreshCw, Search } from "lucide-react";
-import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
@@ -17,8 +16,7 @@ import { formatNumber, formatSum } from "@/lib/format";
 import type { WarehouseProduct } from "@/lib/types";
 
 export default function WarehousePage() {
-  const { items, error, isInitialLoading, isRefreshing, syncing, refresh, syncCatalog } =
-    useWarehouseProducts();
+  const { items, error, isInitialLoading, isRefreshing, refresh } = useWarehouseProducts();
   const shop = useActiveShop();
   const [query, setQuery] = React.useState("");
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
@@ -43,15 +41,6 @@ export default function WarehousePage() {
     [items]
   );
 
-  const onSync = async () => {
-    try {
-      await syncCatalog();
-      toast.success("Uzum katalogi yangilandi");
-    } catch {
-      toast.error("Sinxronizatsiya bajarilmadi");
-    }
-  };
-
   return (
     <div className="space-y-6">
       <PageHeader
@@ -62,10 +51,6 @@ export default function WarehousePage() {
             <Button variant="outline" size="sm" onClick={refresh} disabled={isRefreshing}>
               <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
               Yangilash
-            </Button>
-            <Button size="sm" onClick={onSync} disabled={syncing}>
-              <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
-              Uzum'dan sinxronlash
             </Button>
           </>
         }
@@ -99,10 +84,11 @@ export default function WarehousePage() {
         <div className="flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-500" />
           <div>
-            <div className="font-medium">Sotuvlar hali yuklanmagan</div>
+            <div className="font-medium">Sotuvlar birinchi marta yuklanmoqda</div>
             <div className="text-muted-foreground">
+              Bu bir necha daqiqa oladi — oxirgi 6 oylik tarix tortiladi. Shu vaqtgacha
               &quot;Sotildi&quot; va &quot;Qoldiq&quot; ustunlari bo&apos;sh ko&apos;rinadi.
-              Foyda va zarar sahifasida &quot;Sotuvlarni yuklash&quot; tugmasini bosing.
+              Holatni Sozlamalar → Uzum ma&apos;lumoti bo&apos;limida kuzatishingiz mumkin.
             </div>
           </div>
         </div>

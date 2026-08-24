@@ -255,6 +255,25 @@ export interface ProductDetail {
   yearly: SalesPeriod[];
 }
 
+/** Hamma sinxronizatsiyaning bir joydagi holati (Sozlamalar → Uzum). */
+export interface SyncState {
+  catalogRunning: boolean;
+  catalogSyncedAt: string | null;
+  catalogStale: boolean;
+  productCount: number;
+
+  salesRunning: boolean;
+  salesSyncedAt: string | null;
+  salesSyncedFrom: string | null;
+  salesSyncedTo: string | null;
+  salesStale: boolean;
+  saleCount: number;
+
+  catalogIntervalMinutes: number;
+  salesIntervalMinutes: number;
+  lastMessage: string | null;
+}
+
 export interface SyncStatus {
   running: boolean;
   status: string | null;

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { AlertTriangle, Download, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { DateRangePicker } from "@/components/dashboard/date-range-picker";
@@ -13,7 +12,6 @@ import { SummaryCards } from "@/features/pnl/components/summary-cards";
 import { PnlChart } from "@/features/pnl/components/pnl-chart";
 import { PnlTable } from "@/features/pnl/components/pnl-table";
 import { usePnlReport, usePnlStore } from "@/features/pnl/store";
-import { ApiError } from "@/lib/api";
 import { downloadPnlCsv } from "@/features/pnl/export";
 
 export default function PnlPage() {
@@ -21,20 +19,7 @@ export default function PnlPage() {
   const setRange = usePnlStore((s) => s.setRange);
   const allProducts = usePnlStore((s) => s.allProducts);
   const setAllProducts = usePnlStore((s) => s.setAllProducts);
-  const syncing = usePnlStore((s) => s.syncing);
-  const importSales = usePnlStore((s) => s.importSales);
-
   const { data, error, isInitialLoading, isRefreshing, refresh } = usePnlReport();
-
-  const onImport = async () => {
-    try {
-      toast.success(await importSales(range, allProducts));
-    } catch (err) {
-      toast.error(
-        err instanceof ApiError ? err.message : "Sotuvlarni yuklab bo'lmadi."
-      );
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -54,10 +39,6 @@ export default function PnlPage() {
             <Button variant="outline" size="sm" onClick={refresh} disabled={isRefreshing}>
               <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
               Yangilash
-            </Button>
-            <Button size="sm" onClick={onImport} disabled={syncing}>
-              <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
-              Sotuvlarni yuklash
             </Button>
           </>
         }

@@ -14,14 +14,11 @@ import type {
   Paginated,
   PnlReport,
   ProductDetail,
-  Sale,
   MarketTokenStatus,
   ProductMarket,
-  SalesCoverage,
-  SalesSyncResult,
   Shop,
   ShopCreateResult,
-  SyncStatus,
+  SyncState,
   WarehouseProduct,
 } from "./types";
 
@@ -157,10 +154,20 @@ export const fetchProducts = (params: { search?: string; page?: number; size?: n
 export const fetchProductDetail = (id: number) =>
   request<ProductDetail>(`/warehouse/products/${id}`);
 
-export const triggerCatalogSync = () =>
-  request<{ started: boolean; message: string }>("/warehouse/sync", { method: "POST" });
 
-export const fetchSyncStatus = () => request<SyncStatus>("/warehouse/sync/status");
+
+/** Everything the Settings page needs about syncing, in one request. */
+export const fetchSyncState = () => request<SyncState>("/warehouse/sync/state");
+
+/**
+ * Pull catalog and sales now instead of waiting for the schedule.
+ * Safe to press twice — both imports are locked per shop.
+ */
+export const syncEverything = (days = 30) =>
+  request<{ started: boolean; message: string }>(
+    `/warehouse/sync/all${qs({ days })}`,
+    { method: "POST" }
+  );
 
 // ── kirim (intakes) ──────────────────────────────────────────────────────────
 
@@ -178,21 +185,8 @@ export const deleteIntake = (id: number) =>
 
 // ── sotuv (sales) ────────────────────────────────────────────────────────────
 
-export const syncSales = (from: string, to: string) =>
-  request<SalesSyncResult>(`/warehouse/sales/sync${qs({ from, to })}`, { method: "POST" });
 
-/** Which slice of sales history is loaded — context for the on-hand figure. */
-export const fetchSalesCoverage = () =>
-  request<SalesCoverage>("/warehouse/sales/coverage");
 
-export const fetchSales = (params: { warehouseProductId?: number; page?: number; size?: number } = {}) =>
-  request<Paginated<Sale>>(
-    `/warehouse/sales${qs({
-      warehouse_product_id: params.warehouseProductId,
-      page: params.page,
-      size: params.size ?? 100,
-    })}`
-  );
 
 // ── hisob-kitob (P&L) ────────────────────────────────────────────────────────
 
@@ -205,8 +199,6 @@ export const fetchPnl = (from: string, to: string, allProducts = false) =>
 export const fetchProductMarket = (productId: number) =>
   request<ProductMarket>(`/market/product/${productId}`);
 
-export const searchMarket = (q: string, limit = 20) =>
-  request<ProductMarket>(`/market/search${qs({ q, limit })}`);
 
 export const fetchMarketTokenStatus = () =>
   request<MarketTokenStatus>("/market/token", { shopScoped: false });

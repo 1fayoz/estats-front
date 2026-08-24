@@ -28,6 +28,7 @@ import { ApiError, addShops, deleteShop, fetchMe, updateShop } from "@/lib/api";
 import { MIN_TOKEN_LENGTH, isValidTokenFormat } from "@/lib/auth";
 import type { Shop } from "@/lib/types";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
+import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -211,6 +212,8 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {shops.length > 0 && <UzumSyncCard />}
 
         <MarketTokenCard />
 
