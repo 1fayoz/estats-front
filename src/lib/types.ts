@@ -391,3 +391,98 @@ export interface MarketTokenStatus {
   expiresInMinutes: number | null;
   isExpired: boolean;
 }
+
+// ── reja (plan) ──────────────────────────────────────────────────────────────
+
+/** Hisoblangan balans — Uzum'da balans endpointi yo'q, bu buyurtmalardan chiqadi. */
+export interface PlanBalance {
+  readyToWithdraw: number;
+  inProgress: number;
+  expected: number;
+  stockValue: number;
+  pendingReturnUnits: number;
+}
+
+export interface PlanRate {
+  dailyProfit: number;
+  dailyRevenue: number;
+  dailyUnits: number;
+  windowDays: number;
+  activeDays: number;
+  trendPercent: number;
+}
+
+export interface PlanForecast {
+  days7: number;
+  days30: number;
+  days90: number;
+  days365: number;
+}
+
+export interface Goal {
+  id: number;
+  title: string;
+  emoji: string | null;
+  targetAmount: number;
+  note: string | null;
+  sortOrder: number;
+  achievedAt: string | null;
+  progress: number;
+  remaining: number;
+  daysLeft: number | null;
+  reachDate: string | null;
+  isAchieved: boolean;
+  isCurrent: boolean;
+}
+
+export interface PlanDailyPoint {
+  date: string;
+  profit: number;
+  revenue: number;
+  units: number;
+}
+
+export interface PlanPeriod {
+  period: string;
+  profit: number;
+}
+
+export interface StockoutRisk {
+  productId: number;
+  title: string;
+  image: string | null;
+  onHand: number;
+  dailyRate: number;
+  daysLeft: number | null;
+}
+
+export interface TopProduct {
+  productId: number;
+  title: string;
+  image: string | null;
+  profit: number;
+  share: number;
+}
+
+export interface Insight {
+  kind: "good" | "warning" | "danger" | "info";
+  title: string;
+  detail: string;
+}
+
+export interface Plan {
+  balance: PlanBalance;
+  rate: PlanRate;
+  forecast: PlanForecast;
+  totalProfit: number;
+  thisMonth: number;
+  lastMonth: number;
+  monthGrowth: number;
+  daily: PlanDailyPoint[];
+  monthly: PlanPeriod[];
+  yearly: PlanPeriod[];
+  goals: Goal[];
+  stockouts: StockoutRisk[];
+  topProducts: TopProduct[];
+  insights: Insight[];
+}

@@ -11,7 +11,9 @@ import type {
   IntakeRow,
   LoginResponse,
   Me,
+  Goal,
   Paginated,
+  Plan,
   PnlReport,
   ProductDetail,
   MarketTokenStatus,
@@ -213,6 +215,26 @@ export const updateMarketToken = (token: string) =>
     shopScoped: false,
     body: JSON.stringify({ token }),
   });
+
+// ── reja (plan) ──────────────────────────────────────────────────────────────
+
+export const fetchPlan = () => request<Plan>("/plan");
+
+export const createGoal = (payload: {
+  title: string;
+  emoji?: string | null;
+  targetAmount: number;
+  note?: string | null;
+}) => request<Goal>("/plan/goals", { method: "POST", body: JSON.stringify(payload) });
+
+export const updateGoal = (id: number, payload: Partial<{ title: string; emoji: string | null; targetAmount: number; note: string | null }>) =>
+  request<Goal>(`/plan/goals/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
+
+export const achieveGoal = (id: number) =>
+  request<Goal>(`/plan/goals/${id}/achieve`, { method: "POST" });
+
+export const deleteGoal = (id: number) =>
+  request<void>(`/plan/goals/${id}`, { method: "DELETE" });
 
 // ── moliya (Uzum's own ledger) ───────────────────────────────────────────────
 

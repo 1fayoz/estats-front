@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, PackagePlus, Wallet, Calculator, Settings, type LucideIcon } from "lucide-react";
+import { Boxes, PackagePlus, Wallet, Calculator, Target, Settings, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -35,6 +35,13 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: "Hisob-kitob",
     items: [
+      {
+        label: "Reja",
+        href: "/plan" as Route,
+        icon: Target,
+        description: "Balans, prognoz va maqsadlar",
+        badge: "Yangi",
+      },
       {
         label: "Foyda va zarar",
         href: "/pnl" as Route,
