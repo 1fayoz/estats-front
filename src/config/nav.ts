@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, PackagePlus, Wallet, Calculator, Target, Settings, type LucideIcon } from "lucide-react";
+import { Boxes, PackagePlus, Wallet, Calculator, Receipt, Target, Settings, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -40,6 +40,12 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/plan" as Route,
         icon: Target,
         description: "Balans, prognoz va maqsadlar",
+      },
+      {
+        label: "Doimiy to'lovlar",
+        href: "/expenses" as Route,
+        icon: Receipt,
+        description: "Soliq, arenda — to'landimi yo'qmi",
         badge: "Yangi",
       },
       {

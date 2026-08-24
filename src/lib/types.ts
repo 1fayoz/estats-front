@@ -405,6 +405,8 @@ export interface PlanBalance {
 
 export interface PlanRate {
   dailyProfit: number;
+  /** Doimiy xarajatlar ayirilgandan keyingi haqiqiy kunlik foyda. */
+  netDailyProfit: number;
   dailyRevenue: number;
   dailyUnits: number;
   windowDays: number;
@@ -478,6 +480,9 @@ export interface Plan {
   balance: PlanBalance;
   rate: PlanRate;
   forecast: PlanForecast;
+  /** Doimiy xarajatlar ayirilgandan keyingi bashorat. */
+  netForecast: PlanForecast;
+  fixed: FixedCosts;
   totalProfit: number;
   thisMonth: number;
   lastMonth: number;
@@ -489,4 +494,85 @@ export interface Plan {
   stockouts: StockoutRisk[];
   topProducts: TopProduct[];
   insights: Insight[];
+}
+
+// ── doimiy to'lovlar (recurring expenses) ────────────────────────────────────
+
+export type ExpenseCategory = "tax" | "rent" | "salary" | "marketing" | "service" | "other";
+export type ExpensePeriod = "monthly" | "quarterly" | "yearly";
+
+export interface RecurringExpense {
+  id: number;
+  title: string;
+  amount: number;
+  category: ExpenseCategory;
+  period: ExpensePeriod;
+  dueDay: number;
+  anchorMonth: number;
+  startsOn: string | null;
+  endsOn: string | null;
+  note: string | null;
+  isActive: boolean;
+  /** Yillik/chorakli to'lovning bir oyga to'g'ri keladigan ulushi. */
+  monthlyEquivalent: number;
+}
+
+export interface ExpenseDueItem {
+  expenseId: number;
+  title: string;
+  category: ExpenseCategory;
+  period: ExpensePeriod;
+  amount: number;
+  dueDate: string;
+  isPaid: boolean;
+  paidAmount: number | null;
+  paidAt: string | null;
+  isOverdue: boolean;
+  note: string | null;
+}
+
+export interface ExpenseMonth {
+  period: string;
+  grossProfit: number;
+  fixedPlanned: number;
+  fixedPaid: number;
+  fixedUnpaid: number;
+  netProfit: number;
+  isProfitable: boolean;
+  items: ExpenseDueItem[];
+}
+
+/**
+ * Doimiy xarajatlarning umumiy yuki.
+ *
+ * `monthlyFixed` — yillik va chorakli to'lovlar oylarga teng taqsimlangan
+ * o'rtacha. `thisMonthPlanned` — aynan shu oyda to'lanadigan haqiqiy summa.
+ * Ikkalasi boshqa savolga javob beradi, shuning uchun ikkalasi ham bor.
+ */
+export interface FixedCosts {
+  monthlyFixed: number;
+  dailyFixed: number;
+  thisMonthPlanned: number;
+  thisMonthPaid: number;
+  thisMonthUnpaid: number;
+  grossProfit: number;
+  netProfit: number;
+  isProfitable: boolean;
+  coveragePercent: number;
+  unpaidCount: number;
+  overdueCount: number;
+  nextDueTitle: string | null;
+  nextDueDate: string | null;
+  nextDueAmount: number;
+  breakEvenDailyProfit: number;
+}
+
+export interface ExpenseBurn {
+  monthlyFixed: number;
+  dailyFixed: number;
+  breakEvenDailyProfit: number;
+  currentDailyProfit: number;
+  coveragePercent: number;
+  isCovered: boolean;
+  breakEvenDayOfMonth: number | null;
 }

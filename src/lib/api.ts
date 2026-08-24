@@ -6,6 +6,9 @@
 
 import { AUTH_STORAGE_KEY } from "./auth";
 import type {
+  ExpenseBurn,
+  ExpenseDueItem,
+  ExpenseMonth,
   Intake,
   IntakeInput,
   IntakeRow,
@@ -19,6 +22,7 @@ import type {
   MarketTokenStatus,
   MarketUploader,
   ProductMarket,
+  RecurringExpense,
   Shop,
   ShopCreateResult,
   SyncState,
@@ -240,3 +244,45 @@ export const deleteGoal = (id: number) =>
 
 export const fetchFinanceReport = <T>(from: string, to: string) =>
   request<T>(`/finance/orders${qs({ from, to })}`);
+
+// ── doimiy to'lovlar (recurring expenses) ────────────────────────────────────
+
+export const fetchExpenses = (includeInactive = false) =>
+  request<RecurringExpense[]>(`/expenses${qs({ include_inactive: includeInactive })}`);
+
+export interface ExpenseInput {
+  title: string;
+  amount: number;
+  category: string;
+  period: string;
+  dueDay: number;
+  anchorMonth?: number;
+  startsOn?: string | null;
+  endsOn?: string | null;
+  note?: string | null;
+}
+
+export const createExpense = (payload: ExpenseInput) =>
+  request<RecurringExpense>("/expenses", { method: "POST", body: JSON.stringify(payload) });
+
+export const updateExpense = (id: number, payload: Partial<ExpenseInput & { isActive: boolean }>) =>
+  request<RecurringExpense>(`/expenses/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
+
+export const deleteExpense = (id: number) =>
+  request<void>(`/expenses/${id}`, { method: "DELETE" });
+
+/** Bir oyning to'liq manzarasi: tovar foydasi, doimiy xarajatlar va sof natija. */
+export const fetchExpenseMonth = (period?: string) =>
+  request<ExpenseMonth>(`/expenses/month${qs({ period })}`);
+
+export const fetchExpenseBurn = (dailyProfit = 0) =>
+  request<ExpenseBurn>(`/expenses/burn${qs({ daily_profit: dailyProfit })}`);
+
+export const payExpense = (id: number, periodKey: string, amount?: number) =>
+  request<ExpenseDueItem>(`/expenses/${id}/pay`, {
+    method: "POST",
+    body: JSON.stringify({ periodKey, amount }),
+  });
+
+export const unpayExpense = (id: number, periodKey: string) =>
+  request<void>(`/expenses/${id}/pay${qs({ period: periodKey })}`, { method: "DELETE" });

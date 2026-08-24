@@ -2,13 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   Clock,
   Info,
   PackageX,
+  Receipt,
   Sparkles,
   TrendingDown,
   TrendingUp,
@@ -27,7 +30,7 @@ import { formatNumber, formatSum } from "@/lib/format";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useCountUp } from "@/lib/use-count-up";
 import { cn } from "@/lib/utils";
-import type { Goal, Insight, Plan } from "@/lib/types";
+import type { FixedCosts, Goal, Insight, Plan } from "@/lib/types";
 
 export default function PlanPage() {
   const [plan, setPlan] = React.useState<Plan | null>(null);
@@ -89,8 +92,9 @@ export default function PlanPage() {
     );
   }
 
-  const { balance, rate, forecast } = plan;
+  const { balance, rate, forecast, netForecast, fixed } = plan;
   const growing = rate.trendPercent >= 0;
+  const hasFixed = fixed.monthlyFixed > 0;
 
   return (
     <div className="space-y-6">
@@ -115,7 +119,7 @@ export default function PlanPage() {
               <Mini label="To'lovga tayyor" value={balance.readyToWithdraw} tone="positive" />
               <Mini label="Yo'lda (kafolatsiz)" value={balance.inProgress} />
               <Mini label="Omborda muzlagan" value={balance.stockValue} />
-              <Mini label="Bu oy sof foyda" value={plan.thisMonth} tone="positive" />
+              <Mini label="Bu oy tovar foydasi" value={plan.thisMonth} tone="positive" />
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
               Uzum&apos;da balans endpointi yo&apos;q — bu raqamlar buyurtma satrlaridan
@@ -126,6 +130,9 @@ export default function PlanPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* ── Kompaniya darajasidagi holat ─────────────────────────────────── */}
+      <CompanyCard fixed={fixed} />
 
       {/* ── Sur'at va prognoz ────────────────────────────────────────────── */}
       <Card>
@@ -146,14 +153,43 @@ export default function PlanPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border bg-muted/40 p-4">
-            <div className="text-xs text-muted-foreground">Kunlik sof foyda</div>
-            <div className="text-2xl font-bold tabular-nums">
-              {formatSum(rate.dailyProfit)}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border bg-muted/40 p-4">
+              <div className="text-xs text-muted-foreground">Kunlik tovar foydasi</div>
+              <div className="text-2xl font-bold tabular-nums">
+                {formatSum(rate.dailyProfit)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {`kuniga ~${rate.dailyUnits} dona · ${formatSum(rate.dailyRevenue)} tushum`}
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">
-              kuniga ~{rate.dailyUnits} dona · {formatSum(rate.dailyRevenue)} tushum
-            </div>
+            {hasFixed && (
+              <div
+                className={cn(
+                  "rounded-lg border p-4",
+                  rate.netDailyProfit >= 0
+                    ? "border-emerald-500/40 bg-emerald-500/5"
+                    : "border-destructive/40 bg-destructive/5"
+                )}
+              >
+                <div className="text-xs text-muted-foreground">
+                  Doimiy xarajatdan keyin
+                </div>
+                <div
+                  className={cn(
+                    "text-2xl font-bold tabular-nums",
+                    rate.netDailyProfit >= 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-destructive"
+                  )}
+                >
+                  {formatSum(rate.netDailyProfit)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {`kuniga ${formatSum(fixed.dailyFixed)} doimiy xarajat ayirilgan`}
+                </div>
+              </div>
+            )}
           </div>
 
           {forecast.days30 > 0 ? (
@@ -193,6 +229,36 @@ export default function PlanPage() {
             </p>
           )}
 
+          {hasFixed && forecast.days30 > 0 && (
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="text-xs font-medium">
+                Doimiy xarajatlar ayirilgandan keyin — cho&apos;ntakka tushadigan pul
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                {[
+                  { label: "7 kunda", value: netForecast.days7 },
+                  { label: "30 kunda", value: netForecast.days30 },
+                  { label: "90 kunda", value: netForecast.days90 },
+                  { label: "1 yilda", value: netForecast.days365 },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <div className="text-xs text-muted-foreground">{item.label}</div>
+                    <div
+                      className={cn(
+                        "font-semibold tabular-nums",
+                        item.value >= 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-destructive"
+                      )}
+                    >
+                      {formatSum(item.value)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <p className="text-xs text-muted-foreground">
             Prognoz — hozirgi sur&apos;at o&apos;zgarmasa degan taxmin, va&apos;da emas.
             Mavsum, reklama va qoldiq uni o&apos;zgartiradi.
@@ -212,7 +278,7 @@ export default function PlanPage() {
         <CardContent>
           <GoalJourney
             goals={plan.goals}
-            dailyProfit={rate.dailyProfit}
+            dailyProfit={hasFixed ? rate.netDailyProfit : rate.dailyProfit}
             onAdd={() => setAdding(true)}
             onAchieve={onAchieve}
             onDelete={onDelete}
@@ -327,6 +393,135 @@ export default function PlanPage() {
         dailyProfit={rate.dailyProfit}
       />
     </div>
+  );
+}
+
+/**
+ * Tovar darajasidagi foyda va kompaniya darajasidagi foyda — ikki boshqa savol.
+ * Har bir tovar foyda keltirib turib ham, arenda va soliq bilan birga oy minusda
+ * tugashi mumkin. Shu karta aynan shu farqni bir qarashda ko'rsatadi.
+ */
+function CompanyCard({ fixed }: { fixed: FixedCosts }) {
+  if (fixed.monthlyFixed <= 0) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5">
+          <div className="flex items-start gap-3">
+            <Receipt className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+            <div>
+              <div className="text-sm font-medium">Doimiy to&apos;lovlar kiritilmagan</div>
+              <p className="mt-0.5 max-w-xl text-sm text-muted-foreground">
+                Soliq va arenda kiritilmasa, bu sahifadagi foyda faqat tovar darajasida
+                bo&apos;ladi. Kompaniya haqiqatan plyusdami degan savolga javob berish
+                uchun ular kerak.
+              </p>
+            </div>
+          </div>
+          <Link
+            href={"/expenses" as Route}
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Kiritish <ArrowRight className="h-4 w-4" />
+          </Link>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const covered = Math.min(fixed.coveragePercent, 100);
+  return (
+    <Card
+      className={cn(
+        fixed.isProfitable
+          ? "border-emerald-500/40 bg-emerald-500/5"
+          : "border-destructive/40 bg-destructive/5"
+      )}
+    >
+      <CardHeader>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-base">
+              {fixed.isProfitable ? "Kompaniya shu oyda plyusda" : "Kompaniya shu oyda minusda"}
+            </CardTitle>
+            <CardDescription>
+              {`${formatSum(fixed.grossProfit)} tovar foydasi − ${formatSum(fixed.thisMonthPlanned)} doimiy xarajat`}
+            </CardDescription>
+          </div>
+          <Link
+            href={"/expenses" as Route}
+            className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            To&apos;lovlar <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div
+          className={cn(
+            "text-3xl font-bold tabular-nums",
+            fixed.isProfitable ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+          )}
+        >
+          {formatSum(fixed.netProfit)}
+        </div>
+
+        <div>
+          <div className="mb-1.5 flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">
+              {`Kuniga kerak: ${formatSum(fixed.breakEvenDailyProfit)}`}
+            </span>
+            <span
+              className={cn(
+                "font-medium tabular-nums",
+                fixed.coveragePercent >= 100
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-destructive"
+              )}
+            >
+              {`${fixed.coveragePercent.toFixed(0)}% qoplangan`}
+            </span>
+          </div>
+          <div className="h-2.5 overflow-hidden rounded-full bg-muted">
+            <motion.div
+              className={cn(
+                "h-full rounded-full",
+                fixed.coveragePercent >= 100 ? "bg-emerald-500" : "bg-destructive"
+              )}
+              initial={{ width: 0 }}
+              animate={{ width: `${covered}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Mini label="To'langan" value={fixed.thisMonthPaid} tone="positive" />
+          <Mini label="To'lanmagan" value={fixed.thisMonthUnpaid} />
+          <div className="rounded-lg border bg-background/60 p-3 backdrop-blur">
+            <div className="text-xs text-muted-foreground">Muddati o&apos;tgan</div>
+            <div
+              className={cn(
+                "mt-0.5 font-semibold tabular-nums",
+                fixed.overdueCount > 0 && "text-destructive"
+              )}
+            >
+              {`${fixed.overdueCount} ta`}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-background/60 p-3 backdrop-blur">
+            <div className="text-xs text-muted-foreground">Keyingi to&apos;lov</div>
+            <div className="mt-0.5 truncate text-sm font-semibold">
+              {fixed.nextDueTitle ?? "yo'q"}
+            </div>
+            {fixed.nextDueDate && (
+              <div className="text-xs text-muted-foreground">
+                {`${fixed.nextDueDate} · ${formatSum(fixed.nextDueAmount)}`}
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
