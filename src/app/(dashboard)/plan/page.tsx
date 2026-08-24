@@ -134,8 +134,8 @@ export default function PlanPage() {
             <div>
               <CardTitle className="text-base">Sur&apos;at va prognoz</CardTitle>
               <CardDescription>
-                Oxirgi {rate.windowDays} kun bo&apos;yicha o&apos;rtacha kunlik sof foyda
-                {rate.activeDays > 0 && ` (${rate.activeDays} kun sotuv bo'lgan)`}
+                {`Oxirgi ${rate.windowDays} kun bo'yicha o'rtacha kunlik sof foyda` +
+                  (rate.activeDays > 0 ? ` (${rate.activeDays} kun sotuv bo'lgan)` : "")}
               </CardDescription>
             </div>
             <Badge variant={growing ? "success" : "warning"} className="gap-1">
