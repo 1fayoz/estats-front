@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { PackagePlus, PackageX } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { PackagePlus, PackageX, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,8 @@ interface ProductTableProps {
 }
 
 export function ProductTable({ items, onIntake }: ProductTableProps) {
+  const router = useRouter();
+
   if (!items.length) {
     return (
       <EmptyState
@@ -28,7 +30,7 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
 
   return (
     <div className="overflow-x-auto rounded-xl border">
-      <table className="w-full min-w-[1040px] text-sm">
+      <table className="w-full min-w-[1120px] text-sm">
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
             <th className="px-4 py-3 text-left font-medium">Tovar</th>
@@ -39,6 +41,9 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
             </th>
             <th className="px-3 py-3 text-right font-medium" title="Butun davr bo'yicha sotuv">
               Sotildi
+            </th>
+            <th className="px-3 py-3 text-right font-medium" title="Zakaz qilingan, lekin qaytarilgan">
+              Qaytdi
             </th>
             <th className="px-3 py-3 text-right font-medium" title="Keldi − sotildi">
               Qoldiq
@@ -52,7 +57,20 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
           {items.map((item) => {
             const hasCost = item.lastCost != null || item.averageCost > 0;
             return (
-              <tr key={item.id} className="transition-colors hover:bg-muted/30">
+              <tr
+                key={item.id}
+                onClick={() => router.push(`/warehouse/${item.id}`)}
+                // Klaviatura bilan ham ochilsin — qator endi yagona kirish nuqtasi.
+                tabIndex={0}
+                role="link"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(`/warehouse/${item.id}`);
+                  }
+                }}
+                className="cursor-pointer transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
+              >
                 <td className="max-w-[380px] px-4 py-3">
                   <div className="flex items-center gap-3">
                     {item.image ? (
@@ -106,6 +124,24 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
                 <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
                   {formatNumber(item.totalSoldQuantity)}
                 </td>
+                <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
+                  {item.totalReturnedQuantity ? (
+                    <>
+                      {formatNumber(item.totalReturnedQuantity)}
+                      {item.pendingReturnQuantity > 0 && (
+                        <div
+                          className="flex items-center justify-end gap-1 text-xs text-amber-600 dark:text-amber-500"
+                          title="Hisobda qoldiqqa qaytgan, lekin jismonan hali kelmagan"
+                        >
+                          <Truck className="h-3 w-3" />
+                          {formatNumber(item.pendingReturnQuantity)} yo&apos;lda
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td className="px-3 py-3 text-right tabular-nums font-medium">
                   {formatNumber(item.stockQuantity)}
                 </td>
@@ -116,14 +152,18 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
                   {item.marketplaceStock ?? 0}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <Button size="sm" variant="outline" onClick={() => onIntake(item)}>
-                      <PackagePlus className="h-3.5 w-3.5" /> Kirim
-                    </Button>
-                    <Button size="sm" variant="ghost" asChild>
-                      <Link href={`/warehouse/${item.id}`}>Batafsil</Link>
-                    </Button>
-                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    // Qator bosilganda detalga o'tadi — tugma bosilsa faqat
+                    // kirim oynasi ochilishi kerak, ikkalasi bir vaqtda emas.
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onIntake(item);
+                    }}
+                  >
+                    <PackagePlus className="h-3.5 w-3.5" /> Kirim
+                  </Button>
                 </td>
               </tr>
             );

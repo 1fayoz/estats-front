@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, Clock, Database, RefreshCw, ShoppingCart } from "lucide-react";
+import { CheckCircle2, Clock, Database, PackageX, RefreshCw, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,7 +47,7 @@ export function UzumSyncCard() {
   }, [load]);
 
   // Sinxronizatsiya ketayotganda tez-tez, aks holda kamdan-kam so'raymiz.
-  const running = Boolean(state?.catalogRunning || state?.salesRunning);
+  const running = Boolean(state?.catalogRunning || state?.salesRunning || state?.returnsRunning);
   React.useEffect(() => {
     const timer = setInterval(() => void load(), running ? 4000 : 60000);
     return () => clearInterval(timer);
@@ -105,6 +105,20 @@ export function UzumSyncCard() {
           extra={
             state?.salesSyncedFrom
               ? `tarix: ${state.salesSyncedFrom} … ${state.salesSyncedTo}`
+              : undefined
+          }
+        />
+
+        <Row
+          icon={PackageX}
+          label="Qaytarishlar"
+          running={state?.returnsRunning}
+          count={state ? `${formatNumber(state.returnCount)} yozuv` : "—"}
+          when={ago(state?.salesSyncedAt ?? null)}
+          interval={state?.returnsIntervalMinutes}
+          extra={
+            state?.pendingReturnQuantity
+              ? `${formatNumber(state.pendingReturnQuantity)} dona yo'lda`
               : undefined
           }
         />

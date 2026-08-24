@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
+import { ReturnsCard } from "@/features/warehouse/components/returns-card";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
@@ -116,6 +117,8 @@ export default function ProductDetailPage() {
       )}
 
       <BreakEvenCard economics={data.economics} />
+
+      <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
 
       <MarketCard productId={id} />
 

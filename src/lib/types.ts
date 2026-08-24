@@ -67,6 +67,39 @@ export interface WarehouseProduct {
   /** Butun davr bo'yicha — qoldiq = keldi − sotildi ekani ko'rinib tursin. */
   totalIntakeQuantity: number;
   totalSoldQuantity: number;
+  totalReturnedQuantity: number;
+  /** Hisobda qoldiqqa qaytgan, lekin jismonan hali kelmagan donalar. */
+  pendingReturnQuantity: number;
+}
+
+export type ReturnStatus = "pending" | "sent" | "completed" | "canceled";
+export type ReturnType = "fbs" | "return" | "defected";
+
+/** Qaytarilgan tovar: qancha, qachon va qo'lingizga yetib keldimi. */
+export interface ProductReturnRow {
+  id: number;
+  externalReturnId: string;
+  title: string;
+  skuCode: string | null;
+  quantity: number;
+  packedQuantity: number;
+  status: ReturnStatus;
+  returnType: ReturnType;
+  returnedAt: string;
+  completedAt: string | null;
+  canceledAt: string | null;
+  isReceived: boolean;
+  isResellable: boolean;
+  isPending: boolean;
+}
+
+export interface ReturnsSummary {
+  totalQuantity: number;
+  receivedQuantity: number;
+  /** Yo'lda — ombordagi raqam aynan shuncha donaga optimistik. */
+  pendingQuantity: number;
+  defectedQuantity: number;
+  canceledQuantity: number;
 }
 
 /** "Buncha qo'ysam — buncha foyda" jadvalining bitta qatori. */
@@ -250,6 +283,8 @@ export interface ProductDetail {
   totalCogs: number;
   totalProfit: number;
   economics: UnitEconomics;
+  returns: ProductReturnRow[];
+  returnsSummary: ReturnsSummary;
   daily: SalesPeriod[];
   monthly: SalesPeriod[];
   yearly: SalesPeriod[];
@@ -269,8 +304,13 @@ export interface SyncState {
   salesStale: boolean;
   saleCount: number;
 
+  returnsRunning: boolean;
+  returnCount: number;
+  pendingReturnQuantity: number;
+
   catalogIntervalMinutes: number;
   salesIntervalMinutes: number;
+  returnsIntervalMinutes: number;
   lastMessage: string | null;
 }
 
