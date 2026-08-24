@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, ExternalLink, Loader2, RefreshCw, Store, TrendingDown } from "lucide-react";
+import { AlertTriangle, ExternalLink, Loader2, Store, TrendingDown } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ApiError, fetchProductMarket } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
@@ -58,9 +57,6 @@ export function MarketCard({ productId }: { productId: number }) {
                 : "Uzum katalogidagi raqobatchi narxlar"}
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} /> Yangilash
-          </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

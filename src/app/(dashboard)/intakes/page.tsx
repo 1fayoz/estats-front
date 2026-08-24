@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { PackagePlus, RefreshCw, Trash2 } from "lucide-react";
+import { PackagePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -14,6 +14,7 @@ import { EmptyState } from "@/components/dashboard/empty-state";
 import { ApiError, deleteIntake, fetchIntakes } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import type { IntakeRow } from "@/lib/types";
+import { useAutoRefresh } from "@/lib/use-auto-refresh";
 
 export default function IntakesPage() {
   const [rows, setRows] = React.useState<IntakeRow[]>([]);
@@ -36,6 +37,7 @@ export default function IntakesPage() {
   React.useEffect(() => {
     void load();
   }, [load]);
+  useAutoRefresh(load);
 
   const onDelete = async (row: IntakeRow) => {
     setRemoving(row.id);
@@ -67,10 +69,6 @@ export default function IntakesPage() {
         description="Har bir tovar partiyasi: qachon, nechta va qanchadan keldi. FIFO shu partiyalardan eng eskisidan boshlab hisoblaydi."
         actions={
           <>
-            <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-              Yangilash
-            </Button>
             <Button size="sm" asChild>
               <Link href="/warehouse">
                 <PackagePlus className="h-3.5 w-3.5" /> Yangi kirim

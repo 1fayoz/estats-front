@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Download, RefreshCw } from "lucide-react";
+import { AlertTriangle, Download } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { DateRangePicker } from "@/components/dashboard/date-range-picker";
@@ -13,13 +13,15 @@ import { PnlChart } from "@/features/pnl/components/pnl-chart";
 import { PnlTable } from "@/features/pnl/components/pnl-table";
 import { usePnlReport, usePnlStore } from "@/features/pnl/store";
 import { downloadPnlCsv } from "@/features/pnl/export";
+import { useAutoRefresh } from "@/lib/use-auto-refresh";
 
 export default function PnlPage() {
   const range = usePnlStore((s) => s.range);
   const setRange = usePnlStore((s) => s.setRange);
   const allProducts = usePnlStore((s) => s.allProducts);
   const setAllProducts = usePnlStore((s) => s.setAllProducts);
-  const { data, error, isInitialLoading, isRefreshing, refresh } = usePnlReport();
+  const { data, error, isInitialLoading, refresh } = usePnlReport();
+  useAutoRefresh(refresh);
 
   return (
     <div className="space-y-6">
@@ -35,10 +37,6 @@ export default function PnlPage() {
               disabled={!data?.rows.length}
             >
               <Download className="h-3.5 w-3.5" /> CSV
-            </Button>
-            <Button variant="outline" size="sm" onClick={refresh} disabled={isRefreshing}>
-              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-              Yangilash
             </Button>
           </>
         }

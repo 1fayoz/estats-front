@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, PackagePlus, RefreshCw } from "lucide-react";
+import { ArrowLeft, PackagePlus } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
+import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ export default function ProductDetailPage() {
   React.useEffect(() => {
     if (Number.isFinite(id)) void load();
   }, [id, load]);
+  useAutoRefresh(load);
 
   if (loading && !data) {
     return (
@@ -85,9 +87,6 @@ export default function ProductDetailPage() {
         description={[p.variantName, p.skuCode, p.categoryName].filter(Boolean).join(" · ")}
         actions={
           <>
-            <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-              <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} /> Yangilash
-            </Button>
             <Button size="sm" onClick={() => setIntakeFor(p)}>
               <PackagePlus className="h-3.5 w-3.5" /> Kirim
             </Button>

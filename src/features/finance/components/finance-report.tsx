@@ -18,6 +18,7 @@ import { formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { daysInRange, formatDayLabel } from "@/lib/date-range";
+import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useFinanceReport, useFinanceStore } from "../store";
 import type { FinanceReport, OrderStatus } from "../types";
 import { DateRangePicker } from "@/components/dashboard/date-range-picker";
@@ -37,6 +38,8 @@ export function FinanceReport() {
   const range = useFinanceStore((s) => s.range);
   const setRange = useFinanceStore((s) => s.setRange);
   const { data, error, isInitialLoading, isRefreshing, refresh } = useFinanceReport(range);
+  // Moliya sahifasi ham o'zi yangilanadi — tugma yo'q.
+  useAutoRefresh(refresh);
 
   return (
     <div className="space-y-5">

@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Boxes, RefreshCw, Search } from "lucide-react";
+import { AlertTriangle, Boxes, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,11 +11,14 @@ import { ProductTable } from "@/features/warehouse/components/product-table";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { useWarehouseProducts } from "@/features/warehouse/store";
 import { useActiveShop } from "@/stores/user-store";
+import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
 import type { WarehouseProduct } from "@/lib/types";
 
 export default function WarehousePage() {
-  const { items, error, isInitialLoading, isRefreshing, refresh } = useWarehouseProducts();
+  const { items, error, isInitialLoading, refresh } = useWarehouseProducts();
+  // Tugma o'rniga: sahifaga qaytganda va vaqti-vaqti bilan o'zi yangilanadi.
+  useAutoRefresh(refresh);
   const shop = useActiveShop();
   const [query, setQuery] = React.useState("");
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
@@ -46,14 +48,6 @@ export default function WarehousePage() {
       <PageHeader
         title="Ombor"
         description="Uzum katalogingiz va har bir tovarning tan narxi. Tovar kelganda 'Kirim' tugmasi orqali qo'shing."
-        actions={
-          <>
-            <Button variant="outline" size="sm" onClick={refresh} disabled={isRefreshing}>
-              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-              Yangilash
-            </Button>
-          </>
-        }
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
