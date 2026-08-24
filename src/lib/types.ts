@@ -433,6 +433,10 @@ export interface Goal {
   reachDate: string | null;
   isAchieved: boolean;
   isCurrent: boolean;
+  /** Maqsadga shu muddatda yetish uchun kerakli kunlik foyda. */
+  requiredDaily30: number;
+  requiredDaily90: number;
+  requiredDaily365: number;
 }
 
 export interface PlanDailyPoint {

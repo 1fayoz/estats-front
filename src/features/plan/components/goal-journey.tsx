@@ -20,11 +20,13 @@ import type { Goal } from "@/lib/types";
  */
 export function GoalJourney({
   goals,
+  dailyProfit,
   onAdd,
   onAchieve,
   onDelete,
 }: {
   goals: Goal[];
+  dailyProfit: number;
   onAdd: () => void;
   onAchieve: (goal: Goal) => void;
   onDelete: (goal: Goal) => void;
@@ -145,6 +147,42 @@ export function GoalJourney({
                   )}
                 </div>
               </div>
+
+              {/* "2018 kun" halol, lekin foydasiz raqam. Teskari ko'rinishi —
+                  kuniga qancha kerakligi — allaqachon harakat qilsa bo'ladigan. */}
+              {goal.isCurrent && !goal.isAchieved && goal.remaining > 0 && (
+                <div className="mt-3 rounded-lg border bg-muted/40 p-3">
+                  <div className="text-xs font-medium">Tezroq yetish uchun</div>
+                  <div className="mt-1.5 grid grid-cols-3 gap-2 text-center">
+                    {[
+                      { label: "1 oyda", value: goal.requiredDaily30 },
+                      { label: "3 oyda", value: goal.requiredDaily90 },
+                      { label: "1 yilda", value: goal.requiredDaily365 },
+                    ].map((item) => {
+                      const reachable = dailyProfit > 0 && dailyProfit >= item.value;
+                      return (
+                        <div key={item.label} className="rounded-md border bg-background p-2">
+                          <div className="text-[11px] text-muted-foreground">{item.label}</div>
+                          <div
+                            className={cn(
+                              "text-xs font-semibold tabular-nums",
+                              reachable && "text-emerald-600 dark:text-emerald-400"
+                            )}
+                          >
+                            {formatSum(item.value)}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">kuniga</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {dailyProfit > 0 && (
+                    <div className="mt-2 text-[11px] text-muted-foreground">
+                      Hozir kuniga {formatSum(dailyProfit)} topyapsiz.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </motion.li>
         ))}

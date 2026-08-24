@@ -212,6 +212,7 @@ export default function PlanPage() {
         <CardContent>
           <GoalJourney
             goals={plan.goals}
+            dailyProfit={rate.dailyProfit}
             onAdd={() => setAdding(true)}
             onAchieve={onAchieve}
             onDelete={onDelete}
