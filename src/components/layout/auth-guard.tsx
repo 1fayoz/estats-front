@@ -18,6 +18,9 @@ import { ApiError, fetchMe } from "@/lib/api";
  * bir sahifadan ikkinchisiga o'tish qorayib ko'rinardi va har o'tishda ortiqcha
  * `/auth/me` so'rovi ketardi.
  */
+//: Magazini yo'q foydalanuvchi shu yerga tushadi — Uzum tokeni shu yerda.
+const SETUP_PATH = "/integrations";
+
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -63,12 +66,16 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // Magazinsiz kabinetning boshqa sahifalari bo'sh — foydalanuvchini darhol
   // magazin qo'shadigan joyga olib boramiz. Alohida effekt, chunki bu
   // yo'nalishga bog'liq, sessiya tekshiruvi esa yo'q.
+  //
+  // Manzil AYNAN Integratsiyalar: Uzum tokeni o'sha yerda va magazin
+  // aynan token orqali ochiladi. Boshqa sahifaga qamab qo'yish yangi
+  // foydalanuvchi uchun chiqish yo'li yo'q tuzoq yasaydi.
   const needsShop = checked && user != null && user.shops.length === 0;
   React.useEffect(() => {
-    if (needsShop && pathname !== "/settings") router.replace("/settings");
+    if (needsShop && pathname !== SETUP_PATH) router.replace(SETUP_PATH);
   }, [needsShop, pathname, router]);
 
-  if (!hydrated || !accessToken || !checked || (needsShop && pathname !== "/settings")) {
+  if (!hydrated || !accessToken || !checked || (needsShop && pathname !== SETUP_PATH)) {
     return (
       <div className="flex h-svh items-center justify-center bg-background">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">

@@ -31,7 +31,10 @@ export function LoginForm() {
         toast.success(`Xush kelibsiz, ${user.fullName || user.email}`);
         // Magazini bo'lmagan yangi foydalanuvchini darhol qo'shish sahifasiga
         // olib boramiz — bo'sh ombor ko'rsatib chalkashtirmaymiz.
-        router.push(user.shops.length ? "/warehouse" : "/settings");
+        // Magazini yo'q odam avval Uzum tokenini kiritishi kerak — u
+        // Integratsiyalarda. Sozlamalarga yuborish uni tokendan
+        // uzoqlashtiradi va kabinet bo'm-bo'sh ko'rinadi.
+        router.push(user.shops.length ? "/warehouse" : "/integrations");
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : "Kirishda xatolik.");
       } finally {

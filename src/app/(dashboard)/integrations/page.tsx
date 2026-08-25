@@ -18,6 +18,7 @@ import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import { ApiError, fetchInstagramConnectUrl, fetchSocialAccounts, fetchSocialPlatforms } from "@/lib/api";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
+import { useUserStore } from "@/stores/user-store";
 import type { SocialAccount, SocialPlatformRow } from "@/lib/types";
 
 /**
@@ -32,8 +33,17 @@ export default function IntegrationsPage() {
   const [accounts, setAccounts] = React.useState<SocialAccount[]>([]);
   const [telegramOpen, setTelegramOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  // Magazinsiz do'kon so'rovlari ma'nosiz — hammasi `X-Shop-Id` ga
+  // bog'langan. Yangi foydalanuvchi shu sahifaga tushadi, shuning uchun
+  // u magazinsiz ham ochilishi va tokendan boshqa hech narsa
+  // ko'rsatmasligi kerak.
+  const hasShop = useUserStore((s) => (s.user?.shops.length ?? 0) > 0);
 
   const load = React.useCallback(async () => {
+    if (!hasShop) {
+      setLoading(false);
+      return;
+    }
     try {
       const [rows, list] = await Promise.all([fetchSocialPlatforms(), fetchSocialAccounts()]);
       setPlatforms(rows);
@@ -43,7 +53,7 @@ export default function IntegrationsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [hasShop]);
 
   React.useEffect(() => {
     void load();
@@ -92,9 +102,11 @@ export default function IntegrationsPage() {
         title="Integratsiyalar"
         description="Uzum va ijtimoiy tarmoqlarga ulanish — hammasi shu yerda"
         actions={
-          <span className="text-sm text-muted-foreground">
-            {connectedCount}/{platforms.length} tarmoq ulangan
-          </span>
+          hasShop ? (
+            <span className="text-sm text-muted-foreground">
+              {connectedCount}/{platforms.length} tarmoq ulangan
+            </span>
+          ) : null
         }
       />
 
@@ -120,10 +132,12 @@ export default function IntegrationsPage() {
         {/* ── Uzum ─────────────────────────────────────────────────────── */}
         <TabsContent value="uzum" className="mt-4 space-y-4">
           <ShopsCard />
-          <div className="grid gap-4 lg:grid-cols-2">
-            <UzumSyncCard />
-            <MarketTokenCard />
-          </div>
+          {hasShop && (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <UzumSyncCard />
+              <MarketTokenCard />
+            </div>
+          )}
         </TabsContent>
 
         {/* ── Ijtimoiy tarmoqlar ───────────────────────────────────────── */}
@@ -146,12 +160,14 @@ export default function IntegrationsPage() {
         })}
       </Tabs>
 
-      <p className="text-xs text-muted-foreground">
-        <Plug className="mr-1 inline h-3 w-3" />
-        Bir tarmoqqa bir nechta akkaunt ulash mumkin — masalan ikkita do&apos;kon
-        yoki uchta kanal. <Badge variant="secondary">Asosiy</Badge> deb belgilangani
-        &quot;hamma tarmoqqa joylash&quot; deganda ishlatiladi.
-      </p>
+      {hasShop && (
+        <p className="text-xs text-muted-foreground">
+          <Plug className="mr-1 inline h-3 w-3" />
+          Bir tarmoqqa bir nechta akkaunt ulash mumkin — masalan ikkita do&apos;kon
+          yoki uchta kanal. <Badge variant="secondary">Asosiy</Badge> deb belgilangani
+          &quot;hamma tarmoqqa joylash&quot; deganda ishlatiladi.
+        </p>
+      )}
 
       <TelegramDialog open={telegramOpen} onOpenChange={setTelegramOpen} onConnected={load} />
     </div>

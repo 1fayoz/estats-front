@@ -40,7 +40,7 @@ export function ShopSwitcher() {
 
   if (!shops.length) {
     return (
-      <Button variant="outline" size="sm" onClick={() => router.push("/settings")}>
+      <Button variant="outline" size="sm" onClick={() => router.push("/integrations")}>
         <Plus className="h-3.5 w-3.5" /> Magazin qo'shish
       </Button>
     );
@@ -89,7 +89,7 @@ export function ShopSwitcher() {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
+        <DropdownMenuItem onClick={() => router.push("/integrations")}>
           <Plus className="h-3.5 w-3.5" /> Yangi magazin qo&apos;shish
         </DropdownMenuItem>
       </DropdownMenuContent>

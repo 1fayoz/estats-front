@@ -103,7 +103,7 @@ export function Topbar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/settings")}>
+            <DropdownMenuItem onClick={() => router.push("/integrations")}>
               <Store className="h-4 w-4" /> Magazinlar
               <Badge variant="info" className="ml-auto">{user?.shops.length ?? 0}</Badge>
             </DropdownMenuItem>
