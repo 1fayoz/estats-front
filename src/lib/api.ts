@@ -306,8 +306,8 @@ export const unpayExpense = (id: number, periodKey: string) =>
 
 export const fetchInstagramAccount = () => request<InstagramAccount>("/instagram/account");
 
-export const fetchInstagramConnectUrl = () =>
-  request<{ url: string }>("/instagram/connect");
+export const fetchInstagramConnectUrl = (add = false) =>
+  request<{ url: string }>(`/instagram/connect${qs({ add: add || undefined })}`);
 
 export const fetchInstagramChoices = () => request<InstagramChoices>("/instagram/choices");
 
@@ -406,6 +406,8 @@ export const publishToSocial = (payload: {
   accountIds?: number[];
   caption?: string;
   images?: string[];
+  /** Narxni matnga yozish. Sukut bo'yicha yo'q — narx tez o'zgaradi. */
+  withPrice?: boolean;
 }) => request<BroadcastResult>("/social/publish", { method: "POST", body: JSON.stringify(payload) });
 
 export const fetchNetworksOverview = () => request<NetworksOverview>("/social/overview");

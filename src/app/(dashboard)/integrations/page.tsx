@@ -1,28 +1,31 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
 import { Plug, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { NetworkIcon } from "@/components/brand/network-icons";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NetworkCard } from "@/features/integrations/components/network-card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import { TelegramDialog } from "@/features/social/components/telegram-dialog";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
+import { ShopsCard } from "@/features/settings/shops-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import { ApiError, fetchInstagramConnectUrl, fetchSocialAccounts, fetchSocialPlatforms } from "@/lib/api";
-import { PLATFORM_ORDER } from "@/lib/platforms";
+import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import type { SocialAccount, SocialPlatformRow } from "@/lib/types";
 
 /**
- * Ulanish joylari bir sahifada.
+ * Ulanish joylari bir sahifada, har biri o'z tabida.
  *
- * Ilgari ular Sozlamalar ichida, do'kon nomi va mavzu tanlash orasida
- * turardi. Ulanish — alohida ish: unda xato bo'lsa butun tarmoq bo'limi
- * ishlamaydi, shuning uchun uning o'z joyi bo'lishi kerak.
+ * Ulanish alohida ish: unda xato bo'lsa butun tarmoq bo'limi ishlamaydi.
+ * Tablar esa shuning uchun — bir tarmoqning ulanishini sozlayotgan odamga
+ * qolgan uchtasi xalaqit bermasligi kerak.
  */
 export default function IntegrationsPage() {
   const [platforms, setPlatforms] = React.useState<SocialPlatformRow[]>([]);
@@ -47,10 +50,13 @@ export default function IntegrationsPage() {
   }, [load]);
   useAutoRefresh(load);
 
-  const onConnect = async (platform: string) => {
+  const onConnect = async (platform: string, hasAccounts: boolean) => {
     if (platform === "instagram") {
       try {
-        const { url } = await fetchInstagramConnectUrl();
+        // `add` — mavjud akkauntning ustiga yozmaslik uchun. Aks holda
+        // ikkinchi do'konni ulamoqchi bo'lgan odam birinchisini bilmasdan
+        // almashtirib yuborardi.
+        const { url } = await fetchInstagramConnectUrl(hasAccounts);
         window.location.href = url;
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : "Ulanib bo'lmadi.");
@@ -70,67 +76,82 @@ export default function IntegrationsPage() {
 
   const connectedCount = new Set(accounts.map((a) => a.platform)).size;
 
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-56" />
+        <Skeleton className="h-12 w-full rounded-lg" />
+        <Skeleton className="h-72 w-full rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Integratsiyalar"
         description="Uzum va ijtimoiy tarmoqlarga ulanish — hammasi shu yerda"
         actions={
-          !loading && (
-            <span className="text-sm text-muted-foreground">
-              {connectedCount}/{platforms.length} tarmoq ulangan
-            </span>
-          )
+          <span className="text-sm text-muted-foreground">
+            {connectedCount}/{platforms.length} tarmoq ulangan
+          </span>
         }
       />
 
-      <section className="space-y-3">
-        <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <ShoppingBag className="h-4 w-4" /> Uzum
-        </h2>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <UzumSyncCard />
-          <MarketTokenCard />
-        </div>
-      </section>
+      <Tabs defaultValue="uzum">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+          <TabsTrigger value="uzum" className="gap-1.5">
+            <ShoppingBag className="h-3.5 w-3.5" /> Uzum
+          </TabsTrigger>
+          {ordered.map((row) => {
+            const mine = accounts.filter((a) => a.platform === row.platform);
+            return (
+              <TabsTrigger key={row.platform} value={row.platform} className="gap-1.5">
+                <NetworkIcon platform={row.platform} colored className="h-3.5 w-3.5" />
+                {PLATFORM_LABEL[row.platform]}
+                {mine.length > 0 && (
+                  <span className="rounded bg-background/70 px-1 text-[10px]">{mine.length}</span>
+                )}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
 
-      <section className="space-y-3">
-        <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Plug className="h-4 w-4" /> Ijtimoiy tarmoqlar
-        </h2>
-
-        {loading ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-56 w-full rounded-xl" />
-            ))}
+        {/* ── Uzum ─────────────────────────────────────────────────────── */}
+        <TabsContent value="uzum" className="mt-4 space-y-4">
+          <ShopsCard />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <UzumSyncCard />
+            <MarketTokenCard />
           </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {ordered.map((row, i) => (
-              <NetworkCard
-                key={row.platform}
+        </TabsContent>
+
+        {/* ── Ijtimoiy tarmoqlar ───────────────────────────────────────── */}
+        {ordered.map((row) => {
+          const mine = accounts.filter((a) => a.platform === row.platform);
+          return (
+            <TabsContent key={row.platform} value={row.platform} className="mt-4">
+              <NetworkPanel
                 row={row}
-                index={i}
-                accounts={accounts.filter((a) => a.platform === row.platform)}
-                onConnect={() => onConnect(row.platform)}
+                accounts={mine}
+                onConnect={() => onConnect(row.platform, mine.length > 0)}
                 onChanged={load}
-              />
-            ))}
-          </div>
-        )}
-      </section>
+              >
+                {/* Instagram ulanishi ko'p bosqichli: Facebook -> Page ->
+                    reklama kabineti. Tanlash qadami shu yerda ochiladi. */}
+                {row.platform === "instagram" && <InstagramConnectCard />}
+              </NetworkPanel>
+            </TabsContent>
+          );
+        })}
+      </Tabs>
 
-      {/* Instagram ulanishi ko'p bosqichli (Facebook -> Page -> reklama
-          kabineti), shuning uchun uning to'liq oqimi alohida turadi. */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="space-y-3"
-      >
-        <InstagramConnectCard />
-      </motion.section>
+      <p className="text-xs text-muted-foreground">
+        <Plug className="mr-1 inline h-3 w-3" />
+        Bir tarmoqqa bir nechta akkaunt ulash mumkin — masalan ikkita do&apos;kon
+        yoki uchta kanal. <Badge variant="secondary">Asosiy</Badge> deb belgilangani
+        &quot;hamma tarmoqqa joylash&quot; deganda ishlatiladi.
+      </p>
 
       <TelegramDialog open={telegramOpen} onOpenChange={setTelegramOpen} onConnected={load} />
     </div>

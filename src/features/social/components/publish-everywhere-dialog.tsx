@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Loader2, Send } from "lucide-react";
+import { Check, Loader2, Send, Tag } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -10,7 +10,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ApiError, publishToSocial } from "@/lib/api";
-import { PLATFORM_ICON, PLATFORM_LABEL } from "@/lib/platforms";
+import { formatSum } from "@/lib/format";
+import { NetworkIcon } from "@/components/brand/network-icons";
+import { PLATFORM_LABEL } from "@/lib/platforms";
 import { useBroadcastStore } from "@/stores/broadcast-store";
 import { cn } from "@/lib/utils";
 import type { SocialAccount, WarehouseProduct } from "@/lib/types";
@@ -35,6 +37,7 @@ export function PublishEverywhereDialog({
   const usable = accounts.filter((a) => a.canPublish);
   const [chosen, setChosen] = React.useState<Set<number>>(new Set());
   const [caption, setCaption] = React.useState("");
+  const [withPrice, setWithPrice] = React.useState(false);
   const [sending, setSending] = React.useState(false);
 
   React.useEffect(() => {
@@ -43,6 +46,7 @@ export function PublishEverywhereDialog({
     // eng ko'p uchraydigan holat.
     setChosen(new Set(usable.map((a) => a.id)));
     setCaption("");
+    setWithPrice(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
@@ -62,6 +66,7 @@ export function PublishEverywhereDialog({
         productId: product.id,
         accountIds: [...chosen],
         caption: caption.trim() || undefined,
+        withPrice,
       });
       put(broadcast);
       onOpenChange(false);
@@ -93,7 +98,6 @@ export function PublishEverywhereDialog({
           <div className="space-y-3">
             <div className="space-y-1.5">
               {usable.map((account) => {
-                const Icon = PLATFORM_ICON[account.platform];
                 const on = chosen.has(account.id);
                 return (
                   <button
@@ -105,7 +109,7 @@ export function PublishEverywhereDialog({
                       on ? "border-primary bg-primary/5" : "hover:bg-accent",
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <NetworkIcon platform={account.platform} colored className="h-4 w-4 shrink-0" />
                     <span className="min-w-0 flex-1 truncate text-sm">
                       {account.name ?? account.username ?? PLATFORM_LABEL[account.platform]}
                     </span>
@@ -123,9 +127,49 @@ export function PublishEverywhereDialog({
               })}
             </div>
 
+            {/* Narx SUKUT BO'YICHA yozilmaydi: Uzum'dagi narx aksiya bilan
+                tez-tez o'zgaradi, e'lon esa kanalda oylab turadi — eskirgan
+                narx "aldadi" degan taassurot qoldiradi. Havola baribir tovar
+                sahifasiga olib boradi, u yerdagi narx doim to'g'ri. */}
+            <button
+              type="button"
+              onClick={() => setWithPrice((v) => !v)}
+              disabled={caption.trim().length > 0}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-colors",
+                withPrice ? "border-primary bg-primary/5" : "hover:bg-accent",
+                caption.trim().length > 0 && "cursor-not-allowed opacity-50",
+              )}
+            >
+              <Tag className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm">Narx bilan</span>
+                <span className="block text-xs text-muted-foreground">
+                  {caption.trim().length > 0
+                    ? "O'z matningiz yozilgan — narx unga qo'shilmaydi"
+                    : withPrice
+                      ? formatSum(product?.marketplacePrice ?? 0) + " matnga yoziladi"
+                      : "Narx yozilmaydi — u Uzum'da tez o'zgaradi"}
+                </span>
+              </span>
+              <span
+                className={cn(
+                  "relative h-5 w-9 shrink-0 rounded-full transition-colors",
+                  withPrice ? "bg-primary" : "bg-muted",
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all",
+                    withPrice ? "left-[1.125rem]" : "left-0.5",
+                  )}
+                />
+              </span>
+            </button>
+
             <div className="space-y-1.5">
               <label htmlFor="caption" className="text-xs text-muted-foreground">
-                Matn — bo&apos;sh qoldirsangiz tovar nomi, narxi va havolasidan o&apos;zi yasaladi
+                Matn — bo&apos;sh qoldirsangiz tovar nomi va havolasidan o&apos;zi yasaladi
               </label>
               <textarea
                 id="caption"

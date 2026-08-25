@@ -13,14 +13,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InstagramPanel } from "@/features/instagram/components/instagram-panel";
 import { LinkPostDialog } from "@/features/social/components/link-post-dialog";
 import { PostTile } from "@/features/social/components/post-tile";
 import { PublishEverywhereDialog } from "@/features/social/components/publish-everywhere-dialog";
-import { fetchProducts, fetchSocialAccounts, fetchSocialPosts, unlinkSocialPost } from "@/lib/api";
-import { PLATFORM_ICON, PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
+import {
+  fetchNetworksOverview, fetchProducts, fetchSocialAccounts, fetchSocialPosts, unlinkSocialPost,
+} from "@/lib/api";
+import { formatNumber } from "@/lib/format";
+import { NetworkIcon } from "@/components/brand/network-icons";
+import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { cn } from "@/lib/utils";
-import type { SocialAccount, SocialPlatform, SocialPost, WarehouseProduct } from "@/lib/types";
+import type {
+  NetworksOverview, SocialAccount, SocialPlatform, SocialPost, WarehouseProduct,
+} from "@/lib/types";
 
 /**
  * Ijtimoiy tarmoqlarning yagona bo'limi.
@@ -33,6 +40,7 @@ export default function SocialsPage() {
   const [posts, setPosts] = React.useState<SocialPost[]>([]);
   const [accounts, setAccounts] = React.useState<SocialAccount[]>([]);
   const [products, setProducts] = React.useState<WarehouseProduct[]>([]);
+  const [overview, setOverview] = React.useState<NetworksOverview | null>(null);
   const [linking, setLinking] = React.useState<SocialPost | null>(null);
   const [publishing, setPublishing] = React.useState<WarehouseProduct | null>(null);
   const [query, setQuery] = React.useState("");
@@ -40,14 +48,16 @@ export default function SocialsPage() {
 
   const load = React.useCallback(async () => {
     try {
-      const [postList, accountList, productPage] = await Promise.all([
+      const [postList, accountList, productPage, stats] = await Promise.all([
         fetchSocialPosts(),
         fetchSocialAccounts(),
         fetchProducts({ page: 1, size: 200 }),
+        fetchNetworksOverview().catch(() => null),
       ]);
       setPosts(postList);
       setAccounts(accountList);
       setProducts(productPage.results);
+      setOverview(stats);
     } catch {
       /* qisman yuklansa ham sahifa ishlashi kerak */
     } finally {
@@ -115,17 +125,49 @@ export default function SocialsPage() {
         }
       />
 
+      {/* Auditoriya alohida sahifa emas: bu bitta qator savolga javob
+          beradi — qayerda qancha odam bor — va uni tarmoqlar bo'limidan
+          ajratib qo'yishning ma'nosi yo'q edi. */}
+      {overview && overview.networks.some((n) => n.accounts > 0) && (
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {overview.networks
+            .filter((n) => n.accounts > 0)
+            .map((n) => (
+              <div key={n.platform} className="rounded-lg border p-3">
+                <div className="flex items-center gap-2">
+                  <NetworkIcon platform={n.platform} colored className="h-4 w-4" />
+                  <span className="text-sm font-medium">{n.label}</span>
+                  {n.accounts > 1 && (
+                    <span className="text-xs text-muted-foreground">{`${n.accounts} ta`}</span>
+                  )}
+                </div>
+                <div className="mt-1.5 flex items-baseline gap-1.5">
+                  <span className="text-xl font-bold tabular-nums">
+                    {formatNumber(n.followers)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">obunachi</span>
+                </div>
+                <div className="mt-0.5 text-xs text-muted-foreground">
+                  {`${formatNumber(n.posts)} e'lon`}
+                  {n.audience > 0 && ` · ${formatNumber(n.audience)} ko'rish`}
+                  {n.engagementRate != null && n.engagementRate > 0 &&
+                    ` · faollik ${n.engagementRate.toFixed(1)}%`}
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
+
       <Tabs defaultValue="coverage">
         <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="coverage" className="gap-1.5">
             <Share2 className="h-3.5 w-3.5" /> Bog&apos;lanishlar
           </TabsTrigger>
           {PLATFORM_ORDER.map((platform) => {
-            const Icon = PLATFORM_ICON[platform];
             const count = posts.filter((p) => p.platform === platform).length;
             return (
               <TabsTrigger key={platform} value={platform} className="gap-1.5">
-                <Icon className="h-3.5 w-3.5" />
+                <NetworkIcon platform={platform} colored className="h-3.5 w-3.5" />
                 {PLATFORM_LABEL[platform]}
                 {count > 0 && (
                   <span className="rounded bg-background/70 px-1 text-[10px]">{count}</span>
@@ -185,13 +227,12 @@ export default function SocialsPage() {
 
                 <div className="flex flex-wrap items-center gap-1.5">
                   {PLATFORM_ORDER.map((platform) => {
-                    const Icon = PLATFORM_ICON[platform];
                     const linked = coverage.get(product.id)?.get(platform) ?? [];
                     const on = linked.length > 0;
                     const href = linked[0]?.permalink;
                     const body = (
                       <>
-                        <Icon className="h-3 w-3" />
+                        <NetworkIcon platform={platform} colored className="h-3 w-3" />
                         {on ? (linked.length > 1 ? `${linked.length}` : "bor") : "yo'q"}
                       </>
                     );
@@ -242,7 +283,12 @@ export default function SocialsPage() {
           const hasAccount = accounts.some((a) => a.platform === platform);
           return (
             <TabsContent key={platform} value={platform} className="mt-4">
-              {!hasAccount ? (
+              {platform === "instagram" ? (
+                // Instagram'ning o'z oqimi bor — reklama, qamrov, post
+                // qilinmagan tovarlar. Uni umumiy ro'yxatga siqib
+                // qo'yish yarim imkoniyatni yashirib qo'yardi.
+                <InstagramPanel />
+              ) : !hasAccount ? (
                 <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
                   {PLATFORM_LABEL[platform]} ulanmagan.{" "}
                   <Link href={"/integrations" as Route} className="text-primary hover:underline">

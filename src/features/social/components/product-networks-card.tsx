@@ -9,7 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublishEverywhereDialog } from "./publish-everywhere-dialog";
 import { fetchSocialAccounts, fetchSocialPosts } from "@/lib/api";
-import { PLATFORM_ICON, PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
+import { NetworkIcon } from "@/components/brand/network-icons";
+import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
 import type { SocialAccount, SocialPost, WarehouseProduct } from "@/lib/types";
 
@@ -79,11 +80,10 @@ export function ProductNetworksCard({ product }: { product: WarehouseProduct }) 
 
       <CardContent className="space-y-2">
         {PLATFORM_ORDER.filter((p) => accounts.some((a) => a.platform === p)).map((platform) => {
-          const Icon = PLATFORM_ICON[platform];
           const mine = posts.filter((x) => x.platform === platform);
           return (
             <div key={platform} className="flex items-center gap-2.5 rounded-lg border p-2.5">
-              <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <NetworkIcon platform={platform} colored className="h-4 w-4 shrink-0" />
               <span className="min-w-0 flex-1 truncate text-sm">
                 {PLATFORM_LABEL[platform]}
               </span>
