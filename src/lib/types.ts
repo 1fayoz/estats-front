@@ -581,6 +581,8 @@ export interface ExpenseBurn {
 
 export interface InstagramAccount {
   connected: boolean;
+  /** Facebook'dan qaytilgan, lekin akkaunt hali tanlanmagan. */
+  needsSelection: boolean;
   id: number | null;
   username: string | null;
   name: string | null;

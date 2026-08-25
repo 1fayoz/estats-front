@@ -36,8 +36,8 @@ export function InstagramConnectCard() {
     try {
       const acc = await fetchInstagramAccount();
       setAccount(acc);
-      // Ulangan, lekin akkaunt hali tanlanmagan holat: OAuth'dan endi qaytildi.
-      if (acc.connected && !acc.username) {
+      // OAuth'dan qaytildi, lekin akkaunt hali tanlanmagan.
+      if (acc.needsSelection) {
         setChoices(await fetchInstagramChoices().catch(() => null));
       }
     } catch {

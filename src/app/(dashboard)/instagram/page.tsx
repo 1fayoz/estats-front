@@ -131,18 +131,23 @@ export default function InstagramPage() {
               <InstagramIcon className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold">Instagram hali ulanmagan</h3>
+              <h3 className="font-semibold">
+                {account?.needsSelection
+                  ? "Ulash tugallanmagan"
+                  : "Instagram hali ulanmagan"}
+              </h3>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-                Ulangandan keyin postlaringiz shu yerga tortiladi: qaysi post qaysi
-                tovarga tegishli ekanini belgilaysiz, nechta odam ko&apos;rgani va
-                jo&apos;natgani ko&apos;rinadi.
+                {account?.needsSelection
+                  ? "Facebook ruxsat berdi, lekin qaysi Instagram akkaunt ekani hali tanlanmagan. Sozlamalarda tanlab qo'ying — postlar o'shandan keyin tortiladi."
+                  : "Ulangandan keyin postlaringiz shu yerga tortiladi: qaysi post qaysi tovarga tegishli ekanini belgilaysiz, nechta odam ko'rgani va jo'natgani ko'rinadi."}
               </p>
             </div>
             <Link
               href={"/settings" as Route}
               className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
-              Sozlamalarda ulash <ArrowRight className="h-4 w-4" />
+              {account?.needsSelection ? "Tanlashni yakunlash" : "Sozlamalarda ulash"}
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </CardContent>
         </Card>
