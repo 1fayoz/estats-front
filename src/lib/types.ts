@@ -634,7 +634,7 @@ export interface LinkedProduct {
 export interface InstagramPost {
   id: number;
   mediaId: string;
-  kind: "image" | "video" | "carousel" | "reel" | "story";
+  kind: PostKind;
   caption: string | null;
   permalink: string | null;
   thumbnail: string | null;
@@ -893,12 +893,15 @@ export interface MarketingReport {
   actions: MarketingAction[];
 }
 
+/** Telegram kanalida rasmsiz e'lon odatiy hol, Instagram'da esa bo'lmaydi. */
+export type PostKind = "image" | "video" | "carousel" | "reel" | "story" | "text";
+
 /** Bitta e'lon — tarmoqdan qat'i nazar. */
 export interface SocialPost {
   id: number;
   platform: SocialPlatform;
   externalId: string;
-  kind: string;
+  kind: PostKind;
   caption: string | null;
   permalink: string | null;
   thumbnail: string | null;

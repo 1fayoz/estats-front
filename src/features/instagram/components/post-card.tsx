@@ -17,6 +17,7 @@ const KIND_LABEL: Record<InstagramPost["kind"], string> = {
   carousel: "Karusel",
   reel: "Reels",
   story: "Story",
+  text: "Matn",
 };
 
 export function PostCard({
@@ -38,7 +39,13 @@ export function PostCard({
         {post.thumbnail ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={post.thumbnail} alt="" className="h-full w-full object-cover" />
-        ) : null}
+        ) : (
+          // Rasmsiz e'lon — bo'sh kulrang kvadrat o'rniga matnning o'zi
+          // ko'rinadi, aks holda kartani bir-biridan ajratib bo'lmaydi.
+          <p className="line-clamp-[9] p-4 pt-10 text-xs leading-relaxed text-muted-foreground">
+            {post.caption}
+          </p>
+        )}
         <div className="absolute left-2 top-2 flex gap-1">
           <Badge variant="secondary">{KIND_LABEL[post.kind]}</Badge>
           {post.publishedByUs && <Badge variant="info">eStats</Badge>}
