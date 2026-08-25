@@ -782,6 +782,8 @@ export interface SocialPlatformRow {
   connected: number;
   /** Ulab bo'lmasa — sababi. */
   unavailable: string | null;
+  /** Ulash mumkin, lekin avval ilova kaliti kiritilishi kerak. */
+  needsApp: boolean;
   hint: string | null;
 }
 

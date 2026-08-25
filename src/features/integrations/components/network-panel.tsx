@@ -80,7 +80,9 @@ export function NetworkPanel({
                     ? `${accounts.length} ta akkaunt ulangan`
                     : row.unavailable
                       ? "Hozircha ochilmagan"
-                      : "Ulanmagan"}
+                      : row.needsApp
+                        ? "Avval ilova kaliti kerak"
+                        : "Ulanmagan"}
                 </p>
               </div>
             </div>
@@ -91,7 +93,15 @@ export function NetworkPanel({
                   <Lock className="h-3.5 w-3.5" /> Ulanmaydi
                 </Button>
               ) : (
-                <Button size="sm" className="gap-1.5" onClick={onConnect}>
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={onConnect}
+                  // Kalit yo'q ekan ulanishni boshlab bo'lmaydi — lekin
+                  // bu "imkonsiz" emas, "quyida kalit kiriting".
+                  disabled={row.needsApp}
+                  title={row.needsApp ? "Quyida ilova kalitini kiriting" : undefined}
+                >
                   <Plus className="h-3.5 w-3.5" />
                   {accounts.length > 0 ? "Yana qo'shish" : "Ulash"}
                 </Button>
@@ -108,8 +118,10 @@ export function NetworkPanel({
           {accounts.length === 0 ? (
             <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
               {row.unavailable
-                ? "Ilova sozlangach shu yerda ulash mumkin bo'ladi."
-                : "Hali akkaunt ulanmagan."}
+                ? "Bu tarmoq hozircha qo'llanmaydi."
+                : row.needsApp
+                  ? "Quyida ilova kalitini kiriting — shundan keyin ulash tugmasi ochiladi."
+                  : "Hali akkaunt ulanmagan."}
             </p>
           ) : (
             <div className="space-y-2">

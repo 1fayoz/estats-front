@@ -202,9 +202,10 @@ export function AppKeysCard({
         )}
         {app.platform === "linkedin" && (
           <p className="rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
-            Ilovaga <b>&quot;Sign In with LinkedIn using OpenID Connect&quot;</b> va
-            <b> &quot;Share on LinkedIn&quot;</b> mahsulotlarini qo&apos;shing —
-            ulanish va e&apos;lon qilish shularsiz ishlamaydi.
+            Ilovaga <b>&quot;Sign In with LinkedIn using OpenID Connect&quot;</b>
+            {" va "}
+            <b>&quot;Share on LinkedIn&quot;</b>
+            {" mahsulotlarini qo'shing — ulanish va e'lon qilish shularsiz ishlamaydi."}
           </p>
         )}
       </CardContent>
