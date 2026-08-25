@@ -87,7 +87,18 @@ export const useBroadcastStore = create<BroadcastState>((set, get) => ({
     })),
 }));
 
-/** Ko'rsatishga arziydigan vazifalar: ketayotgani va yopilmagan natijalar. */
-export function visibleBroadcasts(state: BroadcastState): BroadcastResult[] {
-  return state.items.filter((b) => !state.dismissed.includes(b.id));
+/**
+ * Ko'rsatishga arziydigan vazifalar: ketayotgani va yopilmagan natijalar.
+ *
+ * Bu ATAYLAB oddiy funksiya, selektor emas. `useSyncExternalStore` har
+ * chaqiruvda bir xil havola qaytishini talab qiladi; filtrlash esa har
+ * safar YANGI massiv yasaydi va do'kondan to'g'ridan-to'g'ri shunday
+ * tanlash cheksiz qayta chizishga olib keladi. Shuning uchun komponent
+ * `items` va `dismissed` ni alohida oladi va natijani o'zi eslab qoladi.
+ */
+export function visibleBroadcasts(
+  items: BroadcastResult[],
+  dismissed: number[],
+): BroadcastResult[] {
+  return items.filter((b) => !dismissed.includes(b.id));
 }

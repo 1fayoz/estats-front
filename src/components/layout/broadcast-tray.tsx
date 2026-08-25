@@ -33,7 +33,11 @@ import type { BroadcastResult } from "@/lib/types";
 export function BroadcastTray() {
   const watch = useBroadcastStore((s) => s.watch);
   const dismiss = useBroadcastStore((s) => s.dismiss);
-  const items = useBroadcastStore(visibleBroadcasts);
+  // Ikkalasi ham do'kondagi barqaror havola — filtrlash komponentda
+  // bo'ladi, selektorda emas (sababi `visibleBroadcasts` ustida).
+  const all = useBroadcastStore((s) => s.items);
+  const dismissed = useBroadcastStore((s) => s.dismissed);
+  const items = React.useMemo(() => visibleBroadcasts(all, dismissed), [all, dismissed]);
   const [open, setOpen] = React.useState(true);
 
   React.useEffect(() => watch(), [watch]);
