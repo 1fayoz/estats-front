@@ -198,9 +198,9 @@ export default function NetworksPage() {
         <CardContent className="space-y-2">
           {posts.length === 0 ? (
             <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-              Hali e&apos;lon yo&apos;q. Telegram uchun eslatma: bot kanalga
-              qo&apos;shilgandan keyingi postlar tortiladi, undan oldingilari
-              Telegram tomonidan berilmaydi.
+              Hali e&apos;lon yo&apos;q. Telegram uchun eslatma: ochiq kanalning
+              eski e&apos;lonlari ham tortiladi, yopiq kanalda esa faqat bot
+              qo&apos;shilgandan keyingilari — bu Telegram cheklovi.
             </p>
           ) : (
             posts.map((post) => (
