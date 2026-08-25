@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
-  AlertTriangle, ArrowRight, Camera, Check, Link2, Loader2,
+  AlertTriangle, ArrowRight, Camera, Check, DownloadCloud, Link2, Loader2,
   RefreshCw, Send, Star, Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TelegramDialog } from "./telegram-dialog";
 import {
   ApiError, disconnectSocialAccount, fetchSocialAccounts, fetchSocialPlatforms,
-  refreshSocialAccount, updateSocialAccount,
+  refreshSocialAccount, syncSocialAccount, updateSocialAccount,
 } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -128,6 +128,14 @@ export function NetworksCard() {
                 </div>
               </div>
 
+              {row.platform === "telegram" && mine.length > 0 && (
+                <p className="mt-2 rounded-md border border-dashed p-2 text-xs text-muted-foreground">
+                  Telegram botga kanal tarixini bermaydi: bot qo&apos;shilgandan
+                  <b> keyingi</b> postlar tortiladi, undan oldingilari kelmaydi.
+                  Yangi postlar har 15 daqiqada o&apos;zi olinadi.
+                </p>
+              )}
+
               {mine.length > 0 && (
                 <div className="mt-3 space-y-1.5 border-t pt-3">
                   {mine.map((account) => (
@@ -153,7 +161,7 @@ export function NetworksCard() {
                         ) : null}
                       </span>
                       <span className="shrink-0 text-xs text-muted-foreground">
-                        {`${formatNumber(account.followers)} obunachi`}
+                        {`${formatNumber(account.followers)} obunachi · ${account.postCount} e'lon`}
                       </span>
                       {account.tokenExpired && (
                         <Badge variant="destructive" className="gap-1">
@@ -163,6 +171,15 @@ export function NetworksCard() {
                       {!account.canPublish && !account.tokenExpired && (
                         <Badge variant="warning">E&apos;lon qilolmaydi</Badge>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => act(account.id, () => syncSocialAccount(account.id), "E'lonlar tortildi")}
+                        disabled={busy === account.id}
+                        title="E'lonlarni tortish"
+                        className="shrink-0 text-muted-foreground hover:text-foreground disabled:opacity-50"
+                      >
+                        <DownloadCloud className="h-3.5 w-3.5" />
+                      </button>
                       <button
                         type="button"
                         onClick={() => act(account.id, () => refreshSocialAccount(account.id), "Yangilandi")}

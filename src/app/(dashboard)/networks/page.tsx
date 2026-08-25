@@ -4,18 +4,21 @@ import * as React from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import { motion } from "framer-motion";
-import { ArrowRight, Camera, Info, Link2, Send, Users } from "lucide-react";
+import { ArrowRight, Camera, ExternalLink, Info, Link2, Link2 as LinkIcon, Send, Users, X } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchNetworksOverview } from "@/lib/api";
+import { LinkPostDialog } from "@/features/social/components/link-post-dialog";
+import { fetchNetworksOverview, fetchSocialPosts, unlinkSocialPost } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { formatNumber } from "@/lib/format";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useCountUp } from "@/lib/use-count-up";
 import { cn } from "@/lib/utils";
-import type { NetworksOverview } from "@/lib/types";
+import type { NetworksOverview, SocialPost } from "@/lib/types";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   instagram: Camera,
@@ -26,15 +29,32 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default function NetworksPage() {
   const [data, setData] = React.useState<NetworksOverview | null>(null);
+  const [posts, setPosts] = React.useState<SocialPost[]>([]);
+  const [linking, setLinking] = React.useState<SocialPost | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
     try {
-      setData(await fetchNetworksOverview());
+      const [overview, list] = await Promise.all([
+        fetchNetworksOverview(),
+        // Instagram o'z sahifasida turadi; bu yerda qolganlari.
+        fetchSocialPosts().then((all) => all.filter((p) => p.platform !== "instagram")),
+      ]);
+      setData(overview);
+      setPosts(list);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const onUnlink = async (post: SocialPost, productId: number) => {
+    try {
+      await unlinkSocialPost(post.id, productId);
+      await load();
+    } catch {
+      toast.error("Uzilmadi.");
+    }
+  };
 
   React.useEffect(() => {
     void load();
@@ -165,6 +185,102 @@ export default function NetworksPage() {
           </Link>
         </CardContent>
       </Card>
+
+      {/* ── E'lonlar ─────────────────────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">E&apos;lonlar</CardTitle>
+          <CardDescription>
+            Instagram o&apos;z sahifasida. Bu yerda qolgan tarmoqlar — har birini
+            tovarga bog&apos;lash mumkin.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {posts.length === 0 ? (
+            <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              Hali e&apos;lon yo&apos;q. Telegram uchun eslatma: bot kanalga
+              qo&apos;shilgandan keyingi postlar tortiladi, undan oldingilari
+              Telegram tomonidan berilmaydi.
+            </p>
+          ) : (
+            posts.map((post) => (
+              <div key={post.id} className="flex items-start gap-3 rounded-lg border p-3">
+                {post.thumbnail ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={post.thumbnail} alt="" className="h-12 w-12 shrink-0 rounded-md border object-cover" />
+                ) : (
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border bg-muted">
+                    <Send className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Badge variant="secondary">{post.platform}</Badge>
+                    {post.publishedByUs && <Badge variant="info">eStats</Badge>}
+                    {post.postedAt && (
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(post.postedAt).toLocaleDateString("uz-UZ")}
+                      </span>
+                    )}
+                    {!post.insightsAvailable && (
+                      <span className="text-xs text-muted-foreground">statistika yo&apos;q</span>
+                    )}
+                  </div>
+                  {post.caption && (
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{post.caption}</p>
+                  )}
+                  {post.products.length > 0 ? (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {post.products.map((product) => (
+                        <span
+                          key={product.id}
+                          className="inline-flex items-center gap-1 rounded-md border bg-muted/50 py-0.5 pl-1.5 pr-1 text-xs"
+                        >
+                          <Link href={`/warehouse/${product.id}` as Route} className="max-w-40 truncate hover:underline">
+                            {product.title}
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => onUnlink(post, product.id)}
+                            className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+                            aria-label="Bog'lanishni uzish"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-1.5 text-xs text-muted-foreground">Tovarga bog&apos;lanmagan</p>
+                  )}
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setLinking(post)}>
+                    <LinkIcon className="h-3.5 w-3.5" /> Tovar
+                  </Button>
+                  {post.permalink && (
+                    <a
+                      href={post.permalink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-md border p-2 transition-colors hover:bg-accent"
+                      aria-label="Ochish"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <LinkPostDialog
+        post={linking}
+        onOpenChange={(open) => !open && setLinking(null)}
+        onSaved={load}
+      />
     </div>
   );
 }

@@ -39,6 +39,7 @@ import type {
   ShopCreateResult,
   SocialAccount,
   SocialPlatformRow,
+  SocialPost,
   SyncState,
   WarehouseProduct,
 } from "./types";
@@ -413,3 +414,18 @@ export const fetchAdVerdict = (productId: number) =>
   request<AdVerdict>(`/social/ad-check/${productId}`);
 
 export const fetchMarketingReport = () => request<MarketingReport>("/marketing");
+
+export const syncSocialAccount = (id: number) =>
+  request<SocialAccount>(`/social/accounts/${id}/sync`, { method: "POST" });
+
+export const fetchSocialPosts = (params: { platform?: string; productId?: number } = {}) =>
+  request<SocialPost[]>(`/social/posts${qs({ platform: params.platform, product_id: params.productId })}`);
+
+export const linkSocialPost = (postId: number, productIds: number[]) =>
+  request<SocialPost>(`/social/posts/${postId}/link`, {
+    method: "POST",
+    body: JSON.stringify({ productIds }),
+  });
+
+export const unlinkSocialPost = (postId: number, productId: number) =>
+  request<void>(`/social/posts/${postId}/link/${productId}`, { method: "DELETE" });

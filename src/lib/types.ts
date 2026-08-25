@@ -890,3 +890,24 @@ export interface MarketingReport {
   dead: MarketingInsight[];
   actions: MarketingAction[];
 }
+
+/** Bitta e'lon — tarmoqdan qat'i nazar. */
+export interface SocialPost {
+  id: number;
+  platform: SocialPlatform;
+  externalId: string;
+  kind: string;
+  caption: string | null;
+  permalink: string | null;
+  thumbnail: string | null;
+  postedAt: string | null;
+  publishedByUs: boolean;
+  /** Statistika bermaydigan tarmoqda `null` — nol EMAS. */
+  reach: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  engagementRate: number | null;
+  insightsAvailable: boolean;
+  products: LinkedProduct[];
+}
