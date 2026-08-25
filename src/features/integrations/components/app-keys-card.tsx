@@ -194,10 +194,13 @@ export function AppKeysCard({
 
         {app.platform === "tiktok" && (
           <p className="rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
-            TikTok qo&apos;shimcha ikki narsani talab qiladi: e&apos;lon qilish uchun
-            ilova <b>audit</b>dan o&apos;tishi va rasm havolasi domeni
-            (<code>estats.uz</code>) portalda <b>tasdiqlanishi</b> kerak. Ulargacha
-            e&apos;lon qoralama sifatida ketadi.
+            {"TikTok qo'shimcha ikki narsani talab qiladi: e'lon qilish uchun ilova "}
+            <b>audit</b>
+            {"dan o'tishi va rasm havolasi domeni "}
+            <code>api.estats.uz</code>
+            {" portalda "}
+            <b>tasdiqlanishi</b>
+            {" kerak (rasmlar aynan o'sha yerdan beriladi). Ulargacha e'lon qoralama sifatida ketadi."}
           </p>
         )}
         {app.platform === "linkedin" && (
