@@ -797,21 +797,40 @@ export interface SocialAccount {
   warning: string | null;
 }
 
+export type BroadcastStatus = "pending" | "running" | "done" | "failed";
+
 export interface BroadcastItem {
   accountId: number;
   platform: SocialPlatform;
   account: string;
+  status: BroadcastStatus;
   ok: boolean;
   postId: number | null;
   permalink: string | null;
   error: string | null;
+  attempts: number;
 }
 
-/** Natija har akkaunt uchun alohida — bittasi ketmasa qolgani ketaveradi. */
+/**
+ * E'lon vazifasi.
+ *
+ * Natija har akkaunt uchun alohida — bittasi ketmasa qolgani ketaveradi.
+ * `active` bo'lsa hali ketmoqda: e'lon so'rov ichida tugamaydi va bu
+ * holat vaqt o'tishi bilan o'zgaradi.
+ */
 export interface BroadcastResult {
+  id: number;
   broadcastId: string;
+  productId: number;
+  productTitle: string | null;
+  productImage: string | null;
+  status: BroadcastStatus;
+  active: boolean;
   sent: number;
   failed: number;
+  pending: number;
+  createdAt: string | null;
+  finishedAt: string | null;
   items: BroadcastItem[];
 }
 

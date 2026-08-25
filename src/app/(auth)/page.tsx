@@ -8,6 +8,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import { LogoMark } from "@/components/brand/logo";
 import { siteConfig } from "@/config/site";
 import { FeaturesSection } from "@/features/landing/components/features-section";
 import { PluginSection } from "@/features/landing/components/plugin-section";
@@ -55,9 +56,7 @@ export default function EntryPage() {
       <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-info text-white shadow-lg shadow-primary/30">
-              <Sparkles className="h-5 w-5" />
-            </div>
+            <LogoMark size={38} priority className="h-9 w-9" />
             <div>
               <div className="text-base font-bold tracking-tight">{siteConfig.name}</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo";
 import { NAV_GROUPS } from "@/config/nav";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -14,9 +15,7 @@ export function Sidebar() {
   return (
     <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground lg:flex">
       <div className="flex items-center gap-2.5 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-info text-white shadow-md shadow-primary/30">
-          <Sparkles className="h-5 w-5" />
-        </div>
+        <LogoMark size={36} priority className="h-9 w-9" />
         <div className="flex flex-col">
           <span className="text-sm font-bold tracking-tight">{siteConfig.name}</span>
           <span className="text-[10px] uppercase tracking-widest text-muted-foreground">

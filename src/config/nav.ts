@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, PackagePlus, Wallet, Calculator, Camera, Megaphone, Receipt, Share2, Target, Settings, type LucideIcon } from "lucide-react";
+import { Boxes, PackagePlus, Wallet, Calculator, Camera, Megaphone, Plug, Receipt, Share2, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -73,22 +73,34 @@ export const NAV_GROUPS: NavGroup[] = [
         badge: "Yangi",
       },
       {
-        label: "Tarmoqlar",
-        href: "/networks" as Route,
+        label: "Ijtimoiy tarmoqlar",
+        href: "/socials" as Route,
         icon: Share2,
+        description: "E'lonlar, tovarga bog'lash va joylash",
+      },
+      {
+        label: "Auditoriya",
+        href: "/networks" as Route,
+        icon: Users,
         description: "Qayerda qancha odam bor",
       },
       {
         label: "Instagram",
         href: "/instagram" as Route,
         icon: Camera,
-        description: "Postlar, statistika va reklama",
+        description: "Reklama va statistika",
       },
     ],
   },
   {
     title: "Boshqaruv",
     items: [
+      {
+        label: "Integratsiyalar",
+        href: "/integrations" as Route,
+        icon: Plug,
+        description: "Uzum va tarmoqlarga ulanish",
+      },
       {
         label: "Sozlamalar",
         href: "/settings" as Route,

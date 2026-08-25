@@ -429,3 +429,15 @@ export const linkSocialPost = (postId: number, productIds: number[]) =>
 
 export const unlinkSocialPost = (postId: number, productId: number) =>
   request<void>(`/social/posts/${postId}/link/${productId}`, { method: "DELETE" });
+
+/**
+ * Ketayotgan va yaqinda tugagan e'lonlar.
+ *
+ * E'lon serverda ketadi, brauzerda emas — shuning uchun sahifa almashsa
+ * ham, brauzer qayta ochilsa ham holat shu yerdan o'qib olinadi.
+ */
+export const fetchBroadcasts = (params: { active?: boolean; limit?: number } = {}) =>
+  request<BroadcastResult[]>(`/social/broadcasts${qs({ active: params.active, limit: params.limit })}`);
+
+export const retryBroadcast = (id: number) =>
+  request<BroadcastResult>(`/social/broadcasts/${id}/retry`, { method: "POST" });

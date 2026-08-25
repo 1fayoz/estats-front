@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -8,6 +10,7 @@ import {
   KeyRound,
   LogOut,
   Palette,
+  Plug,
   Plus,
   RefreshCw,
   Star,
@@ -27,10 +30,6 @@ import { useUserStore } from "@/stores/user-store";
 import { ApiError, addShops, deleteShop, fetchMe, updateShop } from "@/lib/api";
 import { MIN_TOKEN_LENGTH, isValidTokenFormat } from "@/lib/auth";
 import type { Shop } from "@/lib/types";
-import { MarketTokenCard } from "@/features/settings/market-token-card";
-import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
-import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
-import { NetworksCard } from "@/features/social/components/networks-card";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -104,7 +103,14 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Sozlamalar"
-        description="Magazinlaringiz, Uzum tokenlari va tashqi ko'rinish."
+        description="Magazinlaringiz va tashqi ko'rinish"
+        actions={
+          <Link href={"/integrations" as Route}>
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Plug className="h-3.5 w-3.5" /> Integratsiyalar
+            </Button>
+          </Link>
+        }
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -214,14 +220,6 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-
-        {shops.length > 0 && <UzumSyncCard />}
-
-        <MarketTokenCard />
-
-        {shops.length > 0 && <InstagramConnectCard />}
-
-        {shops.length > 0 && <NetworksCard />}
 
         <Card>
           <CardHeader>

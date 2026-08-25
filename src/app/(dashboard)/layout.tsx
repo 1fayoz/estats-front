@@ -4,6 +4,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { AuthGuard } from "@/components/layout/auth-guard";
 import { PageTransition } from "@/components/layout/page-transition";
+import { BroadcastTray } from "@/components/layout/broadcast-tray";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
@@ -17,6 +18,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </main>
         </div>
         <MobileNav />
+        {/* Layout ichida: sahifa almashsa ham e'lon ketaveradi va
+            uning holati ko'rinib turadi. */}
+        <BroadcastTray />
       </div>
     </AuthGuard>
   );

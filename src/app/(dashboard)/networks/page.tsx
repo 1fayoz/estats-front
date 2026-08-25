@@ -186,101 +186,29 @@ export default function NetworksPage() {
         </CardContent>
       </Card>
 
-      {/* ── E'lonlar ─────────────────────────────────────────────────────── */}
+      {/* E'lonlarning o'zi endi "Ijtimoiy tarmoqlar" bo'limida: bu sahifa
+          faqat bitta savolga javob beradi — qayerda qancha odam bor. */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">E&apos;lonlar</CardTitle>
-          <CardDescription>
-            Instagram o&apos;z sahifasida. Bu yerda qolgan tarmoqlar — har birini
-            tovarga bog&apos;lash mumkin.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {posts.length === 0 ? (
-            <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-              Hali e&apos;lon yo&apos;q. Telegram uchun eslatma: ochiq kanalning
-              eski e&apos;lonlari ham tortiladi, yopiq kanalda esa faqat bot
-              qo&apos;shilgandan keyingilari — bu Telegram cheklovi.
+        <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+          <div>
+            <p className="text-sm font-medium">
+              {posts.length > 0
+                ? `${posts.length} ta e'lon tovarlarga bog'lash uchun tayyor`
+                : "E'lonlar va tovarga bog'lash"}
             </p>
-          ) : (
-            posts.map((post) => (
-              <div key={post.id} className="flex items-start gap-3 rounded-lg border p-3">
-                {post.thumbnail ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={post.thumbnail} alt="" className="h-12 w-12 shrink-0 rounded-md border object-cover" />
-                ) : (
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border bg-muted">
-                    <Send className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <Badge variant="secondary">{post.platform}</Badge>
-                    {post.publishedByUs && <Badge variant="info">eStats</Badge>}
-                    {post.postedAt && (
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(post.postedAt).toLocaleDateString("uz-UZ")}
-                      </span>
-                    )}
-                    {!post.insightsAvailable && (
-                      <span className="text-xs text-muted-foreground">statistika yo&apos;q</span>
-                    )}
-                  </div>
-                  {post.caption && (
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{post.caption}</p>
-                  )}
-                  {post.products.length > 0 ? (
-                    <div className="mt-1.5 flex flex-wrap gap-1">
-                      {post.products.map((product) => (
-                        <span
-                          key={product.id}
-                          className="inline-flex items-center gap-1 rounded-md border bg-muted/50 py-0.5 pl-1.5 pr-1 text-xs"
-                        >
-                          <Link href={`/warehouse/${product.id}` as Route} className="max-w-40 truncate hover:underline">
-                            {product.title}
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => onUnlink(post, product.id)}
-                            className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-                            aria-label="Bog'lanishni uzish"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-1.5 text-xs text-muted-foreground">Tovarga bog&apos;lanmagan</p>
-                  )}
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setLinking(post)}>
-                    <LinkIcon className="h-3.5 w-3.5" /> Tovar
-                  </Button>
-                  {post.permalink && (
-                    <a
-                      href={post.permalink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-md border p-2 transition-colors hover:bg-accent"
-                      aria-label="Ochish"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
+            <p className="text-xs text-muted-foreground">
+              Har tarmoq alohida tabda, tovar esa bir joyda — qayerda bor,
+              qayerda yo&apos;q.
+            </p>
+          </div>
+          <Link href={"/socials" as Route}>
+            <Button size="sm" className="gap-1.5">
+              Ochish <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
         </CardContent>
       </Card>
 
-      <LinkPostDialog
-        post={linking}
-        onOpenChange={(open) => !open && setLinking(null)}
-        onSaved={load}
-      />
     </div>
   );
 }
