@@ -812,3 +812,39 @@ export interface BroadcastResult {
   failed: number;
   items: BroadcastItem[];
 }
+
+export interface NetworkRow {
+  platform: SocialPlatform;
+  label: string;
+  accounts: number;
+  followers: number;
+  posts: number;
+  /** E'lonlar jami nechta odamga yetgan. */
+  audience: number;
+  interactions: number;
+  engagementRate: number | null;
+  /** Tarmoq statistikani umuman bermasa — noli "yomon" deb o'qilmasin. */
+  insightsAvailable: boolean;
+}
+
+export interface NetworksOverview {
+  totalFollowers: number;
+  totalPosts: number;
+  totalAudience: number;
+  networks: NetworkRow[];
+}
+
+/** Reklama shu tovarga arziydimi. Meta bashorati emas — o'z raqamlaringiz. */
+export interface AdVerdict {
+  productId: number;
+  title: string;
+  profitPerUnit: number | null;
+  organicUnitsPerDay: number;
+  organicProfitPerDay: number;
+  maxSensibleDaily: number | null;
+  costPerCustomerLow: number | null;
+  costPerCustomerHigh: number | null;
+  verdict: "good" | "careful" | "no" | "unknown";
+  headline: string;
+  reasons: string[];
+}

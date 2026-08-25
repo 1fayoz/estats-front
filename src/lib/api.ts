@@ -7,6 +7,7 @@
 import { AUTH_STORAGE_KEY } from "./auth";
 import type {
   AdPlan,
+  AdVerdict,
   AdResult,
   ExpenseBurn,
   ExpenseDueItem,
@@ -22,6 +23,7 @@ import type {
   LoginResponse,
   Me,
   Goal,
+  NetworksOverview,
   Paginated,
   Plan,
   PnlReport,
@@ -403,3 +405,8 @@ export const publishToSocial = (payload: {
   caption?: string;
   images?: string[];
 }) => request<BroadcastResult>("/social/publish", { method: "POST", body: JSON.stringify(payload) });
+
+export const fetchNetworksOverview = () => request<NetworksOverview>("/social/overview");
+
+export const fetchAdVerdict = (productId: number) =>
+  request<AdVerdict>(`/social/ad-check/${productId}`);

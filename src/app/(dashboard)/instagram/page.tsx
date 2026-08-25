@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdDialog } from "@/features/instagram/components/ad-dialog";
 import { LinkDialog } from "@/features/instagram/components/link-dialog";
 import { PostCard } from "@/features/instagram/components/post-card";
-import { PublishDialog } from "@/features/instagram/components/publish-dialog";
+import { BroadcastDialog } from "@/features/social/components/broadcast-dialog";
 import {
   ApiError, deleteInstagramAd, fetchInstagramAccount, fetchInstagramAds,
   fetchInstagramCoverage, fetchInstagramPosts, startInstagramAd, stopInstagramAd,
@@ -376,7 +376,7 @@ export default function InstagramPage() {
         onOpenChange={(open) => !open && setAdvertising(null)}
         onSaved={load}
       />
-      <PublishDialog
+      <BroadcastDialog
         productId={publishing?.productId ?? null}
         onOpenChange={(open) => !open && setPublishing(null)}
         onPublished={load}

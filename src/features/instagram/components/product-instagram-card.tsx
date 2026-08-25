@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdDialog } from "./ad-dialog";
-import { PublishDialog } from "./publish-dialog";
+import { BroadcastDialog } from "@/features/social/components/broadcast-dialog";
 import { fetchInstagramAccount, fetchInstagramPosts } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 import type { InstagramAccount, InstagramPost } from "@/lib/types";
@@ -142,7 +142,7 @@ export function ProductInstagramCard({ productId }: { productId: number }) {
         )}
       </CardContent>
 
-      <PublishDialog
+      <BroadcastDialog
         productId={publishing ? productId : null}
         onOpenChange={(open) => !open && setPublishing(false)}
         onPublished={load}
