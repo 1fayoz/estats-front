@@ -846,6 +846,8 @@ export interface NetworkRow {
   engagementRate: number | null;
   /** Tarmoq statistikani umuman bermasa — noli "yomon" deb o'qilmasin. */
   insightsAvailable: boolean;
+  /** Qamrov bor, reaksiya yo'q degan holat ham bor — Telegram shunday. */
+  interactionsAvailable: boolean;
 }
 
 export interface NetworksOverview {

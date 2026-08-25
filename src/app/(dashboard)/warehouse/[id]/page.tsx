@@ -17,6 +17,7 @@ import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
 import { ProductGallery } from "@/features/warehouse/components/product-gallery";
 import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
+import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { fetchProductDetail } from "@/lib/api";
@@ -126,6 +127,8 @@ export default function ProductDetailPage() {
       <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
 
       <AdVerdictCard productId={id} />
+
+      <ProductNetworksCard product={p} />
 
       <ProductInstagramCard productId={id} />
 

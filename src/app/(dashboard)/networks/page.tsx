@@ -142,9 +142,9 @@ export default function NetworksPage() {
                       ) : (
                         <Badge variant="outline">ulanmagan</Badge>
                       )}
-                      {!n.insightsAvailable && n.accounts > 0 && (
-                        <Badge variant="warning" className="gap-1">
-                          <Info className="h-3 w-3" /> statistika bermaydi
+                      {!n.interactionsAvailable && n.accounts > 0 && (
+                        <Badge variant="secondary" className="gap-1">
+                          <Info className="h-3 w-3" /> faqat ko&apos;rishlar
                         </Badge>
                       )}
                     </div>
@@ -164,6 +164,9 @@ export default function NetworksPage() {
                     <Stat
                       label="Qamrov"
                       value={n.insightsAvailable ? formatNumber(n.audience) : "—"}
+                      hint={
+                        n.interactionsAvailable ? undefined : "ko'rishlar soni"
+                      }
                     />
                   </div>
                 </div>
@@ -231,9 +234,18 @@ function Mini({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  /** Raqam nimani anglatishi tarmoqqa qarab farq qilganda. */
+  hint?: string;
+}) {
   return (
-    <div>
+    <div title={hint}>
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-sm font-semibold tabular-nums">{value}</div>
     </div>
