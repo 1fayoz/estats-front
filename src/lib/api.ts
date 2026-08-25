@@ -28,11 +28,14 @@ import type {
   ProductDetail,
   MarketTokenStatus,
   MarketUploader,
+  BroadcastResult,
   ProductMarket,
   PublishPreview,
   RecurringExpense,
   Shop,
   ShopCreateResult,
+  SocialAccount,
+  SocialPlatformRow,
   SyncState,
   WarehouseProduct,
 } from "./types";
@@ -370,3 +373,33 @@ export const deleteInstagramAd = (id: number) =>
   request<void>(`/instagram/ads/${id}`, { method: "DELETE" });
 
 export const fetchAdResult = (id: number) => request<AdResult>(`/instagram/ads/${id}/result`);
+
+// ── ijtimoiy tarmoqlar ───────────────────────────────────────────────────────
+
+export const fetchSocialPlatforms = () =>
+  request<SocialPlatformRow[]>("/social/platforms");
+
+export const fetchSocialAccounts = (platform?: string) =>
+  request<SocialAccount[]>(`/social/accounts${qs({ platform })}`);
+
+export const connectSocialAccount = (payload: {
+  platform: string;
+  credential: string;
+  chat?: string;
+}) => request<SocialAccount>("/social/accounts", { method: "POST", body: JSON.stringify(payload) });
+
+export const updateSocialAccount = (id: number, payload: { isDefault?: boolean }) =>
+  request<SocialAccount>(`/social/accounts/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
+
+export const refreshSocialAccount = (id: number) =>
+  request<SocialAccount>(`/social/accounts/${id}/refresh`, { method: "POST" });
+
+export const disconnectSocialAccount = (id: number) =>
+  request<void>(`/social/accounts/${id}`, { method: "DELETE" });
+
+export const publishToSocial = (payload: {
+  productId: number;
+  accountIds?: number[];
+  caption?: string;
+  images?: string[];
+}) => request<BroadcastResult>("/social/publish", { method: "POST", body: JSON.stringify(payload) });

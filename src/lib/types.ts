@@ -747,3 +747,68 @@ export interface AdResult {
   isWorthIt: boolean | null;
   note: string;
 }
+
+// ── ijtimoiy tarmoqlar (ko'p tarmoq, ko'p akkaunt) ───────────────────────────
+
+export type SocialPlatform = "instagram" | "telegram" | "tiktok" | "linkedin";
+
+/** Tarmoq nima qila oladi — interfeys shunga qarab chiziladi. */
+export interface SocialCapabilities {
+  connect: "oauth" | "token";
+  carousel: boolean;
+  maxImages: number;
+  video: boolean;
+  maxCaption: number;
+  clickableLinks: boolean;
+  postInsights: boolean;
+  ads: boolean;
+}
+
+export interface SocialPlatformRow {
+  platform: SocialPlatform;
+  label: string;
+  capabilities: SocialCapabilities;
+  connected: number;
+  /** Ulab bo'lmasa — sababi. */
+  unavailable: string | null;
+  hint: string | null;
+}
+
+export interface SocialAccount {
+  id: number;
+  platform: SocialPlatform;
+  externalId: string;
+  username: string | null;
+  name: string | null;
+  picture: string | null;
+  followers: number;
+  profileUrl: string | null;
+  isDefault: boolean;
+  canPublish: boolean;
+  canAdvertise: boolean;
+  tokenExpiresAt: string | null;
+  tokenExpiresSoon: boolean;
+  tokenExpired: boolean;
+  connectedAt: string | null;
+  postsSyncedAt: string | null;
+  postCount: number;
+  error: string | null;
+}
+
+export interface BroadcastItem {
+  accountId: number;
+  platform: SocialPlatform;
+  account: string;
+  ok: boolean;
+  postId: number | null;
+  permalink: string | null;
+  error: string | null;
+}
+
+/** Natija har akkaunt uchun alohida — bittasi ketmasa qolgani ketaveradi. */
+export interface BroadcastResult {
+  broadcastId: string;
+  sent: number;
+  failed: number;
+  items: BroadcastItem[];
+}

@@ -30,6 +30,7 @@ import type { Shop } from "@/lib/types";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
+import { NetworksCard } from "@/features/social/components/networks-card";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -219,6 +220,8 @@ export default function SettingsPage() {
         <MarketTokenCard />
 
         {shops.length > 0 && <InstagramConnectCard />}
+
+        {shops.length > 0 && <NetworksCard />}
 
         <Card>
           <CardHeader>
