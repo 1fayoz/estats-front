@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Maxfiylik siyosati — MyStats",
-  description: "MyStats qanday ma'lumot yig'adi, nima uchun va qanday saqlaydi.",
+  title: "Maxfiylik siyosati — eStats",
+  description: "eStats qanday ma'lumot yig'adi, nima uchun va qanday saqlaydi.",
 };
 
 export default function PrivacyPage() {
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <p>Oxirgi yangilanish: 2026-yil 23-avgust</p>
 
       <p>
-        MyStats — Uzum Market sotuvchilari uchun tan narx va foyda hisobi xizmati.
+        eStats — Uzum Market sotuvchilari uchun tan narx va foyda hisobi xizmati.
         Quyida qanday ma&apos;lumot olishimiz, nima uchun va qanday saqlashimiz
         tushuntirilgan.
       </p>

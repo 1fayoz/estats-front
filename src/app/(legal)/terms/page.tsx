@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Foydalanish shartlari — MyStats",
-  description: "MyStats xizmatidan foydalanish shartlari.",
+  title: "Foydalanish shartlari — eStats",
+  description: "eStats xizmatidan foydalanish shartlari.",
 };
 
 export default function TermsPage() {
@@ -13,7 +13,7 @@ export default function TermsPage() {
 
       <h2>Xizmat</h2>
       <p>
-        MyStats Uzum Market sotuvchisiga tovarlarining tan narxini, sotuvlarini va
+        eStats Uzum Market sotuvchisiga tovarlarining tan narxini, sotuvlarini va
         foydasini hisoblab beradi. Xizmatdan foydalanish uchun Google akkaunt va Uzum
         Seller API tokeni kerak.
       </p>
@@ -36,7 +36,7 @@ export default function TermsPage() {
 
       <h2>Uzum bilan bog&apos;liqlik</h2>
       <p>
-        MyStats Uzum Market&apos;ning rasmiy mahsuloti emas va u bilan hamkorlikda
+        eStats Uzum Market&apos;ning rasmiy mahsuloti emas va u bilan hamkorlikda
         ishlab chiqilmagan. Uzum API&apos;si o&apos;zgarsa yoki ishlamay qolsa,
         xizmatning ba&apos;zi qismlari vaqtincha ishlamasligi mumkin.
       </p>

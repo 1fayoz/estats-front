@@ -90,7 +90,7 @@ export function ProductInstagramCard({ productId }: { productId: number }) {
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {post.publishedByUs && <Badge variant="info">MyStats</Badge>}
+                  {post.publishedByUs && <Badge variant="info">eStats</Badge>}
                   {post.hasAd && (
                     <Badge variant="warning" className="gap-1">
                       <Megaphone className="h-3 w-3" /> Reklama

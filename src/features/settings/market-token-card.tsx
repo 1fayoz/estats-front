@@ -154,7 +154,7 @@ export function MarketTokenCard() {
               draggable
               className="inline-flex cursor-grab items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary active:cursor-grabbing"
             >
-              <MousePointerClick className="h-3.5 w-3.5" /> MyStats: token
+              <MousePointerClick className="h-3.5 w-3.5" /> eStats: token
             </a>
             <ol className="ml-4 list-decimal space-y-0.5 text-xs text-muted-foreground">
               {uploader.instructions.map((line) => (

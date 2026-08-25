@@ -65,7 +65,7 @@ export function PluginSection() {
               <div className="flex items-center justify-between rounded-lg border bg-gradient-to-r from-primary/5 to-transparent p-3">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary">
                   <Rocket className="h-4 w-4" />
-                  MyStats analitika
+                  eStats analitika
                 </div>
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   live

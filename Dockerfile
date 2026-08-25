@@ -15,7 +15,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ARG NEXT_PUBLIC_API_URL=https://stats.chatx.uz/api/v1
+ARG NEXT_PUBLIC_API_URL=https://api.estats.uz/api/v1
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 # Google Sign-In client id. Bu ham build vaqtida kerak — GIS skripti uni
 # brauzerda ishlatadi, ya'ni u bundle ichiga kirishi shart.

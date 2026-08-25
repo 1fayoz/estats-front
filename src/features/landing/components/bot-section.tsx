@@ -61,7 +61,7 @@ export function BotSection() {
                   <Send className="h-4 w-4" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-semibold">MyStats Bot</div>
+                  <div className="text-sm font-semibold">eStats Bot</div>
                   <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     online

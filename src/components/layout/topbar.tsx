@@ -37,7 +37,7 @@ export function Topbar() {
 
   React.useEffect(() => setMounted(true), []);
 
-  const displayName = user?.fullName || user?.email || "MyStats";
+  const displayName = user?.fullName || user?.email || "eStats";
   const initials = displayName
     .split(/[\s_@.]/)
     .map((p) => p[0])

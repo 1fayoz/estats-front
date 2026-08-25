@@ -1,10 +1,10 @@
 name: my-stats-front
 
 # Frontend konteyneri — faqat localhost'ga bog'lanadi, tashqariga host'dagi
-# nginx orqali chiqadi (stats.chatx.uz). Backend alohida compose loyihasida.
+# nginx orqali chiqadi (estats.uz). Backend alohida compose loyihasida.
 services:
   front:
-    image: ${FRONT_IMAGE:-ghcr.io/1fayoz/my-stats-front:latest}
+    image: ${FRONT_IMAGE:-ghcr.io/1fayoz/estats-front:latest}
     container_name: my-stats-front
     ports:
       - "127.0.0.1:8071:3000"

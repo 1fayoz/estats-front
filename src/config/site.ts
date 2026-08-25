@@ -1,10 +1,15 @@
 export const siteConfig = {
-  name: "MyStats",
+  name: "eStats",
   tagline: "Uzum Market uchun professional analitika",
   description:
-    "Mahsulotlar, sotuvlar, raqobatchilar va kalit so'zlar bo'yicha to'liq analitika. Uzum komissiyalarini hisoblang, foydani kuzating.",
-  url: "https://mystats.uz",
+    "Uzum Market sotuvchilari uchun tan narx, FIFO bo'yicha foyda va zarar, " +
+    "doimiy xarajatlar va Instagram reklamasi — bitta joyda. Komissiya va " +
+    "logistikadan keyingi haqiqiy foydani ko'ring.",
+  url: "https://estats.uz",
   locale: "uz",
+  // Ilgari sayt shu manzilda turgan. Eski havolalar 301 bilan yangisiga
+  // yo'naltiriladi; bu yerda faqat hujjat sifatida qoladi.
+  previousUrl: "https://stats.chatx.uz",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

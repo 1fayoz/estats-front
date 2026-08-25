@@ -28,7 +28,7 @@ const CASES = [
     badge: "Mavsumiy nisha",
     title: "0 → 35 dona, organik #2 pozitsiya",
     desc:
-      "Mavsumiy mahsulot (bayram dasturxon) MyStats orqali tanlangan. Raqobatchilar tarixi tahlil qilindi, kalit so'zlar tanlandi — 1-kundan sotuvlar, 7 kun ichida 35 dona.",
+      "Mavsumiy mahsulot (bayram dasturxon) eStats orqali tanlangan. Raqobatchilar tarixi tahlil qilindi, kalit so'zlar tanlandi — 1-kundan sotuvlar, 7 kun ichida 35 dona.",
     metric: "#2",
     metricLabel: "organik",
     color: "from-fuchsia-500/15 to-card",

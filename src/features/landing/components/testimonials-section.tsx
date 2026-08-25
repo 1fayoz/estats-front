@@ -64,7 +64,7 @@ export function TestimonialsSection() {
             <span className="gradient-text">1 400+</span> sotuvchi bizni tanlagan
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Uzum Marketdagi yetakchi do'konlar MyStats bilan ishlamoqda.
+            Uzum Marketdagi yetakchi do'konlar eStats bilan ishlamoqda.
           </p>
         </div>
 

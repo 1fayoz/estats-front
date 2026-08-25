@@ -41,7 +41,7 @@ export function PostCard({
         ) : null}
         <div className="absolute left-2 top-2 flex gap-1">
           <Badge variant="secondary">{KIND_LABEL[post.kind]}</Badge>
-          {post.publishedByUs && <Badge variant="info">MyStats</Badge>}
+          {post.publishedByUs && <Badge variant="info">eStats</Badge>}
           {post.hasAd && (
             <Badge variant="warning" className="gap-1">
               <Megaphone className="h-3 w-3" /> Reklama
