@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { Plug, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
@@ -9,17 +10,21 @@ import { NetworkIcon } from "@/components/brand/network-icons";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import { TelegramDialog } from "@/features/social/components/telegram-dialog";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { ShopsCard } from "@/features/settings/shops-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
-import { ApiError, fetchInstagramConnectUrl, fetchSocialAccounts, fetchSocialPlatforms } from "@/lib/api";
+import {
+  ApiError, fetchInstagramConnectUrl, fetchSocialAccounts, fetchSocialApps,
+  fetchSocialConnectUrl, fetchSocialPlatforms,
+} from "@/lib/api";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useUserStore } from "@/stores/user-store";
-import type { SocialAccount, SocialPlatformRow } from "@/lib/types";
+import type { SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
 
 /**
  * Ulanish joylari bir sahifada, har biri o'z tabida.
@@ -31,6 +36,7 @@ import type { SocialAccount, SocialPlatformRow } from "@/lib/types";
 export default function IntegrationsPage() {
   const [platforms, setPlatforms] = React.useState<SocialPlatformRow[]>([]);
   const [accounts, setAccounts] = React.useState<SocialAccount[]>([]);
+  const [socialApps, setSocialApps] = React.useState<SocialApp[]>([]);
   const [telegramOpen, setTelegramOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   // Magazinsiz do'kon so'rovlari ma'nosiz — hammasi `X-Shop-Id` ga
@@ -45,9 +51,14 @@ export default function IntegrationsPage() {
       return;
     }
     try {
-      const [rows, list] = await Promise.all([fetchSocialPlatforms(), fetchSocialAccounts()]);
+      const [rows, list, appList] = await Promise.all([
+        fetchSocialPlatforms(),
+        fetchSocialAccounts(),
+        fetchSocialApps().catch(() => [] as SocialApp[]),
+      ]);
       setPlatforms(rows);
       setAccounts(list);
+      setSocialApps(appList);
     } catch {
       /* ulanmagan bo'lsa ham sahifa ochilishi kerak */
     } finally {
@@ -60,20 +71,37 @@ export default function IntegrationsPage() {
   }, [load]);
   useAutoRefresh(load);
 
+  // Tarmoqdan qaytgandagi natija. Xato manzilda keladi, chunki
+  // foydalanuvchi tarmoqning saytidan qaytadi — bu yerda hech qanday
+  // holat saqlanib qolmagan.
+  const params = useSearchParams();
+  React.useEffect(() => {
+    const failed = params.get("net_error");
+    const connected = params.get("net_connected");
+    if (failed) toast.error(failed);
+    if (connected) {
+      toast.success(`${PLATFORM_LABEL[connected] ?? connected} ulandi`);
+      void load();
+    }
+  }, [params, load]);
+
   const onConnect = async (platform: string, hasAccounts: boolean) => {
-    if (platform === "instagram") {
-      try {
-        // `add` — mavjud akkauntning ustiga yozmaslik uchun. Aks holda
-        // ikkinchi do'konni ulamoqchi bo'lgan odam birinchisini bilmasdan
-        // almashtirib yuborardi.
-        const { url } = await fetchInstagramConnectUrl(hasAccounts);
-        window.location.href = url;
-      } catch (err) {
-        toast.error(err instanceof ApiError ? err.message : "Ulanib bo'lmadi.");
-      }
+    if (platform === "telegram") {
+      setTelegramOpen(true);
       return;
     }
-    setTelegramOpen(true);
+    try {
+      // Instagram'da `add` — mavjud akkauntning ustiga yozmaslik uchun.
+      // Aks holda ikkinchi do'konni ulamoqchi bo'lgan odam birinchisini
+      // bilmasdan almashtirib yuborardi.
+      const { url } =
+        platform === "instagram"
+          ? await fetchInstagramConnectUrl(hasAccounts)
+          : await fetchSocialConnectUrl(platform);
+      window.location.href = url;
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Ulanib bo'lmadi.");
+    }
   };
 
   const ordered = React.useMemo(
@@ -143,6 +171,7 @@ export default function IntegrationsPage() {
         {/* ── Ijtimoiy tarmoqlar ───────────────────────────────────────── */}
         {ordered.map((row) => {
           const mine = accounts.filter((a) => a.platform === row.platform);
+          const app = socialApps.find((a) => a.platform === row.platform);
           return (
             <TabsContent key={row.platform} value={row.platform} className="mt-4">
               <NetworkPanel
@@ -154,6 +183,9 @@ export default function IntegrationsPage() {
                 {/* Instagram ulanishi ko'p bosqichli: Facebook -> Page ->
                     reklama kabineti. Tanlash qadami shu yerda ochiladi. */}
                 {row.platform === "instagram" && <InstagramConnectCard />}
+                {/* LinkedIn va TikTok sotuvchining O'Z ilovasi bilan
+                    ishlaydi — kalitlar shu yerda kiritiladi. */}
+                {app && <AppKeysCard app={app} onSaved={load} />}
               </NetworkPanel>
             </TabsContent>
           );

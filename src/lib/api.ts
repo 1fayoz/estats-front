@@ -38,6 +38,7 @@ import type {
   Shop,
   ShopCreateResult,
   SocialAccount,
+  SocialApp,
   SocialPlatformRow,
   SocialPost,
   SyncState,
@@ -379,6 +380,20 @@ export const deleteInstagramAd = (id: number) =>
 export const fetchAdResult = (id: number) => request<AdResult>(`/instagram/ads/${id}/result`);
 
 // ── ijtimoiy tarmoqlar ───────────────────────────────────────────────────────
+
+export const fetchSocialApps = () => request<SocialApp[]>("/social/apps");
+
+export const saveSocialApp = (
+  platform: string,
+  payload: { clientId: string; clientSecret?: string },
+) => request<SocialApp>(`/social/apps/${platform}`, { method: "PUT", body: JSON.stringify(payload) });
+
+export const deleteSocialApp = (platform: string) =>
+  request<void>(`/social/apps/${platform}`, { method: "DELETE" });
+
+/** OAuth bilan ulanadigan tarmoqning login sahifasi. */
+export const fetchSocialConnectUrl = (platform: string) =>
+  request<{ url: string }>(`/social/connect/${platform}`);
 
 export const fetchSocialPlatforms = () =>
   request<SocialPlatformRow[]>("/social/platforms");

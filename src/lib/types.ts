@@ -764,6 +764,17 @@ export interface SocialCapabilities {
   ads: boolean;
 }
 
+/** Tarmoq ilovasining holati. Kalitning o'zi hech qachon kelmaydi. */
+export interface SocialApp {
+  platform: SocialPlatform;
+  label: string;
+  configured: boolean;
+  /** Ilovani qayerda yaratish kerak. */
+  portal: string | null;
+  /** Developer portaliga aynan shu satr yoziladi. */
+  redirectUri: string;
+}
+
 export interface SocialPlatformRow {
   platform: SocialPlatform;
   label: string;
