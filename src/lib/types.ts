@@ -793,6 +793,8 @@ export interface SocialAccount {
   postsSyncedAt: string | null;
   postCount: number;
   error: string | null;
+  /** Hozircha ishlayapti, lekin e'lonlarni tortib bo'lmaydigan holat. */
+  warning: string | null;
 }
 
 export interface BroadcastItem {
