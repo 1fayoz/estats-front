@@ -23,6 +23,7 @@ import type {
   LoginResponse,
   Me,
   Goal,
+  MarketingReport,
   NetworksOverview,
   Paginated,
   Plan,
@@ -410,3 +411,5 @@ export const fetchNetworksOverview = () => request<NetworksOverview>("/social/ov
 
 export const fetchAdVerdict = (productId: number) =>
   request<AdVerdict>(`/social/ad-check/${productId}`);
+
+export const fetchMarketingReport = () => request<MarketingReport>("/marketing");

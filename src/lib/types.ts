@@ -848,3 +848,45 @@ export interface AdVerdict {
   headline: string;
   reasons: string[];
 }
+
+// ── marketing hisoboti ───────────────────────────────────────────────────────
+
+export interface MarketingInsight {
+  productId: number;
+  title: string;
+  image: string | null;
+  units: number;
+  profit: number;
+  profitShare: number;
+  price: number | null;
+  stock: number;
+  daysLeft: number | null;
+  marginPercent: number | null;
+  /** Postda ishlatsa bo'ladigan HAQIQIY dalillar. */
+  proof: string[];
+  actions: string[];
+}
+
+export interface MarketingAction {
+  priority: number;
+  title: string;
+  detail: string;
+  kind: "good" | "warning" | "danger" | "info";
+}
+
+export interface MarketingReport {
+  windowDays: number;
+  generatedAt: string | null;
+  totalProfit: number;
+  totalUnits: number;
+  productsSold: number;
+  productsTotal: number;
+  /** Foydaning katta qismini beradigan tovarlar soni. */
+  coreCount: number;
+  coreShare: number;
+  audience: number;
+  networksConnected: number;
+  winners: MarketingInsight[];
+  dead: MarketingInsight[];
+  actions: MarketingAction[];
+}
