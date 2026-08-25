@@ -2,10 +2,9 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, Camera, Check, ExternalLink, Loader2, Unlink } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -13,7 +12,6 @@ import {
   ApiError, disconnectInstagram, fetchInstagramAccount, fetchInstagramChoices,
   fetchInstagramConnectUrl, selectInstagramAccount,
 } from "@/lib/api";
-import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { InstagramAccount, InstagramChoices } from "@/lib/types";
 
@@ -112,54 +110,30 @@ export function InstagramConnectCard() {
 
   const connected = account?.connected && account.username;
 
+  // Karta faqat panel qila olmaydigan narsa uchun: Page tanlash,
+  // reklama kabineti va yetishmayotgan ruxsatlar. Akkauntning o'zi
+  // (obunachi, uzish, asosiy qilish) panelda turadi — ikki joyda
+  // ko'rsatish qaysi biri haqiqiy ekanini noaniq qilardi.
+  const hasSomethingToSay =
+    Boolean(choices) ||
+    Boolean(connected && (account!.adAccountId || account!.missing.length > 0));
+  if (!hasSomethingToSay) return null;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Camera className="h-4 w-4" /> Instagram
+        <CardTitle className="text-base">
+          {choices ? "Qaysi akkaunt ulansin?" : "Instagram sozlamalari"}
         </CardTitle>
         <CardDescription>
-          Postlarni tovarga bog'lash, statistika va reklama. Ulanish Facebook orqali
-          ketadi — Instagram Business akkaunti Page'ga biriktirilgan bo'lishi kerak.
+          {choices
+            ? "Facebook ulandi. Endi Instagram Business akkauntini va reklama kabinetini tanlang."
+            : "Reklama kabineti va ruxsatlar."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {connected ? (
           <>
-            <div className="flex items-center gap-3 rounded-lg border p-3">
-              {account!.profilePicture ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={account!.profilePicture}
-                  alt=""
-                  className="h-11 w-11 rounded-full border object-cover"
-                />
-              ) : (
-                <div className="h-11 w-11 rounded-full border bg-muted" />
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="truncate font-medium">{`@${account!.username}`}</span>
-                  <Badge variant="success" className="gap-1">
-                    <Check className="h-3 w-3" /> Ulangan
-                  </Badge>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {`${formatNumber(account!.followers)} obunachi · ${account!.postCount} post`}
-                  {account!.pageName ? ` · ${account!.pageName}` : ""}
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDisconnect}
-                disabled={busy}
-                className="shrink-0 gap-1.5 text-destructive hover:text-destructive"
-              >
-                <Unlink className="h-3.5 w-3.5" /> Uzish
-              </Button>
-            </div>
-
             {account!.adAccountId ? (
               <div className="rounded-lg border p-3 text-sm">
                 <div className="text-xs text-muted-foreground">Reklama kabineti</div>
@@ -255,22 +229,7 @@ export function InstagramConnectCard() {
               Saqlash
             </Button>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Ulangandan keyin postlaringiz tortiladi, ularni tovarlarga bog&apos;laysiz va
-              qaysi post qancha sotuv keltirgani ko&apos;rinadi.
-            </p>
-            <Button onClick={onConnect} disabled={busy} className="gap-1.5">
-              {busy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ExternalLink className="h-4 w-4" />
-              )}
-              Facebook orqali ulash
-            </Button>
-          </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
