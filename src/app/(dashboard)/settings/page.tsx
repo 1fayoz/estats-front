@@ -23,7 +23,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Sozlamalar"
-        description="Magazinlaringiz va tashqi ko'rinish"
+        description="Hisob va tashqi ko'rinish. Magazinlar va tokenlar — Integratsiyalarda"
         actions={
           <Link href={"/integrations" as Route}>
             <Button variant="outline" size="sm" className="gap-1.5">
