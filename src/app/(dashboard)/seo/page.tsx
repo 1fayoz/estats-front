@@ -219,9 +219,10 @@ export default function SeoPage() {
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         <Badge variant="secondary">Qamrov</Badge>
-        {" — shu so'rov ortida qancha savdo turgani: Uzum qidiruvida nechta tovar chiqadi "}
-        {"va ular jami qancha buyurtma olgan. Bu so'rovlar CHASTOTASI emas — uni Uzum "}
-        {"tashqariga bermaydi."}
+        {" — so'rov ortidagi talab: shu so'rovga chiqqan tovarlarning jami buyurtma va "}
+        {"sharhlari. Sharh sotuvning izi — uni faqat sotib olgan odam qoldiradi. Tovarlar "}
+        {"SONI bunga kirmaydi, u alohida ustunda: u raqobat zichligini bildiradi. Bu "}
+        {"so'rovlar CHASTOTASI emas — uni Uzum tashqariga bermaydi."}
       </p>
     </div>
   );

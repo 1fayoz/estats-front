@@ -287,8 +287,8 @@ function KeywordsBlock({ audit }: { audit: SeoAudit }) {
               <tr className="border-b text-left text-xs text-muted-foreground">
                 <th className="pb-2 pr-3 font-medium">Kalit so&apos;z</th>
                 <th className="pb-2 pr-3 text-right font-medium">Qamrov</th>
-                <th className="pb-2 pr-3 text-right font-medium">Tovar</th>
-                <th className="pb-2 pr-3 text-right font-medium">Buyurtma</th>
+                <th className="pb-2 pr-3 text-right font-medium">Raqobat</th>
+                <th className="pb-2 pr-3 text-right font-medium">Sharh</th>
                 <th className="pb-2 pr-3 text-right font-medium">Nomda</th>
                 <th className="pb-2 pr-3 text-right font-medium">Tavsifda</th>
                 <th className="pb-2 text-right font-medium">Ulush</th>
@@ -315,7 +315,7 @@ function KeywordsBlock({ audit }: { audit: SeoAudit }) {
                       {formatNumber(row.products)}
                     </td>
                     <td className="py-2 pr-3 text-right tabular-nums text-muted-foreground">
-                      {formatNumber(row.orders)}
+                      {formatNumber(row.reviews + row.orders)}
                     </td>
                     <td className={cn("py-2 pr-3 text-right tabular-nums", row.inTitle > 0 && "text-emerald-600 dark:text-emerald-500")}>
                       {row.inTitle}

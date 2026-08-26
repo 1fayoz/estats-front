@@ -955,10 +955,12 @@ export interface SocialPost {
 
 export interface SeoKeywordRow {
   phrase: string;
-  /** Shu so'rov ortidagi savdo o'lchovi: tovarlar soni + ularning buyurtmalari. */
+  /** So'rov ortidagi TALAB: buyurtmalar + sharhlar. Tovarlar soni bunga kirmaydi. */
   coverage: number;
+  /** Nechta tovar chiqadi — bu raqobat zichligi, talab emas. */
   products: number;
   orders: number;
+  reviews: number;
   language: string | null;
   inTitle: number;
   inDescription: number;
