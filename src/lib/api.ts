@@ -42,6 +42,7 @@ import type {
   SeoAuditRow,
   SeoJob,
   SeoPositionRow,
+  SeoRival,
   SocialAccount,
   SocialApp,
   SocialPlatformRow,
@@ -512,3 +513,6 @@ export const fetchSeoPositions = (productId: number) =>
 
 export const trackSeoPositions = (productId: number) =>
   request<SeoPositionRow[]>(`/seo/${productId}/positions`, { method: "POST" });
+
+export const fetchSeoRivals = (productId: number) =>
+  request<SeoRival[]>(`/seo/${productId}/rivals`);

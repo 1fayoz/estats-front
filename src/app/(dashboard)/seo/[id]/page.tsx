@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import type { Route } from "next";
 import {
   Activity, AlertTriangle, ArrowLeft, Check, Copy, ExternalLink, Image as ImageIcon,
-  Loader2, PenLine, Sparkles, Wand2,
+  Loader2, MessageSquare, PenLine, SlidersHorizontal, Sparkles, Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,7 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AttributesBlock } from "@/features/seo/components/attributes-block";
 import { FixBlock } from "@/features/seo/components/fix-block";
+import { ReviewsBlock } from "@/features/seo/components/reviews-block";
+import { RivalsBlock } from "@/features/seo/components/rivals-block";
 import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { RunPicker } from "@/features/seo/components/run-picker";
 import { ScoreRing } from "@/features/seo/components/score-ring";
@@ -159,6 +162,22 @@ export default function SeoDetailPage() {
               <TabsTrigger value="keywords">
                 {`Kalit so'zlar (${audit.keywordsTotal})`}
               </TabsTrigger>
+              <TabsTrigger value="attributes" className="gap-1.5">
+                <SlidersHorizontal className="h-3.5 w-3.5" /> Xususiyatlar
+                {audit.attributes && audit.attributes.missing.length > 0 && (
+                  <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-600 dark:text-amber-500">
+                    {audit.attributes.missing.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="gap-1.5">
+                <MessageSquare className="h-3.5 w-3.5" /> Sharhlar
+                {audit.reviews && audit.reviews.total > 0 && (
+                  <span className="rounded bg-background/70 px-1 text-[10px]">
+                    {audit.reviews.total}
+                  </span>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="media" className="gap-1.5">
                 <ImageIcon className="h-3.5 w-3.5" /> Rasmlar
               </TabsTrigger>
@@ -184,6 +203,21 @@ export default function SeoDetailPage() {
               <KeywordsBlock audit={audit} />
             </TabsContent>
 
+            <TabsContent value="attributes" className="mt-4">
+              <AttributesBlock
+                attributes={audit.attributes}
+                editUrl={
+                  externalId
+                    ? `https://seller.uzum.uz/seller/product/${externalId}/edit`
+                    : null
+                }
+              />
+            </TabsContent>
+
+            <TabsContent value="reviews" className="mt-4">
+              <ReviewsBlock reviews={audit.reviews} />
+            </TabsContent>
+
             <TabsContent value="media" className="mt-4">
               <MediaBlock audit={audit} job={job} onRun={() => run("media")} />
             </TabsContent>
@@ -200,8 +234,9 @@ export default function SeoDetailPage() {
               />
             </TabsContent>
 
-            <TabsContent value="positions" className="mt-4">
+            <TabsContent value="positions" className="mt-4 space-y-3">
               <PositionsBlock productId={audit.productId} />
+              <RivalsBlock productId={audit.productId} />
             </TabsContent>
           </Tabs>
         </>
@@ -212,9 +247,10 @@ export default function SeoDetailPage() {
 
 function ScoreBlock({ audit }: { audit: SeoAudit }) {
   const parts = [
-    { label: "Nom", value: audit.titleScore, max: 30 },
-    { label: "Tavsif", value: audit.descriptionScore, max: 25 },
-    { label: "Kalit so'zlar", value: audit.keywordScore, max: 45 },
+    { label: "Nom", value: audit.titleScore, max: 25 },
+    { label: "Tavsif", value: audit.descriptionScore, max: 20 },
+    { label: "Kalit so'zlar", value: audit.keywordScore, max: 40 },
+    { label: "Xususiyatlar", value: audit.attributeScore, max: 15 },
   ];
   return (
     <div className="grid gap-3 lg:grid-cols-3">

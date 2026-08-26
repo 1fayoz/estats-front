@@ -1004,6 +1004,47 @@ export interface SeoGenerated {
   tags: string[];
 }
 
+export interface SeoReviews {
+  total: number;
+  rating: number | null;
+  /** Baho bo'yicha taqsimot: {"5": 12, "4": 3}. */
+  breakdown: Record<string, number>;
+  /** Nechta sharh o'qildi — Uzum hammasini bermaydi. */
+  analysed: number;
+  loved: string[];
+  complaints: string[];
+  words: string[];
+  advice: string[];
+}
+
+export interface SeoAttributeRow {
+  title: string;
+  values: string[];
+  filled: boolean;
+}
+
+export interface SeoAttributes {
+  total: number;
+  filled: number;
+  rows: SeoAttributeRow[];
+  missing: string[];
+  score: number;
+}
+
+/** Kalit so'zlar bo'yicha oldimizda turgan tovar. */
+export interface SeoRival {
+  productId: number;
+  title: string;
+  price: number;
+  rating: number | null;
+  reviews: number;
+  orders: number;
+  image: string | null;
+  url: string | null;
+  phrases: string[];
+  bestRank: number;
+}
+
 export interface SeoAudit {
   productId: number;
   title: string;
@@ -1031,7 +1072,11 @@ export interface SeoAudit {
   keywords: SeoKeywordRow[];
   missing: string[];
 
+  attributeScore: number;
+
   media: SeoMedia | null;
+  reviews: SeoReviews | null;
+  attributes: SeoAttributes | null;
   generated: SeoGenerated | null;
   /** Sotuvchi tahrirlagan variant — AI natijasi ustiga yozilmaydi. */
   draft: Partial<SeoGenerated> | null;
