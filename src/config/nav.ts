@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, Share2, Target, Settings, type LucideIcon } from "lucide-react";
+import { Boxes, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Target, Settings, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -70,6 +70,13 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/marketing" as Route,
         icon: Megaphone,
         description: "Nima ishlayapti va nimaga kuch sarflash kerak",
+        badge: "Yangi",
+      },
+      {
+        label: "SEO audit",
+        href: "/seo" as Route,
+        icon: SearchCheck,
+        description: "Kartochka qidiruvda topiladimi",
         badge: "Yangi",
       },
       {

@@ -37,6 +37,9 @@ import type {
   RecurringExpense,
   Shop,
   ShopCreateResult,
+  AiKeyState,
+  SeoAudit,
+  SeoAuditRow,
   SocialAccount,
   SocialApp,
   SocialPlatformRow,
@@ -458,3 +461,27 @@ export const fetchBroadcasts = (params: { active?: boolean; limit?: number } = {
 
 export const retryBroadcast = (id: number) =>
   request<BroadcastResult>(`/social/broadcasts/${id}/retry`, { method: "POST" });
+
+// ── SEO auditi ───────────────────────────────────────────────────────────────
+
+export const fetchSeoList = () => request<SeoAuditRow[]>("/seo");
+
+export const fetchSeoAudit = (productId: number) =>
+  request<SeoAudit>(`/seo/${productId}`);
+
+/** Yadroni yig'ib, kartochkani tekshiradi. O'nlab tashqi so'rov — sekin. */
+export const runSeoAnalyse = (productId: number) =>
+  request<SeoAudit>(`/seo/${productId}/analyse`, { method: "POST" });
+
+export const runSeoMedia = (productId: number) =>
+  request<SeoAudit>(`/seo/${productId}/media`, { method: "POST" });
+
+export const runSeoContent = (productId: number) =>
+  request<SeoAudit>(`/seo/${productId}/content`, { method: "POST" });
+
+export const fetchAiKey = () => request<AiKeyState>("/seo/ai-key");
+
+export const saveAiKey = (apiKey: string) =>
+  request<AiKeyState>("/seo/ai-key", { method: "PUT", body: JSON.stringify({ apiKey }) });
+
+export const deleteAiKey = () => request<void>("/seo/ai-key", { method: "DELETE" });

@@ -22,6 +22,7 @@ export default function robots(): MetadataRoute.Robots {
           "/finance",
           "/instagram",
           "/socials",
+          "/seo",
           "/networks",
           "/marketing",
           "/integrations",

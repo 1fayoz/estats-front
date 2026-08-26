@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { Plug, ShoppingBag } from "lucide-react";
+import { Plug, ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
+import { AiKeyCard } from "@/features/seo/components/ai-key-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import { TelegramDialog } from "@/features/social/components/telegram-dialog";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
@@ -18,13 +19,13 @@ import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { ShopsCard } from "@/features/settings/shops-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import {
-  ApiError, fetchInstagramConnectUrl, fetchSocialAccounts, fetchSocialApps,
+  ApiError, fetchAiKey, fetchInstagramConnectUrl, fetchSocialAccounts, fetchSocialApps,
   fetchSocialConnectUrl, fetchSocialPlatforms,
 } from "@/lib/api";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useUserStore } from "@/stores/user-store";
-import type { SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
+import type { AiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
 
 /**
  * Ulanish joylari bir sahifada, har biri o'z tabida.
@@ -37,6 +38,7 @@ export default function IntegrationsPage() {
   const [platforms, setPlatforms] = React.useState<SocialPlatformRow[]>([]);
   const [accounts, setAccounts] = React.useState<SocialAccount[]>([]);
   const [socialApps, setSocialApps] = React.useState<SocialApp[]>([]);
+  const [aiKey, setAiKey] = React.useState<AiKeyState | null>(null);
   const [telegramOpen, setTelegramOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   // Magazinsiz do'kon so'rovlari ma'nosiz — hammasi `X-Shop-Id` ga
@@ -51,14 +53,16 @@ export default function IntegrationsPage() {
       return;
     }
     try {
-      const [rows, list, appList] = await Promise.all([
+      const [rows, list, appList, ai] = await Promise.all([
         fetchSocialPlatforms(),
         fetchSocialAccounts(),
         fetchSocialApps().catch(() => [] as SocialApp[]),
+        fetchAiKey().catch(() => null),
       ]);
       setPlatforms(rows);
       setAccounts(list);
       setSocialApps(appList);
+      setAiKey(ai);
     } catch {
       /* ulanmagan bo'lsa ham sahifa ochilishi kerak */
     } finally {
@@ -143,6 +147,12 @@ export default function IntegrationsPage() {
           <TabsTrigger value="uzum" className="gap-1.5">
             <ShoppingBag className="h-3.5 w-3.5" /> Uzum
           </TabsTrigger>
+          <TabsTrigger value="ai" className="gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" /> AI
+            {aiKey?.configured && (
+              <span className="rounded bg-background/70 px-1 text-[10px]">✓</span>
+            )}
+          </TabsTrigger>
           {ordered.map((row) => {
             const mine = accounts.filter((a) => a.platform === row.platform);
             return (
@@ -166,6 +176,10 @@ export default function IntegrationsPage() {
               <MarketTokenCard />
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="ai" className="mt-4">
+          {aiKey && <AiKeyCard state={aiKey} onSaved={load} />}
         </TabsContent>
 
         {/* ── Ijtimoiy tarmoqlar ───────────────────────────────────────── */}

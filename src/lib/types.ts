@@ -950,3 +950,105 @@ export interface SocialPost {
   insightsAvailable: boolean;
   products: LinkedProduct[];
 }
+
+// ── SEO auditi ───────────────────────────────────────────────────────────────
+
+export interface SeoKeywordRow {
+  phrase: string;
+  /** Shu so'rov ortidagi savdo o'lchovi: tovarlar soni + ularning buyurtmalari. */
+  coverage: number;
+  products: number;
+  orders: number;
+  language: string | null;
+  inTitle: number;
+  inDescription: number;
+  /** Ibora matnning necha foizini egallaydi. */
+  share: number;
+}
+
+export interface SeoVerdict {
+  title: string;
+  good: string[];
+  warnings: string[];
+}
+
+export interface SeoMediaImage {
+  kind: "model" | "product" | "infographic" | "other";
+  has_text: boolean;
+  languages?: string[];
+  note?: string;
+}
+
+export interface SeoMedia {
+  total: number;
+  infographics: number;
+  on_model: number;
+  product_only: number;
+  with_text: number;
+  summary: string;
+  facts: string[];
+  images: SeoMediaImage[];
+  advice: string[];
+}
+
+export interface SeoGenerated {
+  title_uz: string;
+  title_ru: string;
+  description_uz: string;
+  description_ru: string;
+  highlights: string[];
+  tags: string[];
+}
+
+export interface SeoAudit {
+  productId: number;
+  title: string;
+  image: string | null;
+
+  score: number;
+  titleScore: number;
+  descriptionScore: number;
+  keywordScore: number;
+
+  keywordsTotal: number;
+  keywordsUsed: number;
+  coverageTotal: number;
+  coverageUsed: number;
+  coverageMissed: number;
+
+  titleLength: number;
+  titleWords: number;
+  descriptionLength: number;
+  descriptionWords: number;
+  stopRatio: number;
+
+  description: string | null;
+  verdicts: SeoVerdict[];
+  keywords: SeoKeywordRow[];
+  missing: string[];
+
+  media: SeoMedia | null;
+  generated: SeoGenerated | null;
+
+  analyzedAt: string | null;
+  /** Yadro AI bilan kengaytirilganmi — natijani o'qishda muhim. */
+  aiUsed: boolean;
+  error: string | null;
+}
+
+export interface SeoAuditRow {
+  productId: number;
+  title: string;
+  image: string | null;
+  /** Tahlil qilinmagan bo'lsa `null` — nol EMAS. */
+  score: number | null;
+  keywordsUsed: number;
+  keywordsTotal: number;
+  coverageMissed: number;
+  analyzedAt: string | null;
+}
+
+export interface AiKeyState {
+  configured: boolean;
+  studioUrl: string;
+}
