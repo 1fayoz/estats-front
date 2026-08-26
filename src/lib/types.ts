@@ -962,6 +962,8 @@ export interface SeoKeywordRow {
   orders: number;
   reviews: number;
   language: string | null;
+  /** So'rovga chiqqan tovarlarning ustun turkumi. */
+  category: string | null;
   inTitle: number;
   inDescription: number;
   /** Ibora matnning necha foizini egallaydi. */

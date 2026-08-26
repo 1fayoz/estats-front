@@ -309,13 +309,18 @@ function KeywordsBlock({ audit }: { audit: SeoAudit }) {
                           {row.language}
                         </span>
                       )}
+                      {row.category && (
+                        <span className="block truncate text-[11px] text-muted-foreground">
+                          {row.category}
+                        </span>
+                      )}
                     </td>
                     <td className="py-2 pr-3 text-right tabular-nums">{formatNumber(row.coverage)}</td>
                     <td className="py-2 pr-3 text-right tabular-nums text-muted-foreground">
                       {formatNumber(row.products)}
                     </td>
                     <td className="py-2 pr-3 text-right tabular-nums text-muted-foreground">
-                      {formatNumber(row.reviews + row.orders)}
+                      {formatNumber(row.reviews)}
                     </td>
                     <td className={cn("py-2 pr-3 text-right tabular-nums", row.inTitle > 0 && "text-emerald-600 dark:text-emerald-500")}>
                       {row.inTitle}
