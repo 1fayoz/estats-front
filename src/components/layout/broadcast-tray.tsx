@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import type { Route } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -9,6 +11,7 @@ import {
   ExternalLink,
   Loader2,
   RotateCw,
+  SearchCheck,
   Send,
   X,
 } from "lucide-react";
@@ -19,20 +22,24 @@ import { Button } from "@/components/ui/button";
 import { retryBroadcast } from "@/lib/api";
 import { PLATFORM_LABEL } from "@/lib/platforms";
 import { useBroadcastStore, visibleBroadcasts } from "@/stores/broadcast-store";
+import { useSeoJobStore } from "@/stores/seo-job-store";
 import { cn } from "@/lib/utils";
-import type { BroadcastResult } from "@/lib/types";
+import type { BroadcastResult, SeoJob as SeoJobRow } from "@/lib/types";
 
 /**
- * Ketayotgan e'lonlar paneli.
+ * Fonda ketayotgan ishlar paneli.
  *
  * Layout ichida yashaydi, sahifada emas — shuning uchun boshqa bo'limga
- * o'tganda ham joyida qoladi va e'lon qanday ketayotgani ko'rinib turadi.
- * Sotuvchi tugmani bosgach kutib o'tirmasligi kerak edi, aynan shuning
- * uchun bu panel bor.
+ * o'tganda ham joyida qoladi. Ikkala ish turi ham SERVERDA bajariladi,
+ * shuning uchun sahifani yangilash ham, saytdan chiqib qayta kirish ham
+ * ularni to'xtatmaydi: panel har ochilganda serverdan holatni so'rab
+ * oladi va o'sha joyidan ko'rsatadi.
  */
 export function BroadcastTray() {
   const watch = useBroadcastStore((s) => s.watch);
   const dismiss = useBroadcastStore((s) => s.dismiss);
+  const watchJobs = useSeoJobStore((s) => s.watch);
+  const jobs = useSeoJobStore((s) => s.jobs);
   // Ikkalasi ham do'kondagi barqaror havola — filtrlash komponentda
   // bo'ladi, selektorda emas (sababi `visibleBroadcasts` ustida).
   const all = useBroadcastStore((s) => s.items);
@@ -41,19 +48,39 @@ export function BroadcastTray() {
   const [open, setOpen] = React.useState(true);
 
   React.useEffect(() => watch(), [watch]);
+  React.useEffect(() => watchJobs(), [watchJobs]);
+
+  // SEO tahlili — ikkinchi ish turi. Tugagani darhol yo'qoladi:
+  // natijasi o'z sahifasida turadi, panelda uni ushlab turishning
+  // ma'nosi yo'q.
+  const activeJobs = jobs.filter((j) => j.active);
 
   // Tugagan e'lon o'zi yo'qolmaydi: natijani (ayniqsa xatoni) sotuvchi
   // ko'rishi kerak. Faqat hammasi ketgan bo'lsa — o'zi yopiladi.
   const shown = items.filter(
     (b) => b.active || b.failed > 0 || Date.now() - Date.parse(b.finishedAt ?? "") < 20_000,
   );
-  if (shown.length === 0) return null;
+  if (shown.length === 0 && activeJobs.length === 0) return null;
 
-  const busy = shown.some((b) => b.active);
+  const busy = shown.some((b) => b.active) || activeJobs.length > 0;
 
   return (
     <div className="pointer-events-none fixed bottom-20 right-4 z-50 flex w-[min(23rem,calc(100vw-2rem))] flex-col items-end gap-2 lg:bottom-6">
       <AnimatePresence initial={false}>
+        {open &&
+          activeJobs.map((job) => (
+            <motion.div
+              key={`job-${job.id}`}
+              layout
+              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.97 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="pointer-events-auto w-full overflow-hidden rounded-xl border bg-card shadow-lg"
+            >
+              <JobRow job={job} />
+            </motion.div>
+          ))}
         {open &&
           shown.map((broadcast) => (
             <motion.div
@@ -81,7 +108,7 @@ export function BroadcastTray() {
           <Send className="h-3.5 w-3.5 text-muted-foreground" />
         )}
         <span className="font-medium">
-          {busy ? "E'lon ketmoqda" : "E'lonlar"} · {shown.length}
+          {busy ? "Ish ketmoqda" : "Fon ishlari"} · {shown.length + activeJobs.length}
         </span>
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", !open && "rotate-180")} />
       </button>
@@ -209,6 +236,58 @@ function BroadcastRow({
           Ketmaganlariga qayta urinish
         </Button>
       )}
+    </div>
+  );
+}
+
+
+/** Ketayotgan SEO tahlili. */
+function JobRow({ job }: { job: SeoJobRow }) {
+  const finished = job.done + job.failed;
+  const percent = Math.round((finished / Math.max(job.total, 1)) * 100);
+  const label =
+    job.kind === "media" ? "Rasm tahlili"
+      : job.kind === "content" ? "AI matn"
+        : "SEO tahlili";
+
+  return (
+    <div className="p-3">
+      <div className="flex items-start gap-2.5">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-muted">
+          <SearchCheck className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{label}</p>
+          <p className="text-xs text-muted-foreground">
+            {`${finished}/${job.total} tovar`}
+            {job.failed > 0 && (
+              <span className="text-destructive">{` · ${job.failed} xato`}</span>
+            )}
+          </p>
+        </div>
+        <Link
+          href={"/seo" as Route}
+          className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label="Ochish"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
+      <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted">
+        <motion.div
+          className="h-full rounded-full bg-primary"
+          animate={{ width: `${percent}%` }}
+          transition={{ duration: 0.3 }}
+        />
+      </div>
+
+      {job.items.filter((i) => i.status === "running").slice(0, 2).map((item) => (
+        <div key={item.productId} className="mt-1.5 flex items-center gap-1.5 text-xs">
+          <Loader2 className="h-3 w-3 shrink-0 animate-spin text-muted-foreground" />
+          <span className="truncate text-muted-foreground">{item.title}</span>
+        </div>
+      ))}
     </div>
   );
 }

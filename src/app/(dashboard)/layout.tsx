@@ -18,8 +18,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </main>
         </div>
         <MobileNav />
-        {/* Layout ichida: sahifa almashsa ham e'lon ketaveradi va
-            uning holati ko'rinib turadi. */}
+        {/* Layout ichida: sahifa almashsa ham fon ishlari ketaveradi
+            va ularning holati burchakda ko'rinib turadi. Ish serverda
+            bajarilgani uchun yangilash ham, saytdan chiqib qayta
+            kirish ham uni to'xtatmaydi. */}
         <BroadcastTray />
       </div>
     </AuthGuard>

@@ -24,6 +24,7 @@ import {
 } from "@/lib/api";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
+import { useQueryState } from "@/lib/use-query-state";
 import { useUserStore } from "@/stores/user-store";
 import type { AiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
 
@@ -40,6 +41,7 @@ export default function IntegrationsPage() {
   const [socialApps, setSocialApps] = React.useState<SocialApp[]>([]);
   const [aiKey, setAiKey] = React.useState<AiKeyState | null>(null);
   const [telegramOpen, setTelegramOpen] = React.useState(false);
+  const [tab, setTab] = useQueryState("tab", "uzum");
   const [loading, setLoading] = React.useState(true);
   // Magazinsiz do'kon so'rovlari ma'nosiz — hammasi `X-Shop-Id` ga
   // bog'langan. Yangi foydalanuvchi shu sahifaga tushadi, shuning uchun
@@ -142,7 +144,7 @@ export default function IntegrationsPage() {
         }
       />
 
-      <Tabs defaultValue="uzum">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="uzum" className="gap-1.5">
             <ShoppingBag className="h-3.5 w-3.5" /> Uzum

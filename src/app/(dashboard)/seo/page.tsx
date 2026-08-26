@@ -16,6 +16,7 @@ import { ScoreRing } from "@/features/seo/components/score-ring";
 import { ApiError, fetchAiKey, fetchSeoList, runSeoBulk } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 import { queuedProductIds, useSeoJobStore } from "@/stores/seo-job-store";
+import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import type { AiKeyState, SeoAuditRow } from "@/lib/types";
 
@@ -28,12 +29,11 @@ import type { AiKeyState, SeoAuditRow } from "@/lib/types";
 export default function SeoPage() {
   const [rows, setRows] = React.useState<SeoAuditRow[]>([]);
   const [aiKey, setAiKey] = React.useState<AiKeyState | null>(null);
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = useQueryState("q", "");
   const [chosen, setChosen] = React.useState<Set<number>>(new Set());
   const [busy, setBusy] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
-  const watch = useSeoJobStore((s) => s.watch);
   const put = useSeoJobStore((s) => s.put);
   const jobs = useSeoJobStore((s) => s.jobs);
   const queued = React.useMemo(() => queuedProductIds(jobs), [jobs]);
@@ -57,8 +57,6 @@ export default function SeoPage() {
   React.useEffect(() => {
     void load();
   }, [load]);
-  React.useEffect(() => watch(), [watch]);
-
   // Vazifa tugagach ro'yxatni bir marta yangilaymiz: ballar o'zgargan.
   const activeCount = jobs.filter((j) => j.active).length;
   const previous = React.useRef(activeCount);

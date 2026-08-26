@@ -468,8 +468,8 @@ export const retryBroadcast = (id: number) =>
 
 export const fetchSeoList = () => request<SeoAuditRow[]>("/seo");
 
-export const fetchSeoAudit = (productId: number) =>
-  request<SeoAudit>(`/seo/${productId}`);
+export const fetchSeoAudit = (productId: number, run?: number | null) =>
+  request<SeoAudit>(`/seo/${productId}${qs({ run: run ?? undefined })}`);
 
 /** Yadroni yig'ib, kartochkani tekshiradi. O'nlab tashqi so'rov — sekin. */
 export const runSeoAnalyse = (productId: number) =>

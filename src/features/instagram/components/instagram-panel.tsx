@@ -27,12 +27,15 @@ import {
 } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
+import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import type {
   CoverageItem, InstagramAccount, InstagramAd, InstagramCoverage, InstagramPost,
 } from "@/lib/types";
 
 export function InstagramPanel() {
+  const [tab, setTab] = useQueryState("ig", "posts");
+
   const [account, setAccount] = React.useState<InstagramAccount | null>(null);
   const [posts, setPosts] = React.useState<InstagramPost[]>([]);
   const [coverage, setCoverage] = React.useState<InstagramCoverage | null>(null);
@@ -169,7 +172,7 @@ export function InstagramPanel() {
         />
       </div>
 
-      <Tabs defaultValue="posts">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="posts">{`Postlar (${posts.length})`}</TabsTrigger>
           <TabsTrigger value="missing">{`Qo'yilmagan (${coverage?.missing ?? 0})`}</TabsTrigger>

@@ -1036,6 +1036,10 @@ export interface SeoAudit {
   /** Sotuvchi tahrirlagan variant — AI natijasi ustiga yozilmaydi. */
   draft: Partial<SeoGenerated> | null;
   appliedAt: string | null;
+  /** Tovarning barcha tahlillari — yangisidan eskisiga. */
+  runs: SeoRun[];
+  /** Hozir ko'rsatilayotgan tahlil. `null` — oxirgisi. */
+  runId: number | null;
 
   analyzedAt: string | null;
   /** Yadro AI bilan kengaytirilganmi — natijani o'qishda muhim. */
@@ -1078,6 +1082,18 @@ export interface SeoPositionRow {
   /** Manfiy — yuqoriga chiqdi. */
   change: number | null;
   points: SeoPositionPoint[];
+}
+
+/** Tarixdagi bitta tahlil. */
+export interface SeoRun {
+  id: number;
+  score: number;
+  keywordsUsed: number;
+  keywordsTotal: number;
+  coverageUsed: number;
+  coverageTotal: number;
+  analyzedAt: string | null;
+  current: boolean;
 }
 
 export interface SeoAuditRow {

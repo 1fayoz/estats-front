@@ -18,11 +18,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FixBlock } from "@/features/seo/components/fix-block";
 import { PositionsBlock } from "@/features/seo/components/positions-block";
+import { RunPicker } from "@/features/seo/components/run-picker";
 import { ScoreRing } from "@/features/seo/components/score-ring";
 import {
   ApiError, fetchProductDetail, fetchSeoAudit, runSeoAnalyse, runSeoContent, runSeoMedia,
 } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
+import { useQueryNumber, useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import type { SeoAudit } from "@/lib/types";
 
@@ -34,13 +36,17 @@ export default function SeoDetailPage() {
 
   const [audit, setAudit] = React.useState<SeoAudit | null>(null);
   const [externalId, setExternalId] = React.useState<string | null>(null);
+  // Tab va ko'rilayotgan tahlil MANZILDA: yangilash ham, orqaga
+  // qaytish ham sahifani boshiga tashlamasin.
+  const [tab, setTab] = useQueryState("tab", "audit");
+  const [runId, setRunId] = useQueryNumber("run");
   const [job, setJob] = React.useState<Job>(null);
   const [loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
     try {
       const [row, product] = await Promise.all([
-        fetchSeoAudit(productId),
+        fetchSeoAudit(productId, runId),
         // Uzum'dagi tahrir sahifasiga havola uchun tashqi id kerak.
         fetchProductDetail(productId).catch(() => null),
       ]);
@@ -51,7 +57,7 @@ export default function SeoDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [productId]);
+  }, [productId, runId]);
 
   React.useEffect(() => {
     void load();
@@ -144,9 +150,10 @@ export default function SeoDetailPage() {
         </Card>
       ) : (
         <>
+          <RunPicker runs={audit.runs} activeId={runId} onPick={setRunId} />
           <ScoreBlock audit={audit} />
 
-          <Tabs defaultValue="audit">
+          <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
               <TabsTrigger value="audit">Xulosalar</TabsTrigger>
               <TabsTrigger value="keywords">

@@ -7,8 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { FinanceReport } from "@/features/finance/components/finance-report";
 import { CalculatorTab } from "@/features/finance/components/calculator-tab";
+import { useQueryState } from "@/lib/use-query-state";
 
 export default function FinancePage() {
+  const [tab, setTab] = useQueryState("view", "report");
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -16,7 +19,7 @@ export default function FinancePage() {
         description="Kunlik savdo, komissiya, logistika va Uzum yechimlari — hamda foyda kalkulyatori."
       />
 
-      <Tabs defaultValue="report">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="report">
             <CalendarRange className="h-4 w-4" />

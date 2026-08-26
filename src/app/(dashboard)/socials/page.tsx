@@ -24,6 +24,7 @@ import { formatNumber } from "@/lib/format";
 import { NetworkIcon } from "@/components/brand/network-icons";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
+import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import type {
   NetworksOverview, SocialAccount, SocialPlatform, SocialPost, WarehouseProduct,
@@ -43,7 +44,8 @@ export default function SocialsPage() {
   const [overview, setOverview] = React.useState<NetworksOverview | null>(null);
   const [linking, setLinking] = React.useState<SocialPost | null>(null);
   const [publishing, setPublishing] = React.useState<WarehouseProduct | null>(null);
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = useQueryState("q", "");
+  const [tab, setTab] = useQueryState("tab", "coverage");
   const [loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
@@ -158,7 +160,7 @@ export default function SocialsPage() {
         </div>
       )}
 
-      <Tabs defaultValue="coverage">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="coverage" className="gap-1.5">
             <Share2 className="h-3.5 w-3.5" /> Bog&apos;lanishlar

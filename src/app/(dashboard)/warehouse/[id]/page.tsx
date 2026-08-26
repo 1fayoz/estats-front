@@ -22,10 +22,13 @@ import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
+import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import type { ProductDetail, SalesPeriod, WarehouseProduct } from "@/lib/types";
 
 export default function ProductDetailPage() {
+  const [tab, setTab] = useQueryState("view", "daily");
+
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
 
@@ -139,7 +142,7 @@ export default function ProductDetailPage() {
           <CardTitle className="text-base">Sotuvlar kesimi</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="daily">
+          <Tabs value={tab} onValueChange={setTab}>
             <TabsList>
               <TabsTrigger value="daily">Kunlik</TabsTrigger>
               <TabsTrigger value="monthly">Oylik</TabsTrigger>
