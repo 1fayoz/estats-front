@@ -40,6 +40,8 @@ import type {
   AiKeyState,
   SeoAudit,
   SeoAuditRow,
+  SeoJob,
+  SeoPositionRow,
   SocialAccount,
   SocialApp,
   SocialPlatformRow,
@@ -485,3 +487,28 @@ export const saveAiKey = (apiKey: string) =>
   request<AiKeyState>("/seo/ai-key", { method: "PUT", body: JSON.stringify({ apiKey }) });
 
 export const deleteAiKey = () => request<void>("/seo/ai-key", { method: "DELETE" });
+
+/** Bir necha tovarni birdan — fonda. */
+export const runSeoBulk = (payload: {
+  productIds?: number[];
+  kind?: "audit" | "media" | "content";
+  all?: boolean;
+}) => request<SeoJob>("/seo/analyse", { method: "POST", body: JSON.stringify(payload) });
+
+export const fetchSeoJobs = (active = false) =>
+  request<SeoJob[]>(`/seo/jobs${qs({ active: active || undefined })}`);
+
+export const saveSeoDraft = (
+  productId: number,
+  payload: {
+    titleUz?: string; titleRu?: string;
+    descriptionUz?: string; descriptionRu?: string;
+    applied?: boolean;
+  },
+) => request<SeoAudit>(`/seo/${productId}/draft`, { method: "PUT", body: JSON.stringify(payload) });
+
+export const fetchSeoPositions = (productId: number) =>
+  request<SeoPositionRow[]>(`/seo/${productId}/positions`);
+
+export const trackSeoPositions = (productId: number) =>
+  request<SeoPositionRow[]>(`/seo/${productId}/positions`, { method: "POST" });

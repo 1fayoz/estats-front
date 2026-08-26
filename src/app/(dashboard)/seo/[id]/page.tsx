@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { Route } from "next";
 import {
-  AlertTriangle, ArrowLeft, Check, Copy, ExternalLink, Image as ImageIcon,
-  Loader2, Sparkles, Wand2,
+  Activity, AlertTriangle, ArrowLeft, Check, Copy, ExternalLink, Image as ImageIcon,
+  Loader2, PenLine, Sparkles, Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,9 +16,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FixBlock } from "@/features/seo/components/fix-block";
+import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { ScoreRing } from "@/features/seo/components/score-ring";
 import {
-  ApiError, fetchSeoAudit, runSeoAnalyse, runSeoContent, runSeoMedia,
+  ApiError, fetchProductDetail, fetchSeoAudit, runSeoAnalyse, runSeoContent, runSeoMedia,
 } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -31,12 +33,19 @@ export default function SeoDetailPage() {
   const productId = Number(params.id);
 
   const [audit, setAudit] = React.useState<SeoAudit | null>(null);
+  const [externalId, setExternalId] = React.useState<string | null>(null);
   const [job, setJob] = React.useState<Job>(null);
   const [loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
     try {
-      setAudit(await fetchSeoAudit(productId));
+      const [row, product] = await Promise.all([
+        fetchSeoAudit(productId),
+        // Uzum'dagi tahrir sahifasiga havola uchun tashqi id kerak.
+        fetchProductDetail(productId).catch(() => null),
+      ]);
+      setAudit(row);
+      setExternalId(product?.product.externalProductId ?? null);
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Yuklanmadi.");
     } finally {
@@ -149,6 +158,15 @@ export default function SeoDetailPage() {
               <TabsTrigger value="content" className="gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" /> AI matn
               </TabsTrigger>
+              <TabsTrigger value="fix" className="gap-1.5">
+                <PenLine className="h-3.5 w-3.5" /> Tuzatish
+                {audit.appliedAt && (
+                  <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-500" />
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="positions" className="gap-1.5">
+                <Activity className="h-3.5 w-3.5" /> O&apos;rinlar
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="audit" className="mt-4">
@@ -165,6 +183,18 @@ export default function SeoDetailPage() {
 
             <TabsContent value="content" className="mt-4">
               <ContentBlock audit={audit} job={job} onRun={() => run("content")} />
+            </TabsContent>
+
+            <TabsContent value="fix" className="mt-4">
+              <FixBlock
+                audit={audit}
+                externalId={externalId}
+                onSaved={setAudit}
+              />
+            </TabsContent>
+
+            <TabsContent value="positions" className="mt-4">
+              <PositionsBlock productId={audit.productId} />
             </TabsContent>
           </Tabs>
         </>

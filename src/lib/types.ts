@@ -1033,11 +1033,51 @@ export interface SeoAudit {
 
   media: SeoMedia | null;
   generated: SeoGenerated | null;
+  /** Sotuvchi tahrirlagan variant — AI natijasi ustiga yozilmaydi. */
+  draft: Partial<SeoGenerated> | null;
+  appliedAt: string | null;
 
   analyzedAt: string | null;
   /** Yadro AI bilan kengaytirilganmi — natijani o'qishda muhim. */
   aiUsed: boolean;
   error: string | null;
+}
+
+export interface SeoJobItem {
+  productId: number;
+  title: string | null;
+  status: BroadcastStatus;
+  error: string | null;
+}
+
+/** Ko'p tovarni tahlil qilish vazifasi — fonda ketadi. */
+export interface SeoJob {
+  id: number;
+  kind: "audit" | "media" | "content";
+  status: BroadcastStatus;
+  active: boolean;
+  total: number;
+  done: number;
+  failed: number;
+  pending: number;
+  createdAt: string | null;
+  finishedAt: string | null;
+  items: SeoJobItem[];
+}
+
+export interface SeoPositionPoint {
+  day: string;
+  /** `null` — belgilangan chuqurlikda topilmadi. Nol EMAS. */
+  position: number | null;
+}
+
+export interface SeoPositionRow {
+  phrase: string;
+  coverage: number;
+  current: number | null;
+  /** Manfiy — yuqoriga chiqdi. */
+  change: number | null;
+  points: SeoPositionPoint[];
 }
 
 export interface SeoAuditRow {
@@ -1050,6 +1090,9 @@ export interface SeoAuditRow {
   keywordsTotal: number;
   coverageMissed: number;
   analyzedAt: string | null;
+  appliedAt: string | null;
+  /** Tahlil navbatda yoki ketmoqda. */
+  queued: boolean;
 }
 
 export interface AiKeyState {
