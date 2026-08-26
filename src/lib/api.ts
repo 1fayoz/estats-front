@@ -467,6 +467,50 @@ export const retryBroadcast = (id: number) =>
 
 // ── SEO auditi ───────────────────────────────────────────────────────────────
 
+/**
+ * Tahlilni Excel faylga yuklab oladi.
+ *
+ * `request` ishlatilmaydi: u javobni JSON deb o'qiydi va ikkilik
+ * faylni buzadi. Sarlavhalar esa aynan o'sha — token va do'kon
+ * tanlovi bu yerda ham kerak.
+ */
+export async function downloadSeoAudit(productId: number, run?: number | null) {
+  const persisted = readPersisted();
+  const query = qs({ run: run ?? undefined });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/seo/${productId}/export${query}`, {
+      cache: "no-store",
+      headers: {
+        ...(persisted.accessToken ? { Authorization: `Bearer ${persisted.accessToken}` } : {}),
+        ...(persisted.activeShopId ? { "X-Shop-Id": String(persisted.activeShopId) } : {}),
+      },
+    });
+  } catch {
+    throw new ApiError("Serverga ulanib bo'lmadi. Backend ishlayaptimi?", 0);
+  }
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = (body && (body.detail ?? body.message)) || "Fayl chiqmadi";
+    throw new ApiError(typeof detail === "string" ? detail : "Fayl chiqmadi", response.status);
+  }
+
+  // Fayl nomini server aytadi — u yerda tovar nomi va sana bor.
+  const disposition = response.headers.get("Content-Disposition") || "";
+  const matched = /filename="?([^"]+)"?/.exec(disposition);
+  const blob = await response.blob();
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = matched?.[1] || `seo-${productId}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Brauzer yuklab olishni boshlagunicha havola yashashi kerak.
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 export const fetchSeoList = () => request<SeoAuditRow[]>("/seo");
 
 export const fetchSeoAudit = (productId: number, run?: number | null) =>

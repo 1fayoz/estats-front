@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { Route } from "next";
 import {
-  Activity, AlertTriangle, ArrowLeft, Check, Copy, ExternalLink, Image as ImageIcon,
-  Loader2, MessageSquare, PenLine, SlidersHorizontal, Sparkles, Wand2,
+  Activity, AlertTriangle, ArrowLeft, Check, Copy, Download, ExternalLink,
+  Image as ImageIcon, Loader2, MessageSquare, PenLine, SlidersHorizontal,
+  Sparkles, Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,7 +25,8 @@ import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { RunPicker } from "@/features/seo/components/run-picker";
 import { ScoreRing } from "@/features/seo/components/score-ring";
 import {
-  ApiError, fetchProductDetail, fetchSeoAudit, runSeoAnalyse, runSeoContent, runSeoMedia,
+  ApiError, downloadSeoAudit, fetchProductDetail, fetchSeoAudit, runSeoAnalyse,
+  runSeoContent, runSeoMedia,
 } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 import { useQueryNumber, useQueryState } from "@/lib/use-query-state";
@@ -44,6 +46,7 @@ export default function SeoDetailPage() {
   const [tab, setTab] = useQueryState("tab", "audit");
   const [runId, setRunId] = useQueryNumber("run");
   const [job, setJob] = React.useState<Job>(null);
+  const [exporting, setExporting] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
@@ -84,6 +87,19 @@ export default function SeoDetailPage() {
     }
   };
 
+  /** Ko'rilayotgan tahlilni faylga chiqaradi — tarixdagisini ham. */
+  const exportAudit = async () => {
+    setExporting(true);
+    try {
+      await downloadSeoAudit(productId, runId);
+      toast.success("Excel fayl yuklab olindi");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Fayl chiqmadi.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -120,6 +136,22 @@ export default function SeoDetailPage() {
                 Tovar <ExternalLink className="h-3.5 w-3.5" />
               </Button>
             </Link>
+            {analysed ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={exportAudit}
+                disabled={exporting}
+              >
+                {exporting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Download className="h-3.5 w-3.5" />
+                )}
+                Excel
+              </Button>
+            ) : null}
             <Button size="sm" className="gap-1.5" onClick={() => run("analyse")} disabled={job !== null}>
               {job === "analyse" ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
