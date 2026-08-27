@@ -107,11 +107,20 @@ export const useActiveShop = (): Shop | null =>
  * hamma kodni qaytaradi, ya'ni bu yerda "egasimi" degan alohida
  * shart kerak emas: ro'yxatning o'zi yetarli.
  */
-export const useActions = (): string[] => useUserStore((s) => s.user?.actions ?? []);
+/**
+ * Ochiq ruxsatlar. `undefined` — backend ruxsat haqida gapirmayapti
+ * (eski versiya): chaqiruvchilar buni "hammasi ochiq" deb o'qiydi.
+ */
+export const useActions = (): string[] | undefined =>
+  useUserStore((s) => s.user?.actions);
 
 /** Shu bo'limga ruxsat bormi. */
 export function useCan(code: string | undefined): boolean {
-  return useUserStore((s) => !code || (s.user?.actions ?? []).includes(code));
+  return useUserStore((s) => {
+    if (!code) return true;
+    const actions = s.user?.actions;
+    return actions === undefined || actions.includes(code);
+  });
 }
 
 export const useWorkspace = (): Workspace | null =>

@@ -29,17 +29,26 @@ export interface Me {
   /** Telegram botga ulanish kaliti — bot shu raqam bo'yicha topadi. */
   phone: string | null;
   shops: Shop[];
-  /** Hozir qaysi hisob ochiq. */
-  workspace: Workspace | null;
+  /** Hozir qaysi hisob ochiq. Eski backend'da yo'q. */
+  workspace?: Workspace | null;
   /** Kirish mumkin bo'lgan hamma hisob — o'ziniki birinchi. */
-  workspaces: Workspace[];
+  workspaces?: Workspace[];
   /**
    * Shu hisobda ochiq ruxsat kodlari. Menyu AYNAN shu ro'yxat
    * bo'yicha yig'iladi — kodlar front'da yozib qo'yilmaydi, backend
    * katalogidan keladi.
+   *
+   * IXTIYORIY, va bu farq muhim:
+   *
+   * * `undefined` — backend ruxsat haqida umuman gapirmayapti
+   *   (eski versiya). Bunda HAMMASI ochiq deb qaraladi, aks holda
+   *   front backend'dan oldin joylangan bir necha daqiqada menyu
+   *   hamma uchun bo'shab qolardi.
+   * * `[]` — hech nima ochilmagan. Bu HAQIQIY holat: egasi odamni
+   *   qo'shib, ruxsatni hali bermagan.
    */
-  actions: string[];
-  isOwner: boolean;
+  actions?: string[];
+  isOwner?: boolean;
 }
 
 export interface TeamMember {

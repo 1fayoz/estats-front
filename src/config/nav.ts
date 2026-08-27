@@ -141,7 +141,12 @@ export const ALL_NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
  * bor, ichi bo'sh bo'lim "nimadir yo'qolgan" degan taassurot
  * qoldiradi.
  */
-export function visibleNav(actions: string[]): NavGroup[] {
+export function visibleNav(actions: string[] | undefined): NavGroup[] {
+  // `undefined` — backend ruxsat yubormayapti (eski versiya):
+  // hammasi ochiq. Bo'sh RO'YXAT esa boshqa gap — hech nima ochiq
+  // emas. Ikkalasini aralashtirish front backend'dan oldin
+  // joylangan paytda menyuni hammaga bo'shatib qo'yardi.
+  if (actions === undefined) return NAV_GROUPS;
   const allowed = new Set(actions);
   return NAV_GROUPS.map((group) => ({
     ...group,

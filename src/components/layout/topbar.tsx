@@ -89,7 +89,7 @@ export function Topbar() {
               <div className="hidden flex-col items-start leading-none sm:flex">
                 <span className="max-w-[140px] truncate text-xs font-semibold">{displayName}</span>
                 <span className="max-w-[140px] truncate text-[10px] text-muted-foreground">
-                  {user && !user.isOwner
+                  {user && user.isOwner === false
                     ? `${user.workspace?.name ?? ""} hisobida`
                     : `${user?.shops.length ?? 0} ta magazin`}
                 </span>
@@ -105,7 +105,7 @@ export function Topbar() {
                 </span>
               </div>
             </DropdownMenuLabel>
-            {(user?.workspaces.length ?? 0) > 1 ? (
+            {(user?.workspaces?.length ?? 0) > 1 ? (
               <>
                 <DropdownMenuSeparator />
                 {/* Odam bir vaqtda o'z do'koniga ega bo'lib, boshqa
@@ -115,7 +115,7 @@ export function Topbar() {
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground">
                   Hisob
                 </DropdownMenuLabel>
-                {user?.workspaces.map((ws) => (
+                {user?.workspaces?.map((ws) => (
                   <DropdownMenuItem
                     key={ws.id}
                     onClick={() => {

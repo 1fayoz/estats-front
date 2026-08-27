@@ -90,7 +90,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // bo'lsa a'zo bu yerga tushmaydi. Do'kon umuman yo'q bo'lsa esa
   // a'zoni Integratsiyalarga haydash tuzoq bo'lardi: unga o'sha
   // sahifa ochiq bo'lmasligi mumkin va u yerdan chiqolmay qolardi.
-  const canSetUp = (user?.actions ?? []).includes("integrations.view");
+  const canSetUp =
+    user?.actions === undefined || user.actions.includes("integrations.view");
   const needsShop =
     checked && user != null && user.shops.length === 0 && canSetUp;
   React.useEffect(() => {
@@ -102,7 +103,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // 403 va bo'sh ekran o'rniga ochiq bo'limga olib boriladi.
   const needed = actionFor(pathname);
   const allowed =
-    !checked || user == null || !needed || user.actions.includes(needed);
+    !checked ||
+    user == null ||
+    !needed ||
+    user.actions === undefined ||
+    user.actions.includes(needed);
   const firstAllowed = React.useMemo(() => {
     const groups = visibleNav(user?.actions ?? []);
     return groups[0]?.items[0]?.href ?? "/settings";
