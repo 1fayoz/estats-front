@@ -24,8 +24,8 @@ export function BrowserFrame({
   url = "estats.uz",
   width = 1538,
   height = 784,
-  mobileWidth = 1170,
-  mobileHeight = 2532,
+  mobileWidth = 620,
+  mobileHeight = 1341,
   sizes = "(max-width: 1024px) 100vw, 1000px",
 }: {
   src: string;
