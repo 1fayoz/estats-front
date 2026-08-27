@@ -4,13 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HelpCircle } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
-import { NAV_GROUPS } from "@/config/nav";
+import { visibleNav } from "@/config/nav";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useActions } from "@/stores/user-store";
 
 export function Sidebar() {
   const pathname = usePathname();
+  // Menyu ruxsat bo'yicha yig'iladi: ochib bo'lmaydigan bo'lim
+  // ko'rinib turishi — bosib, 403 olib, "buzuq" degan taassurot.
+  const groups = visibleNav(useActions());
 
   return (
     <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground lg:flex">
@@ -25,7 +29,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-3 scrollbar-thin">
-        {NAV_GROUPS.map((group) => (
+        {groups.map((group) => (
           <div key={group.title} className="mb-1">
             <div className="px-2 pb-1.5 pt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               {group.title}
@@ -76,11 +80,16 @@ export function Sidebar() {
           <span className="text-xs font-semibold">Telegram bot</span>
         </div>
         <p className="text-[11px] leading-snug text-muted-foreground">
-          Hisobotlarni Telegramda oling — har 4 soatda avto yangilanadi.
+          Buyurtma tushganda va bekor bo&apos;lganda darhol xabar keladi.
         </p>
-        <button className="mt-3 w-full rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-          @mystats_bot
-        </button>
+        <a
+          href={siteConfig.botUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 block w-full rounded-md bg-primary px-3 py-1.5 text-center text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          @{siteConfig.botUsername}
+        </a>
       </div>
     </aside>
   );

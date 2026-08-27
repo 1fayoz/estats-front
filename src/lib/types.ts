@@ -14,6 +14,13 @@ export interface Shop {
   salesSyncedAt: string | null;
 }
 
+/** Ochiq turgan hisob — o'ziniki yoki taklif qilingan hisob. */
+export interface Workspace {
+  id: number;
+  name: string;
+  isOwner: boolean;
+}
+
 export interface Me {
   id: number;
   email: string;
@@ -22,6 +29,41 @@ export interface Me {
   /** Telegram botga ulanish kaliti — bot shu raqam bo'yicha topadi. */
   phone: string | null;
   shops: Shop[];
+  /** Hozir qaysi hisob ochiq. */
+  workspace: Workspace | null;
+  /** Kirish mumkin bo'lgan hamma hisob — o'ziniki birinchi. */
+  workspaces: Workspace[];
+  /**
+   * Shu hisobda ochiq ruxsat kodlari. Menyu AYNAN shu ro'yxat
+   * bo'yicha yig'iladi — kodlar front'da yozib qo'yilmaydi, backend
+   * katalogidan keladi.
+   */
+  actions: string[];
+  isOwner: boolean;
+}
+
+export interface TeamMember {
+  id: number;
+  phone: string;
+  name: string | null;
+  actions: string[];
+  isActive: boolean;
+  /** Odam saytga kirib, taklif bog'langanmi. */
+  accepted: boolean;
+  acceptedAt: string | null;
+  email: string | null;
+  image: string | null;
+}
+
+export interface PermissionAction {
+  code: string;
+  name: string;
+  note: string;
+}
+
+export interface PermissionModule {
+  name: string;
+  actions: PermissionAction[];
 }
 
 export interface LoginResponse {

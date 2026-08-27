@@ -26,6 +26,7 @@ import type {
   MarketingReport,
   NetworksOverview,
   Paginated,
+  PermissionModule,
   Plan,
   PnlReport,
   ProductDetail,
@@ -48,6 +49,7 @@ import type {
   SocialPlatformRow,
   SocialPost,
   SyncState,
+  TeamMember,
   WarehouseProduct,
 } from "./types";
 
@@ -76,7 +78,11 @@ export class ApiError extends Error {
  * `api` is imported by the auth store itself, so going through the store would be a
  * circular import; localStorage is the same source of truth either way.
  */
-function readPersisted(): { accessToken?: string | null; activeShopId?: number | null } {
+function readPersisted(): {
+  accessToken?: string | null;
+  activeShopId?: number | null;
+  workspaceId?: number | null;
+} {
   if (typeof window === "undefined") return {};
   try {
     const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
@@ -96,6 +102,9 @@ async function request<T>(
   // Every shop-scoped call carries the active shop. The server re-checks that the
   // shop belongs to the caller, so this header selects data — it never grants it.
   const shopId = shopScoped ? persisted.activeShopId : null;
+  // Qaysi hisob ochiqligi. Server a'zolikni qaytadan tekshiradi, ya'ni
+  // bu sarlavha ma'lumotni TANLAYDI — ochib bermaydi.
+  const workspaceId = auth ? persisted.workspaceId : null;
 
   let response: Response;
   try {
@@ -107,6 +116,7 @@ async function request<T>(
         ...(rest.body ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(shopId ? { "X-Shop-Id": String(shopId) } : {}),
+        ...(workspaceId ? { "X-Workspace-Id": String(workspaceId) } : {}),
         ...headers,
       },
     });
@@ -519,6 +529,37 @@ export async function downloadSeoAudit(productId: number, run?: number | null) {
  */
 export const setPhone = (phone: string) =>
   request<Me>("/auth/phone", { method: "PUT", body: JSON.stringify({ phone }) });
+
+// ── jamoa ────────────────────────────────────────────────────────────────────
+
+export const getPermissionCatalogue = () =>
+  request<PermissionModule[]>("/team/permissions", { shopScoped: false });
+
+export const getTeam = () => request<TeamMember[]>("/team", { shopScoped: false });
+
+export const addTeamMember = (body: {
+  phone: string;
+  name: string;
+  actions: string[];
+}) =>
+  request<TeamMember>("/team", {
+    method: "POST",
+    shopScoped: false,
+    body: JSON.stringify(body),
+  });
+
+export const updateTeamMember = (
+  id: number,
+  body: { name?: string; actions?: string[]; isActive?: boolean }
+) =>
+  request<TeamMember>(`/team/${id}`, {
+    method: "PATCH",
+    shopScoped: false,
+    body: JSON.stringify(body),
+  });
+
+export const removeTeamMember = (id: number) =>
+  request<void>(`/team/${id}`, { method: "DELETE", shopScoped: false });
 
 export const fetchSeoList = () => request<SeoAuditRow[]>("/seo");
 

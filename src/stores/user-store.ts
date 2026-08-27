@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 import { AUTH_STORAGE_KEY } from "@/lib/auth";
-import type { Me, Shop } from "@/lib/types";
+import type { Me, Shop, Workspace } from "@/lib/types";
 
 interface AuthState {
   /** Backend-issued JWT — the only credential kept on this device. */
@@ -16,11 +16,21 @@ interface AuthState {
    * deleted shop can't pin the app to nothing.
    */
   activeShopId: number | null;
+  /**
+   * Qaysi hisob ochiq — o'ziniki yoki taklif qilingan hisob.
+   *
+   * Saqlanadi, chunki sahifa yangilanganda odam o'sha hisobda
+   * qolishi kerak. Server a'zolikni har so'rovda qaytadan
+   * tekshiradi, ya'ni bu yerdagi son ma'lumotni TANLAYDI — ochib
+   * bermaydi. Buzib yozilgan son 403 bilan qaytadi.
+   */
+  workspaceId: number | null;
   hydrated: boolean;
 
   signIn: (accessToken: string, user: Me) => void;
   setUser: (user: Me) => void;
   setActiveShop: (shopId: number) => void;
+  setWorkspace: (workspaceId: number) => void;
   signOut: () => void;
   setHydrated: (value: boolean) => void;
 }
@@ -38,6 +48,7 @@ export const useUserStore = create<AuthState>()(
       accessToken: null,
       user: null,
       activeShopId: null,
+      workspaceId: null,
       hydrated: false,
 
       signIn: (accessToken, user) =>
@@ -45,11 +56,25 @@ export const useUserStore = create<AuthState>()(
           accessToken,
           user,
           activeShopId: resolveShop(user.shops, get().activeShopId),
+          workspaceId: user.workspace?.id ?? null,
         }),
       setUser: (user) =>
-        set({ user, activeShopId: resolveShop(user.shops, get().activeShopId) }),
+        set({
+          user,
+          activeShopId: resolveShop(user.shops, get().activeShopId),
+          workspaceId: user.workspace?.id ?? get().workspaceId,
+        }),
       setActiveShop: (shopId) => set({ activeShopId: shopId }),
-      signOut: () => set({ accessToken: null, user: null, activeShopId: null }),
+      // Hisob almashganda do'kon tanlovi ham bekor qilinadi: eski
+      // do'kon yangi hisobda umuman yo'q va u 404 berardi.
+      setWorkspace: (workspaceId) => set({ workspaceId, activeShopId: null }),
+      signOut: () =>
+        set({
+          accessToken: null,
+          user: null,
+          activeShopId: null,
+          workspaceId: null,
+        }),
       setHydrated: (value) => set({ hydrated: value }),
     }),
     {
@@ -59,6 +84,7 @@ export const useUserStore = create<AuthState>()(
         accessToken: state.accessToken,
         user: state.user,
         activeShopId: state.activeShopId,
+        workspaceId: state.workspaceId,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);
@@ -73,3 +99,23 @@ export const useShops = () => useUserStore((s) => s.user?.shops ?? []);
 /** The shop currently in scope, or null before one is chosen. */
 export const useActiveShop = (): Shop | null =>
   useUserStore((s) => s.user?.shops.find((x) => x.id === s.activeShopId) ?? null);
+
+/**
+ * Shu hisobda ochiq ruxsatlar.
+ *
+ * Bo'sh ro'yxat — hech nima ocholmaydi. Hisob egasida backend
+ * hamma kodni qaytaradi, ya'ni bu yerda "egasimi" degan alohida
+ * shart kerak emas: ro'yxatning o'zi yetarli.
+ */
+export const useActions = (): string[] => useUserStore((s) => s.user?.actions ?? []);
+
+/** Shu bo'limga ruxsat bormi. */
+export function useCan(code: string | undefined): boolean {
+  return useUserStore((s) => !code || (s.user?.actions ?? []).includes(code));
+}
+
+export const useWorkspace = (): Workspace | null =>
+  useUserStore((s) => s.user?.workspace ?? null);
+
+export const useWorkspaces = (): Workspace[] =>
+  useUserStore((s) => s.user?.workspaces ?? []);

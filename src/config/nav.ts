@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Target, Settings, type LucideIcon } from "lucide-react";
+import { Boxes, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -7,6 +7,16 @@ export interface NavItem {
   icon: LucideIcon;
   description?: string;
   badge?: string;
+  /**
+   * Shu sahifani ochadigan ruxsat kodi.
+   *
+   * Berilmasa — hammaga ochiq (Sozlamalar: odam o'z raqami va
+   * ko'rinishini har doim boshqara oladi). Kodlar backend
+   * katalogidan (`src/api/team/permissions.py`) olinadi va
+   * ikkalasi bir xil bo'lishi shart: front'da ko'rinib turgan,
+   * lekin API 403 beradigan sahifa — eng bezovta qiladigan holat.
+   */
+  action?: string;
 }
 
 export interface NavGroup {
@@ -20,12 +30,14 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       {
         label: "Tovarlar",
+        action: "warehouse.view",
         href: "/warehouse" as Route,
         icon: Boxes,
         description: "Uzum katalogi va tan narx",
       },
       {
         label: "Kirimlar",
+        action: "intakes.view",
         href: "/intakes" as Route,
         icon: PackagePlus,
         description: "Nechtadan, qanchadan keldi",
@@ -37,18 +49,21 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       {
         label: "Reja",
+        action: "plan.view",
         href: "/plan" as Route,
         icon: Target,
         description: "Balans, prognoz va maqsadlar",
       },
       {
         label: "Doimiy to'lovlar",
+        action: "expenses.view",
         href: "/expenses" as Route,
         icon: Receipt,
         description: "Soliq, arenda — to'landimi yo'qmi",
       },
       {
         label: "Foyda va zarar",
+        action: "pnl.view",
         href: "/pnl" as Route,
         icon: Calculator,
         description: "FIFO bo'yicha tovar kesimida",
@@ -56,6 +71,7 @@ export const NAV_GROUPS: NavGroup[] = [
       },
       {
         label: "Moliya",
+        action: "finance.view",
         href: "/finance" as Route,
         icon: Wallet,
         description: "Uzum komissiya va to'lovlari",
@@ -67,6 +83,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       {
         label: "Marketing",
+        action: "marketing.view",
         href: "/marketing" as Route,
         icon: Megaphone,
         description: "Nima ishlayapti va nimaga kuch sarflash kerak",
@@ -74,6 +91,7 @@ export const NAV_GROUPS: NavGroup[] = [
       },
       {
         label: "SEO audit",
+        action: "seo.view",
         href: "/seo" as Route,
         icon: SearchCheck,
         description: "Kartochka qidiruvda topiladimi",
@@ -81,6 +99,7 @@ export const NAV_GROUPS: NavGroup[] = [
       },
       {
         label: "Ijtimoiy tarmoqlar",
+        action: "socials.view",
         href: "/socials" as Route,
         icon: Share2,
         description: "E'lonlar, obunachilar, bog'lash va joylash",
@@ -92,9 +111,17 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       {
         label: "Integratsiyalar",
+        action: "integrations.view",
         href: "/integrations" as Route,
         icon: Plug,
         description: "Uzum va tarmoqlarga ulanish",
+      },
+      {
+        label: "Jamoa",
+        href: "/team" as Route,
+        icon: Users,
+        description: "Kim ulangan va nimaga ruxsati bor",
+        action: "team.view",
       },
       {
         label: "Sozlamalar",
@@ -106,3 +133,18 @@ export const NAV_GROUPS: NavGroup[] = [
 ];
 
 export const ALL_NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
+
+/**
+ * Ruxsat bo'yicha filtrlangan menyu.
+ *
+ * Butunlay bo'shab qolgan guruh chiqarib tashlanadi — sarlavhasi
+ * bor, ichi bo'sh bo'lim "nimadir yo'qolgan" degan taassurot
+ * qoldiradi.
+ */
+export function visibleNav(actions: string[]): NavGroup[] {
+  const allowed = new Set(actions);
+  return NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.action || allowed.has(item.action)),
+  })).filter((group) => group.items.length > 0);
+}

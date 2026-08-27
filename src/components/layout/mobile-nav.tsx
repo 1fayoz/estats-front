@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import type { Route } from "next";
 import { Boxes, Calculator, LayoutGrid, SearchCheck, Share2, X } from "lucide-react";
 
-import { NAV_GROUPS } from "@/config/nav";
+import { visibleNav } from "@/config/nav";
+import { useActions } from "@/stores/user-store";
 import { cn } from "@/lib/utils";
 
 /**
@@ -20,16 +21,31 @@ import { cn } from "@/lib/utils";
  * Endi pastda eng ko'p ochiladigan to'rttasi turadi, beshinchi tugma
  * esa qolganini to'liq ro'yxat bilan ochadi.
  */
-const QUICK: { label: string; href: Route; icon: typeof Boxes }[] = [
-  { label: "Tovarlar", href: "/warehouse" as Route, icon: Boxes },
-  { label: "Foyda", href: "/pnl" as Route, icon: Calculator },
-  { label: "SEO", href: "/seo" as Route, icon: SearchCheck },
-  { label: "Tarmoq", href: "/socials" as Route, icon: Share2 },
+const QUICK: {
+  label: string;
+  href: Route;
+  icon: typeof Boxes;
+  action: string;
+}[] = [
+  { label: "Tovarlar", href: "/warehouse" as Route, icon: Boxes, action: "warehouse.view" },
+  { label: "Foyda", href: "/pnl" as Route, icon: Calculator, action: "pnl.view" },
+  { label: "SEO", href: "/seo" as Route, icon: SearchCheck, action: "seo.view" },
+  { label: "Tarmoq", href: "/socials" as Route, icon: Share2, action: "socials.view" },
 ];
 
 export function MobileNav() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const actions = useActions();
+  const groups = visibleNav(actions);
+  // Ruxsati yo'q tugma pastdan olib tashlanadi. Qatorda bo'sh joy
+  // qolmasin uchun o'rniga to'liq ro'yxatdagi keyingisi keladi.
+  const allowed = new Set(actions);
+  const quick = QUICK.filter((item) => allowed.has(item.action));
+  const extra = groups
+    .flatMap((group) => group.items)
+    .filter((item) => !QUICK.some((q) => q.href === item.href));
+  const bottom = [...quick, ...extra].slice(0, 4);
 
   // Sahifa almashsa ro'yxat yopilsin — aks holda yangi sahifa
   // ustida osilib qoladi.
@@ -46,7 +62,7 @@ export function MobileNav() {
   }, [open]);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
-  const quickActive = QUICK.some((item) => isActive(item.href));
+  const quickActive = bottom.some((item) => isActive(item.href));
 
   return (
     <>
@@ -72,7 +88,7 @@ export function MobileNav() {
             </div>
 
             <div className="px-3 py-2">
-              {NAV_GROUPS.map((group) => (
+              {groups.map((group) => (
                 <div key={group.title} className="py-2">
                   <div className="px-2 pb-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
                     {group.title}
@@ -112,7 +128,7 @@ export function MobileNav() {
       ) : null}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
-        {QUICK.map((item) => (
+        {bottom.map((item) => (
           <Link
             key={item.href}
             href={item.href}

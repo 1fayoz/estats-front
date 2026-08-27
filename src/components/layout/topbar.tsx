@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Bell, LogOut, Moon, Settings, Store, Sun } from "lucide-react";
+import { Bell, Building2, Check, LogOut, Moon, Settings, Store, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export function Topbar() {
   const { theme, setTheme } = useTheme();
   const user = useUserStore((s) => s.user);
   const signOut = useUserStore((s) => s.signOut);
+  const setWorkspace = useUserStore((s) => s.setWorkspace);
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
@@ -87,8 +88,10 @@ export function Topbar() {
               </Avatar>
               <div className="hidden flex-col items-start leading-none sm:flex">
                 <span className="max-w-[140px] truncate text-xs font-semibold">{displayName}</span>
-                <span className="text-[10px] text-muted-foreground">
-                  {user?.shops.length ?? 0} ta magazin
+                <span className="max-w-[140px] truncate text-[10px] text-muted-foreground">
+                  {user && !user.isOwner
+                    ? `${user.workspace?.name ?? ""} hisobida`
+                    : `${user?.shops.length ?? 0} ta magazin`}
                 </span>
               </div>
             </button>
@@ -102,6 +105,47 @@ export function Topbar() {
                 </span>
               </div>
             </DropdownMenuLabel>
+            {(user?.workspaces.length ?? 0) > 1 ? (
+              <>
+                <DropdownMenuSeparator />
+                {/* Odam bir vaqtda o'z do'koniga ega bo'lib, boshqa
+                    hisobga ham taklif qilingan bo'lishi mumkin —
+                    almashtirgichsiz ikkinchisiga umuman yetib
+                    bo'lmasdi. */}
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Hisob
+                </DropdownMenuLabel>
+                {user?.workspaces.map((ws) => (
+                  <DropdownMenuItem
+                    key={ws.id}
+                    onClick={() => {
+                      if (ws.id === user?.workspace?.id) return;
+                      setWorkspace(ws.id);
+                      // To'liq qayta yuklash: har sahifadagi
+                      // ma'lumot eski hisobniki va uni birma-bir
+                      // tozalashdan ko'ra shu ishonchliroq.
+                      //
+                      // Manzil "/" EMAS — u landing sahifasi va
+                      // kirgan odamni tashqariga chiqarib yuborardi.
+                      // Kabinet ichidagi sahifa berilsa, `AuthGuard`
+                      // yangi hisobning ruxsatiga qarab kerakli
+                      // joyga o'zi yo'naltiradi.
+                      window.location.assign("/warehouse");
+                    }}
+                  >
+                    <Building2 className="h-4 w-4" />
+                    <span className="truncate">{ws.name}</span>
+                    {ws.id === user?.workspace?.id ? (
+                      <Check className="ml-auto h-3.5 w-3.5" />
+                    ) : !ws.isOwner ? (
+                      <Badge variant="outline" className="ml-auto text-[9px]">
+                        mehmon
+                      </Badge>
+                    ) : null}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            ) : null}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push("/integrations")}>
               <Store className="h-4 w-4" /> Magazinlar

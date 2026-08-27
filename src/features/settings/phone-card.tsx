@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { siteConfig } from "@/config/site";
 import { ApiError, setPhone } from "@/lib/api";
 import { useUserStore } from "@/stores/user-store";
 
@@ -82,7 +83,7 @@ export function PhoneCard() {
               buyurtma xabarlari o&apos;sha yerga keladi.
             </span>
             <a
-              href="https://t.me/estatsuz_bot"
+              href={siteConfig.botUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-auto"

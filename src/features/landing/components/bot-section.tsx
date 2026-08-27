@@ -1,4 +1,5 @@
 import { Bell, MessageCircle, Send, TrendingUp, RefreshCw } from "lucide-react";
+import { siteConfig } from "@/config/site";
 
 const BOT_FEATURES = [
   {
@@ -47,10 +48,15 @@ export function BotSection() {
             ))}
           </div>
 
-          <button className="mt-8 inline-flex items-center gap-2 rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-medium text-white shadow-md transition-colors hover:bg-sky-600">
+          <a
+            href={siteConfig.botUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-medium text-white shadow-md transition-colors hover:bg-sky-600"
+          >
             <Send className="h-4 w-4" />
-            @mystats_bot ga ulanish
-          </button>
+            @{siteConfig.botUsername} ga ulanish
+          </a>
         </div>
 
         <div className="mx-auto w-full max-w-sm">
