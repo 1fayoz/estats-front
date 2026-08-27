@@ -87,8 +87,10 @@ export function UzumReconcile({ totals }: { totals: PnlTotals }) {
             Uzum kabineti bilan solishtirish
           </span>
           <span className="block truncate text-xs text-muted-foreground">
-            Uzumdagi «Foyda» {formatSum(uzumProfit)} bo&apos;lishi kerak — bizdagi
-            farq yetkazib berish va tan narx
+            {/* `{" "}` — JSX qator ko'chishida ifoda yonidagi bo'shliqni
+                yutadi va matn "so'mbo'lishi" bo'lib qo'shilib ketardi. */}
+            Uzumdagi «Foyda» {formatSum(uzumProfit)}{" "}
+            bo&apos;lishi kerak — bizdagi farq yetkazib berish va tan narx
           </span>
         </span>
         <ChevronDown
