@@ -64,7 +64,7 @@ function LanguageCard({ lang, weakest }: { lang: SeoLanguage; weakest: boolean }
       <div className="flex items-baseline justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="font-medium">{lang.name}</span>
-          {!lang.scriptOk && lang.filled ? (
+          {lang.scriptOk === false && lang.filled ? (
             <Badge variant="outline" className="border-amber-500/40 text-amber-500">
               matn yo&apos;q
             </Badge>
@@ -112,7 +112,7 @@ function LanguageCard({ lang, weakest }: { lang: SeoLanguage; weakest: boolean }
         />
       </div>
 
-      {lang.filled && !lang.scriptOk ? (
+      {lang.filled && lang.scriptOk === false ? (
         <p className="mt-3 flex gap-1.5 text-xs text-amber-500">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>

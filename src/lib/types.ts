@@ -1013,8 +1013,14 @@ export interface SeoLanguage {
   filled: boolean;
   /** Matn ikkinchi tilning aynan nusxasi — ya'ni bu tilda yozilmagan. */
   mirrorsOther: boolean;
-  /** Matn shu tilning yozuvida yozilganmi (ruscha maydonda kirill). */
-  scriptOk: boolean;
+  /**
+   * Matn shu tilning yozuvida yozilganmi (ruscha maydonda kirill).
+   *
+   * Eski tahlillarda maydon yo'q — shuning uchun `=== false` bilan
+   * tekshiriladi, aks holda yo'qligi "matn yo'q" degan YOLG'ON
+   * ogohlantirish beradi.
+   */
+  scriptOk?: boolean;
 
   /** 85 dan: xususiyatlar tillar uchun umumiy. */
   score: number;
