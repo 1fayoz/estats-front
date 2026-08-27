@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttributesBlock } from "@/features/seo/components/attributes-block";
 import { FixBlock } from "@/features/seo/components/fix-block";
+import { LanguagesBlock } from "@/features/seo/components/languages-block";
 import { ReviewsBlock } from "@/features/seo/components/reviews-block";
 import { RivalsBlock } from "@/features/seo/components/rivals-block";
 import { PositionsBlock } from "@/features/seo/components/positions-block";
@@ -227,7 +228,8 @@ export default function SeoDetailPage() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="audit" className="mt-4">
+            <TabsContent value="audit" className="mt-4 space-y-3">
+              <LanguagesBlock languages={audit.languages || []} />
               <VerdictsBlock audit={audit} />
             </TabsContent>
 
@@ -582,21 +584,26 @@ function ContentBlock({ audit, job, onRun }: { audit: SeoAudit; job: Job; onRun:
         </Card>
       ))}
 
-      {made.highlights.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Qisqa tezislar</CardTitle>
-            <CardDescription>Xaridor uchun foyda — xususiyat emas.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-              {made.highlights.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+      {[
+        { label: "Qisqa tezislar (UZ)", items: made.highlights },
+        { label: "Qisqa tezislar (RU)", items: made.highlights_ru ?? [] },
+      ]
+        .filter((group) => group.items.length > 0)
+        .map((group) => (
+          <Card key={group.label}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{group.label}</CardTitle>
+              <CardDescription>Xaridor uchun foyda — xususiyat emas.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                {group.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
 
       {made.tags.length > 0 && (
         <Card>

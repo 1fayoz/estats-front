@@ -1001,7 +1001,44 @@ export interface SeoGenerated {
   description_uz: string;
   description_ru: string;
   highlights: string[];
+  /** Ruscha tezislar — ular ham kartochkaga ruscha tushadi. */
+  highlights_ru?: string[];
   tags: string[];
+}
+
+/** Bitta tildagi kartochkaning holati — tillar mustaqil o'lchanadi. */
+export interface SeoLanguage {
+  language: string;
+  name: string;
+  filled: boolean;
+  /** Matn ikkinchi tilning aynan nusxasi — ya'ni bu tilda yozilmagan. */
+  mirrorsOther: boolean;
+  /** Matn shu tilning yozuvida yozilganmi (ruscha maydonda kirill). */
+  scriptOk: boolean;
+
+  /** 85 dan: xususiyatlar tillar uchun umumiy. */
+  score: number;
+  titleScore: number;
+  descriptionScore: number;
+  keywordScore: number;
+
+  keywordsTotal: number;
+  keywordsUsed: number;
+  coverageTotal: number;
+  coverageUsed: number;
+  coverageMissed: number;
+
+  title: string;
+  titleLength: number;
+  titleWords: number;
+  descriptionLength: number;
+  descriptionWords: number;
+  stopRatio: number;
+
+  /** Umumiy talabdagi ulushi, 0..1 — umumiy ballga shuncha ta'sir qiladi. */
+  weight: number;
+  verdicts: SeoVerdict[];
+  missing: string[];
 }
 
 export interface SeoReviews {
@@ -1073,6 +1110,8 @@ export interface SeoAudit {
   missing: string[];
 
   attributeScore: number;
+  /** O'zbekcha va ruscha kartochka — alohida o'lchangan. */
+  languages: SeoLanguage[];
 
   media: SeoMedia | null;
   reviews: SeoReviews | null;
