@@ -25,7 +25,7 @@ const QUESTIONS: Question[] = [
       "necha ball berayotgani ochiq ko'rinadi.",
     points: [
       "Nom, tavsif, kalit so'zlar va xususiyatlar — alohida ball",
-      "O'zbekcha va ruscha kartochka mustaqil o'lchanadi",
+      "O'zbekcha va ruscha kartochka MUSTAQIL o'lchanadi va o'z bali bor",
       "Har tahlil tarixda qoladi, oldingisi bilan solishtiriladi",
       "Xulosa emas, aniq ko'rsatma: nimani qo'shish kerak",
     ],

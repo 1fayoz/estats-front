@@ -71,29 +71,29 @@ export function HeroSection() {
         <div className="relative">
           <BrowserFrame
             src="/shots/seo-audit.jpg"
-            alt="eStats SEO audit: kartochka bali, kalit so'zlar yadrosi va xulosalar"
+            alt="eStats SEO audit: kartochka bali va tillar bo'yicha alohida o'lchov"
             url="estats.uz/seo"
             priority
             sizes="(max-width: 1024px) 100vw, 1100px"
           />
 
           <FloatCard
-            className="-left-3 top-[22%] hidden sm:flex lg:-left-10"
+            className="-left-3 top-[26%] hidden sm:flex lg:-left-10"
             label="SEO BALL"
-            value="66"
-            delta="+6"
+            value="81"
+            delta="+15"
           />
           <FloatCard
-            className="-right-3 top-[8%] hidden sm:flex lg:-right-8"
+            className="-right-3 top-[10%] hidden sm:flex lg:-right-8"
             label="QO'LDAN KETYAPTI"
-            value="302 268"
+            value="96 880"
             tone="bad"
           />
           <FloatCard
-            className="-right-3 bottom-[12%] hidden md:flex lg:-right-12"
-            label="SOF FOYDA · 30 KUN"
-            value="406 473"
-            delta="+18%"
+            className="-right-3 bottom-[14%] hidden md:flex lg:-right-12"
+            label="RUSCHA KARTOCHKA"
+            value="41"
+            suffix="/85"
           />
         </div>
       </div>
@@ -105,12 +105,14 @@ function FloatCard({
   label,
   value,
   delta,
+  suffix,
   tone,
   className,
 }: {
   label: string;
   value: string;
   delta?: string;
+  suffix?: string;
   tone?: "bad";
   className?: string;
 }) {
@@ -127,6 +129,7 @@ function FloatCard({
         >
           {value}
         </span>
+        {suffix ? <span className="text-xs text-muted-foreground">{suffix}</span> : null}
         {delta ? (
           <span className="flex items-center gap-0.5 text-xs font-medium text-success">
             <TrendingUp className="h-3 w-3" />
