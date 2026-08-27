@@ -19,6 +19,8 @@ export interface Me {
   email: string;
   fullName: string | null;
   image: string | null;
+  /** Telegram botga ulanish kaliti — bot shu raqam bo'yicha topadi. */
+  phone: string | null;
   shops: Shop[];
 }
 

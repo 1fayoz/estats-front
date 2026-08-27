@@ -511,6 +511,15 @@ export async function downloadSeoAudit(productId: number, run?: number | null) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
+/**
+ * Telefon raqamini biriktiradi.
+ *
+ * Telegram bot hisobni AYNAN shu raqam bo'yicha topadi — boshqa
+ * bog'lovchi yo'q.
+ */
+export const setPhone = (phone: string) =>
+  request<Me>("/auth/phone", { method: "PUT", body: JSON.stringify({ phone }) });
+
 export const fetchSeoList = () => request<SeoAuditRow[]>("/seo");
 
 export const fetchSeoAudit = (productId: number, run?: number | null) =>
