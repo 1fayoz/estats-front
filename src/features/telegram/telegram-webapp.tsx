@@ -27,7 +27,6 @@ export function TelegramWebApp() {
   const router = useRouter();
   const pathname = usePathname();
   const hydrated = useUserStore((s) => s.hydrated);
-  const accessToken = useUserStore((s) => s.accessToken);
   const signIn = useUserStore((s) => s.signIn);
   const tried = React.useRef(false);
 
@@ -41,14 +40,20 @@ export function TelegramWebApp() {
   }, []);
 
   React.useEffect(() => {
-    // Saqlangan sessiya o'qilgunicha kutamiz: tokeni bor odamni
-    // qaytadan kirgizish keraksiz so'rov.
+    // Saqlangan sessiya o'qilgunicha kutamiz, aks holda `signIn`
+    // yozgan tokenni rehydrate ustidan yozib ketardi.
     if (!hydrated || tried.current) return;
 
     const initData = window.Telegram?.WebApp?.initData;
     if (!initData) return;
-    if (accessToken) return;
 
+    // Saqlangan token bo'lsa ham qayta kiramiz.
+    //
+    // Telegram Web WebApp'ni AYNI o'sha domenda ochadi, ya'ni
+    // localStorage umumiy. Brauzerda boshqa hisob saqlanib qolgan
+    // bo'lsa, "tokeni bor ekan" deb o'tkazib yuborish odamga
+    // BEGONA hisobni ko'rsatardi. WebApp ichida kimlikni Telegram
+    // belgilaydi — bitta so'rov shu noaniqlikni butunlay yopadi.
     tried.current = true;
     (async () => {
       try {
@@ -62,10 +67,12 @@ export function TelegramWebApp() {
         }
       } catch {
         // Jimgina: bog'lanmagan odam oddiy landing'ni ko'raveradi va
-        // Google orqali kira oladi. Bu XATO holat emas.
+        // Google orqali kira oladi. Bu XATO holat emas. Mavjud
+        // sessiya ham tegilmaydi — muvaffaqiyatsiz urinish odamni
+        // tizimdan chiqarib yuborishi mumkin emas.
       }
     })();
-  }, [hydrated, accessToken, pathname, router, signIn]);
+  }, [hydrated, pathname, router, signIn]);
 
   return null;
 }
