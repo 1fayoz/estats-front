@@ -1,5 +1,7 @@
-import { MapPin, Mail, MessageCircle, Phone, Sparkles, PlaySquare } from "lucide-react";
+import { MapPin, Mail, MessageCircle, Phone, PlaySquare } from "lucide-react";
 import Link from "next/link";
+
+import { LogoMark } from "@/components/brand/logo";
 import { siteConfig } from "@/config/site";
 
 export function LandingFooter() {
@@ -8,9 +10,7 @@ export function LandingFooter() {
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-info text-white">
-              <Sparkles className="h-4 w-4" />
-            </div>
+            <LogoMark size={32} className="h-8 w-8" />
             <span className="text-sm font-bold tracking-tight">{siteConfig.name}</span>
           </div>
           <p className="mt-3 max-w-sm text-xs text-muted-foreground">
@@ -37,10 +37,10 @@ export function LandingFooter() {
             Mahsulot
           </div>
           <ul className="space-y-2 text-sm">
-            <li><Link href="#features" className="hover:text-primary">Funksiyalar</Link></li>
-            <li><Link href="#pricing" className="hover:text-primary">Tariflar</Link></li>
-            <li><Link href="/" className="hover:text-primary">Chrome plagin</Link></li>
-            <li><Link href="/" className="hover:text-primary">Telegram bot</Link></li>
+            <li><Link href="#imkoniyatlar" className="hover:text-primary">Imkoniyatlar</Link></li>
+            <li><Link href="#narxlar" className="hover:text-primary">Narxlar</Link></li>
+            <li><Link href="#mahsulot" className="hover:text-primary">Qanday ishlaydi</Link></li>
+            <li><Link href="#savollar" className="hover:text-primary">Savollar</Link></li>
           </ul>
         </div>
 

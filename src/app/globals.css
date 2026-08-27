@@ -203,3 +203,65 @@
   background: var(--border);
   border-radius: 999px;
 }
+
+/*
+ * Landing ATAYLAB har doim yorug'.
+ *
+ * Kabinet qorong'i va foydalanuvchi tanlovi u yerda saqlanadi, lekin
+ * tanishtiruv sahifasi mahsulot rasmlari bilan ishlaydi: qorong'i
+ * kartochka rasmi yorug' fonda ajralib turadi, qorong'i fonda esa
+ * yo'qoladi. Shuning uchun tokenlar shu yerda qayta e'lon qilinadi —
+ * ichkaridagi shadcn komponentlari ham to'g'ri rangda chiqadi.
+ */
+.landing-light {
+  color-scheme: light;
+
+  --background: oklch(0.99 0.003 286);
+  --foreground: oklch(0.18 0.02 270);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 270);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 270);
+
+  --primary: oklch(0.55 0.21 285);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.96 0.01 280);
+  --secondary-foreground: oklch(0.22 0.03 275);
+
+  --muted: oklch(0.96 0.01 285);
+  --muted-foreground: oklch(0.5 0.02 280);
+
+  --accent: oklch(0.95 0.04 285);
+  --accent-foreground: oklch(0.25 0.07 285);
+
+  --destructive: oklch(0.6 0.24 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.65 0.18 145);
+  --warning: oklch(0.78 0.18 75);
+  --info: oklch(0.65 0.18 240);
+
+  --border: oklch(0.92 0.01 280);
+  --input: oklch(0.92 0.01 280);
+  --ring: oklch(0.55 0.21 285);
+
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Gorizontal aylanuvchi lenta — turkumlar va imkoniyatlar uchun. */
+@keyframes landing-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.landing-marquee {
+  animation: landing-marquee 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-marquee { animation: none; }
+}

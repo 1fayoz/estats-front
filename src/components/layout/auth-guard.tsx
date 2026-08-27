@@ -35,7 +35,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!hydrated) return;
 
     if (!accessToken) {
-      router.replace("/");
+      // Landing emas, kirish sahifasi: bu odam allaqachon kabinetga
+      // kirmoqchi bo'lgan, unga mahsulotni qaytadan tanishtirish emas,
+      // kirish formasini ko'rsatish kerak.
+      router.replace("/login");
       return;
     }
 
@@ -51,7 +54,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         // actual rejection of the session does.
         if (err instanceof ApiError && err.isAuthError) {
           signOut();
-          router.replace("/");
+          router.replace("/login");
           return;
         }
       }
