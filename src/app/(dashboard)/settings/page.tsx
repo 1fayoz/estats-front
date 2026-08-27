@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PhoneCard } from "@/features/settings/phone-card";
+import { NameCard } from "@/features/settings/name-card";
 import { useUserStore } from "@/stores/user-store";
 
 export default function SettingsPage() {
@@ -35,6 +36,7 @@ export default function SettingsPage() {
       />
 
       <div className="grid grid-cols-1 gap-6">
+        <NameCard />
         <PhoneCard />
 
         <Card>

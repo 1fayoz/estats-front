@@ -528,6 +528,12 @@ export async function downloadSeoAudit(productId: number, run?: number | null) {
  * Telegram bot hisobni AYNAN shu raqam bo'yicha topadi — boshqa
  * bog'lovchi yo'q.
  */
+export const setProfile = (fullName: string) =>
+  request<Me>("/auth/profile", {
+    method: "PUT",
+    body: JSON.stringify({ fullName }),
+  });
+
 export const setPhone = (phone: string) =>
   request<Me>("/auth/phone", { method: "PUT", body: JSON.stringify({ phone }) });
 
