@@ -64,6 +64,21 @@ export interface TeamMember {
   image: string | null;
 }
 
+/** Hisob egasi — jamoa ro'yxatining birinchi qatori. */
+export interface TeamOwner {
+  id: number;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  image: string | null;
+}
+
+export interface Team {
+  /** Eski backend egasini qaytarmaydi — u holda `null`. */
+  owner: TeamOwner | null;
+  members: TeamMember[];
+}
+
 export interface PermissionAction {
   code: string;
   name: string;

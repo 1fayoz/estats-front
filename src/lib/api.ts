@@ -49,6 +49,7 @@ import type {
   SocialPlatformRow,
   SocialPost,
   SyncState,
+  Team,
   TeamMember,
   WarehouseProduct,
 } from "./types";
@@ -530,12 +531,39 @@ export async function downloadSeoAudit(productId: number, run?: number | null) {
 export const setPhone = (phone: string) =>
   request<Me>("/auth/phone", { method: "PUT", body: JSON.stringify({ phone }) });
 
+/**
+ * Telegram WebApp'dan kirish.
+ *
+ * `auth: false` — hali tokenimiz yo'q, aynan shu chaqiruv uni
+ * beradi. `initData` ni Telegram imzolagan va uni backend
+ * tekshiradi.
+ */
+export const telegramLogin = (initData: string) =>
+  request<LoginResponse>("/auth/telegram", {
+    method: "POST",
+    auth: false,
+    shopScoped: false,
+    body: JSON.stringify({ initData }),
+  });
+
 // ── jamoa ────────────────────────────────────────────────────────────────────
 
 export const getPermissionCatalogue = () =>
   request<PermissionModule[]>("/team/permissions", { shopScoped: false });
 
-export const getTeam = () => request<TeamMember[]>("/team", { shopScoped: false });
+/**
+ * Jamoa: egasi va a'zolar.
+ *
+ * Eski backend faqat MASSIV qaytaradi (egasisiz). Front backend'dan
+ * oldin joylanadigan bir necha daqiqada shu holat bo'ladi va
+ * `team.members` `undefined` bo'lib sahifani yiqitardi — shuning
+ * uchun ikkala shakl ham qabul qilinadi.
+ */
+export const getTeam = async (): Promise<Team> => {
+  const body = await request<Team | TeamMember[]>("/team", { shopScoped: false });
+  if (Array.isArray(body)) return { owner: null, members: body };
+  return { owner: body.owner ?? null, members: body.members ?? [] };
+};
 
 export const addTeamMember = (body: {
   phone: string;

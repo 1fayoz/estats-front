@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { siteConfig } from "@/config/site";
+import Script from "next/script";
+import { TelegramWebApp } from "@/features/telegram/telegram-webapp";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,12 +77,22 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground font-sans">
+        {/* Telegram WebApp SDK. `beforeInteractive` — `initData`
+            React ishga tushishidan OLDIN tayyor bo'lishi kerak,
+            aks holda avto-login birinchi renderni o'tkazib
+            yuborardi. Telegram tashqarisida skript hech nima
+            qilmaydi. */}
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
+          <TelegramWebApp />
           {children}
           <Toaster
             theme="system"

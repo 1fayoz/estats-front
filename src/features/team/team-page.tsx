@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Plus, Send, Trash2, UserPlus, Users } from "lucide-react";
+import Link from "next/link";
+import type { Route } from "next";
+import { Crown, Loader2, Plus, Send, Trash2, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -32,13 +34,14 @@ import {
   removeTeamMember,
   updateTeamMember,
 } from "@/lib/api";
-import type { PermissionModule, TeamMember } from "@/lib/types";
+import type { PermissionModule, TeamMember, TeamOwner } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { PermissionPicker } from "./permission-picker";
 
 export function TeamPage() {
   const [members, setMembers] = React.useState<TeamMember[]>([]);
+  const [owner, setOwner] = React.useState<TeamOwner | null>(null);
   const [modules, setModules] = React.useState<PermissionModule[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [editing, setEditing] = React.useState<TeamMember | null>(null);
@@ -46,11 +49,12 @@ export function TeamPage() {
 
   const load = React.useCallback(async () => {
     try {
-      const [rows, catalogue] = await Promise.all([
+      const [team, catalogue] = await Promise.all([
         getTeam(),
         getPermissionCatalogue(),
       ]);
-      setMembers(rows);
+      setMembers(team.members);
+      setOwner(team.owner);
       setModules(catalogue);
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Yuklanmadi.");
@@ -90,6 +94,8 @@ export function TeamPage() {
           </Button>
         }
       />
+
+      {owner ? <OwnerCard owner={owner} /> : null}
 
       {loading ? (
         <Card>
@@ -192,10 +198,60 @@ export function TeamPage() {
   );
 }
 
+/**
+ * Hisob egasi — ro'yxatning birinchi qatori.
+ *
+ * Raqam ikki joyda (Sozlamalar va Jamoa) turishi "qaysi biri
+ * haqiqiy?" degan savol tug'diradi. Aslida u BITTA: bot hisobni
+ * aynan shu raqam bo'yicha topadi. Shuning uchun u shu yerda ham
+ * ko'rinadi va shu yerdan o'zgartiriladi.
+ */
+function OwnerCard({ owner }: { owner: TeamOwner }) {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Crown className="h-4 w-4 text-warning" /> Siz — hisob egasi
+        </CardTitle>
+        <CardDescription>
+          Hamma bo&apos;lim ochiq. Raqamingiz — botga ulanish kaliti.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border bg-muted/30 p-3">
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">
+              {owner.name || owner.email || "—"}
+            </div>
+            {owner.email ? (
+              <div className="truncate text-xs text-muted-foreground">{owner.email}</div>
+            ) : null}
+          </div>
+          <div className="min-w-0">
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              Telefon
+            </div>
+            <div className="truncate text-sm tabular-nums">
+              {owner.phone ?? (
+                <span className="text-destructive">kiritilmagan</span>
+              )}
+            </div>
+          </div>
+          <Link href={"/settings" as Route} className="ml-auto">
+            <Button size="sm" variant="outline">
+              {owner.phone ? "O'zgartirish" : "Raqam kiritish"}
+            </Button>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function StatusBadge({ member }: { member: TeamMember }) {
   if (!member.isActive) return <Badge variant="outline">O&apos;chirilgan</Badge>;
   if (!member.accepted) {
-    // Bog'lanmagan taklif — egasi raqamni xato yozgan bo'lishi
+    // Odam hali kirmagan. Egasi raqamni xato yozgan bo'lishi
     // mumkinligini bilib turishi kerak.
     return <Badge variant="outline">Kutilmoqda</Badge>;
   }
@@ -253,8 +309,9 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
           <li>1. Odamning telefon raqamini yozasiz.</li>
           <li>2. Qaysi sahifalarni ko&apos;rishini belgilaysiz.</li>
           <li>
-            3. U saytga Google orqali kiradi va Sozlamalarda AYNAN shu raqamni
-            yozadi — hisobingiz o&apos;zi ochiladi.
+            3. U botga <b>/start</b> yozib raqamini yuboradi — tamom. Google
+            akkaunt ham, parol ham kerak emas: «Kabinet» tugmasini bosganda
+            kabinet o&apos;zi ochiladi.
           </li>
         </ol>
         <Button size="sm" className="gap-1.5" onClick={onAdd}>
