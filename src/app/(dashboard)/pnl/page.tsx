@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SummaryCards } from "@/features/pnl/components/summary-cards";
 import { PnlChart } from "@/features/pnl/components/pnl-chart";
+import { UzumReconcile } from "@/features/pnl/components/uzum-reconcile";
 import { PnlTable } from "@/features/pnl/components/pnl-table";
 import { usePnlReport, usePnlStore } from "@/features/pnl/store";
 import { downloadPnlCsv } from "@/features/pnl/export";
@@ -73,6 +74,8 @@ export default function PnlPage() {
       ) : data ? (
         <>
           <SummaryCards totals={data.totals} />
+
+          {data.totals.gross > 0 && <UzumReconcile totals={data.totals} />}
 
           {data.totals.uncoveredQuantity > 0 && (
             <div className="flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
