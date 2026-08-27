@@ -11,6 +11,8 @@ type Question = {
   body: string;
   points: string[];
   shot: string;
+  /** Telefon uchun o'sha ekranning telefondagi ko'rinishi. */
+  mobileShot: string;
   url: string;
   alt: string;
 };
@@ -30,6 +32,7 @@ const QUESTIONS: Question[] = [
       "Xulosa emas, aniq ko'rsatma: nimani qo'shish kerak",
     ],
     shot: "/shots/seo-audit.jpg",
+    mobileShot: "/shots/m/seo-audit.png",
     url: "estats.uz/seo",
     alt: "SEO audit: ball, tahlillar tarixi va bo'limlar bo'yicha xulosalar",
   },
@@ -47,6 +50,7 @@ const QUESTIONS: Question[] = [
       "Eng foydali ishlatilmagan iboralar — ro'yxat boshida",
     ],
     shot: "/shots/keywords.jpg",
+    mobileShot: "/shots/m/keywords.png",
     url: "estats.uz/seo",
     alt: "Kalit so'zlar yadrosi: qamrov, raqobat va ishlatilishi",
   },
@@ -64,6 +68,7 @@ const QUESTIONS: Question[] = [
       "7 / 30 / 90 kunlik davrlar va CSV eksport",
     ],
     shot: "/shots/pnl.jpg",
+    mobileShot: "/shots/m/pnl.png",
     url: "estats.uz/pnl",
     alt: "Foyda va zarar: FIFO tan narx va sof foyda",
   },
@@ -81,6 +86,7 @@ const QUESTIONS: Question[] = [
       "Kalkulyator: narxni o'zgartirib, foydani oldindan ko'rish",
     ],
     shot: "/shots/finance.jpg",
+    mobileShot: "/shots/m/finance.png",
     url: "estats.uz/finance",
     alt: "Moliya: komissiya, logistika va sof to'lov",
   },
@@ -98,6 +104,7 @@ const QUESTIONS: Question[] = [
       "E'lon fonda ketadi va uzilsa o'sha joyidan davom etadi",
     ],
     shot: "/shots/socials.jpg",
+    mobileShot: "/shots/m/socials.png",
     url: "estats.uz/socials",
     alt: "Ijtimoiy tarmoqlar: tovar va e'lonlar bog'lanishi",
   },
@@ -115,6 +122,7 @@ const QUESTIONS: Question[] = [
       "Eng past balli tovar alohida ko'rsatiladi",
     ],
     shot: "/shots/seo-list.jpg",
+    mobileShot: "/shots/m/seo-list.png",
     url: "estats.uz/seo",
     alt: "SEO audit ro'yxati: hamma tovar ball bo'yicha",
   },
@@ -190,6 +198,7 @@ export function QuestionsSection() {
           <BrowserFrame
             key={current.shot}
             src={current.shot}
+            mobileSrc={current.mobileShot}
             alt={current.alt}
             url={current.url}
             className="shadow-xl"

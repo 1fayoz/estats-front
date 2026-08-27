@@ -71,6 +71,7 @@ export function HeroSection() {
         <div className="relative">
           <BrowserFrame
             src="/shots/seo-audit.jpg"
+            mobileSrc="/shots/m/seo-audit.png"
             alt="eStats SEO audit: kartochka bali va tillar bo'yicha alohida o'lchov"
             url="estats.uz/seo"
             priority

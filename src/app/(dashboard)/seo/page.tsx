@@ -248,10 +248,13 @@ export default function SeoPage() {
               <div className="h-12 w-12 shrink-0 rounded-md border bg-muted" />
             )}
 
-            <div className="min-w-0 flex-1">
+            {/* `basis-40`: telefonda matnga o'z joyi qoladi va tugma
+                pastdagi qatorga o'tadi. Aks holda nom "Ayollar so…"
+                bo'lib qisqarib, izohi to'rt qatorga cho'zilardi. */}
+            <div className="min-w-0 flex-1 basis-40">
               <Link
                 href={`/seo/${row.productId}` as Route}
-                className="block truncate text-sm font-medium hover:underline"
+                className="line-clamp-2 text-sm font-medium hover:underline md:block md:truncate"
               >
                 {row.title}
               </Link>
@@ -275,22 +278,24 @@ export default function SeoPage() {
               </div>
             </div>
 
-            {row.analyzedAt ? (
-              <Link href={`/seo/${row.productId}` as Route}>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  Ochish <ArrowRight className="h-3.5 w-3.5" />
+            <div className="w-full sm:w-auto">
+              {row.analyzedAt ? (
+                <Link href={`/seo/${row.productId}` as Route} className="block">
+                  <Button variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto">
+                    Ochish <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  size="sm"
+                  className="w-full gap-1.5 sm:w-auto"
+                  onClick={() => analyse([row.productId])}
+                  disabled={busy || queued.has(row.productId)}
+                >
+                  <Wand2 className="h-3.5 w-3.5" /> Tahlil qilish
                 </Button>
-              </Link>
-            ) : (
-              <Button
-                size="sm"
-                className="gap-1.5"
-                onClick={() => analyse([row.productId])}
-                disabled={busy || queued.has(row.productId)}
-              >
-                <Wand2 className="h-3.5 w-3.5" /> Tahlil qilish
-              </Button>
-            )}
+              )}
+            </div>
           </motion.div>
         ))}
 

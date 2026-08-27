@@ -81,7 +81,13 @@ export function CardHead({
       ) : null}
       <div className="min-w-0 flex-1">
         <div className="line-clamp-2 text-sm font-medium">{title}</div>
-        {note ? <div className="mt-0.5 text-xs text-muted-foreground">{note}</div> : null}
+        {note ? (
+          // `break-all`: SKU kabi uzun uzilmaydigan kod aks holda uch
+          // qatorga cho'zilib, kartochkaning yarmini egallaydi.
+          <div className="mt-0.5 line-clamp-2 break-all text-xs text-muted-foreground">
+            {note}
+          </div>
+        ) : null}
       </div>
       {right ? <div className="shrink-0">{right}</div> : null}
     </div>

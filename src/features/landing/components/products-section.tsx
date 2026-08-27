@@ -17,6 +17,7 @@ const BLOCKS = [
       ["Tuzatish matni", "AI yozadi, nusxalab qo'yasiz"],
     ],
     shot: "/shots/seo-audit.jpg",
+    mobileShot: "/shots/m/seo-audit.png",
     url: "estats.uz/seo",
     alt: "SEO audit ekrani",
   },
@@ -31,6 +32,7 @@ const BLOCKS = [
       ["Ochiq hisob", "tan narxi yo'q donalar yashirilmaydi"],
     ],
     shot: "/shots/pnl.jpg",
+    mobileShot: "/shots/m/pnl.png",
     url: "estats.uz/pnl",
     alt: "Foyda va zarar ekrani",
   },
@@ -45,6 +47,7 @@ const BLOCKS = [
       ["Obunachilar", "o'sish shu yerda ko'rinadi"],
     ],
     shot: "/shots/socials.jpg",
+    mobileShot: "/shots/m/socials.png",
     url: "estats.uz/socials",
     alt: "Ijtimoiy tarmoqlar ekrani",
   },
@@ -110,6 +113,7 @@ export function ProductsSection() {
 
               <BrowserFrame
                 src={block.shot}
+                mobileSrc={block.mobileShot}
                 alt={block.alt}
                 url={block.url}
                 className="shadow-xl"
