@@ -4,6 +4,9 @@ import * as React from "react";
 import { AlertTriangle, ArrowUpDown, Calculator } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  CardHead, CardList, CardSort, CardStats, DataCard, TableWrap,
+} from "@/components/dashboard/data-cards";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -51,7 +54,67 @@ export function PnlTable({ rows }: { rows: ProductPnl[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border">
+    <>
+      <CardSort
+        options={COLUMNS.map((col) => ({ key: col.key, label: col.label }))}
+        active={sortKey}
+        onPick={toggle}
+      />
+
+      <CardList>
+        {sorted.map((row) => (
+          <DataCard key={row.warehouseProductId ?? row.title}>
+            <CardHead
+              image={row.image}
+              title={row.title}
+              note={
+                <span className="flex flex-wrap items-center gap-x-1.5">
+                  {row.skuCode ?? "—"}
+                  {!row.isCosted && (
+                    <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-500">
+                      <AlertTriangle className="h-3 w-3" />
+                      {row.uncoveredQuantity} dona tan narxsiz
+                    </span>
+                  )}
+                </span>
+              }
+              right={<ProfitBadge value={row.profit} />}
+            />
+            <CardStats
+              items={[
+                {
+                  label: "Sotildi",
+                  value: (
+                    <>
+                      {formatNumber(row.soldQuantity)} dona
+                      {row.returnedQuantity > 0 && (
+                        <span className="ml-1 text-xs text-amber-600 dark:text-amber-500">
+                          {row.returnedQuantity} qaytdi
+                        </span>
+                      )}
+                    </>
+                  ),
+                },
+                { label: "Marja", value: row.soldQuantity ? `${row.margin.toFixed(1)}%` : "—",
+                  tone: row.margin < 0 ? "bad" : undefined },
+                { label: "Uzum to'lovi", value: formatSum(row.revenue) },
+                {
+                  label: "Tan narx (FIFO)",
+                  value: row.cogs > 0 ? formatSum(row.cogs) : <Badge variant="secondary">kiritilmagan</Badge>,
+                },
+                {
+                  label: "Keldi",
+                  value: row.intakeQuantity ? `${formatNumber(row.intakeQuantity)} dona` : "—",
+                  tone: row.intakeQuantity ? undefined : "muted",
+                },
+                { label: "Qoldiq", value: `${formatNumber(row.onHand)} dona` },
+              ]}
+            />
+          </DataCard>
+        ))}
+      </CardList>
+
+      <TableWrap>
       <table className="w-full min-w-[1000px] text-sm">
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
@@ -174,6 +237,7 @@ export function PnlTable({ rows }: { rows: ProductPnl[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+      </TableWrap>
+    </>
   );
 }

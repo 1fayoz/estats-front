@@ -131,7 +131,49 @@ export function BreakEvenCard({ economics }: { economics: UnitEconomics }) {
             <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
               <TrendingUp className="h-3.5 w-3.5" /> Qaysi narxda qancha foyda
             </div>
-            <div className="overflow-x-auto rounded-lg border">
+            {/* Telefonda: har narx — bitta ixcham qator-kartochka.
+                To'rt ustunli jadval 390px da baribir siljishga majbur qiladi. */}
+            <div className="space-y-1.5 md:hidden">
+              {economics.priceLadder.map((rung) => (
+                <div
+                  key={rung.price}
+                  className={cn(
+                    "rounded-lg border p-3",
+                    rung.isCurrent && "border-primary/40 bg-primary/5"
+                  )}
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="flex flex-wrap items-baseline gap-1.5 text-sm font-medium tabular-nums">
+                      {formatSum(rung.price)}
+                      {rung.isCurrent && (
+                        <Badge variant="info" className="text-[10px]">hozirgi</Badge>
+                      )}
+                      {Math.abs(rung.profit) < 1 && (
+                        <Badge variant="secondary" className="text-[10px]">beziyon</Badge>
+                      )}
+                    </span>
+                    <span
+                      className={cn(
+                        "shrink-0 text-sm font-semibold tabular-nums",
+                        rung.profit > 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : rung.profit < 0
+                            ? "text-destructive"
+                            : ""
+                      )}
+                    >
+                      {formatSum(rung.profit)}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex justify-between gap-2 text-xs text-muted-foreground tabular-nums">
+                    <span>Uzum to&apos;laydi {formatSum(rung.payout)}</span>
+                    <span>marja {rung.margin.toFixed(1)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto rounded-lg border md:block">
               <table className="w-full min-w-[420px] text-sm">
                 <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
                   <tr>

@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
@@ -163,7 +164,36 @@ export default function ProductDetailPage() {
           {data.intakes.length === 0 ? (
             <p className="text-sm text-muted-foreground">Hali kirim kiritilmagan.</p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border">
+            <>
+            <CardList>
+              {data.intakes.map((b) => (
+                <DataCard key={b.id}>
+                  <CardHead
+                    title={b.receivedAt.slice(0, 10)}
+                    note={b.supplier ?? "—"}
+                    right={
+                      b.remainingQuantity === 0 ? (
+                        <Badge variant="secondary">tugagan</Badge>
+                      ) : (
+                        <span className="text-sm font-medium tabular-nums">
+                          {formatNumber(b.remainingQuantity)} qoldi
+                        </span>
+                      )
+                    }
+                  />
+                  <CardStats
+                    items={[
+                      { label: "Keldi", value: `${formatNumber(b.quantity)} dona` },
+                      { label: "Tan narx", value: formatSum(b.costPrice) },
+                      { label: "Sotildi", value: formatNumber(b.soldQuantity) },
+                      { label: "Jami", value: formatSum(b.costPrice * b.quantity) },
+                    ]}
+                  />
+                </DataCard>
+              ))}
+            </CardList>
+
+            <div className="hidden overflow-x-auto rounded-lg border md:block">
               <table className="w-full min-w-[560px] text-sm">
                 <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
                   <tr>
@@ -193,6 +223,7 @@ export default function ProductDetailPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -211,7 +242,36 @@ function PeriodTable({ rows }: { rows: SalesPeriod[] }) {
     return <p className="py-6 text-center text-sm text-muted-foreground">Sotuv yo&apos;q.</p>;
   }
   return (
-    <div className="mt-3 overflow-x-auto rounded-lg border">
+    <>
+    <CardList className="mt-3">
+      {rows.map((r) => (
+        <DataCard key={r.period}>
+          <CardHead
+            title={r.period}
+            note={`${formatNumber(r.soldQuantity)} dona sotildi`}
+            right={
+              <span
+                className={cn(
+                  "text-sm font-semibold tabular-nums",
+                  r.profit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                )}
+              >
+                {formatSum(r.profit)}
+              </span>
+            }
+          />
+          <CardStats
+            items={[
+              { label: "O'rtacha narx", value: formatSum(r.avgPrice) },
+              { label: "Uzum to'lovi", value: formatSum(r.revenue) },
+              { label: "Tan narx", value: formatSum(r.cogs), tone: "muted" },
+            ]}
+          />
+        </DataCard>
+      ))}
+    </CardList>
+
+    <div className="mt-3 hidden overflow-x-auto rounded-lg border md:block">
       <table className="w-full min-w-[640px] text-sm">
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
@@ -246,6 +306,7 @@ function PeriodTable({ rows }: { rows: SalesPeriod[] }) {
         </tbody>
       </table>
     </div>
+    </>
   );
 }
 

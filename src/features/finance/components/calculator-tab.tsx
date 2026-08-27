@@ -5,6 +5,7 @@ import { Calculator } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -123,7 +124,33 @@ export function CalculatorTab() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-0">
-          <div className="overflow-x-auto">
+          <CardList className="px-4">
+            {COMMISSION_TABLE.map((c) => (
+              <DataCard key={c.key}>
+                <CardHead
+                  title={c.name}
+                  right={
+                    <Badge variant="default" className="font-mono">
+                      {c.commission}%
+                    </Badge>
+                  }
+                />
+                <CardStats
+                  items={[
+                    { label: "100 000 dan", value: formatSum((100_000 * c.commission) / 100) },
+                    { label: "500 000 dan", value: formatSum((500_000 * c.commission) / 100) },
+                    { label: "1 000 000 dan", value: formatSum((1_000_000 * c.commission) / 100) },
+                  ]}
+                />
+              </DataCard>
+            ))}
+            <p className="px-1 text-xs text-muted-foreground">
+              * Komissiyaga qo&apos;shimcha: to&apos;lov tizimi 2.5%, pickup 1.2%, QQS 12%,
+              1 dona uchun fulfillment ~4 000 so&apos;m.
+            </p>
+          </CardList>
+
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-y bg-muted/30 text-left text-xs uppercase tracking-wider text-muted-foreground">

@@ -216,6 +216,17 @@
 .landing-light {
   color-scheme: light;
 
+  /*
+   * Bezak elementlari (yumshoq nur, aylanuvchi lenta) ataylab
+   * ekrandan kengroq. Ular ko'rinmasa ham LAYOUT kengligini
+   * cho'zadi va telefon brauzeri butun sahifani kichraytirib
+   * ko'rsatadi — matn o'qib bo'lmas darajada mayda bo'lib qoladi.
+   *
+   * `clip`, `hidden` emas: `hidden` siljish idishi yasaydi va
+   * ichkaridagi `position: sticky` sarlavhani buzadi.
+   */
+  overflow-x: clip;
+
   --background: oklch(0.99 0.003 286);
   --foreground: oklch(0.18 0.02 270);
 

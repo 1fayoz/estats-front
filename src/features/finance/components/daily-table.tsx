@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
 import { formatNumber, formatPercent, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { formatDayLabel, formatWeekday } from "@/lib/date-range";
@@ -33,7 +34,76 @@ export function DailyTable({
   );
 
   return (
-    <div className="overflow-x-auto">
+    <>
+      {/* Telefonda: har kun — alohida kartochka, jami esa tepada. */}
+      <CardList className="px-4 pb-4">
+        <DataCard className="border-primary/30 bg-primary/5">
+          <CardHead title="Jami" note={`${formatNumber(totals.orders)} buyurtma · ${formatNumber(totals.units)} dona`} />
+          <CardStats
+            items={[
+              { label: "Yalpi savdo", value: formatSum(totals.gross) },
+              { label: "Sof to'lov", value: formatSum(totals.net), tone: "good" },
+              {
+                label: "Komissiya",
+                value: `${formatSum(totals.commission)} · ${formatPercent(totals.commissionRate)}`,
+                tone: "bad",
+              },
+              { label: "Logistika", value: formatSum(totals.logistics), tone: "bad" },
+            ]}
+          />
+        </DataCard>
+
+        {rows.map((d) => (
+          <DataCard key={d.date}>
+            <CardHead
+              title={formatDayLabel(d.date)}
+              note={<span className="capitalize">{formatWeekday(d.date)}</span>}
+              right={
+                <span
+                  className={cn(
+                    "text-sm font-semibold tabular-nums",
+                    d.net >= 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-rose-600 dark:text-rose-400"
+                  )}
+                >
+                  {d.gross || d.expenses ? formatSum(d.net) : "—"}
+                </span>
+              }
+            />
+            <CardStats
+              items={[
+                {
+                  label: "Buyurtma / dona",
+                  value: (
+                    <>
+                      {d.orders || 0} / {d.units || 0}
+                      {d.returns > 0 && (
+                        <span className="ml-1 text-[11px] text-rose-500">↩{d.returns}</span>
+                      )}
+                    </>
+                  ),
+                },
+                { label: "Yalpi savdo", value: d.gross ? formatSum(d.gross) : "—" },
+                {
+                  label: "Komissiya",
+                  value: d.commission
+                    ? `${formatSum(d.commission)} · ${formatPercent(d.commissionRate)}`
+                    : "—",
+                  tone: d.commission ? "bad" : "muted",
+                },
+                {
+                  label: "Logistika",
+                  value: d.logistics ? formatSum(d.logistics) : "—",
+                  tone: d.logistics ? "bad" : "muted",
+                },
+              ]}
+            />
+          </DataCard>
+        ))}
+      </CardList>
+
+      <div className="hidden overflow-x-auto md:block">
       <table className="w-full min-w-[720px] text-sm">
         <thead>
           <tr className="border-y bg-muted/30 text-xs uppercase tracking-wider text-muted-foreground">
@@ -128,6 +198,7 @@ export function DailyTable({
           </tr>
         </tfoot>
       </table>
-    </div>
+      </div>
+    </>
   );
 }

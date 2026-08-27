@@ -44,7 +44,43 @@ export function CompareSection() {
         </p>
       </div>
 
-      <div className="mt-10 overflow-x-auto rounded-2xl border bg-card">
+      {/* Telefonda: har imkoniyat — kartochka, uch servis yonma-yon
+          belgi bilan. Uch ustunli jadval 390px da o'qib bo'lmaydi. */}
+      <div className="mt-10 space-y-2.5 md:hidden">
+        {ROWS.map((row) => (
+          <div key={row.label} className="rounded-xl border bg-card p-4">
+            <div className="text-sm font-medium">{row.label}</div>
+            {row.note ? (
+              <div className="mt-0.5 text-xs text-muted-foreground">{row.note}</div>
+            ) : null}
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {row.marks.map((mark, index) => (
+                <div
+                  key={COLUMNS[index]}
+                  className={cn(
+                    "flex flex-col items-center gap-1.5 rounded-lg px-1 py-2",
+                    index === COLUMNS.length - 1 && "bg-primary/5"
+                  )}
+                >
+                  <MarkIcon mark={mark} />
+                  <span
+                    className={cn(
+                      "text-center text-[10px] leading-tight",
+                      index === COLUMNS.length - 1
+                        ? "font-medium text-primary"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {COLUMNS[index]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-10 hidden overflow-x-auto rounded-2xl border bg-card md:block">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b">

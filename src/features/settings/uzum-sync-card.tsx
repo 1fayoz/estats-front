@@ -70,7 +70,7 @@ export function UzumSyncCard() {
     <Card className="lg:col-span-2">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0 flex-1">
             <CardTitle className="flex items-center gap-2">
               <Database className="h-4 w-4" /> Uzum ma&apos;lumoti
             </CardTitle>
@@ -154,7 +154,7 @@ function Row({
       <div className="flex min-w-0 items-center gap-3">
         <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-sm font-medium">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
             {label}
             {running ? (
               <Badge variant="info" className="text-[10px]">yangilanmoqda</Badge>

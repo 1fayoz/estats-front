@@ -6,6 +6,9 @@ import { PackagePlus, PackageX, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  CardHead, CardList, CardStats, DataCard, TableWrap,
+} from "@/components/dashboard/data-cards";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { formatNumber, formatSum } from "@/lib/format";
 import type { WarehouseProduct } from "@/lib/types";
@@ -29,7 +32,75 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border">
+    <>
+      <CardList>
+        {items.map((item) => {
+          const hasCost = item.lastCost != null || item.averageCost > 0;
+          return (
+            <DataCard key={item.id} onClick={() => router.push(`/warehouse/${item.id}`)}>
+              <CardHead
+                image={item.image}
+                title={item.title}
+                note={[item.variantName, item.skuCode].filter(Boolean).join(" · ") || "—"}
+              />
+              <CardStats
+                items={[
+                  {
+                    label: "Uzum narxi",
+                    value: item.marketplacePrice ? formatSum(item.marketplacePrice) : "—",
+                  },
+                  {
+                    label: "Tan narx",
+                    value: hasCost ? (
+                      formatSum(item.lastCost ?? item.averageCost)
+                    ) : (
+                      <Badge variant="secondary">kiritilmagan</Badge>
+                    ),
+                  },
+                  { label: "Qoldiq", value: `${formatNumber(item.stockQuantity)} dona` },
+                  {
+                    label: "Zaxira qiymati",
+                    value: item.stockValue > 0 ? formatSum(item.stockValue) : "—",
+                  },
+                  {
+                    label: "Keldi / sotildi",
+                    value: `${formatNumber(item.totalIntakeQuantity)} / ${formatNumber(item.totalSoldQuantity)}`,
+                  },
+                  {
+                    label: "Qaytdi",
+                    value: item.totalReturnedQuantity ? (
+                      <span className="inline-flex items-center gap-1">
+                        {formatNumber(item.totalReturnedQuantity)}
+                        {item.pendingReturnQuantity > 0 && (
+                          <span className="inline-flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-500">
+                            <Truck className="h-3 w-3" />
+                            {formatNumber(item.pendingReturnQuantity)}
+                          </span>
+                        )}
+                      </span>
+                    ) : (
+                      "—"
+                    ),
+                  },
+                ]}
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-3 w-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onIntake(item);
+                }}
+              >
+                <PackagePlus className="h-3.5 w-3.5" /> Kirim qo&apos;shish
+              </Button>
+            </DataCard>
+          );
+        })}
+      </CardList>
+
+      <TableWrap>
       <table className="w-full min-w-[1120px] text-sm">
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
@@ -170,6 +241,7 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
           })}
         </tbody>
       </table>
-    </div>
+      </TableWrap>
+    </>
   );
 }

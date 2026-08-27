@@ -17,6 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  CardHead, CardList, CardStats, DataCard,
+} from "@/components/dashboard/data-cards";
 import { AttributesBlock } from "@/features/seo/components/attributes-block";
 import { FixBlock } from "@/features/seo/components/fix-block";
 import { LanguagesBlock } from "@/features/seo/components/languages-block";
@@ -388,7 +391,50 @@ function KeywordsBlock({ audit }: { audit: SeoAudit }) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <CardList>
+          {rows.map((row) => {
+            const used = row.inTitle > 0 || row.inDescription > 0;
+            return (
+              <DataCard
+                key={row.phrase}
+                className={cn(!used && "border-destructive/30 bg-destructive/5")}
+              >
+                <CardHead
+                  title={
+                    <span className="flex flex-wrap items-baseline gap-1.5">
+                      {row.phrase}
+                      {row.language && (
+                        <span className="text-[10px] uppercase text-muted-foreground">
+                          {row.language}
+                        </span>
+                      )}
+                    </span>
+                  }
+                  note={row.category}
+                  right={
+                    <span className="text-sm font-semibold tabular-nums">
+                      {formatNumber(row.coverage)}
+                    </span>
+                  }
+                />
+                <CardStats
+                  items={[
+                    { label: "Raqobat", value: formatNumber(row.products), tone: "muted" },
+                    { label: "Sharh", value: formatNumber(row.reviews), tone: "muted" },
+                    {
+                      label: "Nomda / tavsifda",
+                      value: `${row.inTitle} / ${row.inDescription}`,
+                      tone: used ? "good" : "bad",
+                    },
+                    { label: "Ulush", value: `${row.share}%`, tone: "muted" },
+                  ]}
+                />
+              </DataCard>
+            );
+          })}
+        </CardList>
+
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[36rem] text-sm">
             <thead>
               <tr className="border-b text-left text-xs text-muted-foreground">

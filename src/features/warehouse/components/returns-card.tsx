@@ -4,6 +4,7 @@ import { AlertTriangle, CheckCircle2, PackageX, Truck, XCircle } from "lucide-re
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ProductReturnRow, ReturnsSummary } from "@/lib/types";
@@ -107,7 +108,56 @@ export function ReturnsCard({
           </div>
         )}
 
-        <div className="overflow-x-auto rounded-lg border">
+        <CardList>
+          {returns.map((row) => (
+            <DataCard key={row.id}>
+              <CardHead
+                title={row.returnedAt.slice(0, 10)}
+                note={<span className="font-mono">#{row.externalReturnId}</span>}
+                right={
+                  <Badge
+                    variant={
+                      row.status === "completed"
+                        ? "success"
+                        : row.status === "canceled"
+                          ? "secondary"
+                          : "warning"
+                    }
+                    className="text-[10px]"
+                  >
+                    {STATUS_LABEL[row.status] ?? row.status}
+                  </Badge>
+                }
+              />
+              <CardStats
+                items={[
+                  { label: "Dona", value: formatNumber(row.quantity) },
+                  {
+                    label: "Qo'limdami?",
+                    value:
+                      row.status === "canceled" ? (
+                        "—"
+                      ) : row.isResellable ? (
+                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="h-3.5 w-3.5" /> Sotsa bo&apos;ladi
+                        </span>
+                      ) : row.isReceived ? (
+                        <span className="flex items-center gap-1 text-destructive">
+                          <XCircle className="h-3.5 w-3.5" /> Nuqsonli
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-amber-600 dark:text-amber-500">
+                          <Truck className="h-3.5 w-3.5" /> Yo&apos;lda
+                        </span>
+                      ),
+                  },
+                ]}
+              />
+            </DataCard>
+          ))}
+        </CardList>
+
+        <div className="hidden overflow-x-auto rounded-lg border md:block">
           <table className="w-full min-w-[560px] text-sm">
             <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
               <tr>

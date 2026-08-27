@@ -14,9 +14,9 @@ export function HeroSection() {
     <section className="relative overflow-hidden">
       {/* Yumshoq nur — margn'dagidek, lekin bizning binafsha-zangori. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[720px]">
-        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]" />
-        <div className="absolute right-[8%] top-24 h-[380px] w-[380px] rounded-full bg-info/18 blur-[110px]" />
-        <div className="absolute left-[6%] top-40 h-[300px] w-[300px] rounded-full bg-accent/60 blur-[100px]" />
+        <div className="absolute -top-40 left-1/2 h-[320px] w-[130vw] max-w-[900px] -translate-x-1/2 rounded-full bg-primary/20 blur-[120px] sm:h-[520px]" />
+        <div className="absolute right-0 top-24 h-[240px] w-[70vw] max-w-[380px] rounded-full bg-info/18 blur-[110px] sm:h-[380px]" />
+        <div className="absolute left-0 top-40 h-[200px] w-[60vw] max-w-[300px] rounded-full bg-accent/60 blur-[100px] sm:h-[300px]" />
       </div>
 
       <div className="mx-auto max-w-6xl px-5 pb-10 pt-12 text-center sm:pt-20">

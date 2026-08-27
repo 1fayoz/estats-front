@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  CardHead, CardList, CardStats, DataCard, TableWrap,
+} from "@/components/dashboard/data-cards";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { ApiError, deleteIntake, fetchIntakes } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
@@ -104,7 +107,54 @@ export default function IntakesPage() {
           description="Ombor sahifasida tovarni topib, 'Kirim' tugmasi orqali nechtadan va qanchadan kelganini yozing."
         />
       ) : (
-        <div className="overflow-x-auto rounded-xl border">
+        <>
+        <CardList>
+          {rows.map((row) => (
+            <DataCard key={row.id}>
+              <CardHead
+                image={row.image}
+                title={row.title}
+                note={`${row.receivedAt.slice(0, 10)} · ${row.skuCode ?? "—"}`}
+              />
+              <CardStats
+                items={[
+                  { label: "Keldi", value: `${formatNumber(row.quantity)} dona` },
+                  { label: "Tan narx", value: formatSum(row.costPrice) },
+                  { label: "Jami", value: formatSum(row.totalCost) },
+                  {
+                    label: "Sotildi / qoldi",
+                    value:
+                      row.remainingQuantity === 0 ? (
+                        <Badge variant="secondary">tugagan</Badge>
+                      ) : (
+                        `${formatNumber(row.soldQuantity)} / ${formatNumber(row.remainingQuantity)}`
+                      ),
+                  },
+                  {
+                    label: "Yetkazib beruvchi",
+                    value: row.supplier ?? "—",
+                    tone: row.supplier ? undefined : "muted",
+                  },
+                  {
+                    label: "Hujjat",
+                    value: row.reference || "—",
+                    tone: row.reference ? undefined : "muted",
+                  },
+                ]}
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                className="mt-3 w-full text-destructive hover:text-destructive"
+                onClick={() => onDelete(row)}
+              >
+                <Trash2 className="h-3.5 w-3.5" /> O&apos;chirish
+              </Button>
+            </DataCard>
+          ))}
+        </CardList>
+
+        <TableWrap>
           <table className="w-full min-w-[860px] text-sm">
             <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
               <tr>
@@ -184,7 +234,8 @@ export default function IntakesPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
+        </>
       )}
     </div>
   );

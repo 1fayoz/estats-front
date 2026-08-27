@@ -5,6 +5,7 @@ import { Activity, Loader2, TrendingDown, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { CardHead, CardList, DataCard } from "@/components/dashboard/data-cards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiError, fetchSeoPositions, trackSeoPositions } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
@@ -89,7 +90,72 @@ export function PositionsBlock({ productId }: { productId: number }) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          {/* Telefonda: har so'rov — kartochka. Kunlar ustuni o'rniga
+              oxirgi bir necha kunlik qator, chunki 30 ta ustun 390px ga
+              hech qanday holda sig'maydi. */}
+          <CardList>
+            {rows.map((row) => {
+              const byDay = new Map(row.points.map((p) => [p.day, p.position]));
+              const recent = days.slice(-7);
+              return (
+                <DataCard key={row.phrase}>
+                  <CardHead
+                    title={row.phrase}
+                    note={`talab ${formatNumber(row.coverage)}`}
+                    right={
+                      <span className="inline-flex items-center gap-1">
+                        <span
+                          className={cn(
+                            "text-lg font-semibold tabular-nums",
+                            row.current === null
+                              ? "text-muted-foreground"
+                              : row.current <= TOP
+                                ? "text-emerald-600 dark:text-emerald-500"
+                                : "",
+                          )}
+                        >
+                          {row.current ?? "—"}
+                        </span>
+                        {row.change !== null && row.change !== 0 && (
+                          row.change < 0 ? (
+                            <TrendingUp className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-500" />
+                          ) : (
+                            <TrendingDown className="h-3.5 w-3.5 text-destructive" />
+                          )
+                        )}
+                      </span>
+                    }
+                  />
+                  {recent.length > 0 && (
+                    <div className="mt-3 flex items-end gap-1.5 overflow-x-auto">
+                      {recent.map((d) => {
+                        const value = byDay.get(d);
+                        return (
+                          <div key={d} className="shrink-0 text-center">
+                            <div
+                              className={cn(
+                                "text-xs tabular-nums",
+                                value == null
+                                  ? "text-muted-foreground/40"
+                                  : value <= TOP
+                                    ? "text-emerald-600 dark:text-emerald-500"
+                                    : "text-muted-foreground",
+                              )}
+                            >
+                              {value ?? "·"}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground/60">{d.slice(8)}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </DataCard>
+              );
+            })}
+          </CardList>
+
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[42rem] text-sm">
               <thead>
                 <tr className="border-b text-left text-xs text-muted-foreground">
