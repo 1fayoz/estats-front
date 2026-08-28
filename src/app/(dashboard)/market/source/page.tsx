@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { History, Play, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { History, KeyRound, Play, RefreshCw } from "lucide-react";
 
 import { MARKET_TABS, ModuleTabs } from "@/components/air/module-tabs";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Failed, Grid, Loading, type Column } from "@/features/market/shared";
 import { formatNumber, formatPercent } from "@/lib/format";
 import { market, type MarketCoverage, type MarketRun, type MarketState, type MarketTokenStatus } from "@/lib/market";
@@ -27,7 +27,6 @@ export default function MarketSourcePage() {
   const [state, setState] = React.useState<MarketState | null>(null);
   const [coverage, setCoverage] = React.useState<MarketCoverage[]>([]);
   const [runs, setRuns] = React.useState<MarketRun[]>([]);
-  const [value, setValue] = React.useState("");
   const [note, setNote] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -38,23 +37,6 @@ export default function MarketSourcePage() {
   }, []);
 
   React.useEffect(reload, [reload]);
-
-  async function save() {
-    setNote(null);
-    try {
-      await market.saveToken(value.trim());
-      setValue("");
-      // Token qaytdi — backend uzilib qolgan joydan O'ZI davom
-      // ettiradi. Foydalanuvchi buni qo'lda so'ramasligi kerak:
-      // u tokenni aynan shuning uchun kiritdi.
-      setNote(
-        "Token saqlandi. Uzilib qolgan kunlar tekshirilib, o'lchov o'sha joydan davom etadi.",
-      );
-      setTimeout(reload, 1500);
-    } catch {
-      setNote("Saqlanmadi — token to'g'ri ko'chirilganini tekshiring.");
-    }
-  }
 
   async function run(stage: string) {
     setNote(null);
@@ -118,10 +100,18 @@ export default function MarketSourcePage() {
       <section className="space-y-3 rounded-xl border bg-card p-4">
         <div className="font-semibold">Uzum katalog tokeni</div>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Uzum ochiq katalogni ham tokensiz bermaydi. Token <b>taxminan uch soat</b>{" "}
-          yashaydi — muddati o&apos;tishi xato emas, kutilgan holat: quvur to&apos;xtaydi,
-          yig&apos;ilgani saqlanadi va token yangilangach o&apos;sha joydan davom etadi.
-          Token javobga ham, logga ham hech qachon chiqmaydi.
+          Token <b>bu yerda kiritilmaydi</b>. U bitta joyda —{" "}
+          <Link href="/integrations" className="font-medium text-primary hover:underline">
+            Integratsiyalar
+          </Link>{" "}
+          sahifasida turadi va bu xizmat uni o&apos;sha yerdan o&apos;qib oladi.
+          Ikki joyda kiritilsa ikkita nusxa paydo bo&apos;lardi va ularning biri
+          jimgina eskirib qolardi.
+        </p>
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Token <b>taxminan uch soat</b> yashaydi — muddati o&apos;tishi xato emas,
+          kutilgan holat: quvur to&apos;xtaydi, yig&apos;ilgani saqlanadi va token
+          yangilangach uzilgan joydan o&apos;zi davom etadi.
         </p>
         <div className="flex flex-wrap items-center gap-2.5">
           <span
@@ -135,14 +125,28 @@ export default function MarketSourcePage() {
               borderColor: "currentColor",
             }}
           >
-            {!token.configured ? "Kiritilmagan"
-              : token.likely_expired ? `Muddati o'tgan bo'lishi mumkin · ${token.hint}`
-              : `Yaroqli · ${token.hint}`}
+            {!token.configured
+              ? "Kiritilmagan"
+              : token.likely_expired
+                ? `Muddati o'tgan · ${token.hint}`
+                : token.expires_in_minutes != null
+                  ? `Yaroqli · ${token.hint} · ${formatNumber(token.expires_in_minutes)} daqiqa qoldi`
+                  : `Yaroqli · ${token.hint}`}
           </span>
-          <Input type="password" placeholder="Yangi token…" value={value}
-                 onChange={(e) => setValue(e.target.value)} className="max-w-md" />
-          <Button size="sm" onClick={save} disabled={!value.trim()}>Saqlash</Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/integrations">
+              <KeyRound className="h-3.5 w-3.5" /> Integratsiyalarda ochish
+            </Link>
+          </Button>
+          <Button size="sm" variant="ghost" onClick={reload}>
+            Holatni yangilash
+          </Button>
         </div>
+        {token.error && (
+          <div className="text-xs" style={{ color: "var(--bad)" }}>
+            {token.error}
+          </div>
+        )}
         {note && <div className="text-xs text-muted-foreground">{note}</div>}
       </section>
 

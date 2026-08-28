@@ -48,13 +48,22 @@ export function StateBanner() {
       )}
       <span>jami {formatNumber(state.measured_days)} kun</span>
 
+      {/* Havola AYNAN kiritish joyiga — «Ma'lumot manbai» ga emas.
+          U yerda ham faqat shu havola turadi, ya'ni bir bosish
+          ortiqcha bo'lardi. */}
       {!state.token_configured ? (
-        <Link href="/market/source" className="ml-auto font-medium underline underline-offset-2">
+        <Link
+          href={state.token_manage_at ?? "/integrations"}
+          className="ml-auto font-medium underline underline-offset-2"
+        >
           Token kiriting — o&apos;lchov davom etadi
         </Link>
       ) : state.token_likely_expired ? (
-        <Link href="/market/source" className="ml-auto font-medium underline underline-offset-2">
-          Token muddati o&apos;tgan bo&apos;lishi mumkin — yangilang
+        <Link
+          href={state.token_manage_at ?? "/integrations"}
+          className="ml-auto font-medium underline underline-offset-2"
+        >
+          Token muddati o&apos;tgan — yangilang
         </Link>
       ) : null}
     </div>

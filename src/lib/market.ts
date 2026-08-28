@@ -146,15 +146,23 @@ export type MarketState = {
   stale_days: number | null;
   missing_days: number;
   token_configured: boolean;
-  token_age_hours: number | null;
+  token_expires_in_minutes: number | null;
   token_likely_expired: boolean;
+  token_error: string | null;
+  token_manage_at: string;
 };
 
 export type MarketTokenStatus = {
   configured: boolean;
+  /** Har doim "core": token shu xizmatda saqlanmaydi. */
+  source: string;
   hint?: string;
-  updated_at?: string;
+  expires_at?: string | null;
+  expires_in_minutes?: number | null;
   likely_expired?: boolean;
+  error?: string;
+  /** Token AYNAN shu sahifada kiritiladi. */
+  manage_at: string;
 };
 
 export type MarketRun = {
@@ -197,14 +205,10 @@ export const market = {
   runs: (limit = 20) => get<MarketRun[]>("/ops/runs", { limit }),
   tokenStatus: () => get<MarketTokenStatus>("/ops/token"),
 
-  async saveToken(token: string): Promise<void> {
-    const response = await fetch(`${MARKET_BASE}/ops/token`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
-    if (!response.ok) throw new ApiError("Token saqlanmadi.", response.status);
-  },
+  // `saveToken` ATAYLAB YO'Q. Token yadroda, «Integratsiyalar»
+  // sahifasida kiritiladi (`updateMarketToken` — `lib/api.ts`).
+  // Ikkinchi kiritish joyi ikkita nusxa demak va ularning biri
+  // jimgina eskirib qoladi.
 
   async backfill(): Promise<void> {
     const response = await fetch(`${MARKET_BASE}/ops/backfill`, { method: "POST" });
