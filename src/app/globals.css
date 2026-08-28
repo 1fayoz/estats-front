@@ -276,3 +276,246 @@
 @media (prefers-reduced-motion: reduce) {
   .landing-marquee { animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+ * "AIR" QATLAMI — Bitrix24 dizayn tili
+ *
+ * Namuna: https://b24-g9exur.bitrix24.uz/sites/
+ * Qiymatlar brauzerda O'LCHANGAN, ko'z bilan taxmin qilinmagan:
+ *
+ *   fon             #353493 + to'liq ekranli rasm (cover/fixed)
+ *   shisha yuza     rgba(255,255,255,.12) + blur(10px), r=24px,
+ *                   chegara rgba(255,255,255,.08)
+ *   menyu (faol)    rgba(255,255,255,.30), r=10px
+ *   ichki menyu     rgba(255,255,255,.08), chegara .04
+ *   boshqaruv       r=10px, chegara rgba(255,255,255,.14)
+ *   yashil tugma    #00904d, r=12px
+ *   jadval          OQ yuza, matn #333, sarlavha 14px/700
+ *
+ * ENG MUHIM TUSHUNCHA. Bu "gradient ustida oq karta" EMAS.
+ * Ikki xil yuza bor va ular boshqa vazifa bajaradi:
+ *
+ *   · CHEKKA (menyu, yuqori qator, sarlavha, filtr) — shaffof
+ *     shisha, fon rasmi ko'rinib turadi, matn oq;
+ *   · MA'LUMOT (jadval, kartochka, forma) — QATTIQ OQ yuza.
+ *
+ * Nega aralashtirib bo'lmaydi: shaffof fon ustidagi zich raqamlar
+ * o'qilmaydi — orqadagi rasm kontrastni yeb qo'yadi. Bitrix ham
+ * aynan shu chegarani tortgan: sahifa sarlavhasi rasm ustida,
+ * jadval esa oq idishda.
+ *
+ * Fon rasmi BIZNIKI (CSS gradient), Bitrix'niki emas: birovning
+ * rasmini havola qilib olish ham noto'g'ri, ham har deployda
+ * sinishi mumkin.
+ * ══════════════════════════════════════════════════════════════ */
+
+.air-shell {
+  color-scheme: dark;
+
+  --air-base: #2f2e86;
+  --air-glass: rgba(255, 255, 255, 0.12);
+  --air-glass-strong: rgba(255, 255, 255, 0.18);
+  --air-glass-line: rgba(255, 255, 255, 0.08);
+  --air-control-line: rgba(255, 255, 255, 0.14);
+  --air-active: rgba(255, 255, 255, 0.3);
+  --air-hover: rgba(255, 255, 255, 0.09);
+  --air-ink: #ffffff;
+  --air-ink-2: rgba(255, 255, 255, 0.72);
+  --air-ink-3: rgba(255, 255, 255, 0.45);
+  --air-accent: #0075ff;
+  --air-success: #00904d;
+  --air-radius: 10px;
+  --air-radius-lg: 20px;
+
+  position: relative;
+  min-height: 100svh;
+  color: var(--air-ink);
+}
+
+/* Fon ALOHIDA qatlamda va `fixed`: sahifa aylanganda u joyida
+   qoladi. `body` ga yozilsa uzun jadvalda fon "sirg'aladi" va
+   ko'z charchaydi. `-1` — kontent ustiga chiqmasin. */
+.air-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  /* Namunadagi rasm — o'ngda yorqin nur, chapda quyuq. Menyu
+     aynan chapda turadi va u yerdagi quyuqlik oq matnni o'qiladigan
+     qiladi; o'ngdagi nur esa oq ma'lumot kartasini "suzib turgandek"
+     ko'rsatadi. Shuning uchun nur MARKAZDA emas, o'ngda. */
+  /* Namunadagi rasm — o'ngda yorqin nur, chapda quyuq. Menyu
+     aynan chapda turadi va u yerdagi quyuqlik oq matnni o'qiladigan
+     qiladi; o'ngdagi nur esa oq ma'lumot kartasini "suzib turgandek"
+     ko'rsatadi. Shuning uchun nur MARKAZDA emas, o'ngda va pastda —
+     ya'ni aynan karta chekkalari ko'rinadigan joyda. */
+  background:
+    radial-gradient(30% 34% at 88% 22%, rgba(196, 236, 255, 0.9) 0%, transparent 58%),
+    radial-gradient(52% 56% at 80% 30%, rgba(122, 108, 255, 1) 0%, transparent 62%),
+    radial-gradient(38% 42% at 99% 70%, rgba(64, 224, 255, 0.75) 0%, transparent 60%),
+    radial-gradient(44% 40% at 66% 104%, rgba(140, 96, 255, 0.85) 0%, transparent 62%),
+    radial-gradient(30% 26% at 6% 4%, rgba(120, 104, 240, 0.45) 0%, transparent 72%),
+    linear-gradient(148deg, #221c63 0%, #34309a 40%, #5b4fd6 74%, #7a6bff 100%);
+}
+
+/* ── Shisha yuzalar ─────────────────────────────────────────── */
+
+.air-glass {
+  background: var(--air-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--air-glass-line);
+  border-radius: var(--air-radius-lg);
+}
+
+.air-panel {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--air-radius);
+}
+
+/* ── Menyu ──────────────────────────────────────────────────── */
+
+.air-nav-item {
+  border-radius: var(--air-radius);
+  color: var(--air-ink-2);
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+.air-nav-item:hover {
+  background: var(--air-hover);
+  color: var(--air-ink);
+}
+.air-nav-item[data-active="true"] {
+  background: var(--air-active);
+  color: var(--air-ink);
+}
+.air-nav-group {
+  color: var(--air-ink-3);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Boshqaruv elementlari (shisha ustida) ──────────────────── */
+
+.air-control {
+  border: 1px solid var(--air-control-line);
+  border-radius: var(--air-radius);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--air-ink);
+}
+.air-control:hover { background: rgba(255, 255, 255, 0.12); }
+.air-control::placeholder { color: var(--air-ink-3); }
+
+.air-tab {
+  border-radius: 8px;
+  color: var(--air-ink-2);
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+.air-tab:hover { background: var(--air-hover); color: var(--air-ink); }
+.air-tab[data-active="true"] { background: var(--air-active); color: var(--air-ink); }
+
+.air-btn-accent {
+  background: var(--air-success);
+  color: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--air-success);
+}
+.air-btn-accent:hover { filter: brightness(1.08); }
+
+/* ── MA'LUMOT YUZASI — qattiq oq ────────────────────────────
+ *
+ * Bu yerdan boshlab shadcn tokenlari YORUG' rejimga qaytadi.
+ * Sabab: idish ichidagi hamma komponent (tugma, badge, input)
+ * o'z rangini shu tokenlardan oladi va ular qorong'i qolsa
+ * oq fonda oq matn chiqadi. */
+.air-surface {
+  color-scheme: light;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 34px rgba(16, 12, 60, 0.18);
+  color: #333;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.02 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 270);
+  --primary: oklch(0.55 0.22 262);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.005 280);
+  --secondary-foreground: oklch(0.25 0.02 275);
+  --muted: oklch(0.97 0.005 280);
+  --muted-foreground: oklch(0.52 0.015 280);
+  --accent: oklch(0.95 0.03 262);
+  --accent-foreground: oklch(0.28 0.06 262);
+  --border: oklch(0.92 0.006 280);
+  --input: oklch(0.92 0.006 280);
+  --ring: oklch(0.55 0.22 262);
+}
+
+/* ── Jadval ─────────────────────────────────────────────────── */
+
+.air-table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  background: #fff;
+}
+
+table.air-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+table.air-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+  color: #333;
+  font-weight: 700;
+  font-size: 12.5px;
+  text-align: right;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e9ecf2;
+}
+table.air-table thead th:first-child,
+table.air-table tbody td:first-child { text-align: left; }
+table.air-table thead th:first-child { min-width: 200px; }
+table.air-table tbody td {
+  padding: 11px 14px;
+  text-align: right;
+  border-bottom: 1px solid #eff1f6;
+  color: #333;
+}
+table.air-table tbody tr:hover td { background: #f6f8fc; }
+table.air-table tbody tr:last-child td { border-bottom: none; }
+
+/*
+ * ⚠️ Klass nomi ATAYLAB `air-table`, `table` yoki `grid` EMAS.
+ * Tailwind'da `.table` (`display: table`) va `.grid`
+ * (`display: grid`) — yordamchi klasslar. Jadvalga `grid` nomini
+ * berish uni grid konteynerga aylantiradi: `thead`/`tbody`
+ * `display: block` bo'lib qoladi va sarlavha ustunlari tana
+ * ustunlaridan AJRALADI. Bu bir marta yeb qo'ygan xato —
+ * brauzerda o'lchangan: sarlavha 253/453/513…, tana 253/330/385…
+ */
+
+.air-num { font-variant-numeric: tabular-nums; }
+
+/* ── Mobil ──────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  /* Telefonda blur qimmat: har aylanishda butun qatlam qayta
+     chiziladi va eski qurilmada sahifa sekinlashadi. Shaffoflik
+     qoladi, blur olib tashlanadi. */
+  .air-glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .air-surface { border-radius: 12px; }
+}

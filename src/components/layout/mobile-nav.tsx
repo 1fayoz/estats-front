@@ -74,8 +74,8 @@ export function MobileNav() {
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
           />
-          <div className="absolute inset-x-0 bottom-0 max-h-[80svh] overflow-y-auto rounded-t-2xl border-t bg-background pb-[calc(env(safe-area-inset-bottom)+5rem)]">
-            <div className="sticky top-0 flex items-center justify-between border-b bg-background px-5 py-3.5">
+          <div className="air-surface absolute inset-x-0 bottom-0 max-h-[80svh] overflow-y-auto rounded-b-none pb-[calc(env(safe-area-inset-bottom)+5rem)]">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-5 py-3.5">
               <span className="text-sm font-semibold">Bo&apos;limlar</span>
               <button
                 type="button"
@@ -127,14 +127,14 @@ export function MobileNav() {
         </div>
       ) : null}
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav className="air-glass fixed inset-x-0 bottom-0 z-30 flex items-stretch rounded-none rounded-t-2xl border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] lg:hidden">
         {bottom.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
               "flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] transition-colors",
-              isActive(item.href) ? "text-primary" : "text-muted-foreground"
+              isActive(item.href) ? "text-white" : "text-white/55"
             )}
           >
             <item.icon className="h-5 w-5" />
@@ -147,7 +147,7 @@ export function MobileNav() {
           aria-expanded={open}
           className={cn(
             "flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] transition-colors",
-            open || !quickActive ? "text-primary" : "text-muted-foreground"
+            open || !quickActive ? "text-white" : "text-white/55"
           )}
         >
           <LayoutGrid className="h-5 w-5" />

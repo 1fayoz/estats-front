@@ -9,12 +9,24 @@ import { BroadcastTray } from "@/components/layout/broadcast-tray";
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGuard>
-      <div className="flex min-h-svh w-full bg-background">
+      {/* `air-shell` — Bitrix24 dizayn tili (globals.css dagi "AIR"
+          qatlami). `bg-background` OLIB TASHLANDI: fon endi shell'ning
+          o'z `::before` qatlamidan keladi va u `fixed`, ya'ni sahifa
+          aylanganda joyida qoladi. */}
+      <div className="air-shell flex min-h-svh w-full">
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
-          <main className="flex-1 px-4 pb-24 pt-6 md:px-6 lg:px-8 lg:pb-10">
-            <PageTransition>{children}</PageTransition>
+          {/* Ikki xil yuza — Bitrix24 dagi kabi:
+              sarlavha va menyu fon rasmi ustida (shisha), ma'lumot
+              esa QATTIQ OQ idishda. Shaffof fon ustidagi zich
+              raqamlar o'qilmaydi — orqadagi rasm kontrastni yeb
+              qo'yadi. `air-surface` ichida shadcn tokenlari yorug'
+              rejimga qaytadi, aks holda oq fonda oq matn chiqardi. */}
+          <main className="flex-1 px-3 pb-24 pt-1 md:px-5 lg:px-6 lg:pb-6">
+            <div className="air-surface min-h-[calc(100svh-6.5rem)] px-4 py-5 md:px-6 md:py-6">
+              <PageTransition>{children}</PageTransition>
+            </div>
           </main>
         </div>
         <MobileNav />

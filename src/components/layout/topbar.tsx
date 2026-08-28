@@ -47,10 +47,10 @@ export function Topbar() {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 px-4 md:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <div className="hidden min-w-0 flex-col md:flex">
-          <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-widest text-white/45">
             Bo&apos;lim
           </span>
           <h1 className="truncate text-lg font-semibold leading-tight">{getPageTitle(pathname)}</h1>
@@ -67,20 +67,21 @@ export function Topbar() {
         <Button
           variant="ghost"
           size="icon"
+          className="air-control text-white hover:text-white"
           aria-label="Theme toggle"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
           {mounted && theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative" aria-label="Bildirishnomalar">
+        <Button variant="ghost" size="icon" className="air-control relative text-white hover:text-white" aria-label="Bildirishnomalar">
           <Bell className="h-4 w-4" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#ff5752] ring-2 ring-[#3b37a0]" />
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 rounded-full border bg-card p-1 pr-3 transition-colors hover:bg-accent">
+            <button className="air-control flex items-center gap-2 rounded-full p-1 pr-3 transition-colors">
               <Avatar className="h-7 w-7">
                 <AvatarFallback className="bg-gradient-to-br from-primary to-info text-[10px] text-white">
                   {initials}
@@ -88,7 +89,7 @@ export function Topbar() {
               </Avatar>
               <div className="hidden flex-col items-start leading-none sm:flex">
                 <span className="max-w-[140px] truncate text-xs font-semibold">{displayName}</span>
-                <span className="max-w-[140px] truncate text-[10px] text-muted-foreground">
+                <span className="max-w-[140px] truncate text-[10px] text-white/55">
                   {user && user.isOwner === false
                     ? `${user.workspace?.name ?? ""} hisobida`
                     : `${user?.shops.length ?? 0} ta magazin`}

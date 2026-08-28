@@ -49,9 +49,9 @@ export function ShopSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="max-w-[220px] justify-between gap-2">
+        <Button variant="outline" size="sm" className="air-control max-w-[220px] justify-between gap-2 text-white hover:text-white">
           <span className="flex min-w-0 items-center gap-2">
-            <Store className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <Store className="h-3.5 w-3.5 shrink-0 opacity-70" />
             <span className="truncate">{active?.name ?? "Magazin tanlang"}</span>
           </span>
           <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
