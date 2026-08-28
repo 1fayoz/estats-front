@@ -3,6 +3,7 @@
 import * as React from "react";
 import { History, Play, RefreshCw } from "lucide-react";
 
+import { MARKET_TABS, ModuleTabs } from "@/components/air/module-tabs";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,6 +103,8 @@ export default function MarketSourcePage() {
 
   return (
     <div className="space-y-5">
+      <ModuleTabs tabs={MARKET_TABS} />
+
       <PageHeader
         title="Ma'lumot manbai"
         description="Uzum katalog tokeni, qazib olish quvuri va kunlar to'liqligi."

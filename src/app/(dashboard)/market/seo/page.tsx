@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 
+import { MARKET_TABS, ModuleTabs } from "@/components/air/module-tabs";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StateBanner } from "@/features/market/state-banner";
 import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
@@ -54,6 +55,8 @@ export default function MarketSeoPage() {
 
   return (
     <div className="space-y-4">
+      <ModuleTabs tabs={MARKET_TABS} />
+
       <PageHeader title="Qidiruv so'rovlari"
         description="Xaridor nima deb yozadi, u so'rov ustida qancha raqobat bor."
         actions={
