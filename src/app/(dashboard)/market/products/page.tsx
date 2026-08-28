@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { ExportButtons } from "@/features/market/export-buttons";
@@ -35,10 +36,13 @@ export default function MarketProductsPage() {
             <img src={r.photo} alt="" width={28} height={28}
                  className="h-7 w-7 shrink-0 rounded object-cover" />
           )}
-          <a href={r.url ?? "#"} target="_blank" rel="noreferrer"
-             className="max-w-[320px] whitespace-normal text-primary hover:underline">
+          {/* Nom ICHKI sahifaga olib boradi, Uzumga emas: kunlik
+              tarix, SKU'lar va o'rinlar shu yerda. Uzumga havola
+              esa ichki sahifada alohida tugma bilan. */}
+          <Link href={`/market/products/${r.product_id}`}
+                className="max-w-[320px] whitespace-normal text-primary hover:underline">
             {r.title}
-          </a>
+          </Link>
         </div>
       ),
     },
@@ -82,7 +86,7 @@ export default function MarketProductsPage() {
       </div>
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
         <Grid columns={columns} rows={data.items} rowKey={(r) => r.product_id}
-              empty="Tovarlar hali o'lchanmagan — «Ma'lumot manbai» bo'limiga qarang." />
+              empty="Tovarlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
       )}
     </div>
   );

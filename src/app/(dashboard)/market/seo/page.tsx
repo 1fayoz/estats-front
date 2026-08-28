@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { ExportButtons } from "@/features/market/export-buttons";
@@ -26,9 +27,9 @@ export default function MarketSeoPage() {
     {
       key: "text", label: "So'rov", align: "left",
       render: (r) => (
-        <a href={r.url ?? "#"} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+        <Link href={`/market/seo/${r.keyword_id}`} className="text-primary hover:underline">
           {r.text}
-        </a>
+        </Link>
       ),
     },
     { key: "coverage", label: "Qamrov (1 kun)", render: (r) => <span className="air-num">{r.coverage != null ? formatNumber(r.coverage) : "—"}</span> },
@@ -49,7 +50,7 @@ export default function MarketSeoPage() {
       <Input placeholder="So'rov…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
         <Grid columns={columns} rows={data.items} rowKey={(r) => r.keyword_id}
-              empty="Kalit so'zlar hali o'lchanmagan — «Ma'lumot manbai» bo'limida KEYWORDS qadamini ishga tushiring." />
+              empty="Kalit so'zlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limida «Kalit so'zlar» qadamini ishga tushiring." />
       )}
     </div>
   );

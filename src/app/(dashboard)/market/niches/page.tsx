@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { ExportButtons } from "@/features/market/export-buttons";
@@ -29,7 +30,14 @@ export default function NichesPage() {
   }, [days, q]);
 
   const columns: Column<MarketNiche>[] = [
-    { key: "niche", label: "Nisha", align: "left", render: (r) => r.niche },
+    {
+      key: "niche", label: "Nisha", align: "left",
+      render: (r) => (
+        <Link href={`/market/niches/${r.category_id}`} className="text-primary hover:underline">
+          {r.niche}
+        </Link>
+      ),
+    },
     { key: "revenue", label: "Tushum", render: (r) => <span className="air-num">{formatCompact(r.revenue)}</span> },
     { key: "growth", label: "O'sish", render: (r) => <Growth value={r.growth} /> },
     { key: "units", label: "Sotuv, dona", render: (r) => <span className="air-num">{formatNumber(r.units)}</span> },
@@ -68,7 +76,7 @@ export default function NichesPage() {
       </div>
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
         <Grid columns={columns} rows={data.items} rowKey={(r) => r.category_id}
-              empty="Nishalar hali o'lchanmagan — «Ma'lumot manbai» bo'limiga qarang." />
+              empty="Nishalar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
       )}
     </div>
   );

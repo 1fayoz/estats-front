@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { ExportButtons } from "@/features/market/export-buttons";
@@ -26,9 +27,11 @@ export default function MarketShopsPage() {
   const columns: Column<MarketShop>[] = [
     {
       key: "title", label: "Do'kon", align: "left",
-      render: (r) => r.url
-        ? <a href={r.url} target="_blank" rel="noreferrer" className="text-primary hover:underline">{r.title}</a>
-        : r.title,
+      render: (r) => (
+        <Link href={`/market/shops/${r.shop_id}`} className="text-primary hover:underline">
+          {r.title}
+        </Link>
+      ),
     },
     { key: "seller", label: "Yuridik shaxs", align: "left", render: (r) => r.seller ?? "—" },
     { key: "revenue", label: "Tushum", render: (r) => <span className="air-num">{formatCompact(r.revenue)}</span> },
@@ -58,7 +61,7 @@ export default function MarketShopsPage() {
       </div>
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
         <Grid columns={columns} rows={data.items} rowKey={(r) => r.shop_id}
-              empty="Do'konlar hali o'lchanmagan — «Ma'lumot manbai» bo'limiga qarang." />
+              empty="Do'konlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
       )}
     </div>
   );

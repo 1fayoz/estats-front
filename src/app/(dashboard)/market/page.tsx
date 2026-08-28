@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
@@ -74,8 +75,11 @@ export default function MarketOverviewPage() {
 
       {empty ? (
         <NoData>
-          Hali o&apos;lchov yo&apos;q. <b>Ma&apos;lumot manbai</b> bo&apos;limida Uzum
-          katalog tokenini kiriting va qazib olishni ishga tushiring.
+          Hali o&apos;lchov yo&apos;q.{" "}
+          <Link href="/market/source" className="font-medium text-primary hover:underline">
+            Ma&apos;lumot manbai
+          </Link>{" "}
+          bo&apos;limida Uzum katalog tokenini kiriting va qazib olishni ishga tushiring.
         </NoData>
       ) : (
         <>
