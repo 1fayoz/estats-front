@@ -39,6 +39,11 @@ import type {
   Shop,
   ShopCreateResult,
   AiKeyState,
+  AiDraft,
+  AiDraftPatch,
+  AiDraftRow,
+  AiPackage,
+  OpenAiKeyState,
   SeoAudit,
   SeoAuditRow,
   SeoJob,
@@ -114,7 +119,13 @@ async function request<T>(
       cache: "no-store",
       headers: {
         Accept: "application/json",
-        ...(rest.body ? { "Content-Type": "application/json" } : {}),
+        // FormData'da Content-Type QO'YILMAYDI: brauzer uni
+        // `multipart/form-data; boundary=...` qilib o'zi yozadi va
+        // qo'lda yozilgani boundary'siz qolib, server faylni
+        // umuman ko'rmaydi.
+        ...(rest.body && !(rest.body instanceof FormData)
+          ? { "Content-Type": "application/json" }
+          : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(shopId ? { "X-Shop-Id": String(shopId) } : {}),
         ...(workspaceId ? { "X-Workspace-Id": String(workspaceId) } : {}),
@@ -661,3 +672,64 @@ export const fetchSeoSuggestions = (productId: number) =>
 
 export const fetchSeoRivals = (productId: number) =>
   request<SeoRival[]>(`/seo/${productId}/rivals`);
+
+
+// ── AI bilan mahsulot tayyorlash ────────────────────────────────
+//
+// Yuklash DARHOL javob qaytaradi: quvur bir necha o'n soniya
+// davom etadi va brauzerni shuncha kuttirish kerak emas. Sahifa
+// holatni `fetchAiDraft` bilan so'rab turadi.
+
+/**
+ * `/media/...` yo'lini to'liq manzilga aylantiradi.
+ *
+ * Rasmlar API domenida turadi (`api.estats.uz`), front esa
+ * boshqa domenda — nisbiy yo'l front'ning o'ziga qarab qolib,
+ * 404 beradi.
+ */
+export function mediaUrl(path: string | null | undefined): string {
+  if (!path) return "";
+  if (/^https?:\/\//.test(path)) return path;
+  return `${API_BASE.replace(/\/api\/v1$/, "")}${path}`;
+}
+
+export const fetchOpenAiKey = () => request<OpenAiKeyState>("/product-ai/key");
+
+export const saveOpenAiKey = (apiKey: string) =>
+  request<OpenAiKeyState>("/product-ai/key", {
+    method: "PUT",
+    body: JSON.stringify({ apiKey }),
+  });
+
+export const clearOpenAiKey = () =>
+  request<void>("/product-ai/key", { method: "DELETE" });
+
+export const fetchAiDrafts = () => request<AiDraftRow[]>("/product-ai/drafts");
+
+export const fetchAiDraft = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}`);
+
+export function createAiDraft(files: File[], hint: string) {
+  const form = new FormData();
+  for (const file of files) form.append("files", file);
+  form.append("hint", hint);
+  return request<AiDraft>("/product-ai/drafts", { method: "POST", body: form });
+}
+
+export const retryAiDraft = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/retry`, { method: "POST" });
+
+export const patchAiDraft = (id: number, patch: AiDraftPatch) =>
+  request<AiDraft>(`/product-ai/drafts/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+
+export const approveAiDraft = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/approve`, { method: "POST" });
+
+export const deleteAiDraft = (id: number) =>
+  request<void>(`/product-ai/drafts/${id}`, { method: "DELETE" });
+
+export const fetchAiPackage = (id: number) =>
+  request<AiPackage>(`/product-ai/drafts/${id}/package`);

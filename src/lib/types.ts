@@ -1314,3 +1314,103 @@ export interface AiKeyState {
   configured: boolean;
   studioUrl: string;
 }
+
+// ── AI bilan mahsulot tayyorlash ────────────────────────────────
+
+export interface OpenAiKeyState {
+  configured: boolean;
+  platformUrl: string;
+  /** Bitta rasm taxminan qancha turadi. */
+  imagePriceUsd: number;
+}
+
+export interface AiDraftRow {
+  id: number;
+  stage: string;
+  stageLabel: string;
+  /** 0-100. Quvur uzun, sotuvchi qayerdaligini ko'rib turishi kerak. */
+  progress: number;
+  error: string | null;
+  titleUz: string | null;
+  titleRu: string | null;
+  cover: string | null;
+  suggestedPrice: number | null;
+  createdAt: string;
+}
+
+export interface AiRival {
+  title: string;
+  price: number | null;
+  orders: number;
+  url: string;
+  image: string;
+}
+
+export interface AiMarket {
+  queries: string[];
+  rivals: AiRival[];
+  priceMin: number | null;
+  priceMax: number | null;
+  priceMedian: number | null;
+  category: string;
+  error: string;
+}
+
+export interface AiImageCheck {
+  index: number;
+  accepted: boolean;
+  score: number;
+  sameProduct: boolean;
+  problems: string[];
+  error: string;
+}
+
+export interface AiDraft extends AiDraftRow {
+  sourceImages: string[];
+  hint: string | null;
+  vision: Record<string, unknown> | null;
+  market: AiMarket | null;
+  descriptionUz: string | null;
+  descriptionRu: string | null;
+  attributes: Record<string, string>;
+  keywords: string[];
+  mxik: string | null;
+  mxikName: string | null;
+  /** MXIK — TAXMIN. Rasmiy katalogda tekshirish havolasi. */
+  mxikCheckUrl: string | null;
+  images: string[];
+  imagePrompt: string | null;
+  imageNote: string | null;
+  imageChecks: AiImageCheck[];
+  updatedAt: string;
+}
+
+export interface AiDraftPatch {
+  titleUz?: string;
+  titleRu?: string;
+  descriptionUz?: string;
+  descriptionRu?: string;
+  attributes?: Record<string, string>;
+  keywords?: string[];
+  mxik?: string;
+  mxikName?: string;
+  suggestedPrice?: number;
+}
+
+export interface AiPackage {
+  titleUz: string;
+  titleRu: string;
+  descriptionUz: string;
+  descriptionRu: string;
+  attributes: Record<string, string>;
+  keywords: string[];
+  mxik: string;
+  mxikName: string;
+  mxikCheckUrl: string;
+  price: number | null;
+  images: string[];
+  /** Bitta tugma bilan nusxalash uchun hammasi bir matnda. */
+  plainText: string;
+  /** Nima yetishmayapti. Bo'sh bo'lsa to'plam to'liq. */
+  missing: string[];
+}
