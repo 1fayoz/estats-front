@@ -17,6 +17,9 @@ import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
 import { ProductGallery } from "@/features/warehouse/components/product-gallery";
+import { SiblingsCard } from "@/features/warehouse/components/siblings-card";
+import { TempoCard } from "@/features/warehouse/components/tempo-card";
+import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
@@ -125,6 +128,15 @@ export default function ProductDetailPage() {
           haqiqiy foyda ko&apos;rsatilganidan kamroq.
         </div>
       )}
+
+      <TempoCard tempo={data.tempo} onHand={data.onHand} />
+
+      <SiblingsCard siblings={data.siblings} tempo={data.tempo} />
+
+      {/* Qidiruvdagi o'rin — "qaysi so'z bilan izlaganda nechanchimiz".
+          Tovarning o'z sahifasida turishi shart: sotuvchi narx va
+          qoldiqni ko'rib turib, o'sha yerda kalit so'z qo'shadi. */}
+      <PositionsBlock productId={id} />
 
       <BreakEvenCard economics={data.economics} />
 

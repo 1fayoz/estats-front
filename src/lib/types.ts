@@ -342,6 +342,42 @@ export interface PnlReport {
   totals: PnlTotals;
 }
 
+/**
+ * Tovarning sur'ati: kuniga qancha ketyapti va qoldiq qancha kunga yetadi.
+ *
+ * Jami "sotildi / qoldi" savdo tezligi haqida hech nima aytmaydi —
+ * 100 dona qoldiq bir tovarda ikki kunlik, boshqasida yarim yillik zaxira.
+ */
+export interface ProductTempo {
+  days: number;
+  soldQuantity: number;
+  orders: number;
+  revenue: number;
+  profit: number;
+  avgPerDay: number;
+  /** `null` — bu davrda sotuv bo'lmagan, ya'ni qoldiq tugamaydi. Nol EMAS. */
+  daysOfStock: number | null;
+  firstSaleAt: string | null;
+  lastSaleAt: string | null;
+}
+
+/** Bitta Uzum kartochkasidagi qo'shni variant (o'lcham, rang). */
+export interface SiblingSku {
+  id: number;
+  title: string;
+  variantName: string | null;
+  skuCode: string | null;
+  image: string | null;
+  price: number | null;
+  onHand: number;
+  soldQuantity: number;
+  revenue: number;
+  avgPrice: number;
+  /** Kartochka savdosidagi ulushi, foizda. */
+  share: number;
+  isCurrent: boolean;
+}
+
 export interface ProductDetail {
   product: WarehouseProduct;
   intakes: Intake[];
@@ -360,6 +396,9 @@ export interface ProductDetail {
   daily: SalesPeriod[];
   monthly: SalesPeriod[];
   yearly: SalesPeriod[];
+  tempo: ProductTempo;
+  /** Shu kartochkadagi barcha variantlar (o'zi ham ichida). Bittasi bo'lsa — bo'sh. */
+  siblings: SiblingSku[];
 }
 
 /** Hamma sinxronizatsiyaning bir joydagi holati (Sozlamalar → Uzum). */
@@ -1239,6 +1278,8 @@ export interface SeoPositionRow {
   current: number | null;
   /** Manfiy — yuqoriga chiqdi. */
   change: number | null;
+  /** `false` — endi qo'shildi, hali bir marta ham o'lchanmagan. */
+  measured: boolean;
   points: SeoPositionPoint[];
 }
 

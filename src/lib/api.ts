@@ -642,5 +642,22 @@ export const fetchSeoPositions = (productId: number) =>
 export const trackSeoPositions = (productId: number) =>
   request<SeoPositionRow[]>(`/seo/${productId}/positions`, { method: "POST" });
 
+/** Kalit so'zni kuzatuvga qo'shadi va darhol o'lchaydi. */
+export const addSeoPhrase = (productId: number, phrase: string) =>
+  request<SeoPositionRow[]>(`/seo/${productId}/positions/phrases`, {
+    method: "POST",
+    body: JSON.stringify({ phrase }),
+  });
+
+export const dropSeoPhrase = (productId: number, phrase: string) =>
+  request<SeoPositionRow[]>(
+    `/seo/${productId}/positions/phrases?phrase=${encodeURIComponent(phrase)}`,
+    { method: "DELETE" },
+  );
+
+/** Uzum qidiruvining o'z takliflari — xaridor haqiqatan yozadigan so'rovlar. */
+export const fetchSeoSuggestions = (productId: number) =>
+  request<string[]>(`/seo/${productId}/positions/suggest`);
+
 export const fetchSeoRivals = (productId: number) =>
   request<SeoRival[]>(`/seo/${productId}/rivals`);
