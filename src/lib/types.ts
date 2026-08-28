@@ -378,6 +378,75 @@ export interface SiblingSku {
   isCurrent: boolean;
 }
 
+/** Bitta kun: sotuv va o'sha kundagi o'rinlar. */
+export interface TimelineDay {
+  day: string;
+  soldQuantity: number;
+  orders: number;
+  revenue: number;
+  profit: number;
+  /**
+   * Kalit so'z -> o'sha kungi o'rin. `null` — o'lchandi, lekin chuqurlik
+   * ichida topilmadi. Kalit umuman yo'q — o'sha kuni o'lchov bo'lmagan.
+   */
+  positions: Record<string, number | null>;
+}
+
+/**
+ * Kun-ba-kun: nechta sotildi va o'sha kuni qaysi so'zda nechanchi edik.
+ *
+ * Ikkalasi alohida turganda savolga javob yo'q edi: o'rin ko'tarilgan
+ * kuni sotuv ham oshdimi degan savol aynan shu jadvalda ko'rinadi.
+ */
+export interface ProductTimeline {
+  days: TimelineDay[];
+  /** Ustunlar tartibi — hozirgi o'rni bo'yicha, yaxshisi birinchi. */
+  phrases: string[];
+  from: string;
+  to: string;
+}
+
+/** Bitta tekshirilgan sabab. */
+export interface WhyReason {
+  kind: string;
+  /** `high` | `medium` | `info` — nima avval tuzatilishi kerak. */
+  weight: string;
+  title: string;
+  detail: string;
+}
+
+/** Kartochkaning Uzum'dagi ochiq raqamlari. */
+export interface CardStats {
+  price: number | null;
+  rating: number | null;
+  reviews: number | null;
+  orders: number | null;
+  /** Yetakchilar bloki uchun: nechta tovar bo'yicha mediana olingan. */
+  count: number | null;
+}
+
+export interface WhyRival {
+  productId: number;
+  title: string;
+  price: number;
+  rating: number | null;
+  reviews: number;
+  orders: number;
+  image: string | null;
+  url: string | null;
+  rank: number;
+}
+
+/** Shu so'zda nega pastdamiz. */
+export interface PositionWhy {
+  phrase: string;
+  position: number | null;
+  me: CardStats;
+  leaders: CardStats;
+  reasons: WhyReason[];
+  rivals: WhyRival[];
+}
+
 export interface ProductDetail {
   product: WarehouseProduct;
   intakes: Intake[];

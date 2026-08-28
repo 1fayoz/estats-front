@@ -29,7 +29,9 @@ import type {
   PermissionModule,
   Plan,
   PnlReport,
+  PositionWhy,
   ProductDetail,
+  ProductTimeline,
   MarketTokenStatus,
   MarketUploader,
   BroadcastResult,
@@ -669,6 +671,16 @@ export const dropSeoPhrase = (productId: number, phrase: string) =>
 /** Uzum qidiruvining o'z takliflari — xaridor haqiqatan yozadigan so'rovlar. */
 export const fetchSeoSuggestions = (productId: number) =>
   request<string[]>(`/seo/${productId}/positions/suggest`);
+
+/** Shu so'zda nega pastdamiz — Uzum raqamlari bilan solishtirish. */
+export const fetchPositionWhy = (productId: number, phrase: string) =>
+  request<PositionWhy>(
+    `/seo/${productId}/positions/why?phrase=${encodeURIComponent(phrase)}`,
+  );
+
+/** Kun-ba-kun: sotuv va o'sha kundagi o'rinlar bitta jadvalda. */
+export const fetchProductTimeline = (productId: number, days = 60) =>
+  request<ProductTimeline>(`/warehouse/products/${productId}/timeline?days=${days}`);
 
 export const fetchSeoRivals = (productId: number) =>
   request<SeoRival[]>(`/seo/${productId}/rivals`);

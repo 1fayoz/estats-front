@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Activity, Loader2, Plus, Search, TrendingDown, TrendingUp, X } from "lucide-react";
+import {
+  Activity, HelpCircle, Loader2, Plus, Search, TrendingDown, TrendingUp, X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,7 @@ import {
 } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { WhyDialog } from "@/features/seo/components/why-dialog";
 import type { SeoPositionRow } from "@/lib/types";
 
 /** Nechanchi o'ringacha "yaxshi" hisoblanadi. */
@@ -47,6 +50,8 @@ export function PositionsBlock({ productId }: { productId: number }) {
   const [phrase, setPhrase] = React.useState("");
   const [adding, setAdding] = React.useState<string | null>(null);
   const [tips, setTips] = React.useState<string[]>([]);
+  /** "Nega pastdaman?" oynasi qaysi so'z uchun ochilgan. */
+  const [why, setWhy] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     fetchSeoPositions(productId)
@@ -244,9 +249,17 @@ export function PositionsBlock({ productId }: { productId: number }) {
                       )}
                       <button
                         type="button"
+                        aria-label="Nega pastdaman?"
+                        onClick={() => setWhy(row.phrase)}
+                        className="ml-1 text-muted-foreground/60 transition-colors hover:text-foreground"
+                      >
+                        <HelpCircle className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
                         aria-label="Kuzatuvdan chiqarish"
                         onClick={() => void drop(row.phrase)}
-                        className="ml-1 text-muted-foreground/60 transition-colors hover:text-destructive"
+                        className="text-muted-foreground/60 transition-colors hover:text-destructive"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -348,14 +361,23 @@ export function PositionsBlock({ productId }: { productId: number }) {
                       );
                     })}
                     <td className="py-2 pl-2 text-right">
-                      <button
-                        type="button"
-                        aria-label="Kuzatuvdan chiqarish"
-                        onClick={() => void drop(row.phrase)}
-                        className="text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60 hover:!text-destructive"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
+                      <span className="inline-flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setWhy(row.phrase)}
+                          className="text-xs text-muted-foreground/0 underline transition-colors group-hover:text-muted-foreground hover:!text-foreground"
+                        >
+                          nega?
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Kuzatuvdan chiqarish"
+                          onClick={() => void drop(row.phrase)}
+                          className="text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60 hover:!text-destructive"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </span>
                     </td>
                   </tr>
                 );
@@ -365,8 +387,15 @@ export function PositionsBlock({ productId }: { productId: number }) {
         </div>
         <p className="text-xs text-muted-foreground">
           {"Bo'sh katak — o'sha kuni birinchi 100 ta natija ichida topilmadi. "}
-          {"Kichikroq raqam — yuqoriroq o'rin."}
+          {"Kichikroq raqam — yuqoriroq o'rin. Kun-ba-kun to'liq kesim, "}
+          {"sotuv bilan birga — pastdagi \u201CKunlik tarix\u201D jadvalida."}
         </p>
+
+        <WhyDialog
+          productId={productId}
+          phrase={why}
+          onOpenChange={(open) => !open && setWhy(null)}
+        />
       </CardContent>
     </Card>
   );
