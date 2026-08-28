@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import { Failed, Grid, Growth, Loading, PeriodPicker, usePeriod, type Column } from "@/features/market/shared";
 import { formatCompact, formatNumber, formatPercent } from "@/lib/format";
@@ -45,7 +46,12 @@ export default function MarketShopsPage() {
     <div className="space-y-4">
       <PageHeader title="Do'konlar reytingi"
         description="Kim qancha sotyapti va bozorning qancha qismini egallagan."
-        actions={<PeriodPicker />} />
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <PeriodPicker />
+            <ExportButtons report="shops" days={days} />
+          </div>
+        } />
       <div className="flex flex-wrap items-center gap-3">
         <Input placeholder="Do'kon nomi…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
         {data && <span className="text-xs text-muted-foreground">{formatNumber(data.total)} do&apos;kon</span>}

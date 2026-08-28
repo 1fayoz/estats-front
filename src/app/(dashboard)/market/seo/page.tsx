@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import { Failed, Grid, Loading, type Column } from "@/features/market/shared";
 import { formatCompact, formatNumber } from "@/lib/format";
@@ -43,7 +44,8 @@ export default function MarketSeoPage() {
   return (
     <div className="space-y-4">
       <PageHeader title="Qidiruv so'rovlari"
-        description="Xaridor nima deb yozadi, u so'rov ustida qancha raqobat bor." />
+        description="Xaridor nima deb yozadi, u so'rov ustida qancha raqobat bor."
+        actions={<ExportButtons report="keywords" days={30} />} />
       <Input placeholder="So'rov…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
         <Grid columns={columns} rows={data.items} rowKey={(r) => r.keyword_id}

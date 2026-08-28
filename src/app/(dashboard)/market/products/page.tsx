@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import {
   Failed, Grid, Growth, Loading, PeriodPicker, usePeriod, type Column,
@@ -67,7 +68,12 @@ export default function MarketProductsPage() {
       <PageHeader
         title="Bozordagi tovarlar"
         description="Raqobatchilarning kartochkalari: tushum, o'sish, qoldiqsiz kunlarda yo'qotilgan foyda."
-        actions={<PeriodPicker />}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <PeriodPicker />
+            <ExportButtons report="products" days={days} />
+          </div>
+        }
       />
       <div className="flex flex-wrap items-center gap-3">
         <Input placeholder="Tovar nomi…" value={q} onChange={(e) => setQ(e.target.value)}

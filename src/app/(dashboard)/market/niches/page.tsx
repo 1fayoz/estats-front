@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import {
   Failed, Grid, Growth, Loading, PeriodPicker, usePeriod, type Column,
@@ -49,7 +50,12 @@ export default function NichesPage() {
       <PageHeader
         title="Nishalar"
         description="Qaysi nishada qancha aylanadi va bir do'konga qancha tegadi."
-        actions={<PeriodPicker />}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <PeriodPicker />
+            <ExportButtons report="niches" days={days} />
+          </div>
+        }
       />
       <div className="flex flex-wrap items-center gap-3">
         <Input
