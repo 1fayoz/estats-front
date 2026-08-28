@@ -61,3 +61,17 @@ ehthumbs.db
 
 # turbo
 .turbo
+
+# Eski mahalliy fayllar — git'da YO'Q va bo'lmasligi ham kerak.
+#
+# Ular `tsc` va `build` ni yiqitadi (`@/types/domain` da yo'q
+# tiplar, `@/features/warehouse/types` yo'q modul). Mahalliy
+# diskda qolgan, lekin loyihaga tegishli emas.
+#
+# Bir marta ular tasodifan commit'ga tushib ketdi va CI qizardi —
+# shuning uchun endi ataylab e'tiborsiz qoldiriladi.
+/src/features/products/
+/src/lib/uzum.ts
+/src/data/
+/src/app/api/
+/src/components/charts/
