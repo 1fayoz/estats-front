@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { StateBanner } from "@/features/market/state-banner";
+import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
 import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import {
@@ -53,6 +55,14 @@ export default function NichesPage() {
     { key: "turnover", label: "Oborot, kun", render: (r) => <span className="air-num">{r.turnover_days ? formatNumber(r.turnover_days) : "—"}</span> },
   ];
 
+  // Ustun tanlovi — `columns` dan keyin, chunki ro'yxat undan
+  // olinadi. Zavod holatida hammasi ko'rinadi.
+  const options = React.useMemo(
+    () => columns.map((c) => ({ key: c.key, label: c.label })),
+    [columns],
+  );
+  const { visible, setVisible, reset } = useColumnPrefs("market-niches", options);
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -61,10 +71,19 @@ export default function NichesPage() {
         actions={
           <div className="flex flex-wrap items-center gap-3">
             <PeriodPicker />
+            <ColumnSettingsButton
+              title="Nishalar"
+              options={options}
+              visible={visible}
+              onApply={setVisible}
+              onReset={reset}
+            />
             <ExportButtons report="niches" days={days} />
           </div>
         }
       />
+      <StateBanner />
+
       <div className="flex flex-wrap items-center gap-3">
         <Input
           placeholder="Nisha nomi bo'yicha qidirish…"
@@ -75,7 +94,7 @@ export default function NichesPage() {
         {data && <span className="text-xs text-muted-foreground">{formatNumber(data.total)} nisha</span>}
       </div>
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
-        <Grid columns={columns} rows={data.items} rowKey={(r) => r.category_id}
+        <Grid columns={columns} visible={visible} rows={data.items} rowKey={(r) => r.category_id}
               empty="Nishalar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
       )}
     </div>

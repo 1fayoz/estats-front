@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { StateBanner } from "@/features/market/state-banner";
+import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
 import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import { Failed, Grid, Growth, Loading, PeriodPicker, usePeriod, type Column } from "@/features/market/shared";
@@ -45,6 +47,14 @@ export default function MarketShopsPage() {
     { key: "orders", label: "Har doimgi buyurtma", render: (r) => <span className="air-num text-muted-foreground">{r.orders_total != null ? formatNumber(r.orders_total) : "—"}</span> },
   ];
 
+  // Ustun tanlovi — `columns` dan keyin, chunki ro'yxat undan
+  // olinadi. Zavod holatida hammasi ko'rinadi.
+  const options = React.useMemo(
+    () => columns.map((c) => ({ key: c.key, label: c.label })),
+    [columns],
+  );
+  const { visible, setVisible, reset } = useColumnPrefs("market-shops", options);
+
   return (
     <div className="space-y-4">
       <PageHeader title="Do'konlar reytingi"
@@ -52,15 +62,25 @@ export default function MarketShopsPage() {
         actions={
           <div className="flex flex-wrap items-center gap-3">
             <PeriodPicker />
+            <ColumnSettingsButton
+              title="Do'konlar"
+              options={options}
+              visible={visible}
+              onApply={setVisible}
+              onReset={reset}
+            />
             <ExportButtons report="shops" days={days} />
           </div>
-        } />
+        }
+      />
+      <StateBanner />
+
       <div className="flex flex-wrap items-center gap-3">
         <Input placeholder="Do'kon nomi…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
         {data && <span className="text-xs text-muted-foreground">{formatNumber(data.total)} do&apos;kon</span>}
       </div>
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
-        <Grid columns={columns} rows={data.items} rowKey={(r) => r.shop_id}
+        <Grid columns={columns} visible={visible} rows={data.items} rowKey={(r) => r.shop_id}
               empty="Do'konlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
       )}
     </div>

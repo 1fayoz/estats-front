@@ -94,7 +94,14 @@ export const useUserStore = create<AuthState>()(
 );
 
 export const useIsAuthenticated = () => useUserStore((s) => Boolean(s.accessToken));
-export const useShops = () => useUserStore((s) => s.user?.shops ?? []);
+//: Bo'sh ro'yxat — YAGONA nusxa.
+//
+// `?? []` har chaqiruvda YANGI massiv qaytaradi, `useSyncExternalStore`
+// esa buni "holat o'zgardi" deb o'qiydi va cheksiz qayta render
+// boshlanadi ("The result of getServerSnapshot should be cached").
+// O'zgarmas nusxa bilan bunday bo'lmaydi.
+const NO_SHOPS: Shop[] = [];
+export const useShops = () => useUserStore((s) => s.user?.shops ?? NO_SHOPS);
 
 /** The shop currently in scope, or null before one is chosen. */
 export const useActiveShop = (): Shop | null =>

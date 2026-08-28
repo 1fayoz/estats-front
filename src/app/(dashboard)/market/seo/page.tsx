@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { StateBanner } from "@/features/market/state-banner";
+import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
 import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import { Failed, Grid, Loading, type Column } from "@/features/market/shared";
@@ -42,14 +44,36 @@ export default function MarketSeoPage() {
     { key: "revenue", label: "TOP-100 tushumi", render: (r) => <span className="air-num">{r.top100_revenue != null ? formatCompact(r.top100_revenue) : "—"}</span> },
   ];
 
+  // Ustun tanlovi — `columns` dan keyin, chunki ro'yxat undan
+  // olinadi. Zavod holatida hammasi ko'rinadi.
+  const options = React.useMemo(
+    () => columns.map((c) => ({ key: c.key, label: c.label })),
+    [columns],
+  );
+  const { visible, setVisible, reset } = useColumnPrefs("market-keywords", options);
+
   return (
     <div className="space-y-4">
       <PageHeader title="Qidiruv so'rovlari"
         description="Xaridor nima deb yozadi, u so'rov ustida qancha raqobat bor."
-        actions={<ExportButtons report="keywords" days={30} />} />
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <ColumnSettingsButton
+              title="Qidiruv so'rovlari"
+              options={options}
+              visible={visible}
+              onApply={setVisible}
+              onReset={reset}
+            />
+            <ExportButtons report="keywords" days={30} />
+          </div>
+        }
+      />
+      <StateBanner />
+
       <Input placeholder="So'rov…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
-        <Grid columns={columns} rows={data.items} rowKey={(r) => r.keyword_id}
+        <Grid columns={columns} visible={visible} rows={data.items} rowKey={(r) => r.keyword_id}
               empty="Kalit so'zlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limida «Kalit so'zlar» qadamini ishga tushiring." />
       )}
     </div>

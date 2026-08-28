@@ -75,7 +75,7 @@ export function Growth({ value }: { value: number | null | undefined }) {
   if (value === 0) return <span className="text-muted-foreground">0%</span>;
   const up = value > 0;
   return (
-    <span className={up ? "text-emerald-600" : "text-rose-600"}>
+    <span className={up ? "air-ok" : "air-bad"}>
       {up ? "▲" : "▼"} {formatNumber(Math.abs(value))}%
     </span>
   );
@@ -125,7 +125,7 @@ export function Failed({ message }: { message: string }) {
   // o'zi tuzatadi. "Nimadir xato ketdi" esa uni yordamga murojaat
   // qilishga majbur qiladi.
   return (
-    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+    <div className="air-notice rounded-xl p-4 text-sm" style={{ borderColor: "var(--bad)", color: "var(--bad)" }}>
       {message}
     </div>
   );
@@ -153,12 +153,19 @@ export function Grid<T>({
   rows,
   rowKey,
   empty,
+  visible,
 }: {
   columns: Column<T>[];
   rows: T[];
   rowKey: (row: T, index: number) => React.Key;
   empty?: React.ReactNode;
+  /** Ko'rinadigan ustunlar. Berilmasa — hammasi. */
+  visible?: Set<string>;
 }) {
+  // Filtrlash RENDERDAN oldin: yashirilgan ustun umuman
+  // chizilmaydi. `display: none` bilan yashirish 500 qatorli
+  // jadvalda ham DOM tugunini yaratib turardi.
+  const shown = visible ? columns.filter((c) => visible.has(c.key)) : columns;
   if (!rows.length) return <NoData>{empty ?? "Ma'lumot yo'q"}</NoData>;
   return (
     // Jadval O'Z idishida gorizontal aylanadi — sahifa tanasi
@@ -168,7 +175,7 @@ export function Grid<T>({
       <table className="air-table">
         <thead>
           <tr>
-            {columns.map((c) => (
+            {shown.map((c) => (
               <th key={c.key} style={{ textAlign: c.align ?? "right" }}>
                 {c.label}
               </th>
@@ -178,7 +185,7 @@ export function Grid<T>({
         <tbody>
           {rows.map((row, index) => (
             <tr key={rowKey(row, index)}>
-              {columns.map((c) => (
+              {shown.map((c) => (
                 <td key={c.key} style={{ textAlign: c.align ?? "right" }}>
                   {c.render(row)}
                 </td>

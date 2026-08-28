@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { StateBanner } from "@/features/market/state-banner";
+import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
 import { ExportButtons } from "@/features/market/export-buttons";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,7 +56,7 @@ export default function MarketProductsPage() {
       // kunlardagi o'rtacha kunlik tushum. Aniq raqam emas va
       // shunday deb o'qilishi kerak.
       key: "lost", label: "Yo'qotilgan",
-      render: (r) => <span className={`air-num ${r.lost_revenue ? "text-rose-600" : ""}`}>
+      render: (r) => <span className={`air-num ${r.lost_revenue ? "air-bad" : ""}`}>
         {r.lost_revenue ? formatCompact(r.lost_revenue) : "—"}
       </span>,
     },
@@ -67,6 +69,14 @@ export default function MarketProductsPage() {
     { key: "age", label: "Uzumda, kun", render: (r) => <span className="air-num text-muted-foreground">{r.days_on_uzum ?? "—"}</span> },
   ];
 
+  // Ustun tanlovi — `columns` dan keyin, chunki ro'yxat undan
+  // olinadi. Zavod holatida hammasi ko'rinadi.
+  const options = React.useMemo(
+    () => columns.map((c) => ({ key: c.key, label: c.label })),
+    [columns],
+  );
+  const { visible, setVisible, reset } = useColumnPrefs("market-products", options);
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -75,17 +85,26 @@ export default function MarketProductsPage() {
         actions={
           <div className="flex flex-wrap items-center gap-3">
             <PeriodPicker />
+            <ColumnSettingsButton
+              title="Bozordagi tovarlar"
+              options={options}
+              visible={visible}
+              onApply={setVisible}
+              onReset={reset}
+            />
             <ExportButtons report="products" days={days} />
           </div>
         }
       />
+      <StateBanner />
+
       <div className="flex flex-wrap items-center gap-3">
         <Input placeholder="Tovar nomi…" value={q} onChange={(e) => setQ(e.target.value)}
                className="max-w-xs" />
         {data && <span className="text-xs text-muted-foreground">{formatNumber(data.total)} kartochka</span>}
       </div>
       {error ? <Failed message={error} /> : !data ? <Loading /> : (
-        <Grid columns={columns} rows={data.items} rowKey={(r) => r.product_id}
+        <Grid columns={columns} visible={visible} rows={data.items} rowKey={(r) => r.product_id}
               empty="Tovarlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
       )}
     </div>

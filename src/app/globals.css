@@ -312,6 +312,19 @@
 .air-shell {
   color-scheme: dark;
 
+  /* Semantik ranglar TOKEN sifatida.
+   *
+   * Ilgari jadvallarda `text-emerald-600` kabi qattiq yozilgan
+   * Tailwind ranglari ishlatilgandi. Oq yuzada ular to'g'ri, lekin
+   * SHAFFOF yuzada deyarli ko'rinmaydi — fon o'zi to'q va to'q
+   * yashil undan ajralmaydi. Endi rang yuzaga qarab almashadi. */
+  --ok: #0f9d58;
+  --bad: #d93a34;
+  --warn: #b06f00;
+  --warn-bg: #fff8e6;
+  --warn-line: #f2d18a;
+  --warn-ink: #7a4c00;
+
   --air-base: #2f2e86;
   --air-glass: rgba(255, 255, 255, 0.12);
   --air-glass-strong: rgba(255, 255, 255, 0.18);
@@ -456,6 +469,107 @@
   --ring: oklch(0.55 0.22 262);
 }
 
+/* ── «SAYT RANGIDA» REJIMI ──────────────────────────────────
+ *
+ * Foydalanuvchi shikoyati: «UI oq bo'lib qolgan». To'g'ri —
+ * ma'lumot yuzasi qattiq oq va u fon rasmini deyarli ko'rsatmaydi.
+ *
+ * Shuning uchun ish maydonining IKKI rejimi bor:
+ *
+ *   · oq       — matn eng o'qiladigan holatda, uzun jadval bilan
+ *                soatlab ishlash uchun;
+ *   · shaffof  — fon rasmi ko'rinib turadi, sayt rangiga mos.
+ *
+ * NEGA IKKALASI KERAK, BITTASI YETMAYDI. Shaffof yuza chiroyli,
+ * lekin uning ustidagi mayda kulrang matn (jadval izohlari,
+ * ikkinchi darajali raqamlar) kontrastni yo'qotadi — ayniqsa
+ * fonning yorug' joyida. Kim jadval bilan ishlaydi — oq rejimni
+ * tanlaydi; kim boshqaruv panelini ochib qo'yadi — shaffofni.
+ * Tanlov saqlanadi.
+ *
+ * Rejim `data-surface="tinted"` orqali yoqiladi va faqat
+ * TOKENLARNI almashtiradi: hamma komponent o'z rangini shu
+ * tokenlardan oladi, ya'ni har birini alohida tuzatish shart emas.
+ */
+
+.air-shell[data-surface="tinted"] .air-surface,
+.air-shell[data-surface="tinted"] .air-table-wrap {
+  color-scheme: dark;
+  /* Yuza OQ shaffof EMAS, TO'Q shaffof.
+   *
+   * Oq shaffoflik (rgba(255,255,255,.1)) fonning quyuq joyida
+   * chiroyli, lekin YORUG' joyida — o'ngdagi moviy nur ustida —
+   * yuza deyarli oqarib ketadi va uning ustidagi oq matn butunlay
+   * yo'qoladi. O'lchangan: nur markazida kontrast 1.4:1 ga tushdi.
+   *
+   * To'q asos esa fonning yorug'ligidan qat'i nazar oq matnni
+   * o'qiladigan qoldiradi, blur orqali fon rasmi ham ko'rinib
+   * turadi. */
+  background: rgba(26, 21, 74, 0.52);
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 34px rgba(12, 8, 48, 0.34);
+  color: #fff;
+
+  --background: oklch(0.28 0.06 279);
+  --foreground: oklch(0.99 0 0);
+  /* Karta fonning O'ZIDAN biroz yorug'roq — chegara bilan emas,
+     yorug'lik bilan ajraladi. Chegara qo'shilsa, shaffof yuzada
+     to'r bo'lib ko'rinadi. */
+  /* Karta yuzadan biroz YORUG'ROQ — chegara bilan emas,
+     yorug'lik bilan ajraladi. Chegara qo'shilsa shaffof yuzada
+     to'r bo'lib ko'rinadi. */
+  --card: oklch(1 0 0 / 8%);
+  --card-foreground: oklch(0.99 0 0);
+  --popover: oklch(0.26 0.06 279);
+  --popover-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.86 0.09 235);
+  --primary-foreground: oklch(0.22 0.05 279);
+  --secondary: oklch(1 0 0 / 12%);
+  --secondary-foreground: oklch(0.99 0 0);
+  --muted: oklch(1 0 0 / 10%);
+  /* Ikkinchi darajali matn ATAYLAB yorug': shaffof yuzada
+     odatdagi kulrang (0.52) fonning yorug' joyida yo'qoladi. */
+  --muted-foreground: oklch(0.86 0.02 270);
+  --accent: oklch(1 0 0 / 16%);
+  --accent-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 16%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.86 0.09 235);
+}
+
+.air-shell[data-surface="tinted"] .air-surface,
+.air-shell[data-surface="tinted"] .air-table-wrap,
+.air-shell[data-surface="tinted"] .air-modal {
+  /* Shaffof fonda to'q rang yo'qoladi — ochiq tuslar. */
+  --ok: #6ee7a8;
+  --bad: #ff9b96;
+  --warn: #ffd07a;
+  --warn-bg: rgba(250, 204, 21, 0.14);
+  --warn-line: rgba(250, 204, 21, 0.4);
+  --warn-ink: #ffe4a3;
+}
+
+.air-shell[data-surface="tinted"] table.air-table thead th {
+  /* Sarlavha `sticky`: ostidan aylanayotgan qatorlar ko'rinib
+     o'tmasligi uchun u YARIM SHAFFOF EMAS, deyarli qattiq. */
+  background: rgba(26, 21, 74, 0.92);
+  color: rgba(255, 255, 255, 0.94);
+  border-bottom-color: rgba(255, 255, 255, 0.18);
+  /* Sarlavha `sticky` va SHAFFOF bo'lsa, ostidan aylanayotgan
+     qatorlar ko'rinib o'tadi. Blur shuni to'sadi. */
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.air-shell[data-surface="tinted"] table.air-table tbody td {
+  color: rgba(255, 255, 255, 0.94);
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+}
+.air-shell[data-surface="tinted"] table.air-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 /* ── Jadval ─────────────────────────────────────────────────── */
 
 .air-table-wrap {
@@ -518,4 +632,45 @@ table.air-table tbody tr:last-child td { border-bottom: none; }
     background: rgba(255, 255, 255, 0.16);
   }
   .air-surface { border-radius: 12px; }
+}
+
+/* Semantik matn ranglari — jadval va kartochkalarda. */
+.air-ok { color: var(--ok); }
+.air-bad { color: var(--bad); }
+.air-warn { color: var(--warn); }
+
+/* Ogohlantirish chizig'i — ikkala yuzada ham o'qiladigan. */
+.air-notice {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  color: var(--warn-ink);
+}
+.air-notice a { color: inherit; }
+
+/* Modal shaffof rejimda ham DEYARLI QATTIQ.
+ *
+ * Modal — diqqat yuzasi: uning ostidagi jadval ko'rinib tursa,
+ * ko'z qayerga qarashni bilmaydi va katakchalar orqadagi
+ * raqamlar bilan aralashadi. Shuning uchun bu yerda shaffoflik
+ * ATAYLAB deyarli yo'q — faqat fon rangining tusi qoladi. */
+.air-shell[data-surface="tinted"] .air-modal {
+  color-scheme: dark;
+  background: rgba(24, 20, 68, 0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+
+  --background: oklch(0.24 0.06 279);
+  --foreground: oklch(0.99 0 0);
+  --card: oklch(1 0 0 / 8%);
+  --card-foreground: oklch(0.99 0 0);
+  --muted: oklch(1 0 0 / 10%);
+  --muted-foreground: oklch(0.84 0.02 270);
+  --primary: oklch(0.86 0.09 235);
+  --primary-foreground: oklch(0.22 0.05 279);
+  --border: oklch(1 0 0 / 16%);
+  --input: oklch(1 0 0 / 18%);
+  --accent: oklch(1 0 0 / 14%);
+  --accent-foreground: oklch(0.99 0 0);
 }

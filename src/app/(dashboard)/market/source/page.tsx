@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Play, RefreshCw } from "lucide-react";
+import { History, Play, RefreshCw } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Failed, Grid, Loading, type Column } from "@/features/market/shared";
 import { formatNumber, formatPercent } from "@/lib/format";
-import { market, type MarketCoverage, type MarketRun, type MarketTokenStatus } from "@/lib/market";
+import { market, type MarketCoverage, type MarketRun, type MarketState, type MarketTokenStatus } from "@/lib/market";
 
 // Quvur qadamlari — tartib MUHIM va o'zgartirib bo'lmaydi:
 // turkumsiz o'lchov yo'q, o'lchovsiz qoldiq yo'q, qoldiqsiz
@@ -23,6 +23,7 @@ const STAGES = [
 
 export default function MarketSourcePage() {
   const [token, setToken] = React.useState<MarketTokenStatus | null>(null);
+  const [state, setState] = React.useState<MarketState | null>(null);
   const [coverage, setCoverage] = React.useState<MarketCoverage[]>([]);
   const [runs, setRuns] = React.useState<MarketRun[]>([]);
   const [value, setValue] = React.useState("");
@@ -30,8 +31,8 @@ export default function MarketSourcePage() {
   const [error, setError] = React.useState<string | null>(null);
 
   const reload = React.useCallback(() => {
-    Promise.all([market.tokenStatus(), market.coverage(30), market.runs(20)])
-      .then(([t, c, r]) => { setToken(t); setCoverage(c); setRuns(r); })
+    Promise.all([market.tokenStatus(), market.coverage(30), market.runs(20), market.state()])
+      .then(([t, c, r, s]) => { setToken(t); setCoverage(c); setRuns(r); setState(s); })
       .catch((e) => setError(e.message));
   }, []);
 
@@ -42,8 +43,13 @@ export default function MarketSourcePage() {
     try {
       await market.saveToken(value.trim());
       setValue("");
-      setNote("Token saqlandi.");
-      reload();
+      // Token qaytdi — backend uzilib qolgan joydan O'ZI davom
+      // ettiradi. Foydalanuvchi buni qo'lda so'ramasligi kerak:
+      // u tokenni aynan shuning uchun kiritdi.
+      setNote(
+        "Token saqlandi. Uzilib qolgan kunlar tekshirilib, o'lchov o'sha joydan davom etadi.",
+      );
+      setTimeout(reload, 1500);
     } catch {
       setNote("Saqlanmadi — token to'g'ri ko'chirilganini tekshiring.");
     }
@@ -67,7 +73,7 @@ export default function MarketSourcePage() {
     {
       key: "ratio", label: "To'liqlik",
       render: (r) => (
-        <span className={`air-num ${r.ratio > 0.9 ? "text-emerald-600" : "text-amber-600"}`}>
+        <span className={`air-num ${r.ratio > 0.9 ? "air-ok" : "air-warn"}`}>
           {formatPercent(r.ratio * 100)}
         </span>
       ),
@@ -81,14 +87,14 @@ export default function MarketSourcePage() {
     {
       key: "status", label: "Holat",
       render: (r) => (
-        <span className={r.status === "done" ? "text-emerald-600" : r.status === "failed" ? "text-rose-600" : "text-muted-foreground"}>
+        <span className={r.status === "done" ? "air-ok" : r.status === "failed" ? "air-bad" : "text-muted-foreground"}>
           {r.status}
         </span>
       ),
     },
     { key: "items", label: "Yozuv", render: (r) => <span className="air-num">{formatNumber(r.items)}</span> },
     { key: "requests", label: "So'rov", render: (r) => <span className="air-num">{formatNumber(r.requests)}</span> },
-    { key: "error", label: "Xato", align: "left", render: (r) => (r.error ? <span className="text-rose-600">{r.error}</span> : "—") },
+    { key: "error", label: "Xato", align: "left", render: (r) => (r.error ? <span className="air-bad">{r.error}</span> : "—") },
   ];
 
   if (error) return <Failed message={error} />;
@@ -115,10 +121,17 @@ export default function MarketSourcePage() {
           Token javobga ham, logga ham hech qachon chiqmaydi.
         </p>
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className={`rounded-lg border px-2.5 py-1.5 text-xs font-medium ${
-            !token.configured ? "border-rose-200 bg-rose-50 text-rose-700"
-              : token.likely_expired ? "border-amber-200 bg-amber-50 text-amber-700"
-              : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+          <span
+            className="rounded-lg border px-2.5 py-1.5 text-xs font-medium"
+            style={{
+              color: !token.configured
+                ? "var(--bad)"
+                : token.likely_expired
+                  ? "var(--warn)"
+                  : "var(--ok)",
+              borderColor: "currentColor",
+            }}
+          >
             {!token.configured ? "Kiritilmagan"
               : token.likely_expired ? `Muddati o'tgan bo'lishi mumkin · ${token.hint}`
               : `Yaroqli · ${token.hint}`}
@@ -145,6 +158,41 @@ export default function MarketSourcePage() {
           ))}
         </div>
       </section>
+
+      {state && (state.missing_days > 0 || (state.stale_days ?? 0) > 0) && (
+        <section className="air-notice space-y-3 rounded-xl p-4">
+          <div className="font-semibold">Uzilish topildi</div>
+          <p className="max-w-3xl text-sm opacity-90">
+            Ma&apos;lumot <b>{state.data_until}</b> kungacha yig&apos;ilgan.{" "}
+            {state.missing_days > 0 && <>{formatNumber(state.missing_days)} kun tushib qolgan. </>}
+            {(state.stale_days ?? 0) > 0 && (
+              <>Oxirgi {formatNumber(state.stale_days ?? 0)} kun o&apos;lchanmagan. </>
+            )}
+            <br />
+            <b>O&apos;tgan kunni tiklab bo&apos;lmaydi</b> — Uzum katalogida faqat hozirgi
+            holat bor, ya&apos;ni o&apos;sha kungi narx, qoldiq va o&apos;rin qaytmaydi.
+            Lekin sotuv <b>yo&apos;qolmaydi</b>: buyurtmalar soni to&apos;plangan raqam,
+            uzilishdagi sotuv uzilishdan keyingi kunga tushadi va o&apos;sha kun necha
+            kunlik ekani jadvalda ochiq ko&apos;rsatiladi.
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={async () => {
+              setNote(null);
+              try {
+                await market.backfill();
+                setNote("Bo'shliqlar belgilanmoqda, yig'indi qayta hisoblanadi.");
+                setTimeout(reload, 2000);
+              } catch {
+                setNote("To'ldirish ishga tushmadi.");
+              }
+            }}
+          >
+            <History className="h-3.5 w-3.5" /> Bo&apos;shliqlarni yopish
+          </Button>
+        </section>
+      )}
 
       <section className="space-y-2.5">
         <div className="font-semibold">Kunlar to&apos;liqligi</div>

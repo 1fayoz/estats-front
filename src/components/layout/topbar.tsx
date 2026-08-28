@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUserStore } from "@/stores/user-store";
 import { ShopSwitcher } from "./shop-switcher";
+import { SurfaceToggle } from "./surface-toggle";
 import { ALL_NAV_ITEMS } from "@/config/nav";
 
 function getPageTitle(pathname: string): string {
@@ -64,6 +65,8 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-2">
+        <SurfaceToggle />
+
         <Button
           variant="ghost"
           size="icon"

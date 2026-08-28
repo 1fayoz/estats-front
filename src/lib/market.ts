@@ -138,6 +138,18 @@ export type MarketCoverage = {
   rolled_up: boolean;
 };
 
+export type MarketState = {
+  data_from: string | null;
+  data_until: string | null;
+  measured_days: number;
+  /** Ma'lumot necha kun eskirgan. 0 — kechagi kungacha bor. */
+  stale_days: number | null;
+  missing_days: number;
+  token_configured: boolean;
+  token_age_hours: number | null;
+  token_likely_expired: boolean;
+};
+
 export type MarketTokenStatus = {
   configured: boolean;
   hint?: string;
@@ -179,6 +191,8 @@ export const market = {
   keywords: (params: { q?: string; limit?: number }) =>
     get<MarketPage<MarketKeyword>>("/seo/keywords", { limit: 200, ...params }),
 
+  state: () => get<MarketState>("/ops/state"),
+  gaps: () => get<{ missing: string[]; count: number; first: string | null }>("/ops/gaps"),
   coverage: (days = 30) => get<MarketCoverage[]>("/ops/coverage", { days }),
   runs: (limit = 20) => get<MarketRun[]>("/ops/runs", { limit }),
   tokenStatus: () => get<MarketTokenStatus>("/ops/token"),
@@ -190,6 +204,11 @@ export const market = {
       body: JSON.stringify({ token }),
     });
     if (!response.ok) throw new ApiError("Token saqlanmadi.", response.status);
+  },
+
+  async backfill(): Promise<void> {
+    const response = await fetch(`${MARKET_BASE}/ops/backfill`, { method: "POST" });
+    if (!response.ok) throw new ApiError("To'ldirish ishga tushmadi.", response.status);
   },
 
   async mine(stage: string, day?: string): Promise<void> {

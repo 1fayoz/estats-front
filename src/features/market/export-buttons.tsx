@@ -74,7 +74,7 @@ export function ExportButtons({
         <FileSpreadsheet className="h-3.5 w-3.5" />
         {busy === "xlsx" ? "Tayyorlanmoqda…" : "Excel"}
       </Button>
-      {error && <span className="text-xs text-rose-600">{error}</span>}
+      {error && <span className="air-bad text-xs">{error}</span>}
     </div>
   );
 }

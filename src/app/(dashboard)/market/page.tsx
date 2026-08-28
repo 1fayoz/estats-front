@@ -8,6 +8,7 @@ import {
 } from "recharts";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { StateBanner } from "@/features/market/state-banner";
 import { Failed, Loading, NoData, PeriodPicker, Score, usePeriod } from "@/features/market/shared";
 import { formatCompact, formatPercent } from "@/lib/format";
 import { market, type MarketCategorySlice, type MarketOverview, type MarketPoint } from "@/lib/market";
@@ -57,13 +58,15 @@ export default function MarketOverviewPage() {
         actions={<PeriodPicker />}
       />
 
+      <StateBanner />
+
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
         <span>{data.period_start} — {data.period_end}</span>
         {data.coverage !== null && (
           // To'liqlik YASHIRILMAYDI. To'liq bo'lmagan kunni to'liq
           // deb o'qish "bozor qulabdi" degan yolg'on xulosa beradi —
           // bu mahsulotdagi eng xavfli yanglishish.
-          <span className={data.coverage > 0.9 ? "text-emerald-600" : "text-amber-600"}>
+          <span className={data.coverage > 0.9 ? "air-ok" : "air-warn"}>
             ma&apos;lumot to&apos;liqligi {formatPercent(data.coverage * 100)}
           </span>
         )}
