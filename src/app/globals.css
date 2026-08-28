@@ -505,7 +505,10 @@
    * To'q asos esa fonning yorug'ligidan qat'i nazar oq matnni
    * o'qiladigan qoldiradi, blur orqali fon rasmi ham ko'rinib
    * turadi. */
-  background: rgba(26, 21, 74, 0.52);
+  /* .52 dan .62 ga: fonning eng yorug' joyida (o'ngdagi
+     moviy nur) kartochkalar oqarib ketardi va ulardagi matn
+     qolganidan sezilarli darajada xira ko'rinardi. */
+  background: rgba(26, 21, 74, 0.62);
   backdrop-filter: blur(22px) saturate(135%);
   -webkit-backdrop-filter: blur(22px) saturate(135%);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -520,7 +523,7 @@
   /* Karta yuzadan biroz YORUG'ROQ — chegara bilan emas,
      yorug'lik bilan ajraladi. Chegara qo'shilsa shaffof yuzada
      to'r bo'lib ko'rinadi. */
-  --card: oklch(1 0 0 / 8%);
+  --card: oklch(1 0 0 / 7%);
   --card-foreground: oklch(0.99 0 0);
   --popover: oklch(0.26 0.06 279);
   --popover-foreground: oklch(0.99 0 0);
@@ -663,7 +666,7 @@ table.air-table tbody tr:last-child td { border-bottom: none; }
 
   --background: oklch(0.24 0.06 279);
   --foreground: oklch(0.99 0 0);
-  --card: oklch(1 0 0 / 8%);
+  --card: oklch(1 0 0 / 7%);
   --card-foreground: oklch(0.99 0 0);
   --muted: oklch(1 0 0 / 10%);
   --muted-foreground: oklch(0.84 0.02 270);
