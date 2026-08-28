@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, PackagePlus, Sparkles, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { Boxes, PackagePlus, Sparkles, Wallet, Calculator, Compass, Database, Globe2, Megaphone, Plug, Radar, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -111,6 +111,54 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/socials" as Route,
         icon: Share2,
         description: "E'lonlar, obunachilar, bog'lash va joylash",
+      },
+    ],
+  },
+  {
+    title: "Bozor",
+    items: [
+      {
+        label: "Bozor holati",
+        action: "market.view",
+        href: "/market" as Route,
+        icon: Globe2,
+        description: "Butun Uzum bozori bir qarashda",
+        badge: "Yangi",
+      },
+      {
+        label: "Nishalar",
+        action: "market.view",
+        href: "/market/niches" as Route,
+        icon: Compass,
+        description: "Qaysi nishada qancha aylanadi",
+      },
+      {
+        label: "Bozordagi tovarlar",
+        action: "market.view",
+        href: "/market/products" as Route,
+        icon: Radar,
+        description: "Raqobatchilarning kartochkalari",
+      },
+      {
+        label: "Do'konlar",
+        action: "market.view",
+        href: "/market/shops" as Route,
+        icon: Store,
+        description: "Kim qancha sotyapti",
+      },
+      {
+        label: "Qidiruv so'rovlari",
+        action: "market.view",
+        href: "/market/seo" as Route,
+        icon: SearchCheck,
+        description: "Xaridor nima deb yozadi",
+      },
+      {
+        label: "Ma'lumot manbai",
+        action: "market.control",
+        href: "/market/source" as Route,
+        icon: Database,
+        description: "Uzum tokeni va qazib olish quvuri",
       },
     ],
   },
