@@ -109,7 +109,8 @@ export default function MarketSourcePage() {
           jimgina eskirib qolardi.
         </p>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Token <b>taxminan uch soat</b> yashaydi — muddati o&apos;tishi xato emas,
+          Token <b>taxminan uch soat</b>{" "}
+          yashaydi — muddati o&apos;tishi xato emas,
           kutilgan holat: quvur to&apos;xtaydi, yig&apos;ilgani saqlanadi va token
           yangilangach uzilgan joydan o&apos;zi davom etadi.
         </p>
