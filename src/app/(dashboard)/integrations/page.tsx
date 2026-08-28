@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiKeyCard } from "@/features/seo/components/ai-key-card";
+import { OpenAiKeyCard } from "@/features/products-ai/components/openai-key-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import { TelegramDialog } from "@/features/social/components/telegram-dialog";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
@@ -19,14 +20,14 @@ import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { ShopsCard } from "@/features/settings/shops-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import {
-  ApiError, fetchAiKey, fetchInstagramConnectUrl, fetchSocialAccounts, fetchSocialApps,
+  ApiError, fetchAiKey, fetchInstagramConnectUrl, fetchOpenAiKey, fetchSocialAccounts, fetchSocialApps,
   fetchSocialConnectUrl, fetchSocialPlatforms,
 } from "@/lib/api";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useQueryState } from "@/lib/use-query-state";
 import { useUserStore } from "@/stores/user-store";
-import type { AiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
+import type { AiKeyState, OpenAiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
 
 /**
  * Ulanish joylari bir sahifada, har biri o'z tabida.
@@ -40,6 +41,7 @@ export default function IntegrationsPage() {
   const [accounts, setAccounts] = React.useState<SocialAccount[]>([]);
   const [socialApps, setSocialApps] = React.useState<SocialApp[]>([]);
   const [aiKey, setAiKey] = React.useState<AiKeyState | null>(null);
+  const [openAiKey, setOpenAiKey] = React.useState<OpenAiKeyState | null>(null);
   const [telegramOpen, setTelegramOpen] = React.useState(false);
   const [tab, setTab] = useQueryState("tab", "uzum");
   const [loading, setLoading] = React.useState(true);
@@ -55,16 +57,20 @@ export default function IntegrationsPage() {
       return;
     }
     try {
-      const [rows, list, appList, ai] = await Promise.all([
+      const [rows, list, appList, ai, gpt] = await Promise.all([
         fetchSocialPlatforms(),
         fetchSocialAccounts(),
         fetchSocialApps().catch(() => [] as SocialApp[]),
         fetchAiKey().catch(() => null),
+        // Ruxsati yo'q a'zoda 403 keladi — kartochka shunchaki
+        // ko'rinmaydi va sahifaning qolgani ishlayveradi.
+        fetchOpenAiKey().catch(() => null),
       ]);
       setPlatforms(rows);
       setAccounts(list);
       setSocialApps(appList);
       setAiKey(ai);
+      setOpenAiKey(gpt);
     } catch {
       /* ulanmagan bo'lsa ham sahifa ochilishi kerak */
     } finally {
@@ -180,8 +186,9 @@ export default function IntegrationsPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="ai" className="mt-4">
+        <TabsContent value="ai" className="mt-4 space-y-4">
           {aiKey && <AiKeyCard state={aiKey} onSaved={load} />}
+          {openAiKey && <OpenAiKeyCard state={openAiKey} onSaved={load} />}
         </TabsContent>
 
         {/* ── Ijtimoiy tarmoqlar ───────────────────────────────────────── */}

@@ -8,19 +8,26 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImagePanel } from "@/features/products-ai/components/image-panel";
 import {
-  ApiError, approveAiDraft, deleteAiDraft, fetchAiPackage, mediaUrl,
-  patchAiDraft, retryAiDraft,
+  ApiError, approveAiDraft, deleteAiDraft, fetchAiPackage, patchAiDraft, retryAiDraft,
 } from "@/lib/api";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatSum } from "@/lib/format";
 import type { AiDraft } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 /**
  * Tayyor kartochka — tekshirish, tuzatish va tasdiqlash.
+ *
+ * Tuzilish uch qavat: yuqorida AMALLAR (ular har doim ko'rinib
+ * turishi kerak — pastga aylantirib izlash noqulay), keyin
+ * qisqa RAQAMLAR chizig'i, keyin bo'limlar tab bilan.
+ *
+ * Ilgari hamma narsa bitta uzun ustunda turardi: ikki tilning
+ * matni, xususiyatlar, MXIK, kalit so'zlar va tugmalar — sahifa
+ * uzayib ketib, nima qayerdaligi ko'rinmasdi.
  *
  * AI matni bu yerda TAHRIRLANADI. U yaxshi boshlang'ich nuqta,
  * lekin oxirgi so'z sotuvchida: u tovarini AI'dan yaxshi biladi.
@@ -35,34 +42,16 @@ export function DraftDetail({
   onDeleted: () => void;
 }) {
   const [busy, setBusy] = React.useState<string>("");
-  const [form, setForm] = React.useState({
-    titleUz: draft.titleUz ?? "",
-    titleRu: draft.titleRu ?? "",
-    descriptionUz: draft.descriptionUz ?? "",
-    descriptionRu: draft.descriptionRu ?? "",
-    mxik: draft.mxik ?? "",
-    suggestedPrice: draft.suggestedPrice ?? 0,
-  });
+  const [form, setForm] = React.useState(() => initial(draft));
 
   React.useEffect(() => {
-    setForm({
-      titleUz: draft.titleUz ?? "",
-      titleRu: draft.titleRu ?? "",
-      descriptionUz: draft.descriptionUz ?? "",
-      descriptionRu: draft.descriptionRu ?? "",
-      mxik: draft.mxik ?? "",
-      suggestedPrice: draft.suggestedPrice ?? 0,
-    });
+    setForm(initial(draft));
   }, [draft.id, draft.updatedAt]);
 
   const locked = draft.stage === "approved";
-  const dirty =
-    form.titleUz !== (draft.titleUz ?? "") ||
-    form.titleRu !== (draft.titleRu ?? "") ||
-    form.descriptionUz !== (draft.descriptionUz ?? "") ||
-    form.descriptionRu !== (draft.descriptionRu ?? "") ||
-    form.mxik !== (draft.mxik ?? "") ||
-    form.suggestedPrice !== (draft.suggestedPrice ?? 0);
+  const dirty = (Object.keys(form) as (keyof typeof form)[]).some(
+    (key) => form[key] !== initial(draft)[key]
+  );
 
   const act = async (name: string, fn: () => Promise<void>) => {
     setBusy(name);
@@ -74,18 +63,6 @@ export function DraftDetail({
       setBusy("");
     }
   };
-
-  const save = () =>
-    act("save", async () => {
-      onChange(await patchAiDraft(draft.id, form));
-      toast.success("Saqlandi.");
-    });
-
-  const approve = () =>
-    act("approve", async () => {
-      onChange(await approveAiDraft(draft.id));
-      toast.success("Tasdiqlandi — Uzumga ko'chirishga tayyor.");
-    });
 
   const copyAll = () =>
     act("copy", async () => {
@@ -100,8 +77,89 @@ export function DraftDetail({
 
   return (
     <div className="space-y-4">
+      {/* ── Amallar: har doim tepada ─────────────────────────── */}
+      {/*
+        `top-16`: yuqoridagi topbar ham yopishqoq va balandligi 4rem.
+        `top-0` bo'lsa panelning birinchi qatori uning ostida qolib
+        ketadi — tugmalar ko'rinmay qoladi.
+      */}
+      <div className="sticky top-16 z-10 flex flex-wrap items-center gap-2 rounded-xl border bg-background/95 p-2.5 shadow-sm backdrop-blur">
+        <Badge variant={locked ? "success" : "secondary"} className="shrink-0">
+          {draft.stageLabel}
+        </Badge>
+        <span className="mr-auto truncate text-sm font-medium">
+          {draft.titleUz || "(nomsiz)"}
+        </span>
+        {!locked && (
+          <Button
+            size="sm"
+            onClick={() =>
+              act("save", async () => {
+                onChange(await patchAiDraft(draft.id, form));
+                toast.success("Saqlandi.");
+              })
+            }
+            disabled={!dirty || busy === "save"}
+            className="gap-1.5"
+          >
+            {busy === "save" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Check className="h-3.5 w-3.5" />
+            )}
+            Saqlash
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={copyAll}
+          disabled={busy === "copy"}
+          className="gap-1.5"
+        >
+          {busy === "copy" ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Copy className="h-3.5 w-3.5" />
+          )}
+          Uzum uchun nusxalash
+        </Button>
+        {!locked && draft.progress >= 95 && (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() =>
+              act("approve", async () => {
+                onChange(await approveAiDraft(draft.id));
+                toast.success("Tasdiqlandi — Uzumga ko'chirishga tayyor.");
+              })
+            }
+            disabled={busy === "approve"}
+            className="gap-1.5"
+          >
+            <Check className="h-3.5 w-3.5" /> Tasdiqlash
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() =>
+            act("delete", async () => {
+              await deleteAiDraft(draft.id);
+              onDeleted();
+              toast.success("O'chirildi.");
+            })
+          }
+          disabled={busy === "delete"}
+          className="text-destructive hover:text-destructive"
+          aria-label="O'chirish"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+
       {draft.error && (
-        <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
+        <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
           <div className="flex-1">
             <div className="font-medium">Quvur to&apos;xtadi</div>
@@ -117,86 +175,65 @@ export function DraftDetail({
               })
             }
             disabled={busy === "retry"}
+            className="gap-1.5"
           >
-            {busy === "retry" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <RefreshCw className="h-3.5 w-3.5" />
-            )}
-            Davom ettirish
+            <RefreshCw className="h-3.5 w-3.5" /> Davom ettirish
           </Button>
         </div>
       )}
 
-      {/* ── Rasmlar ─────────────────────────────────────────── */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Rasmlar</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {draft.images.map((url) => (
-              <figure key={url} className="space-y-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={mediaUrl(url)}
-                  alt="AI yasagan rasm"
-                  className="h-28 w-28 rounded-lg border object-cover"
-                />
-                <figcaption className="text-center text-[10px] text-primary">AI</figcaption>
-              </figure>
-            ))}
-            {draft.sourceImages.map((url) => (
-              <figure key={url} className="space-y-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={mediaUrl(url)}
-                  alt="Yuklangan rasm"
-                  className="h-28 w-28 rounded-lg border object-cover opacity-80"
-                />
-                <figcaption className="text-center text-[10px] text-muted-foreground">
-                  asl
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+      {/* ── Raqamlar chizig'i ────────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Stat
+          label="Tavsiya narx"
+          value={form.suggestedPrice ? formatSum(form.suggestedPrice) : "—"}
+        />
+        <Stat
+          label="Raqobatchi"
+          value={draft.market?.rivals.length ? `${draft.market.rivals.length} ta` : "—"}
+          note={
+            draft.market?.rivals.length
+              ? `${formatNumber(draft.market.priceMin ?? 0)}–${formatNumber(draft.market.priceMax ?? 0)}`
+              : undefined
+          }
+        />
+        <Stat label="Xususiyat" value={`${Object.keys(draft.attributes).length} ta`} />
+        <Stat label="Kalit so'z" value={`${draft.keywords.length} ta`} />
+      </div>
 
-          {draft.imageNote && (
-            <p className="rounded-lg bg-muted/50 p-2 text-xs text-muted-foreground">
-              {draft.imageNote}
-            </p>
-          )}
+      {/* ── Rasmlar ──────────────────────────────────────────── */}
+      <section className="rounded-xl border p-4">
+        <h2 className="mb-3 text-sm font-semibold">Rasmlar</h2>
+        <ImagePanel draft={draft} onChange={onChange} locked={locked} />
+      </section>
 
-          {draft.imageChecks.length > 0 && (
-            <div className="space-y-1">
-              {draft.imageChecks.map((check) => (
-                <div key={check.index} className="flex items-start gap-2 text-xs">
-                  <Badge variant={check.accepted ? "default" : "secondary"}>
-                    {check.score}/10
-                  </Badge>
-                  <span className="text-muted-foreground">
-                    {check.accepted
-                      ? "qabul qilindi"
-                      : check.problems.join("; ") || check.error}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* ── Bo'limlar ────────────────────────────────────────── */}
+      <Tabs defaultValue="uz" className="rounded-xl border p-4">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+          <TabsTrigger value="uz">O&apos;zbekcha</TabsTrigger>
+          <TabsTrigger value="ru">Ruscha</TabsTrigger>
+          <TabsTrigger value="attrs">
+            Xususiyatlar
+            <span className="ml-1 rounded bg-background/70 px-1 text-[10px]">
+              {Object.keys(draft.attributes).length}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="mxik">MXIK va narx</TabsTrigger>
+          <TabsTrigger value="keywords">
+            Kalit so&apos;zlar
+            <span className="ml-1 rounded bg-background/70 px-1 text-[10px]">
+              {draft.keywords.length}
+            </span>
+          </TabsTrigger>
+          {draft.market?.rivals.length ? (
+            <TabsTrigger value="market">Bozor</TabsTrigger>
+          ) : null}
+        </TabsList>
 
-      {/* ── Matn ────────────────────────────────────────────── */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Kartochka matni</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {(["uz", "ru"] as const).map((lang) => (
-            <div key={lang} className="space-y-2">
-              <div className="text-xs font-medium text-muted-foreground">
-                {lang === "uz" ? "O'zbekcha" : "Ruscha"}
-              </div>
+        {(["uz", "ru"] as const).map((lang) => (
+          <TabsContent key={lang} value={lang} className="mt-4 space-y-3">
+            <div className="space-y-1.5">
+              <Label>Nom</Label>
               <Input
                 value={lang === "uz" ? form.titleUz : form.titleRu}
                 disabled={locked}
@@ -206,8 +243,10 @@ export function DraftDetail({
                     [lang === "uz" ? "titleUz" : "titleRu"]: e.target.value,
                   }))
                 }
-                placeholder="Nom"
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Tavsif</Label>
               <textarea
                 value={lang === "uz" ? form.descriptionUz : form.descriptionRu}
                 disabled={locked}
@@ -217,174 +256,148 @@ export function DraftDetail({
                     [lang === "uz" ? "descriptionUz" : "descriptionRu"]: e.target.value,
                   }))
                 }
-                rows={5}
+                rows={10}
                 className="w-full rounded-lg border bg-transparent p-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
-                placeholder="Tavsif"
               />
             </div>
-          ))}
-        </CardContent>
-      </Card>
+          </TabsContent>
+        ))}
 
-      {/* ── Xususiyatlar va MXIK ────────────────────────────── */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Xususiyatlar</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {Object.keys(draft.attributes).length ? (
-              <dl className="space-y-1.5 text-sm">
-                {Object.entries(draft.attributes).map(([name, value]) => (
-                  <div key={name} className="flex justify-between gap-3">
-                    <dt className="text-muted-foreground">{name}</dt>
-                    <dd className="text-right font-medium">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : (
-              <p className="text-sm text-muted-foreground">Hali to&apos;ldirilmagan.</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">MXIK va narx</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {/*
-              MXIK — soliq hujjatiga tushadigan kod. AI faqat TAXMIN
-              qiladi va noto'g'risi soliq muammosi degani, shuning
-              uchun bu yerda har doim rasmiy katalog havolasi turadi.
-            */}
-            <div className="space-y-1.5">
-              <Input
-                value={form.mxik}
-                disabled={locked}
-                onChange={(e) => setForm((f) => ({ ...f, mxik: e.target.value }))}
-                placeholder="17 xonali MXIK kodi"
-                inputMode="numeric"
-              />
-              <p className="text-xs text-muted-foreground">
-                {draft.mxikName ? `Taxminiy turkum: ${draft.mxikName}. ` : ""}
-                Kod <b>taxmin</b> — rasmiy katalogda tasdiqlang.
-              </p>
-              {draft.mxikCheckUrl && (
-                <a
-                  href={draft.mxikCheckUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                >
-                  <ExternalLink className="h-3 w-3" /> tasnif.soliq.uz da tekshirish
-                </a>
-              )}
-            </div>
-
-            <Separator />
-
-            <div className="space-y-1.5">
-              <Input
-                type="number"
-                value={form.suggestedPrice || ""}
-                disabled={locked}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, suggestedPrice: Number(e.target.value) || 0 }))
-                }
-                placeholder="Narx (so'm)"
-              />
-              {/*
-                Shart RAQOBATCHI soniga qarab qo'yilgan, narxga emas:
-                bozor topilmaganda `priceMin` nol bo'lib keladi va
-                "0 — 0 so'm" degan yolg'on oraliq ko'rinardi.
-              */}
-              {draft.market && draft.market.rivals.length > 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  Raqobatchilar: {formatNumber(draft.market.priceMin ?? 0)} —{" "}
-                  {formatNumber(draft.market.priceMax ?? 0)} so&apos;m (
-                  {draft.market.rivals.length} ta tovar)
-                </p>
-              ) : draft.market?.error ? (
-                <p className="text-xs text-amber-600">
-                  Bozor o&apos;rganilmadi: {draft.market.error}
-                </p>
-              ) : null}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ── Kalit so'zlar ───────────────────────────────────── */}
-      {draft.keywords.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">
-              Kalit so&apos;zlar ({draft.keywords.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-1.5">
-            {draft.keywords.map((word) => (
-              <Badge key={word} variant="secondary" className="font-normal">
-                {word}
-              </Badge>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ── Amallar ─────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2">
-        {!locked && (
-          <Button onClick={save} disabled={!dirty || busy === "save"}>
-            {busy === "save" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Check className="h-3.5 w-3.5" />
-            )}
-            Saqlash
-          </Button>
-        )}
-        <Button variant="outline" onClick={copyAll} disabled={busy === "copy"}>
-          {busy === "copy" ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        <TabsContent value="attrs" className="mt-4">
+          {Object.keys(draft.attributes).length ? (
+            <dl className="divide-y text-sm">
+              {Object.entries(draft.attributes).map(([name, value]) => (
+                <div key={name} className="flex justify-between gap-4 py-2">
+                  <dt className="text-muted-foreground">{name}</dt>
+                  <dd className="text-right font-medium">{value}</dd>
+                </div>
+              ))}
+            </dl>
           ) : (
-            <Copy className="h-3.5 w-3.5" />
+            <p className="text-sm text-muted-foreground">Hali to&apos;ldirilmagan.</p>
           )}
-          Uzum uchun nusxalash
-        </Button>
-        {!locked && draft.progress >= 95 && (
-          <Button variant="secondary" onClick={approve} disabled={busy === "approve"}>
-            {busy === "approve" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Check className="h-3.5 w-3.5" />
+        </TabsContent>
+
+        <TabsContent value="mxik" className="mt-4 space-y-4">
+          {/*
+            MXIK — soliq hujjatiga tushadigan kod. AI faqat TAXMIN
+            qiladi va noto'g'risi soliq muammosi degani, shuning
+            uchun bu yerda har doim rasmiy katalog havolasi turadi.
+          */}
+          <div className="space-y-1.5">
+            <Label>MXIK kodi</Label>
+            <Input
+              value={form.mxik}
+              disabled={locked}
+              onChange={(e) => setForm((f) => ({ ...f, mxik: e.target.value }))}
+              placeholder="17 xonali kod"
+              inputMode="numeric"
+              className="font-mono"
+            />
+            <p className="text-xs text-muted-foreground">
+              {draft.mxikName ? `Taxminiy turkum: ${draft.mxikName}. ` : ""}
+              Kod <b>taxmin</b> — rasmiy katalogda tasdiqlang.
+            </p>
+            {draft.mxikCheckUrl && (
+              <a
+                href={draft.mxikCheckUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" /> tasnif.soliq.uz da tekshirish
+              </a>
             )}
-            Tasdiqlash
-          </Button>
-        )}
-        <Button
-          variant="ghost"
-          className="ml-auto text-destructive"
-          onClick={() =>
-            act("delete", async () => {
-              await deleteAiDraft(draft.id);
-              onDeleted();
-              toast.success("O'chirildi.");
-            })
-          }
-          disabled={busy === "delete"}
-        >
-          <Trash2 className="h-3.5 w-3.5" /> O&apos;chirish
-        </Button>
-      </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Narx (so&apos;m)</Label>
+            <Input
+              type="number"
+              value={form.suggestedPrice || ""}
+              disabled={locked}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, suggestedPrice: Number(e.target.value) || 0 }))
+              }
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="keywords" className="mt-4 flex flex-wrap gap-1.5">
+          {draft.keywords.map((word) => (
+            <Badge key={word} variant="secondary" className="font-normal">
+              {word}
+            </Badge>
+          ))}
+        </TabsContent>
+
+        {draft.market?.rivals.length ? (
+          <TabsContent value="market" className="mt-4">
+            <table className="w-full text-xs">
+              <thead className="text-muted-foreground">
+                <tr className="border-b">
+                  <th className="py-2 text-left font-medium">Tovar</th>
+                  <th className="py-2 text-right font-medium">Buyurtma</th>
+                  <th className="py-2 text-right font-medium">Narx</th>
+                </tr>
+              </thead>
+              <tbody>
+                {draft.market.rivals.map((rival, i) => (
+                  <tr key={`${rival.url}-${i}`} className="border-b last:border-0">
+                    <td className="max-w-0 truncate py-2 pr-3">
+                      {rival.url ? (
+                        <a
+                          href={rival.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:underline"
+                        >
+                          {rival.title}
+                        </a>
+                      ) : (
+                        rival.title
+                      )}
+                    </td>
+                    <td className="py-2 text-right tabular-nums">
+                      {formatNumber(rival.orders)}
+                    </td>
+                    <td className="py-2 text-right tabular-nums">
+                      {rival.price ? formatNumber(rival.price) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TabsContent>
+        ) : null}
+      </Tabs>
 
       {locked && (
-        <p className={cn("text-xs text-muted-foreground")}>
+        <p className="text-xs text-muted-foreground">
           Tasdiqlangan qoralama tahrirlanmaydi. Uzumda mahsulot yaratish API&apos;si
           yo&apos;q — matnni nusxalab, Uzum panelida joylang.
         </p>
       )}
+    </div>
+  );
+}
+
+function initial(draft: AiDraft) {
+  return {
+    titleUz: draft.titleUz ?? "",
+    titleRu: draft.titleRu ?? "",
+    descriptionUz: draft.descriptionUz ?? "",
+    descriptionRu: draft.descriptionRu ?? "",
+    mxik: draft.mxik ?? "",
+    suggestedPrice: draft.suggestedPrice ?? 0,
+  };
+}
+
+function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
+  return (
+    <div className="rounded-lg border bg-muted/30 px-3 py-2">
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div className="text-sm font-semibold tabular-nums">{value}</div>
+      {note && <div className="text-[10px] tabular-nums text-muted-foreground">{note}</div>}
     </div>
   );
 }
