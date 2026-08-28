@@ -44,6 +44,7 @@ import type {
   AiDraft,
   AiDraftPatch,
   AiDraftRow,
+  AiImageRedo,
   AiPackage,
   OpenAiKeyState,
   SeoAudit,
@@ -742,6 +743,18 @@ export const approveAiDraft = (id: number) =>
 
 export const deleteAiDraft = (id: number) =>
   request<void>(`/product-ai/drafts/${id}`, { method: "DELETE" });
+
+/**
+ * Rasmni qayta yasaydi — bittasini yoki hammasini.
+ *
+ * Fonda ketadi: bitta rasm o'ttiz soniyagacha yasaladi. Javob
+ * darhol qaytadi va `stage` vaqtincha "rasm" bo'ladi.
+ */
+export const redoAiImages = (id: number, body: AiImageRedo) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/images`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 
 export const fetchAiPackage = (id: number) =>
   request<AiPackage>(`/product-ai/drafts/${id}/package`);

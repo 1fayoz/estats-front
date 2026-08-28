@@ -357,8 +357,42 @@ export interface ProductTempo {
   avgPerDay: number;
   /** `null` — bu davrda sotuv bo'lmagan, ya'ni qoldiq tugamaydi. Nol EMAS. */
   daysOfStock: number | null;
+  /** O'rtacha kunlik qoldiq — sur'atni to'g'ri o'qish uchun. */
+  avgStock: number;
   firstSaleAt: string | null;
   lastSaleAt: string | null;
+}
+
+/**
+ * Uzum sotuvchi API'si beradigan, ilgari ko'rsatilmagan raqamlar.
+ *
+ * Hammasi sinxronizatsiya javobida allaqachon kelib turardi — na yangi
+ * so'rov, na yangi ustun kerak edi.
+ */
+export interface MarketplaceFacts {
+  /** Uzumning kartochkaga qo'ygan darajasi (A/B/C/D). */
+  rank: string | null;
+  rankNote: string | null;
+  status: string | null;
+  statusColor: string | null;
+  /** Qaytarish ulushi, foizda. */
+  returnedPercent: number | null;
+  forecastOutOfStock: boolean;
+  hasActiveDiscount: boolean;
+  mxik: string | null;
+
+  available: number | null;
+  reserved: number | null;
+  returned: number | null;
+  defected: number | null;
+  pending: number | null;
+  soldTotal: number | null;
+
+  promoName: string | null;
+  promoEndsAt: string | null;
+  promoPrice: number | null;
+  promoType: string | null;
+  inPromo: boolean;
 }
 
 /** Bitta Uzum kartochkasidagi qo'shni variant (o'lcham, rang). */
@@ -385,6 +419,10 @@ export interface TimelineDay {
   orders: number;
   revenue: number;
   profit: number;
+  /** O'sha kungi o'rtacha sotuv narxi. Sotuv bo'lmasa — `null`. */
+  avgPrice: number | null;
+  /** Kun oxiridagi qoldiq — kirim va sotuvdan orqaga qarab tiklanadi. */
+  stock: number;
   /**
    * Kalit so'z -> o'sha kungi o'rin. `null` — o'lchandi, lekin chuqurlik
    * ichida topilmadi. Kalit umuman yo'q — o'sha kuni o'lchov bo'lmagan.
@@ -468,6 +506,7 @@ export interface ProductDetail {
   tempo: ProductTempo;
   /** Shu kartochkadagi barcha variantlar (o'zi ham ichida). Bittasi bo'lsa — bo'sh. */
   siblings: SiblingSku[];
+  marketplace: MarketplaceFacts;
 }
 
 /** Hamma sinxronizatsiyaning bir joydagi holati (Sozlamalar → Uzum). */
@@ -1450,6 +1489,8 @@ export interface AiDraft extends AiDraftRow {
   images: string[];
   imagePrompt: string | null;
   imageNote: string | null;
+  /** Sotuvchining oxirgi ko'rsatmasi — maydonga qaytadan yoziladi. */
+  imagePromptExtra: string | null;
   imageChecks: AiImageCheck[];
   updatedAt: string;
 }
@@ -1464,6 +1505,13 @@ export interface AiDraftPatch {
   mxik?: string;
   mxikName?: string;
   suggestedPrice?: number;
+}
+
+export interface AiImageRedo {
+  /** Sotuvchining o'z ko'rsatmasi. Bo'sh bo'lsa faktlar bo'yicha. */
+  prompt?: string;
+  /** Qaysi rasm. Berilmasa — hammasi. */
+  index?: number | null;
 }
 
 export interface AiPackage {

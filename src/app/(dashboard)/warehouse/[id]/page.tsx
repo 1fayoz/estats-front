@@ -18,8 +18,8 @@ import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
 import { ProductGallery } from "@/features/warehouse/components/product-gallery";
 import { SiblingsCard } from "@/features/warehouse/components/siblings-card";
-import { TempoCard } from "@/features/warehouse/components/tempo-card";
-import { TimelineCard } from "@/features/warehouse/components/timeline-card";
+import { ProductStats } from "@/features/warehouse/components/product-stats";
+import { UzumFactsCard } from "@/features/warehouse/components/uzum-facts-card";
 import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
@@ -130,7 +130,14 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      <TempoCard tempo={data.tempo} onHand={data.onHand} />
+      <ProductStats
+        productId={id}
+        tempo={data.tempo}
+        onHand={data.onHand}
+        facts={data.marketplace}
+      />
+
+      <UzumFactsCard facts={data.marketplace} />
 
       <SiblingsCard siblings={data.siblings} tempo={data.tempo} />
 
@@ -138,11 +145,6 @@ export default function ProductDetailPage() {
           Tovarning o'z sahifasida turishi shart: sotuvchi narx va
           qoldiqni ko'rib turib, o'sha yerda kalit so'z qo'shadi. */}
       <PositionsBlock productId={id} />
-
-      {/* Kunlik kesim o'rinlar blokidan KEYIN turadi: avval "qaysi
-          so'zda nechanchiman", keyin "o'sha kunlarda sotuv qanday
-          bordi" — savol shu tartibda tug'iladi. */}
-      <TimelineCard productId={id} />
 
       <BreakEvenCard economics={data.economics} />
 
