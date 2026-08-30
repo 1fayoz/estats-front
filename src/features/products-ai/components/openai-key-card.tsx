@@ -173,15 +173,16 @@ export function OpenAiKeyCard({
         */}
         <ul className="space-y-1.5 rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
           <li>
-            <b>1. Hisobni to&apos;ldiring.</b> Billing bo&apos;limida mablag&apos;
-            bo&apos;lmasa OpenAI so&apos;rovni rad etadi.
+            <b>1. Hisobni to&apos;ldiring.</b>{" "}
+            Billing bo&apos;limida mablag&apos; bo&apos;lmasa OpenAI so&apos;rovni
+            rad etadi.
           </li>
           <li>
             <b>2. Tashkilotni tasdiqlang.</b> Rasm modellari (
             <span className="font-mono">gpt-image-*</span>){" "}
-            <i>Organization Verification</i> talab qiladi: Settings →
-            Organization → General. Tasdiqsiz kalit to&apos;g&apos;ri
-            bo&apos;lsa ham rasm yasalmaydi.
+            <i>Organization Verification</i>{" "}
+            talab qiladi: Settings → Organization → General. Tasdiqsiz kalit
+            to&apos;g&apos;ri bo&apos;lsa ham rasm yasalmaydi.
           </li>
         </ul>
       </CardContent>
