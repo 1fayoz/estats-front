@@ -677,3 +677,73 @@ table.air-table tbody tr:last-child td { border-bottom: none; }
   --accent: oklch(1 0 0 / 14%);
   --accent-foreground: oklch(0.99 0 0);
 }
+
+/* ── BOSQICHLAR CHIZIG'I — Bitrix24 «воронка» naqshi ─────────
+ *
+ * Namunadagi «Создание сделки» oynasida sarlavha ostida bosqichlar
+ * qatori turadi: qaysi bosqich o'tilgani, qaysisi HOZIR ketayotgani
+ * bir qarashda ko'rinadi.
+ *
+ * Bizda bu — AI quvurining qadamlari (rasm → tahlil → bozor →
+ * matn → xususiyat → rasm yasash → tayyor). Bu yerda u shunchaki
+ * bezak emas: har qadam PUL turadi va bir necha o'n soniya ketadi,
+ * ya'ni sotuvchi "qayerda qoldi" degan savolga javobni tugmani
+ * bosmasdan olishi kerak.
+ *
+ * Rang TOKENLARDAN olinadi (`--primary`, `--ok`, `--bad`), qattiq
+ * yozilgan Tailwind ranglaridan emas: modal oq yuzada ham,
+ * shaffof yuzada ham ochiladi va to'q yashil shaffof fonda
+ * ko'rinmay qoladi.
+ */
+.air-stages {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.air-stages::-webkit-scrollbar { display: none; }
+
+.air-stage {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 92px;
+  padding: 7px 10px 7px 20px;
+  font-size: 12px;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  /* O'ngda uchli, chapda o'yiq — segmentlar bir-biriga kirib
+     turadi va oqim yo'nalishi ko'rinadi. */
+  clip-path: polygon(
+    0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%
+  );
+}
+.air-stage:first-child {
+  padding-left: 12px;
+  border-radius: 6px 0 0 6px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
+.air-stage:last-child {
+  border-radius: 0 6px 6px 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 10px 50%);
+}
+
+.air-stage[data-state="done"] {
+  background: color-mix(in oklab, var(--ok) 20%, transparent);
+  color: var(--ok);
+  font-weight: 600;
+}
+.air-stage[data-state="active"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+}
+.air-stage[data-state="failed"] {
+  background: color-mix(in oklab, var(--bad) 22%, transparent);
+  color: var(--bad);
+  font-weight: 600;
+}

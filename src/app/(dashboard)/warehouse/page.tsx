@@ -1,16 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Boxes, Search } from "lucide-react";
+import { AlertTriangle, Boxes, Plus, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductTable } from "@/features/warehouse/components/product-table";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
+import { DraftStrip } from "@/features/products-ai/components/draft-strip";
+import { ProductAiModal } from "@/features/products-ai/components/product-modal";
+import { useAiDrafts } from "@/features/products-ai/use-drafts";
 import { useWarehouseProducts } from "@/features/warehouse/store";
-import { useActiveShop } from "@/stores/user-store";
+import { useActiveShop, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
 import type { WarehouseProduct } from "@/lib/types";
@@ -22,6 +26,21 @@ export default function WarehousePage() {
   const shop = useActiveShop();
   const [query, setQuery] = React.useState("");
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
+
+  // ── Tovar qo'shish (AI) ────────────────────────────────────
+  // Alohida sahifa emas, shu yerdagi oyna: tovar qo'shish —
+  // omborning ICHIDAGI ish. Alohida bo'limda sotuvchi katalogdan
+  // chiqib ketardi va qaytganda qayerda qolgani yo'qolardi.
+  const canSeeAi = useCan("products_ai.view");
+  const canAddAi = useCan("products_ai.control");
+  const drafts = useAiDrafts(canSeeAi);
+  const [aiOpen, setAiOpen] = React.useState(false);
+  const [aiDraftId, setAiDraftId] = React.useState<number | null>(null);
+
+  const openAi = (id: number | null) => {
+    setAiDraftId(id);
+    setAiOpen(true);
+  };
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -47,7 +66,17 @@ export default function WarehousePage() {
     <div className="space-y-6">
       <PageHeader
         title="Ombor"
-        description="Uzum katalogingiz va har bir tovarning tan narxi. Tovar kelganda 'Kirim' tugmasi orqali qo'shing."
+        description="Uzum katalogingiz va har bir tovarning tan narxi. Tovar kelganda 'Kirim' tugmasi orqali qo'shing; yangi kartochka esa 'Tovar qo'shish' orqali yasaladi."
+        actions={
+          canAddAi ? (
+            <Button
+              onClick={() => openAi(null)}
+              className="bg-[#00904d] text-white hover:bg-[#00a457]"
+            >
+              <Plus className="h-4 w-4" /> Tovar qo&apos;shish
+            </Button>
+          ) : undefined
+        }
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -60,6 +89,8 @@ export default function WarehousePage() {
           hint={totals.withoutCost > 0 ? "kirim kiriting" : undefined}
         />
       </div>
+
+      {canSeeAi && <DraftStrip rows={drafts.rows} onOpen={(id) => openAi(id)} />}
 
       <div className="relative max-w-md">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -118,6 +149,14 @@ export default function WarehousePage() {
         product={intakeFor}
         onOpenChange={(open) => !open && setIntakeFor(null)}
         onSaved={refresh}
+      />
+
+      <ProductAiModal
+        open={aiOpen}
+        draftId={aiDraftId}
+        onClose={() => setAiOpen(false)}
+        onDraft={drafts.upsert}
+        onDeleted={drafts.remove}
       />
     </div>
   );
