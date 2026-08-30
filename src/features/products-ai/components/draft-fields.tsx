@@ -4,8 +4,6 @@ import * as React from "react";
 import { ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -55,7 +53,7 @@ export function DraftTabs({
   onTab: (tab: DraftTabKey) => void;
 }) {
   const tabs: { key: DraftTabKey; label: string; count?: number; ready: boolean }[] = [
-    { key: "general", label: "Umumiy", ready: Boolean(draft) },
+    { key: "general", label: "Umumiy", ready: true },
     { key: "ru", label: "Ruscha", ready: Boolean(draft?.titleRu) },
     {
       key: "images",
@@ -92,11 +90,11 @@ export function DraftTabs({
           disabled={!item.ready}
           onClick={() => onTab(item.key)}
           className={cn(
-            "whitespace-nowrap rounded-lg px-3 py-1.5 text-[13.5px] transition-colors",
+            "whitespace-nowrap rounded-md px-3 py-1.5 text-[15px] transition-colors",
             tab === item.key
-              ? "bg-primary/12 font-medium text-primary"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            !item.ready && "cursor-default opacity-40 hover:bg-transparent",
+              ? "bg-primary/10 text-primary"
+              : "text-[color:var(--air-head)] hover:bg-black/[.04]",
+            !item.ready && "cursor-default text-[color:var(--air-label)] opacity-60 hover:bg-transparent",
           )}
         >
           {item.label}
@@ -165,17 +163,20 @@ export function DraftFields({
 
   if (tab === "market") {
     return draft.market?.rivals.length ? (
-      <table className="w-full text-xs">
-        <thead className="text-muted-foreground">
-          <tr className="border-b">
-            <th className="py-2 text-left font-medium">Tovar</th>
-            <th className="py-2 text-right font-medium">Buyurtma</th>
-            <th className="py-2 text-right font-medium">Narx</th>
+      <table className="w-full text-[13px]">
+        <thead>
+          <tr className="border-b border-[color:var(--air-line)] text-[11px] uppercase text-[color:var(--air-head)]">
+            <th className="py-2 text-left font-semibold">Tovar</th>
+            <th className="py-2 text-right font-semibold">Buyurtma</th>
+            <th className="py-2 text-right font-semibold">Narx</th>
           </tr>
         </thead>
         <tbody>
           {draft.market.rivals.map((rival, index) => (
-            <tr key={`${rival.url}-${index}`} className="border-b last:border-0">
+            <tr
+              key={`${rival.url}-${index}`}
+              className="border-b border-[color:var(--air-line)] last:border-0"
+            >
               <td className="max-w-0 truncate py-2 pr-3">
                 {rival.url ? (
                   <a
@@ -206,9 +207,10 @@ export function DraftFields({
   const uz = tab === "general";
   return (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <Label>Nom {uz ? "(o'zbekcha)" : "(ruscha)"}</Label>
-        <Input
+      <div>
+        <label className="air-label">Nom {uz ? "(o'zbekcha)" : "(ruscha)"}</label>
+        <input
+          className="air-input"
           value={uz ? form.titleUz : form.titleRu}
           disabled={locked}
           onChange={(e) =>
@@ -216,9 +218,10 @@ export function DraftFields({
           }
         />
       </div>
-      <div className="space-y-1.5">
-        <Label>Tavsif {uz ? "(o'zbekcha)" : "(ruscha)"}</Label>
+      <div>
+        <label className="air-label">Tavsif {uz ? "(o'zbekcha)" : "(ruscha)"}</label>
         <textarea
+          className="air-input"
           value={uz ? form.descriptionUz : form.descriptionRu}
           disabled={locked}
           onChange={(e) =>
@@ -228,15 +231,15 @@ export function DraftFields({
             }))
           }
           rows={9}
-          className="w-full rounded-lg border bg-transparent p-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
         />
       </div>
 
       {uz && (
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>Narx (so&apos;m)</Label>
-            <Input
+          <div>
+            <label className="air-label">Narx (so&apos;m)</label>
+            <input
+              className="air-input"
               type="number"
               value={form.suggestedPrice || ""}
               disabled={locked}
@@ -250,17 +253,17 @@ export function DraftFields({
             qiladi va noto'g'risi soliq muammosi degani, shuning
             uchun bu yerda har doim rasmiy katalog havolasi turadi.
           */}
-          <div className="space-y-1.5">
-            <Label>MXIK kodi</Label>
-            <Input
+          <div>
+            <label className="air-label">MXIK kodi</label>
+            <input
+              className="air-input font-mono"
               value={form.mxik}
               disabled={locked}
               onChange={(e) => onForm((f) => ({ ...f, mxik: e.target.value }))}
               placeholder="17 xonali kod"
               inputMode="numeric"
-              className="font-mono"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-1.5 text-xs text-[color:var(--air-label)]">
               {draft.mxikName ? `Taxminiy turkum: ${draft.mxikName}. ` : ""}
               Kod <b>taxmin</b> — rasmiy katalogda tasdiqlang.
             </p>
@@ -269,7 +272,7 @@ export function DraftFields({
                 href={draft.mxikCheckUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
               >
                 <ExternalLink className="h-3 w-3" /> tasnif.soliq.uz da tekshirish
               </a>
@@ -283,7 +286,7 @@ export function DraftFields({
 
 function Empty() {
   return (
-    <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+    <p className="rounded-lg border border-dashed border-[color:var(--air-ctl-line)] p-6 text-center text-sm text-[color:var(--air-label)]">
       Quvur bu qadamga hali yetmadi.
     </p>
   );

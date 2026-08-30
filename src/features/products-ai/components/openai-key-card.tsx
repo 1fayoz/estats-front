@@ -32,9 +32,10 @@ export function OpenAiKeyCard({
   const [busy, setBusy] = React.useState(false);
   const [open, setOpen] = React.useState(!state.configured);
 
-  const price = state.imagePriceUsd
-    ? `$${state.imagePriceUsd.toFixed(3)}`
-    : "$0.042";
+  // Narx BACKENDDAN keladi. Qattiq yozilgan zaxira qiymat ataylab
+  // yo'q: model almashganda u jimgina eskirib, sotuvchiga noto'g'ri
+  // raqam ko'rsatardi.
+  const price = state.imagePriceUsd ? `$${state.imagePriceUsd.toFixed(3)}` : "—";
 
   const onSave = async () => {
     if (!value.trim()) {
@@ -160,10 +161,29 @@ export function OpenAiKeyCard({
         <p className="rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
           {"Bitta rasm taxminan "}
           <b>{price}</b>
-          {" turadi — kartochkaning matn qismidan ~15 barobar qimmat. Shuning "}
+          {" turadi — kartochkaning matn qismidan ~20 barobar qimmat. Shuning "}
           {"uchun AI faqat asosiy rasmni yasaydi va natijani arzon model "}
           {"tekshiradi: mos kelmasa, ikki martagacha qayta yasaydi."}
         </p>
+
+        {/*
+          Yangi kalit bilan eng ko'p uchraydigan ikki to'siq. Ikkalasi
+          ham OpenAI tomonida hal qilinadi va xato xabari o'zi buni
+          aytmaydi — shuning uchun oldindan yozib qo'yilgan.
+        */}
+        <ul className="space-y-1.5 rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
+          <li>
+            <b>1. Hisobni to&apos;ldiring.</b> Billing bo&apos;limida mablag&apos;
+            bo&apos;lmasa OpenAI so&apos;rovni rad etadi.
+          </li>
+          <li>
+            <b>2. Tashkilotni tasdiqlang.</b> Rasm modellari (
+            <span className="font-mono">gpt-image-*</span>){" "}
+            <i>Organization Verification</i> talab qiladi: Settings →
+            Organization → General. Tasdiqsiz kalit to&apos;g&apos;ri
+            bo&apos;lsa ham rasm yasalmaydi.
+          </li>
+        </ul>
       </CardContent>
     </Card>
   );

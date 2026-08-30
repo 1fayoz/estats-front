@@ -1,12 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
+import { Check, Copy, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { AirModal } from "@/components/air/modal";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { AirSlider } from "@/components/air/slider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropZone } from "@/features/products-ai/components/dropzone";
 import {
@@ -28,30 +26,33 @@ import {
   patchAiDraft,
   retryAiDraft,
 } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
 
 /** Quvur ishlayotganda holat shuncha vaqtda bir so'raladi. */
 const POLL_MS = 4000;
 
 /**
- * «Tovar qo'shish» oynasi — Bitrix24 dagi «Создание сделки» naqshi:
- * sarlavha, ostida bosqichlar chizig'i va tablar, chapda forma,
- * o'ngda jarayon lentasi, pastda asosiy amallar.
+ * «Tovar qo'shish» oynasi — Bitrix24 dagi «Создание сделки»
+ * naqshi bo'yicha (namuna foydalanuvchi ko'rsatgan sayt,
+ * qiymatlar o'sha yerda o'lchangan):
  *
- * NEGA ALOHIDA SAHIFA EMAS. Tovar qo'shish — omborning ichidagi
- * ish, alohida bo'lim emas. Alohida sahifada sotuvchi katalogdan
- * chiqib ketardi va qaytib kelganda qayerda qolgani yo'qolardi;
- * menyuda esa kuniga bir marta bosiladigan yana bitta qator
- * turardi. Modal katalog ustida ochiladi va yopilganda o'sha
- * joyga qaytaradi.
+ *   sarlavha   ▸ 25px, chapda, × esa panel chetida
+ *   bosqichlar ▸ Rasm → Tahlil → … → Tayyor
+ *   tablar     ▸ Umumiy · Ruscha · Rasmlar · …
+ *   kanvas     ▸ KULRANG, ustida ikkita OQ karta:
+ *                chapda forma, o'ngda jarayon
+ *   ost qismi  ▸ laym «SAQLASH» va «BEKOR QILISH», markazda
  *
- * Oyna IKKI holatda ishlaydi:
- *   · qoralama yo'q — rasm tanlash;
- *   · qoralama bor  — AI yozganini tekshirish, tuzatish, tasdiqlash.
+ * NEGA ALOHIDA SAHIFA EMAS. Tovar qo'shish — omborning ICHIDAGI
+ * ish. Alohida sahifada sotuvchi katalogdan chiqib ketardi va
+ * qaytganda qayerda qolgani yo'qolardi; menyuda esa kuniga bir
+ * marta bosiladigan yana bitta qator turardi.
  *
- * Ikkalasi bitta oynada, chunki bu bitta ish: rasm tashlaganda
- * oyna yopilib qolsa, sotuvchi natijani qayerdan izlashni
- * bilmasdi.
+ * Oyna IKKI holatda ishlaydi va bu ATAYLAB bitta oyna: qoralama
+ * yo'q — rasm tanlash; bor — tekshirish va tasdiqlash. Rasm
+ * tashlanganda oyna yopilib qolsa, sotuvchi natijani qayerdan
+ * izlashni bilmasdi.
  */
 export function ProductAiModal({
   open,
@@ -149,15 +150,6 @@ export function ProductAiModal({
     }
   };
 
-  const start = () =>
-    act("start", async () => {
-      const fresh = await createAiDraft(files, hint.trim());
-      setFiles([]);
-      setHint("");
-      apply(fresh);
-      toast.success("Rasm qabul qilindi — AI ishlashni boshladi.");
-    });
-
   const locked = draft?.stage === "approved";
   const dirty =
     draft !== null &&
@@ -167,29 +159,24 @@ export function ProductAiModal({
     );
 
   return (
-    <AirModal
+    <AirSlider
       open={open}
       onClose={onClose}
-      width={1180}
       title={
-        <div className="flex flex-wrap items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span>{draft?.titleUz?.trim() || "Tovar qo'shish"}</span>
-          {draft && (
-            <Badge variant={locked ? "success" : "secondary"} className="font-normal">
-              {draft.stageLabel}
-            </Badge>
-          )}
-          <span className="text-[13px] font-normal text-muted-foreground">
-            {draft ? `qoralama #${draft.id}` : "rasmdan kartochka"}
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span className="truncate">
+            {draft?.titleUz?.trim() || "Tovar qo'shish"}
+          </span>
+          <span className="text-[13px] font-normal text-[color:var(--air-label)]">
+            {draft ? `qoralama #${draft.id} · ${draft.stageLabel}` : "rasmdan kartochka"}
           </span>
         </div>
       }
       subheader={
-        <div className="space-y-3">
+        <>
           <StageStrip draft={draft} />
           <DraftTabs draft={draft} tab={tab} onTab={setTab} />
-        </div>
+        </>
       }
       footer={
         <Footer
@@ -200,8 +187,16 @@ export function ProductAiModal({
           files={files}
           confirmDelete={confirmDelete}
           onConfirmDelete={setConfirmDelete}
-          onStart={start}
           onClose={onClose}
+          onStart={() =>
+            act("start", async () => {
+              const fresh = await createAiDraft(files, hint.trim());
+              setFiles([]);
+              setHint("");
+              apply(fresh);
+              toast.success("Rasm qabul qilindi — AI ishlashni boshladi.");
+            })
+          }
           onSave={() =>
             act("save", async () => {
               if (!draft || !form) return;
@@ -240,62 +235,79 @@ export function ProductAiModal({
         />
       }
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="min-w-0">
-          {loading || (draftId !== null && draft === null) ? (
-            <div className="space-y-3">
-              <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-40 w-full" />
-            </div>
-          ) : draft === null ? (
-            <DropZone
-              files={files}
-              onFiles={setFiles}
-              hint={hint}
-              onHint={setHint}
-              disabled={busy === "start"}
-            />
-          ) : form ? (
-            <DraftFields
+      {/* Kulrang kanvas ustida ikkita oq karta — namunadagi kabi. */}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <section className="air-card min-w-0 px-[15px]">
+          <div className="air-card-head">
+            {draft === null ? "Tovar rasmi" : TAB_TITLE[tab]}
+            {locked && (
+              <span className="ml-auto text-[11px] font-normal normal-case text-[color:var(--air-label)]">
+                tasdiqlangan — tahrirlanmaydi
+              </span>
+            )}
+          </div>
+          <div className="py-4">
+            {loading || (draftId !== null && draft === null) ? (
+              <div className="space-y-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-40 w-full" />
+              </div>
+            ) : draft === null ? (
+              <DropZone
+                files={files}
+                onFiles={setFiles}
+                hint={hint}
+                onHint={setHint}
+                disabled={busy === "start"}
+              />
+            ) : form ? (
+              <DraftFields
+                draft={draft}
+                tab={tab}
+                form={form}
+                onForm={setForm as React.Dispatch<React.SetStateAction<DraftForm>>}
+                locked={Boolean(locked)}
+                onChange={apply}
+              />
+            ) : null}
+          </div>
+        </section>
+
+        <aside className="air-card min-w-0 px-[15px]">
+          <div className="air-card-head">Jarayon</div>
+          <div className="py-4">
+            <DraftSide
               draft={draft}
-              tab={tab}
-              form={form}
-              onForm={setForm as React.Dispatch<React.SetStateAction<DraftForm>>}
-              locked={Boolean(locked)}
-              onChange={apply}
+              retrying={busy === "retry"}
+              onRetry={() =>
+                act("retry", async () => {
+                  if (!draft) return;
+                  apply(await retryAiDraft(draft.id));
+                  toast.success("Davom ettirilmoqda.");
+                })
+              }
             />
-          ) : null}
-
-          {locked && (
-            <p className="mt-4 text-xs text-muted-foreground">
-              Tasdiqlangan qoralama tahrirlanmaydi. Uzumda mahsulot yaratish
-              API&apos;si yo&apos;q — matnni nusxalab, Uzum panelida joylang.
-            </p>
-          )}
-        </div>
-
-        <aside className="lg:border-l lg:pl-5">
-          <DraftSide
-            draft={draft}
-            retrying={busy === "retry"}
-            onRetry={() =>
-              act("retry", async () => {
-                if (!draft) return;
-                apply(await retryAiDraft(draft.id));
-                toast.success("Davom ettirilmoqda.");
-              })
-            }
-          />
+          </div>
         </aside>
       </div>
-    </AirModal>
+    </AirSlider>
   );
 }
 
+const TAB_TITLE: Record<DraftTabKey, string> = {
+  general: "Tovar haqida",
+  ru: "Ruscha matn",
+  images: "Rasmlar",
+  attrs: "Xususiyatlar",
+  keywords: "Kalit so'zlar",
+  market: "Bozordagi raqobatchilar",
+};
+
 /**
- * Ost qism — Bitrix naqshi: asosiy amal MARKAZDA (ko'z uni
- * birinchi topadi), yopish yonida, o'chirish esa chetda, tasodifan
- * bosilmaydigan joyda va ikki bosqichli tasdiq bilan.
+ * Ost qism — namunadagi kabi: laym «SAQLASH» va yonida
+ * «BEKOR QILISH», ikkalasi panel bo'ylab MARKAZDA. O'chirish
+ * chetda, tasodifan bosilmaydigan joyda va ikki bosqichli
+ * tasdiq bilan.
  */
 function Footer({
   draft,
@@ -326,31 +338,27 @@ function Footer({
   onDelete: () => void;
   onClose: () => void;
 }) {
-  const green = "bg-[#00904d] text-white hover:bg-[#00a457]";
+  const spin = (name: string) =>
+    busy === name ? <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" /> : null;
 
   if (draft === null) {
     return (
       <>
-        <span className="text-xs text-muted-foreground">
+        <span className="hidden text-xs text-[color:var(--air-label)] sm:block">
           {files.length ? `${files.length} ta rasm tanlandi` : "Rasm tanlanmagan"}
         </span>
         <div className="mx-auto flex items-center gap-2">
-          <Button
-            size="sm"
-            className={green}
+          <button
+            type="button"
+            className="air-btn-save"
             onClick={onStart}
             disabled={!files.length || busy === "start"}
           >
-            {busy === "start" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Upload className="h-3.5 w-3.5" />
-            )}
-            Boshlash
-          </Button>
-          <Button size="sm" variant="ghost" onClick={onClose}>
+            {spin("start")}Boshlash
+          </button>
+          <button type="button" className="air-btn-flat" onClick={onClose}>
             Bekor qilish
-          </Button>
+          </button>
         </div>
       </>
     );
@@ -358,52 +366,54 @@ function Footer({
 
   return (
     <>
-      <span className="hidden text-xs text-muted-foreground sm:block">
+      <span className="hidden text-xs text-[color:var(--air-label)] sm:block">
         {draft.progress}% · {draft.stageLabel}
       </span>
       <div className="mx-auto flex flex-wrap items-center justify-center gap-2">
         {!locked && (
-          <Button
-            size="sm"
-            className={green}
+          <button
+            type="button"
+            className="air-btn-save"
             onClick={onSave}
             disabled={!dirty || busy === "save"}
           >
-            {busy === "save" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Check className="h-3.5 w-3.5" />
-            )}
-            Saqlash
-          </Button>
+            {spin("save")}Saqlash
+          </button>
         )}
-        <Button size="sm" variant="outline" onClick={onCopy} disabled={busy === "copy"}>
-          {busy === "copy" ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Copy className="h-3.5 w-3.5" />
-          )}
+        <button
+          type="button"
+          className="air-btn-flat"
+          onClick={onCopy}
+          disabled={busy === "copy"}
+        >
+          {spin("copy") ?? <Copy className="mr-1.5 inline h-3.5 w-3.5" />}
           Uzum uchun nusxalash
-        </Button>
+        </button>
         {!locked && draft.progress >= 95 && (
-          <Button
-            size="sm"
-            variant="secondary"
+          <button
+            type="button"
+            className="air-btn-flat"
             onClick={onApprove}
             disabled={busy === "approve"}
           >
-            <Check className="h-3.5 w-3.5" /> Tasdiqlash
-          </Button>
+            {spin("approve") ?? <Check className="mr-1.5 inline h-3.5 w-3.5" />}
+            Tasdiqlash
+          </button>
         )}
-        <Button size="sm" variant="ghost" onClick={onClose}>
+        <button type="button" className="air-btn-flat" onClick={onClose}>
           Yopish
-        </Button>
+        </button>
       </div>
       <button
         type="button"
         onClick={() => (confirmDelete ? onDelete() : onConfirmDelete(true))}
         disabled={busy === "delete"}
-        className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-destructive"
+        className={cn(
+          "ml-auto flex items-center gap-1.5 text-xs transition-colors",
+          confirmDelete
+            ? "air-bad font-medium"
+            : "text-[color:var(--air-label)] hover:text-[color:var(--air-head)]",
+        )}
       >
         <Trash2 className="h-3 w-3" />
         {confirmDelete ? "aniqmi? bosing" : "o'chirish"}

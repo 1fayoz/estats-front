@@ -39,7 +39,7 @@ export function DraftSide({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">{draft.stageLabel}</span>
-            <span className="tabular-nums text-muted-foreground">{draft.progress}%</span>
+            <span className="tabular-nums text-[color:var(--air-label)]">{draft.progress}%</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
             <div
@@ -47,7 +47,7 @@ export function DraftSide({
               style={{ width: `${draft.progress}%` }}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-[color:var(--air-label)]">
             Oynani yopsangiz ham ishlayveradi — natija ro&apos;yxatda paydo bo&apos;ladi.
           </p>
         </div>
@@ -102,7 +102,7 @@ export function DraftSide({
                   <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
                 )}
               </span>
-              <span className={cn(!isDone && !isActive && "text-muted-foreground")}>
+              <span className={cn(!isDone && !isActive && "text-[color:var(--air-label)]")}>
                 {stage.label}
               </span>
             </li>
@@ -110,7 +110,7 @@ export function DraftSide({
         })}
       </ol>
 
-      <dl className="space-y-1.5 border-t pt-3 text-[13px]">
+      <dl className="space-y-1.5 border-t border-[color:var(--air-line)] pt-3 text-[13px]">
         <Fact
           label="Tavsiya narx"
           value={draft.suggestedPrice ? formatSum(draft.suggestedPrice) : "—"}
@@ -139,7 +139,7 @@ export function DraftSide({
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-muted-foreground">{label}</dt>
+      <dt className="text-[color:var(--air-label)]">{label}</dt>
       <dd className="font-medium tabular-nums">{value}</dd>
     </div>
   );

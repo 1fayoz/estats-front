@@ -678,52 +678,205 @@ table.air-table tbody tr:last-child td { border-bottom: none; }
   --accent-foreground: oklch(0.99 0 0);
 }
 
-/* ── BOSQICHLAR CHIZIG'I — Bitrix24 «воронка» naqshi ─────────
+/* ══════════════════════════════════════════════════════════════
+ * BITRIX24 «SIDE PANEL» — pastdan ko'tariladigan katta oyna
  *
- * Namunadagi «Создание сделки» oynasida sarlavha ostida bosqichlar
- * qatori turadi: qaysi bosqich o'tilgani, qaysisi HOZIR ketayotgani
- * bir qarashda ko'rinadi.
+ * Namuna: b24-g9exur.bitrix24.uz dagi «Создание сделки». Hamma
+ * qiymat O'SHA sahifada brauzerda o'lchangan, ko'z bilan taxmin
+ * qilinmagan:
  *
- * Bizda bu — AI quvurining qadamlari (rasm → tahlil → bozor →
- * matn → xususiyat → rasm yasash → tayyor). Bu yerda u shunchaki
- * bezak emas: har qadam PUL turadi va bir necha o'n soniya ketadi,
- * ya'ni sotuvchi "qayerda qoldi" degan savolga javobni tugmani
- * bosmasdan olishi kerak.
+ *   panel      left 240 · top 16 · pastga TEGIB turadi
+ *              radius 18px 18px 0 0 · soya YO'Q
+ *   kanvas     #eef2f4 (KULRANG), ichida OQ kartalar suzadi
+ *   sarlavha   25px/500 #333
+ *   bosqich    h 32 · 12px/600 · #525c68 · o'ngda 10px uchli
+ *   karta      #fff · r 12 · pad 0 15 ·
+ *              soya 0 5px 16px rgba(0,0,0,.03), 0 2px 4px #eef2f4
+ *   karta boshi 11px/600 UPPERCASE #525c69 · pad 11px 0 ·
+ *              ost chizig'i 1px #e8ecee
+ *   yorliq     12px/400 #a3a9b1
+ *   input      h 40 · r 4 · 1px #c6cdd3 · pad 0 11 · 14px #333
+ *   Saqlash    #bbed21 fon, #525c69 MATN (oq emas!), 12px/700
+ *              UPPERCASE · r 4 · h 40 · pad 0 20
+ *   Bekor      shaffof, 12px/700 UPPERCASE #525c69
+ *   tugmalar   panel bo'ylab MARKAZDA
  *
- * Rang TOKENLARDAN olinadi (`--primary`, `--ok`, `--bad`), qattiq
- * yozilgan Tailwind ranglaridan emas: modal oq yuzada ham,
- * shaffof yuzada ham ochiladi va to'q yashil shaffof fonda
- * ko'rinmay qoladi.
+ * ENG MUHIM FARQ: oyna ichi bitta oq varaq EMAS. Kulrang kanvas
+ * ustida oq kartalar turadi — shuning uchun bo'limlar bir-biridan
+ * chegara bilan emas, BO'SHLIQ bilan ajraladi va uzun formada
+ * "qayerdaman" degan savol tug'ilmaydi.
+ * ══════════════════════════════════════════════════════════════ */
+
+.air-slider {
+  --air-canvas: #eef2f4;
+  --air-card: #ffffff;
+  --air-line: #e8ecee;
+  --air-ctl-line: #c6cdd3;
+  --air-label: #a3a9b1;
+  --air-head: #525c69;
+
+  color-scheme: light;
+  background: var(--air-canvas);
+  color: #333;
+
+  /* Ichkarida shadcn tokenlari YORUG' rejimga qaytadi: idish
+     ichidagi har komponent (tugma, badge, input) rangini shu
+     tokenlardan oladi va ular qorong'i qolsa oq kartada oq matn
+     chiqardi. */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.02 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 270);
+  --primary: oklch(0.55 0.22 262);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.005 280);
+  --secondary-foreground: oklch(0.25 0.02 275);
+  --muted: oklch(0.97 0.005 280);
+  --muted-foreground: oklch(0.52 0.015 280);
+  --accent: oklch(0.95 0.03 262);
+  --accent-foreground: oklch(0.28 0.06 262);
+  --border: oklch(0.92 0.006 280);
+  --input: oklch(0.92 0.006 280);
+  --ring: oklch(0.55 0.22 262);
+}
+
+/* Shaffof rejimda kanvas ham, kartalar ham to'q bo'ladi —
+   Bitrix'ning oq varag'i bizning fon rasmimiz ustida yot
+   ko'rinardi. Nisbat saqlanadi: kanvas to'q, karta undan
+   BIR POG'ONA yorug'roq. */
+.air-shell[data-surface="tinted"] .air-slider {
+  --air-canvas: #191244;
+  --air-card: rgba(255, 255, 255, 0.07);
+  --air-line: rgba(255, 255, 255, 0.12);
+  --air-ctl-line: rgba(255, 255, 255, 0.22);
+  --air-label: rgba(255, 255, 255, 0.55);
+  --air-head: rgba(255, 255, 255, 0.72);
+
+  color-scheme: dark;
+  background: rgba(20, 15, 60, 0.97);
+  color: #fff;
+
+  --background: oklch(0.24 0.06 279);
+  --foreground: oklch(0.99 0 0);
+  --card: oklch(1 0 0 / 7%);
+  --card-foreground: oklch(0.99 0 0);
+  --popover: oklch(0.26 0.06 279);
+  --popover-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.86 0.09 235);
+  --primary-foreground: oklch(0.22 0.05 279);
+  --secondary: oklch(1 0 0 / 12%);
+  --secondary-foreground: oklch(0.99 0 0);
+  --muted: oklch(1 0 0 / 10%);
+  --muted-foreground: oklch(0.86 0.02 270);
+  --accent: oklch(1 0 0 / 16%);
+  --accent-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 16%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.86 0.09 235);
+
+  --ok: #6ee7a8;
+  --bad: #ff9b96;
+  --warn: #ffd07a;
+  --warn-bg: rgba(250, 204, 21, 0.14);
+  --warn-line: rgba(250, 204, 21, 0.4);
+  --warn-ink: #ffe4a3;
+}
+
+/* ── Kulrang kanvas ustidagi oq karta ───────────────────────── */
+
+.air-card {
+  background: var(--air-card);
+  border-radius: 12px;
+  /* Ikki qatlamli soya: yumshoq tarqoq + kanvas rangidagi tor
+     halqa. Ikkinchisi kartani chegarasiz "ko'taradi" — chegara
+     qo'yilsa kartalar to'r bo'lib ko'rinadi. */
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.03), 0 2px 4px var(--air-canvas);
+}
+
+.air-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--air-line);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--air-head);
+}
+
+/* ── Maydonlar ─────────────────────────────────────────────── */
+
+.air-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--air-label);
+}
+
+.air-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--air-ctl-line);
+  border-radius: 4px;
+  background: var(--air-card);
+  color: inherit;
+  font-size: 14px;
+  outline: none;
+}
+textarea.air-input {
+  height: auto;
+  padding: 10px 11px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.air-input:focus { border-color: var(--primary); }
+.air-input::placeholder { color: var(--air-label); }
+.air-input:disabled { opacity: 0.6; }
+
+/* ── Bosqichlar chizig'i ────────────────────────────────────
+ *
+ * Bitrix shaklni `border-image: url(bar.svg)` bilan chizadi.
+ * Bizda o'z `clip-path` — birovning rasmini havola qilib olish
+ * ham noto'g'ri, ham har deployda sinishi mumkin. O'lchamlar
+ * esa o'shanikidan: balandlik 32, o'ngdagi uch 10px, chapda
+ * 3px bo'shliq.
  */
 .air-stages {
   display: flex;
-  gap: 2px;
+  gap: 3px;
   overflow-x: auto;
   scrollbar-width: none;
 }
 .air-stages::-webkit-scrollbar { display: none; }
 
 .air-stage {
-  position: relative;
   flex: 1 1 0;
-  min-width: 92px;
-  padding: 7px 10px 7px 20px;
+  min-width: 84px;
+  height: 32px;
+  padding: 0 14px 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 12px;
-  line-height: 1.25;
-  text-align: center;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  background: var(--muted);
-  color: var(--muted-foreground);
-  /* O'ngda uchli, chapda o'yiq — segmentlar bir-biriga kirib
-     turadi va oqim yo'nalishi ko'rinadi. */
+  background: var(--air-card);
+  color: var(--air-head);
   clip-path: polygon(
     0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%
   );
 }
 .air-stage:first-child {
-  padding-left: 12px;
+  padding-left: 14px;
   border-radius: 6px 0 0 6px;
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
 }
@@ -732,18 +885,48 @@ table.air-table tbody tr:last-child td { border-bottom: none; }
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 10px 50%);
 }
 
+/* Holat ranglari TOKENDAN: oyna oq kanvasda ham, shaffof
+   kanvasda ham ochiladi va qattiq yozilgan to'q yashil
+   shaffofda ko'rinmay qolardi. */
 .air-stage[data-state="done"] {
-  background: color-mix(in oklab, var(--ok) 20%, transparent);
+  background: color-mix(in oklab, var(--ok) 22%, var(--air-card));
   color: var(--ok);
-  font-weight: 600;
 }
 .air-stage[data-state="active"] {
   background: var(--primary);
   color: var(--primary-foreground);
-  font-weight: 600;
 }
 .air-stage[data-state="failed"] {
-  background: color-mix(in oklab, var(--bad) 22%, transparent);
+  background: color-mix(in oklab, var(--bad) 22%, var(--air-card));
   color: var(--bad);
-  font-weight: 600;
 }
+
+/* ── Ost qismdagi tugmalar ──────────────────────────────────
+ *
+ * Yashil #bbed21 ustida matn OQ EMAS, to'q kulrang #525c69 —
+ * o'lchangan. Oq matn bu yorqin laym ustida 1.6:1 kontrast
+ * beradi va deyarli o'qilmaydi. */
+.air-btn-save {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 4px;
+  background: #bbed21;
+  color: #525c69;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.air-btn-save:hover:not(:disabled) { background: #c8f43f; }
+.air-btn-save:disabled { opacity: 0.5; }
+
+.air-btn-flat {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--air-head);
+}
+.air-btn-flat:hover:not(:disabled) { background: color-mix(in oklab, var(--air-head) 10%, transparent); }
+.air-btn-flat:disabled { opacity: 0.5; }

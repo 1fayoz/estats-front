@@ -4,8 +4,6 @@ import * as React from "react";
 import { ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export const MAX_FILES = 6;
@@ -86,16 +84,16 @@ export function DropZone({
         }}
         onClick={() => !disabled && inputRef.current?.click()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-10 text-center transition",
+          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-10 text-center transition",
           dragging
             ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-primary/50",
+            : "border-[color:var(--air-ctl-line)] hover:border-primary/60",
           disabled && "pointer-events-none opacity-60",
         )}
       >
-        <ImagePlus className="h-8 w-8 text-muted-foreground" />
+        <ImagePlus className="h-8 w-8 text-[color:var(--air-label)]" />
         <div className="text-sm font-medium">Tovar rasmlarini shu yerga tashlang</div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-[color:var(--air-label)]">
           Ko&apos;pi bilan {MAX_FILES} ta, har biri {MAX_MB} MB gacha. Qolganini AI qiladi.
         </p>
         <input
@@ -119,13 +117,13 @@ export function DropZone({
               <img
                 src={preview.url}
                 alt={preview.name}
-                className="h-20 w-20 rounded-lg border object-cover"
+                className="h-20 w-20 rounded object-cover ring-1 ring-[color:var(--air-ctl-line)]"
               />
               <button
                 type="button"
                 onClick={() => onFiles(files.filter((_, k) => k !== index))}
                 disabled={disabled}
-                className="absolute -right-1.5 -top-1.5 rounded-full bg-background p-0.5 shadow ring-1 ring-border"
+                className="absolute -right-1.5 -top-1.5 rounded-full bg-[color:var(--air-card)] p-0.5 shadow ring-1 ring-[color:var(--air-ctl-line)]"
                 aria-label="Olib tashlash"
               >
                 <X className="h-3.5 w-3.5" />
@@ -135,17 +133,18 @@ export function DropZone({
         </div>
       )}
 
-      <div className="space-y-1.5">
-        <Label htmlFor="ai-hint">Izoh (ixtiyoriy)</Label>
-        <Input
+      <div>
+        <label className="air-label" htmlFor="ai-hint">Izoh (ixtiyoriy)</label>
+        <input
           id="ai-hint"
+          className="air-input"
           value={hint}
           onChange={(e) => onHint(e.target.value)}
           disabled={disabled}
           maxLength={500}
           placeholder="O'lcham, komplekt, kim uchun — rasm aytmaydigan narsa"
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="mt-1.5 text-xs text-[color:var(--air-label)]">
           Rasmda ko&apos;rinmaydigan narsani shu yerda ayting: AI faqat rasmni
           ko&apos;radi, tovarni esa siz bilasiz.
         </p>

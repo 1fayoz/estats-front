@@ -1487,6 +1487,8 @@ export interface AiDraft extends AiDraftRow {
   /** MXIK — TAXMIN. Rasmiy katalogda tekshirish havolasi. */
   mxikCheckUrl: string | null;
   images: string[];
+  /** Bitta rasm necha dollar turadi. Manba — backenddagi narx jadvali. */
+  imagePriceUsd: number;
   imagePrompt: string | null;
   imageNote: string | null;
   /** Sotuvchining oxirgi ko'rsatmasi — maydonga qaytadan yoziladi. */

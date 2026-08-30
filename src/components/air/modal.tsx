@@ -25,7 +25,6 @@ export function AirModal({
   open,
   onClose,
   title,
-  subheader,
   children,
   footer,
   width = 900,
@@ -33,15 +32,6 @@ export function AirModal({
   open: boolean;
   onClose: () => void;
   title: React.ReactNode;
-  /**
-   * Sarlavha ostidagi qatlam — bosqichlar chizig'i va tablar.
-   *
-   * U ATAYLAB aylanadigan qismdan TASHQARIDA: "qaysi bosqichdaman"
-   * va "qaysi tabdaman" degan ikki savolga javob har doim ko'rinib
-   * turishi kerak. Ichkariga qo'yilsa, uzun formani pastga surganda
-   * ikkalasi ham yo'qoladi.
-   */
-  subheader?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   width?: number;
@@ -94,16 +84,7 @@ export function AirModal({
           </button>
         </div>
 
-        {subheader && <div className="border-b px-6 pb-3">{subheader}</div>}
-
-        <div
-          className={cn(
-            "min-h-0 flex-1 overflow-y-auto px-6 pb-4",
-            subheader && "pt-4",
-          )}
-        >
-          {children}
-        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4">{children}</div>
 
         {footer && (
           <div className="flex flex-wrap items-center gap-3 border-t px-6 py-3.5">{footer}</div>

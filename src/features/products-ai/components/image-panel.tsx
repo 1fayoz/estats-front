@@ -163,7 +163,8 @@ export function ImagePanel({
                 Narx ochiq aytiladi. Rasm quvurdagi eng qimmat qadam
                 va sotuvchi buni tugmani bosishdan OLDIN bilishi kerak.
               */}
-              har rasm ~$0.042 · {Math.max(draft.images.length, 1)} ta yasaladi
+              har rasm ~${draft.imagePriceUsd.toFixed(3)} ·{" "}
+              {Math.max(draft.images.length, 1)} ta yasaladi
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground">
