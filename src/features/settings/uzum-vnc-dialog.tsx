@@ -23,6 +23,15 @@ import { ApiError, completeUzumLogin, uzumLoginVncUrl } from "@/lib/api";
  * O'ZI, telefon/parol yoki SMS bilan kiradi. Parol eStats'ga
  * hech qachon KO'RINMAYDI — brauzer to'g'ridan-to'g'ri Uzum bilan
  * gaplashadi, biz faqat ekran baytlarini ko'rsatamiz.
+ *
+ * VNC'ning O'Z paroli ATAYLAB ishlatilmaydi (server `-nopw`):
+ * haqiqiy chegara — eStats'ning JWT + do'kon egaligini tekshiruvi
+ * (`vnc.py` dagi `check`). VNC parolini qo'shsak, uni brauzerga —
+ * ya'ni HAMMAGA ko'rinadigan client bundle'ga — jo'natish kerak
+ * bo'lardi, bu esa sirni sir bo'lmay qo'yardi. Bir marta shu sabab
+ * (parol talab qilingan, lekin RFB'ga berilmagan) ulanish hech
+ * qanday xatosiz abadiy "Ulanmoqda..."da qotib qolgan edi — RFB
+ * kredensial so'rab kutaverdi.
  */
 export function UzumVncDialog({
   open,
@@ -46,11 +55,9 @@ export function UzumVncDialog({
     // `targetRef.current` ATAYLAB shu yerda TEKSHIRILMAYDI: Radix
     // `Dialog` kontenti Portal orqali kirish-chiqish animatsiyasi
     // bilan mustaqil o'rnatiladi va effekt BIRINCHI marta ishga
-    // tushganda ref hali bog'lanmagan bo'lishi mumkin — sinovda
-    // aynan shu sabab oyna abadiy "Ulanmoqda..."da qotib qolgan
-    // edi (import chaqirilmagan, hech qanday xato ham chiqmagan).
-    // Tekshiruv pastda, `import()` tugagach — DOM shu paytga qadar
-    // ancha vaqt (tarmoq so'rovi davomida) tayyor bo'lib ulguradi.
+    // tushganda ref hali bog'lanmagan bo'lishi mumkin. Tekshiruv
+    // pastda, `import()` tugagach — DOM shu paytga qadar tayyor
+    // bo'lib ulguradi.
     if (!open) return;
     setConnecting(true);
     setFailed(false);
@@ -66,23 +73,16 @@ export function UzumVncDialog({
     // chiqarish quramasida topilmay, oyna abadiy "Ulanmoqda..."da
     // qotib qolgan edi (hech qanday xato chiqmasdan). Aniq dinamik
     // import shu muammoni chetlab o'tadi.
-    console.log("[uzum-vnc] effect start");
     import("@novnc/novnc")
       .then(({ default: RFBCtor }) => {
-        console.log("[uzum-vnc] import resolved, cancelled=", cancelled);
         if (cancelled || !targetRef.current) return;
         try {
           rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
-          console.log("[uzum-vnc] RFB constructed");
-          rfb.addEventListener("connect", () => {
-            console.log("[uzum-vnc] connect event");
-            setConnecting(false);
-          });
+          rfb.addEventListener("connect", () => setConnecting(false));
           rfb.addEventListener("disconnect", (e) => {
             const clean = (e as CustomEvent<{ clean: boolean }>).detail?.clean;
-            console.log("[uzum-vnc] disconnect event clean=", clean);
             setFailed(true);
-            setFailReason(`disconnect: clean=${clean}`);
+            setFailReason(clean ? "" : "ulanish uzildi");
           });
           rfbRef.current = rfb;
         } catch (err) {
@@ -95,12 +95,11 @@ export function UzumVncDialog({
         console.error("[uzum-vnc] noVNC yuklanmadi:", err);
         if (!cancelled) {
           setFailed(true);
-          setFailReason("import: " + String(err?.message || err));
+          setFailReason(String(err?.message || err));
         }
       });
 
     return () => {
-      console.log("[uzum-vnc] effect cleanup, rfb=", !!rfb);
       cancelled = true;
       rfb?.disconnect();
       rfbRef.current = null;
