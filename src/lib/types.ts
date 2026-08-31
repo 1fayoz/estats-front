@@ -1546,6 +1546,8 @@ export interface AiPackage {
   titleRu: string;
   descriptionUz: string;
   descriptionRu: string;
+  /** Bozor tahlilidan — Uzum sotuvchi kabinetidagi kategoriya nomi. */
+  category: string;
   attributes: Record<string, string>;
   keywords: string[];
   mxik: string;
