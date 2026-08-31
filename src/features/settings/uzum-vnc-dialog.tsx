@@ -42,7 +42,15 @@ export function UzumVncDialog({
   const [failed, setFailed] = React.useState(false);
 
   React.useEffect(() => {
-    if (!open || !targetRef.current) return;
+    // `targetRef.current` ATAYLAB shu yerda TEKSHIRILMAYDI: Radix
+    // `Dialog` kontenti Portal orqali kirish-chiqish animatsiyasi
+    // bilan mustaqil o'rnatiladi va effekt BIRINCHI marta ishga
+    // tushganda ref hali bog'lanmagan bo'lishi mumkin — sinovda
+    // aynan shu sabab oyna abadiy "Ulanmoqda..."da qotib qolgan
+    // edi (import chaqirilmagan, hech qanday xato ham chiqmagan).
+    // Tekshiruv pastda, `import()` tugagach — DOM shu paytga qadar
+    // ancha vaqt (tarmoq so'rovi davomida) tayyor bo'lib ulguradi.
+    if (!open) return;
     setConnecting(true);
     setFailed(false);
 
