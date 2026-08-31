@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import RFB from "@novnc/novnc";
+import type RFB from "@novnc/novnc";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,15 +46,29 @@ export function UzumVncDialog({
     setConnecting(true);
     setFailed(false);
 
-    const rfb = new RFB(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
-    rfb.scaleViewport = true;
-    rfb.resizeSession = false;
-    rfb.addEventListener("connect", () => setConnecting(false));
-    rfb.addEventListener("disconnect", () => setFailed(true));
-    rfbRef.current = rfb;
+    let cancelled = false;
+    let rfb: RFB | null = null;
+
+    // Dinamik import ATAYLAB: noVNC faqat brauzerda ishlaydigan kod
+    // (Canvas, WebSocket) va o'z ichida katta ikkilik ma'lumot
+    // (dekodlagichlar) tashiydi — statik importda Turbopack uni
+    // alohida bo'lakka (chunk) ajratadi va o'sha bo'lak ishlab
+    // chiqarish quramasida topilmay, oyna abadiy "Ulanmoqda..."da
+    // qotib qolgan edi (hech qanday xato chiqmasdan). Aniq dinamik
+    // import shu muammoni chetlab o'tadi.
+    import("@novnc/novnc").then(({ default: RFBCtor }) => {
+      if (cancelled || !targetRef.current) return;
+      rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
+      rfb.scaleViewport = true;
+      rfb.resizeSession = false;
+      rfb.addEventListener("connect", () => setConnecting(false));
+      rfb.addEventListener("disconnect", () => setFailed(true));
+      rfbRef.current = rfb;
+    });
 
     return () => {
-      rfb.disconnect();
+      cancelled = true;
+      rfb?.disconnect();
       rfbRef.current = null;
     };
   }, [open, shopId]);
