@@ -40,6 +40,7 @@ export function UzumVncDialog({
   const [connecting, setConnecting] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
+  const [failReason, setFailReason] = React.useState("");
 
   React.useEffect(() => {
     // `targetRef.current` ATAYLAB shu yerda TEKSHIRILMAYDI: Radix
@@ -53,6 +54,7 @@ export function UzumVncDialog({
     if (!open) return;
     setConnecting(true);
     setFailed(false);
+    setFailReason("");
 
     let cancelled = false;
     let rfb: RFB | null = null;
@@ -64,15 +66,31 @@ export function UzumVncDialog({
     // chiqarish quramasida topilmay, oyna abadiy "Ulanmoqda..."da
     // qotib qolgan edi (hech qanday xato chiqmasdan). Aniq dinamik
     // import shu muammoni chetlab o'tadi.
-    import("@novnc/novnc").then(({ default: RFBCtor }) => {
-      if (cancelled || !targetRef.current) return;
-      rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
-      rfb.scaleViewport = true;
-      rfb.resizeSession = false;
-      rfb.addEventListener("connect", () => setConnecting(false));
-      rfb.addEventListener("disconnect", () => setFailed(true));
-      rfbRef.current = rfb;
-    });
+    import("@novnc/novnc")
+      .then(({ default: RFBCtor }) => {
+        if (cancelled || !targetRef.current) return;
+        try {
+          rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
+          rfb.addEventListener("connect", () => setConnecting(false));
+          rfb.addEventListener("disconnect", (e) => {
+            setFailed(true);
+            const clean = (e as CustomEvent<{ clean: boolean }>).detail?.clean;
+            setFailReason(`disconnect: clean=${clean}`);
+          });
+          rfbRef.current = rfb;
+        } catch (err) {
+          console.error("[uzum-vnc] RFB yaratishda xato:", err);
+          setFailed(true);
+          setFailReason(String((err as Error)?.message || err));
+        }
+      })
+      .catch((err) => {
+        console.error("[uzum-vnc] noVNC yuklanmadi:", err);
+        if (!cancelled) {
+          setFailed(true);
+          setFailReason("import: " + String(err?.message || err));
+        }
+      });
 
     return () => {
       cancelled = true;
@@ -115,8 +133,11 @@ export function UzumVncDialog({
             </div>
           )}
           {failed && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-sm text-white">
-              Ulanish uzildi — oynani yopib qayta urinib ko&apos;ring.
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 px-4 text-center text-sm text-white">
+              <span>Ulanish uzildi — oynani yopib qayta urinib ko&apos;ring.</span>
+              {failReason && (
+                <span className="font-mono text-xs text-white/60">{failReason}</span>
+              )}
             </div>
           )}
         </div>
