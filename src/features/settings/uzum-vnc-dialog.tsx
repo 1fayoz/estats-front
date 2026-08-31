@@ -66,15 +66,22 @@ export function UzumVncDialog({
     // chiqarish quramasida topilmay, oyna abadiy "Ulanmoqda..."da
     // qotib qolgan edi (hech qanday xato chiqmasdan). Aniq dinamik
     // import shu muammoni chetlab o'tadi.
+    console.log("[uzum-vnc] effect start");
     import("@novnc/novnc")
       .then(({ default: RFBCtor }) => {
+        console.log("[uzum-vnc] import resolved, cancelled=", cancelled);
         if (cancelled || !targetRef.current) return;
         try {
           rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
-          rfb.addEventListener("connect", () => setConnecting(false));
+          console.log("[uzum-vnc] RFB constructed");
+          rfb.addEventListener("connect", () => {
+            console.log("[uzum-vnc] connect event");
+            setConnecting(false);
+          });
           rfb.addEventListener("disconnect", (e) => {
-            setFailed(true);
             const clean = (e as CustomEvent<{ clean: boolean }>).detail?.clean;
+            console.log("[uzum-vnc] disconnect event clean=", clean);
+            setFailed(true);
             setFailReason(`disconnect: clean=${clean}`);
           });
           rfbRef.current = rfb;
@@ -93,6 +100,7 @@ export function UzumVncDialog({
       });
 
     return () => {
+      console.log("[uzum-vnc] effect cleanup, rfb=", !!rfb);
       cancelled = true;
       rfb?.disconnect();
       rfbRef.current = null;
