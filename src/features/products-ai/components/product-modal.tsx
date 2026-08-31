@@ -301,6 +301,7 @@ const TAB_TITLE: Record<DraftTabKey, string> = {
   attrs: "Xususiyatlar",
   keywords: "Kalit so'zlar",
   market: "Bozordagi raqobatchilar",
+  audit: "Joylashga tayyorlik",
 };
 
 /**
@@ -338,6 +339,7 @@ function Footer({
   onDelete: () => void;
   onClose: () => void;
 }) {
+  const blocked = draft?.audit?.blocking ?? 0;
   const spin = (name: string) =>
     busy === name ? <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" /> : null;
 
@@ -392,12 +394,18 @@ function Footer({
         {!locked && draft.progress >= 95 && (
           <button
             type="button"
-            className="air-btn-flat"
+            className={cn("air-btn-flat", blocked && "text-destructive")}
             onClick={onApprove}
             disabled={busy === "approve"}
+            title={
+              blocked
+                ? `Tayyorlik tabida ${blocked} ta to'sib turgan kamchilik bor`
+                : undefined
+            }
           >
             {spin("approve") ?? <Check className="mr-1.5 inline h-3.5 w-3.5" />}
             Tasdiqlash
+            {blocked ? ` (${blocked})` : ""}
           </button>
         )}
         <button type="button" className="air-btn-flat" onClick={onClose}>

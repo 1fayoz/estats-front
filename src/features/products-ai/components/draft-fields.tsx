@@ -4,6 +4,7 @@ import * as React from "react";
 import { ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { AuditPanel } from "@/features/products-ai/components/audit-panel";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -33,7 +34,8 @@ export function initialForm(draft: AiDraft): DraftForm {
   };
 }
 
-export type DraftTabKey = "general" | "ru" | "images" | "attrs" | "keywords" | "market";
+export type DraftTabKey =
+  | "general" | "ru" | "images" | "attrs" | "keywords" | "market" | "audit";
 
 /**
  * Tab qatori — namunadagi «Общие · Товары · Предложения …» kabi.
@@ -78,6 +80,12 @@ export function DraftTabs({
       label: "Bozor",
       count: draft?.market?.rivals.length ?? 0,
       ready: (draft?.market?.rivals.length ?? 0) > 0,
+    },
+    {
+      key: "audit",
+      label: "Tayyorlik",
+      count: draft?.audit ? draft.audit.blocking || undefined : undefined,
+      ready: Boolean(draft?.audit),
     },
   ];
 
@@ -159,6 +167,10 @@ export function DraftFields({
     ) : (
       <Empty />
     );
+  }
+
+  if (tab === "audit") {
+    return <AuditPanel audit={draft.audit} />;
   }
 
   if (tab === "market") {

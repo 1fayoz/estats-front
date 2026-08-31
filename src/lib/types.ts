@@ -1468,9 +1468,28 @@ export interface AiImageCheck {
   index: number;
   accepted: boolean;
   score: number;
+  /** Bozordagi yetakchilar rasmlariga nisbatan raqobatbardoshlik, 0-10. */
+  marketFit: number;
+  /** main / angle / detail / scale. */
+  shot: string;
+  /** Qaysi rang uchun. Bir rangli tovarda bo'sh. */
+  color: string;
   sameProduct: boolean;
   problems: string[];
   error: string;
+}
+
+export interface AiAuditFinding {
+  /** block — joylashni to'sadi, warn — ogohlantirish, ok — hammasi yaxshi. */
+  level: "block" | "warn" | "ok";
+  area: string;
+  text: string;
+}
+
+export interface AiAudit {
+  score: number;
+  blocking: number;
+  findings: AiAuditFinding[];
 }
 
 export interface AiDraft extends AiDraftRow {
@@ -1489,11 +1508,17 @@ export interface AiDraft extends AiDraftRow {
   images: string[];
   /** Bitta rasm necha dollar turadi. Manba — backenddagi narx jadvali. */
   imagePriceUsd: number;
+  /** Butun to'plam (hamma kadr) qancha turadi. */
+  imageSetPriceUsd: number;
+  /** Bozordagi yetakchilar rasmlaridan chiqarilgan xulosa. */
+  marketBrief: string;
   imagePrompt: string | null;
   imageNote: string | null;
   /** Sotuvchining oxirgi ko'rsatmasi — maydonga qaytadan yoziladi. */
   imagePromptExtra: string | null;
   imageChecks: AiImageCheck[];
+  /** Joylashdan oldingi tekshiruv — matn, rasm, MXIK to'liqmi. */
+  audit: AiAudit | null;
   updatedAt: string;
 }
 
