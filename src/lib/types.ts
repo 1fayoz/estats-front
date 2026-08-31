@@ -12,6 +12,8 @@ export interface Shop {
   salesSyncedFrom: string | null;
   salesSyncedTo: string | null;
   salesSyncedAt: string | null;
+  /** Uzum sotuvchi kabinetiga (brauzer sessiyasi) so'nggi ulangan payt. */
+  uzumSellerConnectedAt: string | null;
 }
 
 /** Ochiq turgan hisob — o'ziniki yoki taklif qilingan hisob. */
@@ -598,6 +600,19 @@ export interface MarketUploader {
   key: string;
   bookmarklet: string;
   instructions: string[];
+}
+
+/** Uzum sotuvchi kabinetiga o'z sessiyasi bilan kirish holati. Ekran bitta — bir vaqtda bitta do'kon. */
+export interface UzumLoginStatus {
+  active: boolean;
+  mine: boolean;
+  shopId: number | null;
+  startedAt: number | null;
+}
+
+export interface UzumLoginStart {
+  status: string;
+  shopId: number | null;
 }
 
 export interface MarketTokenStatus {
@@ -1492,6 +1507,13 @@ export interface AiAudit {
   findings: AiAuditFinding[];
 }
 
+export interface AiUzumPublish {
+  /** queued / published / needs_login / captcha / category_unresolved / needs_manual_step / error. */
+  status: string;
+  message: string;
+  log: string[];
+}
+
 export interface AiDraft extends AiDraftRow {
   sourceImages: string[];
   hint: string | null;
@@ -1519,6 +1541,8 @@ export interface AiDraft extends AiDraftRow {
   imageChecks: AiImageCheck[];
   /** Joylashdan oldingi tekshiruv — matn, rasm, MXIK to'liqmi. */
   audit: AiAudit | null;
+  /** Uzum'ga avtomatik joylash holati. Hali boshlanmagan bo'lsa `null`. */
+  uzumPublish: AiUzumPublish | null;
   updatedAt: string;
 }
 

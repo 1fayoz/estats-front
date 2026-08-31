@@ -18,6 +18,7 @@ import { TelegramDialog } from "@/features/social/components/telegram-dialog";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { ShopsCard } from "@/features/settings/shops-card";
+import { UzumSellerLoginCard } from "@/features/settings/uzum-seller-login-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import {
   ApiError, fetchAiKey, fetchInstagramConnectUrl, fetchOpenAiKey, fetchSocialAccounts, fetchSocialApps,
@@ -181,6 +182,7 @@ export default function IntegrationsPage() {
           {hasShop && (
             <div className="grid gap-4 lg:grid-cols-2">
               <UzumSyncCard />
+              <UzumSellerLoginCard />
               <MarketTokenCard />
             </div>
           )}

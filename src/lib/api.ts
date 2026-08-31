@@ -34,6 +34,8 @@ import type {
   ProductTimeline,
   MarketTokenStatus,
   MarketUploader,
+  UzumLoginStart,
+  UzumLoginStatus,
   BroadcastResult,
   ProductMarket,
   PublishPreview,
@@ -266,6 +268,35 @@ export const updateMarketToken = (token: string) =>
     shopScoped: false,
     body: JSON.stringify({ token }),
   });
+
+// ── Uzum sotuvchi kabinetiga o'z sessiyasi bilan kirish ───────────────────────
+//
+// `shopId` — do'kon bir nechta bo'lsa QAYSI biriga kiriladi. Berilmasa —
+// faol do'kon (`X-Shop-Id` odatdagidek). Har bir chaqiruv o'sha bitta
+// do'konni maqsad qiladi, chunki server tomonida ekran BITTA — bir vaqtda
+// faqat bitta login sessiyasi bo'ladi.
+const shopHeader = (shopId?: number) =>
+  shopId ? { headers: { "X-Shop-Id": String(shopId) } } : {};
+
+export const startUzumLogin = (shopId?: number) =>
+  request<UzumLoginStart>("/market/uzum-login/start", { method: "POST", ...shopHeader(shopId) });
+
+export const completeUzumLogin = (shopId?: number) =>
+  request<UzumLoginStatus>("/market/uzum-login/complete", {
+    method: "POST",
+    ...shopHeader(shopId),
+  });
+
+export const fetchUzumLoginStatus = (shopId?: number) =>
+  request<UzumLoginStatus>("/market/uzum-login/status", shopHeader(shopId));
+
+/** VNC ko'prigining WebSocket manzili — brauzer o'zi shu bilan ulanadi. */
+export function uzumLoginVncUrl(shopId: number): string {
+  const persisted = readPersisted();
+  const token = persisted.accessToken ?? "";
+  const wsBase = API_BASE.replace(/^http/, "ws");
+  return `${wsBase}/product-ai/uzum-login-vnc?token=${encodeURIComponent(token)}&shop_id=${shopId}`;
+}
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────
 
@@ -758,3 +789,15 @@ export const redoAiImages = (id: number, body: AiImageRedo) =>
 
 export const fetchAiPackage = (id: number) =>
   request<AiPackage>(`/product-ai/drafts/${id}/package`);
+
+/**
+ * Uzum'ga AVTOMATIK joylashni boshlaydi. Darhol qaytadi — natija fonda
+ * `draft.uzumPublish` ga yoziladi, front shuni so'rab turadi
+ * (`fetchAiDraft`, xuddi rasm/matn qadamlari kabi).
+ *
+ * Qoralama har doim O'Z do'koniga joylanadi (`X-Shop-Id` — faol
+ * do'kon) — u yaratilgan paytdayoq bitta do'konga bog'langan, boshqa
+ * do'konga ko'chirib bo'lmaydi.
+ */
+export const publishAiDraftUzum = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/publish-uzum`, { method: "POST" });

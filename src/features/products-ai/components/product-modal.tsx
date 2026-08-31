@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, Loader2, Trash2 } from "lucide-react";
+import { Check, Copy, Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { AirSlider } from "@/components/air/slider";
@@ -24,6 +24,7 @@ import {
   fetchAiDraft,
   fetchAiPackage,
   patchAiDraft,
+  publishAiDraftUzum,
   retryAiDraft,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -110,8 +111,14 @@ export function ProductAiModal({
 
   // Quvur fonda ishlaydi va oyna uni so'rab turadi. So'rash FAQAT
   // tugallanmagan qoralamada ketadi — tayyorini qayta-qayta
-  // so'rashning ma'nosi yo'q.
-  const running = draft !== null && draft.progress < 100 && !draft.error;
+  // so'rashning ma'nosi yo'q. Uzum'ga joylash HAM fon vazifasi
+  // (brauzer bilan boshqarish bir necha o'n soniya ketadi) — u ham
+  // xuddi shu so'rov bilan kuzatiladi, `progress` bilan bog'liq
+  // emas: joylash faqat tasdiqlangandan (progress 100) KEYIN
+  // boshlanadi.
+  const running =
+    draft !== null &&
+    ((draft.progress < 100 && !draft.error) || draft.uzumPublish?.status === "queued");
   React.useEffect(() => {
     if (!open || !running || draft === null) return;
     const id = window.setInterval(async () => {
@@ -223,6 +230,13 @@ export function ProductAiModal({
               toast.success("Tasdiqlandi — Uzumga ko'chirishga tayyor.");
             })
           }
+          onPublish={() =>
+            act("publish", async () => {
+              if (!draft) return;
+              apply(await publishAiDraftUzum(draft.id));
+              toast.success("Uzum'ga joylash boshlandi — jarayon shu oynada ko'rinadi.");
+            })
+          }
           onDelete={() =>
             act("delete", async () => {
               if (!draft) return;
@@ -294,6 +308,18 @@ export function ProductAiModal({
   );
 }
 
+/** Sotuvchi harakat qilishi kerak bo'lgan holatlar — nusxa "xato" emas, "keyingi qadam". */
+const FAILED_PUBLISH = new Set(["error", "category_unresolved"]);
+
+const PUBLISH_STATUS_LABEL: Record<string, string> = {
+  published: "Uzum'ga joylandi ✓",
+  needs_login: "Uzum sessiyasi yo'q — Sozlamalar → Integratsiyalar'da ulaning",
+  captcha: "Uzum CAPTCHA so'radi — qayta urinib ko'ring",
+  category_unresolved: "Kategoriya avtomatik topilmadi — qo'lda joylash kerak",
+  needs_manual_step: "Bir bosqichda to'xtadi — qo'lda tekshirish kerak",
+  error: "Joylanmadi",
+};
+
 const TAB_TITLE: Record<DraftTabKey, string> = {
   general: "Tovar haqida",
   ru: "Ruscha matn",
@@ -322,6 +348,7 @@ function Footer({
   onSave,
   onCopy,
   onApprove,
+  onPublish,
   onDelete,
   onClose,
 }: {
@@ -336,10 +363,13 @@ function Footer({
   onSave: () => void;
   onCopy: () => void;
   onApprove: () => void;
+  onPublish: () => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
   const blocked = draft?.audit?.blocking ?? 0;
+  const publishStatus = draft?.uzumPublish?.status || null;
+  const publishing = publishStatus === "queued";
   const spin = (name: string) =>
     busy === name ? <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" /> : null;
 
@@ -408,10 +438,47 @@ function Footer({
             {blocked ? ` (${blocked})` : ""}
           </button>
         )}
+        {locked && (
+          <button
+            type="button"
+            className={cn(
+              "air-btn-flat",
+              publishStatus && FAILED_PUBLISH.has(publishStatus) && "text-destructive",
+            )}
+            onClick={onPublish}
+            disabled={publishing || busy === "publish"}
+            title={draft.uzumPublish?.message || undefined}
+          >
+            {publishing || busy === "publish" ? (
+              <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Upload className="mr-1.5 inline h-3.5 w-3.5" />
+            )}
+            {publishing
+              ? "Joylanmoqda..."
+              : publishStatus === "published"
+                ? "Qayta joylash"
+                : "Uzumga joylash"}
+          </button>
+        )}
         <button type="button" className="air-btn-flat" onClick={onClose}>
           Yopish
         </button>
       </div>
+      {publishStatus && publishStatus !== "queued" && (
+        <p
+          className={cn(
+            "w-full text-center text-xs sm:w-auto",
+            publishStatus === "published"
+              ? "air-ok"
+              : FAILED_PUBLISH.has(publishStatus)
+                ? "air-bad"
+                : "air-warn",
+          )}
+        >
+          {PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
+        </p>
+      )}
       <button
         type="button"
         onClick={() => (confirmDelete ? onDelete() : onConfirmDelete(true))}
