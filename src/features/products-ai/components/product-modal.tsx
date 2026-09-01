@@ -119,7 +119,9 @@ export function ProductAiModal({
   // boshlanadi.
   const running =
     draft !== null &&
-    ((draft.progress < 100 && !draft.error) || draft.uzumPublish?.status === "queued");
+    ((draft.progress < 100 && !draft.error) ||
+      draft.uzumPublish?.status === "queued" ||
+      draft.uzumPublish?.status === "running");
   React.useEffect(() => {
     if (!open || !running || draft === null) return;
     const id = window.setInterval(async () => {
@@ -393,7 +395,14 @@ function Footer({
 }) {
   const blocked = draft?.audit?.blocking ?? 0;
   const publishStatus = draft?.uzumPublish?.status || null;
-  const publishing = publishStatus === "queued";
+  // `queued` — so'rov endigina yuborilgan, `running` — brauzer
+  // fonda haqiqatan ishlayapti (bosqichlar shu bosqichda o'tadi,
+  // bir necha o'n soniya davom etadi). Faqat "queued"ni tekshirish
+  // XATO edi: real sinovda job "queued"dan "running"ga bir necha
+  // soniyada o'tadi va progress-bar DARHOL yo'qolib, tugma yana
+  // "Uzumga joylash" bo'lib qolardi — garchi fonda jarayon davom
+  // etayotgan bo'lsa ham.
+  const publishing = publishStatus === "queued" || publishStatus === "running";
   const publishStage = draft?.uzumPublish?.stage || null;
   const publishProgress = draft?.uzumPublish?.progress ?? 0;
   const spin = (name: string) =>
@@ -523,7 +532,7 @@ function Footer({
           )}
         </p>
       )}
-      {publishStatus && publishStatus !== "queued" && (
+      {publishStatus && !publishing && (
         <p
           className={cn(
             "w-full text-center text-xs sm:w-auto",
