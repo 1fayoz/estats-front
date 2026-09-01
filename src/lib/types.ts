@@ -1575,8 +1575,10 @@ export interface AiPackage {
   titleRu: string;
   descriptionUz: string;
   descriptionRu: string;
-  /** Bozor tahlilidan — Uzum sotuvchi kabinetidagi kategoriya nomi. */
+  /** Bozor tahlilidan — raqobatchining ochiq katalogdagi kategoriyasi. */
   category: string;
+  /** Zaxira (rasm tahlilidan) — `category` sotuvchi kabineti qidiruvida topilmasa shu sinaladi. */
+  categoryFallback: string;
   attributes: Record<string, string>;
   keywords: string[];
   mxik: string;
