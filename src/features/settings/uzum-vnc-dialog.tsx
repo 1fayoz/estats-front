@@ -122,7 +122,7 @@ export function UzumVncDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-5xl">
         <DialogHeader>
           <DialogTitle>Uzum sotuvchi kabinetiga kirish</DialogTitle>
           <DialogDescription>
@@ -133,7 +133,7 @@ export function UzumVncDialog({
         </DialogHeader>
 
         <div className="relative overflow-hidden rounded-lg border bg-black">
-          <div ref={targetRef} className="aspect-[1440/900] w-full" />
+          <div ref={targetRef} className="aspect-[1920/1080] w-full" />
           {connecting && !failed && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-sm text-white">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Ulanmoqda...
