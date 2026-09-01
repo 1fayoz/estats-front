@@ -233,15 +233,17 @@ export function ProductAiModal({
               toast.success("Tasdiqlandi — Uzumga ko'chirishga tayyor.");
             })
           }
-          onPublish={() =>
+          onPublish={(categoryManualLeaf) =>
             act("publish", async () => {
               if (!draft) return;
               const resuming = draft.uzumPublish?.status === "stopped";
-              apply(await publishAiDraftUzum(draft.id));
+              apply(await publishAiDraftUzum(draft.id, categoryManualLeaf));
               toast.success(
-                resuming
-                  ? "To'xtagan joydan davom etilmoqda."
-                  : "Uzum'ga joylash boshlandi — jarayon shu oynada ko'rinadi.",
+                categoryManualLeaf
+                  ? `"${categoryManualLeaf}" bilan davom etilmoqda.`
+                  : resuming
+                    ? "To'xtagan joydan davom etilmoqda."
+                    : "Uzum'ga joylash boshlandi — jarayon shu oynada ko'rinadi.",
               );
             })
           }
@@ -388,13 +390,20 @@ function Footer({
   onSave: () => void;
   onCopy: () => void;
   onApprove: () => void;
-  onPublish: () => void;
+  onPublish: (categoryManualLeaf?: string) => void;
   onStopPublish: () => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
   const blocked = draft?.audit?.blocking ?? 0;
   const publishStatus = draft?.uzumPublish?.status || null;
+  const categoryCandidates = draft?.uzumPublish?.categoryCandidates || [];
+  const categoryPath = draft?.uzumPublish?.categoryPath || [];
+  const [categoryPick, setCategoryPick] = React.useState("");
+  // Yangi urinishda ro'yxat yangilanadi — eskisi qolib ketmasin.
+  React.useEffect(() => {
+    setCategoryPick("");
+  }, [categoryCandidates.join("|")]);
   // `queued` — so'rov endigina yuborilgan, `running` — brauzer
   // fonda haqiqatan ishlayapti (bosqichlar shu bosqichda o'tadi,
   // bir necha o'n soniya davom etadi). Faqat "queued"ni tekshirish
@@ -480,7 +489,7 @@ function Footer({
               "air-btn-flat",
               publishStatus && FAILED_PUBLISH.has(publishStatus) && "text-destructive",
             )}
-            onClick={onPublish}
+            onClick={() => onPublish()}
             disabled={publishing || busy === "publish"}
             title={draft.uzumPublish?.message || undefined}
           >
@@ -554,6 +563,39 @@ function Footer({
             </span>
           )}
         </p>
+      )}
+      {publishStatus === "category_unresolved" && !publishing && categoryCandidates.length > 0 && (
+        // Avtomatika ishonchsiz tanlovni RAD ETGAN (`category.js`
+        // dagi ball tekshiruvi) — VNC ochish shart emas, ro'yxat
+        // shu yerda. Tanlangach "Davom etish" ANIQ shu nom bilan
+        // (`categoryManualLeaf`) qaytadan joylashni boshlaydi.
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto">
+          {categoryPath.length > 0 && (
+            <span className="text-[11px] text-[color:var(--air-label)]">
+              {categoryPath.join(" → ")} →
+            </span>
+          )}
+          <select
+            className="air-input h-8 w-auto max-w-[280px] text-xs"
+            value={categoryPick}
+            onChange={(e) => setCategoryPick(e.target.value)}
+          >
+            <option value="">Kategoriyani tanlang…</option>
+            {categoryCandidates.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="air-btn-save"
+            disabled={!categoryPick || busy === "publish"}
+            onClick={() => onPublish(categoryPick)}
+          >
+            Davom etish
+          </button>
+        </div>
       )}
       <button
         type="button"

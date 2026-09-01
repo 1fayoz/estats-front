@@ -806,8 +806,19 @@ export const fetchAiPackage = (id: number) =>
  * do'kon) — u yaratilgan paytdayoq bitta do'konga bog'langan, boshqa
  * do'konga ko'chirib bo'lmaydi.
  */
-export const publishAiDraftUzum = (id: number) =>
-  request<AiDraft>(`/product-ai/drafts/${id}/publish-uzum`, { method: "POST" });
+/**
+ * `categoryManualLeaf` — avtomatika `category_unresolved` bilan
+ * to'xtagach (`AiUzumPublish.categoryCandidates`), sotuvchi
+ * tanlagan ANIQ nom. Bo'lsa, keyingi urinishda ballashsiz aynan
+ * shu bosiladi.
+ */
+export const publishAiDraftUzum = (id: number, categoryManualLeaf?: string) =>
+  request<AiDraft>(
+    `/product-ai/drafts/${id}/publish-uzum${
+      categoryManualLeaf ? `?category_manual_leaf=${encodeURIComponent(categoryManualLeaf)}` : ""
+    }`,
+    { method: "POST" },
+  );
 
 /**
  * Joylash jarayonini bosqichlar ORASIDA to'xtatadi — brauzer ochiq

@@ -1517,6 +1517,10 @@ export interface AiUzumPublish {
   progress: number;
   /** bosqich nomi -> millisekund (tugagan bosqichlar uchun). */
   timings: Record<string, number>;
+  /** `status === "category_unresolved"` bo'lganda: ishonchli topilgan yuqori bosqichlar. */
+  categoryPath: string[];
+  /** `status === "category_unresolved"` bo'lganda: ANIQLANMAGAN darajadagi barcha variant nomlari — shulardan biri tanlanadi. */
+  categoryCandidates: string[];
 }
 
 export interface AiDraft extends AiDraftRow {
