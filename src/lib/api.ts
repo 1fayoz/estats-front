@@ -811,18 +811,21 @@ export const fetchAiPackage = (id: number) =>
  * do'konga ko'chirib bo'lmaydi.
  */
 /**
- * `categoryManualLeaf` — avtomatika `category_unresolved` bilan
- * to'xtagach (`AiUzumPublish.categoryCandidates`), sotuvchi
- * tanlagan ANIQ nom. Bo'lsa, keyingi urinishda ballashsiz aynan
- * shu bosiladi.
+ * `categoryManualPath` — avtomatika `category_unresolved` bilan
+ * to'xtagach (`AiUzumPublish.categoryLevels`), sotuvchi HAR daraja
+ * uchun tanlagan yo'l, daraja tartibida (bo'sh joy — o'sha daraja
+ * o'zgartirilmagan, avtomatika o'zi tanlagani qoladi). Bo'lsa,
+ * keyingi urinishda shu darajalarda ballashsiz aynan shu bosiladi.
  */
-export const publishAiDraftUzum = (id: number, categoryManualLeaf?: string) =>
-  request<AiDraft>(
-    `/product-ai/drafts/${id}/publish-uzum${
-      categoryManualLeaf ? `?category_manual_leaf=${encodeURIComponent(categoryManualLeaf)}` : ""
-    }`,
+export const publishAiDraftUzum = (id: number, categoryManualPath?: string[]) => {
+  const qs = (categoryManualPath || [])
+    .map((name) => `category_manual_path=${encodeURIComponent(name)}`)
+    .join("&");
+  return request<AiDraft>(
+    `/product-ai/drafts/${id}/publish-uzum${qs ? `?${qs}` : ""}`,
     { method: "POST" },
   );
+};
 
 /**
  * Joylash jarayonini bosqichlar ORASIDA to'xtatadi — brauzer ochiq

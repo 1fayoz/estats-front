@@ -1507,6 +1507,14 @@ export interface AiAudit {
   findings: AiAuditFinding[];
 }
 
+export interface AiCategoryLevel {
+  depth: number;
+  /** Avtomatika shu darajada tanlagan nom (ishonchli bo'lmasa ham). */
+  chosen: string;
+  /** Shu darajada mavjud barcha variant. */
+  candidates: string[];
+}
+
 export interface AiUzumPublish {
   /** queued / published / needs_login / captcha / category_unresolved / needs_manual_step / stopped / error. */
   status: string;
@@ -1517,10 +1525,8 @@ export interface AiUzumPublish {
   progress: number;
   /** bosqich nomi -> millisekund (tugagan bosqichlar uchun). */
   timings: Record<string, number>;
-  /** `status === "category_unresolved"` bo'lganda: ishonchli topilgan yuqori bosqichlar. */
-  categoryPath: string[];
-  /** `status === "category_unresolved"` bo'lganda: ANIQLANMAGAN darajadagi barcha variant nomlari — shulardan biri tanlanadi. */
-  categoryCandidates: string[];
+  /** `status === "category_unresolved"` bo'lganda: HAR bosilgan daraja, birinchisidan boshlab — xato ko'pincha o'rtada bo'ladi. */
+  categoryLevels: AiCategoryLevel[];
 }
 
 export interface AiDraft extends AiDraftRow {

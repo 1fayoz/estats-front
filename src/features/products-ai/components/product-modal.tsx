@@ -15,6 +15,7 @@ import {
   type DraftTabKey,
 } from "@/features/products-ai/components/draft-fields";
 import { DraftSide } from "@/features/products-ai/components/draft-side";
+import { PUBLISH_PHASES, publishPhaseState } from "@/features/products-ai/publish-stages";
 import { StageStrip } from "@/features/products-ai/components/stage-strip";
 import {
   ApiError,
@@ -233,14 +234,14 @@ export function ProductAiModal({
               toast.success("Tasdiqlandi — Uzumga ko'chirishga tayyor.");
             })
           }
-          onPublish={(categoryManualLeaf) =>
+          onPublish={(categoryManualPath) =>
             act("publish", async () => {
               if (!draft) return;
               const resuming = draft.uzumPublish?.status === "stopped";
-              apply(await publishAiDraftUzum(draft.id, categoryManualLeaf));
+              apply(await publishAiDraftUzum(draft.id, categoryManualPath));
               toast.success(
-                categoryManualLeaf
-                  ? `"${categoryManualLeaf}" bilan davom etilmoqda.`
+                categoryManualPath?.length
+                  ? `"${categoryManualPath.join(" → ")}" bilan davom etilmoqda.`
                   : resuming
                     ? "To'xtagan joydan davom etilmoqda."
                     : "Uzum'ga joylash boshlandi — jarayon shu oynada ko'rinadi.",
@@ -390,20 +391,21 @@ function Footer({
   onSave: () => void;
   onCopy: () => void;
   onApprove: () => void;
-  onPublish: (categoryManualLeaf?: string) => void;
+  onPublish: (categoryManualPath?: string[]) => void;
   onStopPublish: () => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
   const blocked = draft?.audit?.blocking ?? 0;
   const publishStatus = draft?.uzumPublish?.status || null;
-  const categoryCandidates = draft?.uzumPublish?.categoryCandidates || [];
-  const categoryPath = draft?.uzumPublish?.categoryPath || [];
-  const [categoryPick, setCategoryPick] = React.useState("");
-  // Yangi urinishda ro'yxat yangilanadi — eskisi qolib ketmasin.
+  const categoryLevels = draft?.uzumPublish?.categoryLevels || [];
+  const [categoryPicks, setCategoryPicks] = React.useState<string[]>([]);
+  // Yangi urinishda ro'yxat avtomatik tanlangan qiymatlar bilan
+  // qayta boshlanadi — eskisi qolib ketmasin.
   React.useEffect(() => {
-    setCategoryPick("");
-  }, [categoryCandidates.join("|")]);
+    setCategoryPicks(categoryLevels.map((l) => l.chosen));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryLevels.map((l) => `${l.depth}:${l.chosen}`).join("|")]);
   // `queued` — so'rov endigina yuborilgan, `running` — brauzer
   // fonda haqiqatan ishlayapti (bosqichlar shu bosqichda o'tadi,
   // bir necha o'n soniya davom etadi). Faqat "queued"ni tekshirish
@@ -527,73 +529,116 @@ function Footer({
           Yopish
         </button>
       </div>
-      {publishing && publishStage && (
-        <p className="w-full text-center text-xs text-[color:var(--air-label)] sm:w-auto">
-          {PUBLISH_STAGE_LABEL[publishStage] ?? publishStage}
-          {Object.keys(draft.uzumPublish?.timings || {}).length > 0 && (
-            <span className="ml-1">
-              (
-              {Object.entries(draft.uzumPublish!.timings)
-                .map(([stage, ms]) => `${PUBLISH_STAGE_LABEL[stage] ?? stage}: ${(ms / 1000).toFixed(1)}s`)
-                .join(", ")}
-              )
-            </span>
+      {publishStatus && (
+        // Uzum'ning O'Z bosqich chizig'iga o'xshab (kategoriya →
+        // ma'lumot → yakunlash) — sotuvchi HAR safar bitta xira
+        // "43%" o'rniga QAYSI faza tugagani, qaysi ketayotgani,
+        // qaysi hali kelmaganini ko'radi. Chiziq NATIJADAN keyin
+        // ham qoladi — muvaffaqiyatsiz urinish qaysi fazada
+        // to'xtaganini keyin qaytib ochganda ham ko'rsatib turadi.
+        <div className="w-full space-y-1.5">
+          <div className="air-stages" role="list">
+            {PUBLISH_PHASES.map((phase) => {
+              const state = publishPhaseState(phase, draft.uzumPublish, publishing);
+              return (
+                <div
+                  key={phase.key}
+                  role="listitem"
+                  data-state={state}
+                  className="air-stage"
+                  title={phase.label}
+                >
+                  {phase.short}
+                </div>
+              );
+            })}
+          </div>
+          {publishing && publishStage ? (
+            <p className="text-center text-xs text-[color:var(--air-label)]">
+              {PUBLISH_STAGE_LABEL[publishStage] ?? publishStage}…
+              {Object.keys(draft.uzumPublish?.timings || {}).length > 0 && (
+                <span className="ml-1">
+                  (
+                  {Object.entries(draft.uzumPublish!.timings)
+                    .map(([stage, ms]) => `${PUBLISH_STAGE_LABEL[stage] ?? stage}: ${(ms / 1000).toFixed(1)}s`)
+                    .join(", ")}
+                  )
+                </span>
+              )}
+            </p>
+          ) : (
+            <p
+              className={cn(
+                "text-center text-xs",
+                publishStatus === "published"
+                  ? "air-ok"
+                  : FAILED_PUBLISH.has(publishStatus)
+                    ? "air-bad"
+                    : "air-warn",
+              )}
+            >
+              {PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
+              {publishStatus === "published" && draft.uzumPublish?.timings && (
+                <span className="ml-1 text-[color:var(--air-label)]">
+                  (jami{" "}
+                  {(
+                    Object.values(draft.uzumPublish.timings).reduce((a, b) => a + b, 0) / 1000
+                  ).toFixed(1)}
+                  s)
+                </span>
+              )}
+            </p>
           )}
-        </p>
+        </div>
       )}
-      {publishStatus && !publishing && (
-        <p
-          className={cn(
-            "w-full text-center text-xs sm:w-auto",
-            publishStatus === "published"
-              ? "air-ok"
-              : FAILED_PUBLISH.has(publishStatus)
-                ? "air-bad"
-                : "air-warn",
-          )}
-        >
-          {PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
-          {publishStatus === "published" && draft.uzumPublish?.timings && (
-            <span className="ml-1 text-[color:var(--air-label)]">
-              (jami{" "}
-              {(
-                Object.values(draft.uzumPublish.timings).reduce((a, b) => a + b, 0) / 1000
-              ).toFixed(1)}
-              s)
-            </span>
-          )}
-        </p>
-      )}
-      {publishStatus === "category_unresolved" && !publishing && categoryCandidates.length > 0 && (
-        // Avtomatika ishonchsiz tanlovni RAD ETGAN (`category.js`
-        // dagi ball tekshiruvi) — VNC ochish shart emas, ro'yxat
-        // shu yerda. Tanlangach "Davom etish" ANIQ shu nom bilan
-        // (`categoryManualLeaf`) qaytadan joylashni boshlaydi.
-        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto">
-          {categoryPath.length > 0 && (
-            <span className="text-[11px] text-[color:var(--air-label)]">
-              {categoryPath.join(" → ")} →
-            </span>
-          )}
-          <select
-            className="air-input h-8 w-auto max-w-[280px] text-xs"
-            value={categoryPick}
-            onChange={(e) => setCategoryPick(e.target.value)}
-          >
-            <option value="">Kategoriyani tanlang…</option>
-            {categoryCandidates.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
+      {publishStatus === "category_unresolved" && !publishing && categoryLevels.length > 0 && (
+        // Avtomatika biror darajada ishonchsiz tanlov qilgan
+        // (`category.js`dagi ball tekshiruvi) — VNC ochish shart
+        // emas, DARAXTNING HAR DARAJASI shu yerda, o'zgartirish
+        // mumkin. Xato ko'pincha ENG OXIRGI emas, O'RTADAGI
+        // darajada bo'ladi (masalan "Ayollar aksessuarlari" ishonch
+        // bilan tanlanadi-yu, aslida boshqa shoxda kerak) — shuning
+        // uchun faqat oxirgi emas, ISTALGAN daraja o'zgartiriladi.
+        // "Davom etish" TO'LIQ yo'lni (`categoryManualPath`)
+        // yuboradi, o'zgartirilmagan darajalar avtomatika tanlagani
+        // bilan qoladi.
+        <div className="flex w-full flex-col items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {categoryLevels.map((level, i) => (
+              <React.Fragment key={level.depth}>
+                {i > 0 && (
+                  <span className="text-[11px] text-[color:var(--air-label)]">→</span>
+                )}
+                <select
+                  className={cn(
+                    "air-input h-8 w-auto max-w-[220px] text-xs",
+                    categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
+                  )}
+                  value={categoryPicks[i] ?? level.chosen}
+                  onChange={(e) =>
+                    setCategoryPicks((prev) => {
+                      const next = [...prev];
+                      next[i] = e.target.value;
+                      return next;
+                    })
+                  }
+                >
+                  {level.candidates.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </React.Fragment>
             ))}
-          </select>
+          </div>
           <button
             type="button"
             className="air-btn-save"
-            disabled={!categoryPick || busy === "publish"}
-            onClick={() => onPublish(categoryPick)}
+            disabled={busy === "publish"}
+            onClick={() => onPublish(categoryPicks)}
           >
-            Davom etish
+            Shu yo&apos;l bilan davom etish
           </button>
         </div>
       )}
