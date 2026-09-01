@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, Loader2, Trash2, Upload } from "lucide-react";
+import { Check, Copy, Loader2, Square, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { AirSlider } from "@/components/air/slider";
@@ -26,6 +26,7 @@ import {
   patchAiDraft,
   publishAiDraftUzum,
   retryAiDraft,
+  stopAiDraftUzum,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
@@ -233,8 +234,20 @@ export function ProductAiModal({
           onPublish={() =>
             act("publish", async () => {
               if (!draft) return;
+              const resuming = draft.uzumPublish?.status === "stopped";
               apply(await publishAiDraftUzum(draft.id));
-              toast.success("Uzum'ga joylash boshlandi — jarayon shu oynada ko'rinadi.");
+              toast.success(
+                resuming
+                  ? "To'xtagan joydan davom etilmoqda."
+                  : "Uzum'ga joylash boshlandi — jarayon shu oynada ko'rinadi.",
+              );
+            })
+          }
+          onStopPublish={() =>
+            act("stopPublish", async () => {
+              if (!draft) return;
+              apply(await stopAiDraftUzum(draft.id));
+              toast.success("To'xtatildi — brauzer ochiq qoldi, keyinroq shu joydan davom etadi.");
             })
           }
           onDelete={() =>
@@ -317,7 +330,16 @@ const PUBLISH_STATUS_LABEL: Record<string, string> = {
   captcha: "Uzum CAPTCHA so'radi — qayta urinib ko'ring",
   category_unresolved: "Kategoriya avtomatik topilmadi — qo'lda joylash kerak",
   needs_manual_step: "Bir bosqichda to'xtadi — qo'lda tekshirish kerak",
+  stopped: "To'xtatildi — davom ettirish mumkin",
   error: "Joylanmadi",
+};
+
+const PUBLISH_STAGE_LABEL: Record<string, string> = {
+  starting: "sahifa ochilmoqda",
+  category: "kategoriya aniqlanmoqda",
+  content: "nom va tavsif to'ldirilmoqda",
+  images: "rasmlar yuklanmoqda",
+  review: "yakuniy bosqichlar",
 };
 
 const TAB_TITLE: Record<DraftTabKey, string> = {
@@ -349,6 +371,7 @@ function Footer({
   onCopy,
   onApprove,
   onPublish,
+  onStopPublish,
   onDelete,
   onClose,
 }: {
@@ -364,12 +387,15 @@ function Footer({
   onCopy: () => void;
   onApprove: () => void;
   onPublish: () => void;
+  onStopPublish: () => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
   const blocked = draft?.audit?.blocking ?? 0;
   const publishStatus = draft?.uzumPublish?.status || null;
   const publishing = publishStatus === "queued";
+  const publishStage = draft?.uzumPublish?.stage || null;
+  const publishProgress = draft?.uzumPublish?.progress ?? 0;
   const spin = (name: string) =>
     busy === name ? <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" /> : null;
 
@@ -455,16 +481,48 @@ function Footer({
               <Upload className="mr-1.5 inline h-3.5 w-3.5" />
             )}
             {publishing
-              ? "Joylanmoqda..."
-              : publishStatus === "published"
-                ? "Qayta joylash"
-                : "Uzumga joylash"}
+              ? `Joylanmoqda... ${publishProgress}%`
+              : publishStatus === "stopped"
+                ? "Davom ettirish"
+                : publishStatus === "published"
+                  ? "Qayta joylash"
+                  : "Uzumga joylash"}
+          </button>
+        )}
+        {locked && publishing && (
+          <button
+            type="button"
+            className="air-btn-flat"
+            onClick={onStopPublish}
+            disabled={busy === "stopPublish"}
+            title="Bosqichlar orasida to'xtatadi — brauzer ochiq qoladi, keyinroq shu joydan davom etadi."
+          >
+            {busy === "stopPublish" ? (
+              <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Square className="mr-1.5 inline h-3.5 w-3.5" />
+            )}
+            To&apos;xtatish
           </button>
         )}
         <button type="button" className="air-btn-flat" onClick={onClose}>
           Yopish
         </button>
       </div>
+      {publishing && publishStage && (
+        <p className="w-full text-center text-xs text-[color:var(--air-label)] sm:w-auto">
+          {PUBLISH_STAGE_LABEL[publishStage] ?? publishStage}
+          {Object.keys(draft.uzumPublish?.timings || {}).length > 0 && (
+            <span className="ml-1">
+              (
+              {Object.entries(draft.uzumPublish!.timings)
+                .map(([stage, ms]) => `${PUBLISH_STAGE_LABEL[stage] ?? stage}: ${(ms / 1000).toFixed(1)}s`)
+                .join(", ")}
+              )
+            </span>
+          )}
+        </p>
+      )}
       {publishStatus && publishStatus !== "queued" && (
         <p
           className={cn(
@@ -477,6 +535,15 @@ function Footer({
           )}
         >
           {PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
+          {publishStatus === "published" && draft.uzumPublish?.timings && (
+            <span className="ml-1 text-[color:var(--air-label)]">
+              (jami{" "}
+              {(
+                Object.values(draft.uzumPublish.timings).reduce((a, b) => a + b, 0) / 1000
+              ).toFixed(1)}
+              s)
+            </span>
+          )}
         </p>
       )}
       <button

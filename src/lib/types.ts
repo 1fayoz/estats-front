@@ -1508,10 +1508,15 @@ export interface AiAudit {
 }
 
 export interface AiUzumPublish {
-  /** queued / published / needs_login / captcha / category_unresolved / needs_manual_step / error. */
+  /** queued / published / needs_login / captcha / category_unresolved / needs_manual_step / stopped / error. */
   status: string;
   message: string;
   log: string[];
+  /** starting / category / content / images / review — hozir qaysi bosqichda. */
+  stage: string | null;
+  progress: number;
+  /** bosqich nomi -> millisekund (tugagan bosqichlar uchun). */
+  timings: Record<string, number>;
 }
 
 export interface AiDraft extends AiDraftRow {

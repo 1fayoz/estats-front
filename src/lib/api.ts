@@ -210,6 +210,13 @@ export const fetchProducts = (params: { search?: string; page?: number; size?: n
 export const fetchProductDetail = (id: number) =>
   request<ProductDetail>(`/warehouse/products/${id}`);
 
+/** "Qaysi narxda qancha foyda" jadvalidagi bir narxni haqiqiy Uzum narxiga aylantiradi. */
+export const applyProductPrice = (id: number, sellPrice: number) =>
+  request<{ marketplacePrice: number }>(`/warehouse/products/${id}/price`, {
+    method: "POST",
+    body: JSON.stringify({ sellPrice }),
+  });
+
 
 
 /** Everything the Settings page needs about syncing, in one request. */
@@ -801,3 +808,11 @@ export const fetchAiPackage = (id: number) =>
  */
 export const publishAiDraftUzum = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/publish-uzum`, { method: "POST" });
+
+/**
+ * Joylash jarayonini bosqichlar ORASIDA to'xtatadi — brauzer ochiq
+ * qoladi. Xuddi shu `publishAiDraftUzum` qaytadan chaqirilsa, noldan
+ * emas, shu joydan davom etadi.
+ */
+export const stopAiDraftUzum = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/publish-uzum/stop`, { method: "POST" });

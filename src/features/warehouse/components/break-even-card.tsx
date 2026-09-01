@@ -1,12 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Calculator, Target, TrendingUp } from "lucide-react";
+import { AlertTriangle, Calculator, Check, Loader2, Target, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ApiError, applyProductPrice } from "@/lib/api";
 import { formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { UnitEconomics } from "@/lib/types";
@@ -17,9 +20,37 @@ import type { UnitEconomics } from "@/lib/types";
  * The rates are the seller's OWN averages, not Uzum's headline commission: what
  * actually lands after promotions and delivery fees is what decides whether a price
  * is profitable.
+ *
+ * Narxlar shu yerda faqat KO'RSATILIB qolmaydi — "qo'llash" tugmasi bosilsa,
+ * rasmiy Uzum API orqali (`sendPriceData`) haqiqiy narx shu zahoti
+ * o'zgaradi. Mahsulot yaratishdan farqli, narx yozish uchun Uzum'ning
+ * O'Z hujjatlashtirilgan yo'li bor — brauzer avtomatlashtirish shart emas.
  */
-export function BreakEvenCard({ economics }: { economics: UnitEconomics }) {
+export function BreakEvenCard({
+  productId,
+  economics,
+  onApplied,
+}: {
+  productId: number;
+  economics: UnitEconomics;
+  onApplied?: () => void;
+}) {
   const [customPrice, setCustomPrice] = React.useState("");
+  const [applying, setApplying] = React.useState<number | null>(null);
+
+  const apply = async (price: number) => {
+    const rounded = Math.round(price);
+    setApplying(rounded);
+    try {
+      await applyProductPrice(productId, rounded);
+      toast.success(`Narx ${formatSum(rounded)} ga o'zgartirildi — Uzum'da darhol qo'llanildi.`);
+      onApplied?.();
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Narx o'zgarmadi.");
+    } finally {
+      setApplying(null);
+    }
+  };
 
   const price = Number(customPrice);
   const hasCustom = customPrice !== "" && Number.isFinite(price) && price > 0;
@@ -121,6 +152,20 @@ export function BreakEvenCard({ economics }: { economics: UnitEconomics }) {
                   {profit >= 0 ? "Foyda" : "Zarar"}: {formatSum(profit)}
                   {payout > 0 && ` (${margin.toFixed(1)}%)`}
                 </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7"
+                  disabled={applying !== null}
+                  onClick={() => apply(price)}
+                >
+                  {applying === Math.round(price) ? (
+                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                  ) : (
+                    <Check className="mr-1.5 h-3 w-3" />
+                  )}
+                  Shu narxni qo&apos;yish
+                </Button>
               </div>
             )}
           </div>
@@ -165,22 +210,37 @@ export function BreakEvenCard({ economics }: { economics: UnitEconomics }) {
                       {formatSum(rung.profit)}
                     </span>
                   </div>
-                  <div className="mt-1 flex justify-between gap-2 text-xs text-muted-foreground tabular-nums">
-                    <span>Uzum to&apos;laydi {formatSum(rung.payout)}</span>
-                    <span>marja {rung.margin.toFixed(1)}%</span>
+                  <div className="mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground tabular-nums">
+                    <span>Uzum to&apos;laydi {formatSum(rung.payout)} · marja {rung.margin.toFixed(1)}%</span>
+                    {!rung.isCurrent && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 shrink-0 px-2 text-xs"
+                        disabled={applying !== null}
+                        onClick={() => apply(rung.price)}
+                      >
+                        {applying === Math.round(rung.price) ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Qo'yish"
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="hidden overflow-x-auto rounded-lg border md:block">
-              <table className="w-full min-w-[420px] text-sm">
+              <table className="w-full min-w-[480px] text-sm">
                 <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">Sotuv narxi</th>
                     <th className="px-3 py-2 text-right font-medium">Uzum to&apos;laydi</th>
                     <th className="px-3 py-2 text-right font-medium">Sof foyda</th>
                     <th className="px-3 py-2 text-right font-medium">Marja</th>
+                    <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -218,6 +278,23 @@ export function BreakEvenCard({ economics }: { economics: UnitEconomics }) {
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
                         {rung.margin.toFixed(1)}%
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        {!rung.isCurrent && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs"
+                            disabled={applying !== null}
+                            onClick={() => apply(rung.price)}
+                          >
+                            {applying === Math.round(rung.price) ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              "Qo'yish"
+                            )}
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}

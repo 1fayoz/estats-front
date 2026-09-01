@@ -146,7 +146,7 @@ export default function ProductDetailPage() {
           qoldiqni ko'rib turib, o'sha yerda kalit so'z qo'shadi. */}
       <PositionsBlock productId={id} />
 
-      <BreakEvenCard economics={data.economics} />
+      <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
 
       <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
 
