@@ -794,6 +794,10 @@ export const redoAiImages = (id: number, body: AiImageRedo) =>
     body: JSON.stringify(body),
   });
 
+/** Shu kadrni oxirgi "qayta yasash"dan oldingi holatiga qaytaradi — pulsiz, darhol. */
+export const revertAiImage = (id: number, index: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/images/${index}/revert`, { method: "POST" });
+
 export const fetchAiPackage = (id: number) =>
   request<AiPackage>(`/product-ai/drafts/${id}/package`);
 

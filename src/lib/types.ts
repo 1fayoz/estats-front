@@ -1548,6 +1548,8 @@ export interface AiDraft extends AiDraftRow {
   /** Sotuvchining oxirgi ko'rsatmasi — maydonga qaytadan yoziladi. */
   imagePromptExtra: string | null;
   imageChecks: AiImageCheck[];
+  /** Shu indekslarda "qayta yasash"dan oldingi variant bor — orqaga qaytarish tugmasi shunga qarab ko'rsatiladi. */
+  imageHistoryIndexes: number[];
   /** Joylashdan oldingi tekshiruv — matn, rasm, MXIK to'liqmi. */
   audit: AiAudit | null;
   /** Uzum'ga avtomatik joylash holati. Hali boshlanmagan bo'lsa `null`. */

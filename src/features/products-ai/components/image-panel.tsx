@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, RefreshCw, Sparkles, Target, Wand2 } from "lucide-react";
+import { Loader2, RefreshCw, Sparkles, Target, Undo2, Wand2, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { ApiError, mediaUrl, redoAiImages } from "@/lib/api";
+import { ApiError, mediaUrl, redoAiImages, revertAiImage } from "@/lib/api";
 import type { AiDraft } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +46,7 @@ export function ImagePanel({
 }) {
   const [extra, setExtra] = React.useState(draft.imagePromptExtra ?? "");
   const [busy, setBusy] = React.useState<number | "all" | null>(null);
+  const [zoomIndex, setZoomIndex] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     setExtra(draft.imagePromptExtra ?? "");
@@ -59,6 +61,18 @@ export function ImagePanel({
       toast.success(
         index === null ? "Hamma rasm qayta yasalmoqda…" : "Rasm qayta yasalmoqda…"
       );
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const revert = async (index: number) => {
+    setBusy(index);
+    try {
+      onChange(await revertAiImage(draft.id, index));
+      toast.success("Oldingi variantga qaytarildi.");
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
     } finally {
@@ -106,6 +120,7 @@ export function ImagePanel({
               {indexes.map((index) => {
                 const url = draft.images[index];
                 const check = checkFor(index);
+                const canRevert = draft.imageHistoryIndexes.includes(index);
                 return (
                   <figure key={url} className="group relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -128,6 +143,34 @@ export function ImagePanel({
                             <RefreshCw className="h-3.5 w-3.5" /> Qayta
                           </span>
                         )}
+                      </button>
+                    )}
+                    {/* Kattalashtirib ko'rish — redo overlay'dan ALOHIDA,
+                        aks holda rasmning ustiga bosish har doim
+                        "qayta yasash"ni ishga tushirardi. */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setZoomIndex(index);
+                      }}
+                      className="absolute right-1 top-1 z-10 rounded-md bg-black/60 p-1 text-white opacity-0 transition group-hover:opacity-100"
+                      title="Kattalashtirib ko'rish"
+                    >
+                      <ZoomIn className="h-3.5 w-3.5" />
+                    </button>
+                    {!locked && canRevert && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void revert(index);
+                        }}
+                        disabled={busy !== null || working}
+                        className="absolute left-1 top-1 z-10 rounded-md bg-black/60 p-1 text-white opacity-0 transition group-hover:opacity-100 disabled:opacity-100"
+                        title="Oldingi variantga qaytarish"
+                      >
+                        <Undo2 className="h-3.5 w-3.5" />
                       </button>
                     )}
                     <figcaption className="mt-1 flex flex-col items-center gap-0.5">
@@ -223,10 +266,31 @@ export function ImagePanel({
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Bitta rasmni qayta yasash uchun uning ustiga bosing.
+            Bitta rasmni qayta yasash uchun uning ustiga, kattalashtirish
+            uchun lupa belgisini bosing. Qayta yasalgan rasm eskisini
+            o&apos;chirmaydi — kerak bo&apos;lsa ↺ belgisi bilan oldingi
+            variantga qaytarish mumkin.
           </p>
         </div>
       )}
+
+      <Dialog open={zoomIndex !== null} onOpenChange={(open) => !open && setZoomIndex(null)}>
+        <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none">
+          <DialogTitle className="sr-only">
+            {zoomIndex !== null
+              ? `AI rasm ${zoomIndex + 1} — kattalashtirilgan`
+              : "AI rasm"}
+          </DialogTitle>
+          {zoomIndex !== null && draft.images[zoomIndex] && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={mediaUrl(draft.images[zoomIndex])}
+              alt={`AI rasm ${zoomIndex + 1} — kattalashtirilgan`}
+              className="max-h-[85vh] w-full rounded-lg object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
