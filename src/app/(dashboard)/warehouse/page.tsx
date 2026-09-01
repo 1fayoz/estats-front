@@ -17,15 +17,34 @@ import { useWarehouseProducts } from "@/features/warehouse/store";
 import { useActiveShop, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
+import { fetchProducts } from "@/lib/api";
 import type { WarehouseProduct } from "@/lib/types";
 
 export default function WarehousePage() {
-  const { items, error, isInitialLoading, refresh } = useWarehouseProducts();
+  const { items: activeItems, error, isInitialLoading, refresh } = useWarehouseProducts();
   // Tugma o'rniga: sahifaga qaytganda va vaqti-vaqti bilan o'zi yangilanadi.
   useAutoRefresh(refresh);
   const shop = useActiveShop();
   const [query, setQuery] = React.useState("");
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
+
+  // ── Arxiv ── ATAYLAB asosiy do'kondan (`useWarehouseProducts`)
+  // ALOHIDA: u sahifalar bo'ylab umumiy kesh, boshqa joylarda ham
+  // ishlatiladi va "faqat FAOL tovarlar" degan ma'noni bergani
+  // uchun uni arxiv bilan aralashtirish boshqa ekranlarni ham
+  // buzardi. Arxiv sukut bo'yicha yashiringan — faqat so'ralganda
+  // alohida so'rov bilan yuklanadi.
+  const [view, setView] = React.useState<"active" | "archived">("active");
+  const [archivedItems, setArchivedItems] = React.useState<WarehouseProduct[]>([]);
+  const [archivedLoading, setArchivedLoading] = React.useState(false);
+  React.useEffect(() => {
+    if (view !== "archived") return;
+    setArchivedLoading(true);
+    fetchProducts({ archived: true })
+      .then((page) => setArchivedItems(page.results))
+      .finally(() => setArchivedLoading(false));
+  }, [view]);
+  const items = view === "archived" ? archivedItems : activeItems;
 
   // ── Tovar qo'shish (AI) ────────────────────────────────────
   // Alohida sahifa emas, shu yerdagi oyna: tovar qo'shish —
@@ -92,14 +111,40 @@ export default function WarehousePage() {
 
       {canSeeAi && <DraftStrip rows={drafts.rows} onOpen={(id) => openAi(id)} />}
 
-      <div className="relative max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Nom, SKU, barcode yoki kategoriya..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
-        />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative max-w-md flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Nom, SKU, barcode yoki kategoriya..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex overflow-hidden rounded-md border">
+          <button
+            type="button"
+            onClick={() => setView("active")}
+            className={
+              view === "active"
+                ? "bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+                : "px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+            }
+          >
+            Faol
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("archived")}
+            className={
+              view === "archived"
+                ? "bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+                : "px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+            }
+          >
+            Arxiv
+          </button>
+        </div>
       </div>
 
       {/* Qoldiq = keldi − sotildi. "Sotildi" esa faqat YUKLANGAN sotuvlardan
@@ -135,7 +180,7 @@ export default function WarehousePage() {
         </div>
       )}
 
-      {isInitialLoading ? (
+      {(view === "active" ? isInitialLoading : archivedLoading && items.length === 0) ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-16 w-full rounded-lg" />

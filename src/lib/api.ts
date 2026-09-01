@@ -204,8 +204,9 @@ export const deleteShop = (id: number) =>
 
 // ── ombor (goods) ────────────────────────────────────────────────────────────
 
-export const fetchProducts = (params: { search?: string; page?: number; size?: number; sync?: boolean } = {}) =>
-  request<Paginated<WarehouseProduct>>(`/warehouse/products${qs({ ...params, size: params.size ?? 200 })}`);
+export const fetchProducts = (
+  params: { search?: string; page?: number; size?: number; sync?: boolean; archived?: boolean } = {},
+) => request<Paginated<WarehouseProduct>>(`/warehouse/products${qs({ ...params, size: params.size ?? 200 })}`);
 
 export const fetchProductDetail = (id: number) =>
   request<ProductDetail>(`/warehouse/products/${id}`);
@@ -834,3 +835,15 @@ export const publishAiDraftUzum = (id: number, categoryManualPath?: string[]) =>
  */
 export const stopAiDraftUzum = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/publish-uzum/stop`, { method: "POST" });
+
+/**
+ * ALLAQACHON Uzum'da turgan tovarni tahrirlaydi (nom, tavsif,
+ * so'ralsa rasmlar) — YANGI tovar yaratmaydi. Faqat oldin
+ * muvaffaqiyatli joylangan (`uzumPublish.productId` bor) qoralama
+ * uchun ishlaydi.
+ */
+export const editAiDraftUzum = (id: number, replaceImages: boolean) =>
+  request<AiDraft>(
+    `/product-ai/drafts/${id}/edit-uzum${replaceImages ? "?replace_images=true" : ""}`,
+    { method: "POST" },
+  );

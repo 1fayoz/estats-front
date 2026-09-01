@@ -60,5 +60,11 @@ export function useAiDrafts(enabled: boolean) {
     setRows((prev) => prev.filter((row) => row.id !== id));
   }, []);
 
-  return { rows, loading, reload, upsert, remove };
+  // Nashr etilgan qoralama "ishlayotgan qator"dan chiqadi — u endi
+  // tovarning o'zi orqali (Ombor jadvali, "Tahrirlash") boshqariladi.
+  // Holat ATAYLAB to'liq saqlanadi (`rows`, filtrlash faqat
+  // ko'rsatishda) — masalan `upsert` hali ham to'g'ri ishlaydi.
+  const visibleRows = React.useMemo(() => rows.filter((row) => !row.uzumPublished), [rows]);
+
+  return { rows: visibleRows, loading, reload, upsert, remove };
 }

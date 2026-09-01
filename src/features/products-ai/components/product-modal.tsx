@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, Loader2, Square, Trash2, Upload } from "lucide-react";
+import { Check, Copy, Loader2, Pencil, Square, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { AirSlider } from "@/components/air/slider";
@@ -22,6 +22,7 @@ import {
   approveAiDraft,
   createAiDraft,
   deleteAiDraft,
+  editAiDraftUzum,
   fetchAiDraft,
   fetchAiPackage,
   patchAiDraft,
@@ -80,6 +81,13 @@ export function ProductAiModal({
   const [form, setForm] = React.useState<DraftForm | null>(null);
   const [busy, setBusy] = React.useState("");
   const [confirmDelete, setConfirmDelete] = React.useState(false);
+  // Uzum'da ALLAQACHON turgan tovarni qayta ochish uchun — tasdiqlangan
+  // qoralama sukut bo'yicha QULF (o'zgartirib bo'lmaydi, endi Uzum'ning
+  // o'zida turibdi). "Tahrirlash" shu qulfni VAQTINCHA ochadi: sotuvchi
+  // matn/rasmni qayta generatsiya qilib, keyin "Uzumda yangilash" bilan
+  // HAQIQIY tovarga ko'chiradi. Yaratishdan OLDINGI (hali joylanmagan)
+  // tasdiqlangan qoralamada bu tugma yo'q — u hali ham to'liq qulf.
+  const [editMode, setEditMode] = React.useState(false);
 
   // Oyna har ochilganda toza holatdan boshlanadi: oldingi
   // qoralamaning matni yangi tovarga qo'shilib qolmasin.
@@ -89,6 +97,7 @@ export function ProductAiModal({
     setHint("");
     setBusy("");
     setConfirmDelete(false);
+    setEditMode(false);
     setTab("general");
     if (draftId === null) {
       setDraft(null);
@@ -161,7 +170,8 @@ export function ProductAiModal({
     }
   };
 
-  const locked = draft?.stage === "approved";
+  const locked = draft?.stage === "approved" && !editMode;
+  const isLiveOnUzum = Boolean(draft?.uzumPublish?.productId);
   const dirty =
     draft !== null &&
     form !== null &&
@@ -193,12 +203,15 @@ export function ProductAiModal({
         <Footer
           draft={draft}
           locked={Boolean(locked)}
+          editMode={editMode}
+          isLiveOnUzum={isLiveOnUzum}
           dirty={dirty}
           busy={busy}
           files={files}
           confirmDelete={confirmDelete}
           onConfirmDelete={setConfirmDelete}
           onClose={onClose}
+          onToggleEdit={() => setEditMode((v) => !v)}
           onStart={() =>
             act("start", async () => {
               const fresh = await createAiDraft(files, hint.trim());
@@ -253,6 +266,18 @@ export function ProductAiModal({
               if (!draft) return;
               apply(await stopAiDraftUzum(draft.id));
               toast.success("To'xtatildi — brauzer ochiq qoldi, keyinroq shu joydan davom etadi.");
+            })
+          }
+          onEditUzum={(replaceImages) =>
+            act("editUzum", async () => {
+              if (!draft) return;
+              apply(await editAiDraftUzum(draft.id, replaceImages));
+              setEditMode(false);
+              toast.success(
+                replaceImages
+                  ? "Uzum'da yangilanmoqda — nom, tavsif va rasmlar."
+                  : "Uzum'da yangilanmoqda — nom va tavsif.",
+              );
             })
           }
           onDelete={() =>
@@ -366,6 +391,8 @@ const TAB_TITLE: Record<DraftTabKey, string> = {
 function Footer({
   draft,
   locked,
+  editMode,
+  isLiveOnUzum,
   dirty,
   busy,
   files,
@@ -377,11 +404,15 @@ function Footer({
   onApprove,
   onPublish,
   onStopPublish,
+  onToggleEdit,
+  onEditUzum,
   onDelete,
   onClose,
 }: {
   draft: AiDraft | null;
   locked: boolean;
+  editMode: boolean;
+  isLiveOnUzum: boolean;
   dirty: boolean;
   busy: string;
   files: File[];
@@ -393,9 +424,12 @@ function Footer({
   onApprove: () => void;
   onPublish: (categoryManualPath?: string[]) => void;
   onStopPublish: () => void;
+  onToggleEdit: () => void;
+  onEditUzum: (replaceImages: boolean) => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
+  const [pushImages, setPushImages] = React.useState(false);
   const blocked = draft?.audit?.blocking ?? 0;
   const publishStatus = draft?.uzumPublish?.status || null;
   const categoryLevels = draft?.uzumPublish?.categoryLevels || [];
@@ -467,7 +501,7 @@ function Footer({
           {spin("copy") ?? <Copy className="mr-1.5 inline h-3.5 w-3.5" />}
           Uzum uchun nusxalash
         </button>
-        {!locked && draft.progress >= 95 && (
+        {!locked && !editMode && draft.progress >= 95 && (
           <button
             type="button"
             className={cn("air-btn-flat", blocked && "text-destructive")}
@@ -484,7 +518,11 @@ function Footer({
             {blocked ? ` (${blocked})` : ""}
           </button>
         )}
-        {locked && (
+        {/* Bu tugma FAQAT hali Uzum'da UMUMAN yo'q qoralama uchun —
+            `isLiveOnUzum` bo'lsa, qayta bosish YANGI (dublikat)
+            tovar yaratardi (`/products/new`). Allaqachon joylangan
+            tovar uchun pastdagi "Tahrirlash" yo'li ishlatiladi. */}
+        {locked && !isLiveOnUzum && (
           <button
             type="button"
             className={cn(
@@ -504,12 +542,10 @@ function Footer({
               ? `Joylanmoqda... ${publishProgress}%`
               : publishStatus === "stopped"
                 ? "Davom ettirish"
-                : publishStatus === "published"
-                  ? "Qayta joylash"
-                  : "Uzumga joylash"}
+                : "Uzumga joylash"}
           </button>
         )}
-        {locked && publishing && (
+        {locked && !isLiveOnUzum && publishing && (
           <button
             type="button"
             className="air-btn-flat"
@@ -524,6 +560,40 @@ function Footer({
             )}
             To&apos;xtatish
           </button>
+        )}
+        {/* Allaqachon Uzum'da turgan tovar — "Tahrirlash" QULFNI
+            vaqtincha ochadi: matn/rasmni qayta generatsiya qilib,
+            "Uzumda yangilash" bilan HAQIQIY tovarga ko'chirish
+            mumkin. Bu yerda YANGI tovar hech qachon yaratilmaydi. */}
+        {locked && isLiveOnUzum && (
+          <button type="button" className="air-btn-flat" onClick={onToggleEdit}>
+            <Pencil className="mr-1.5 inline h-3.5 w-3.5" />
+            Tahrirlash
+          </button>
+        )}
+        {editMode && (
+          <>
+            <label className="flex items-center gap-1.5 text-xs text-[color:var(--air-label)]">
+              <input
+                type="checkbox"
+                checked={pushImages}
+                onChange={(e) => setPushImages(e.target.checked)}
+              />
+              rasmlarni ham
+            </label>
+            <button
+              type="button"
+              className="air-btn-save"
+              onClick={() => onEditUzum(pushImages)}
+              disabled={busy === "editUzum"}
+              title="Nom, tavsif va (belgilansa) rasmlarni Uzum'dagi tovarga ko'chiradi."
+            >
+              {spin("editUzum")}Uzum&apos;da yangilash
+            </button>
+            <button type="button" className="air-btn-flat" onClick={onToggleEdit}>
+              Bekor qilish
+            </button>
+          </>
         )}
         <button type="button" className="air-btn-flat" onClick={onClose}>
           Yopish

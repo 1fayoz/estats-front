@@ -1459,6 +1459,8 @@ export interface AiDraftRow {
   cover: string | null;
   suggestedPrice: number | null;
   createdAt: string;
+  /** Uzum'ga muvaffaqiyatli joylangan bo'lsa — qatordan yashiriladi. */
+  uzumPublished: boolean;
 }
 
 export interface AiRival {
@@ -1527,6 +1529,8 @@ export interface AiUzumPublish {
   timings: Record<string, number>;
   /** `status === "category_unresolved"` bo'lganda: HAR bosilgan daraja, birinchisidan boshlab — xato ko'pincha o'rtada bo'ladi. */
   categoryLevels: AiCategoryLevel[];
+  /** `status === "published"` bo'lgach Uzum'ning o'z tovar ID'si — keyingi tahrirlash shunga tayanadi. */
+  productId: string | null;
 }
 
 export interface AiDraft extends AiDraftRow {
