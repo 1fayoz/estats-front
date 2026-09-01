@@ -609,29 +609,57 @@ function Footer({
                 {i > 0 && (
                   <span className="text-[11px] text-[color:var(--air-label)]">→</span>
                 )}
-                <select
-                  className={cn(
-                    "air-input h-8 w-auto max-w-[220px] text-xs",
-                    categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
-                  )}
-                  value={categoryPicks[i] ?? level.chosen}
-                  onChange={(e) =>
-                    setCategoryPicks((prev) => {
-                      const next = [...prev];
-                      next[i] = e.target.value;
-                      return next;
-                    })
-                  }
-                >
-                  {level.candidates.map((name) => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
+                {i === 0 ? (
+                  // 1-bosqich Uzum'da QIDIRUV maydoni, ro'yxat emas
+                  // (`category.js`) — shuning uchun bu yerda ham
+                  // erkin matn: variant faqat SHU URINISHDA topilgan
+                  // bitta nomni ko'rsatadi, boshqa shoxni tanlash
+                  // uchun sotuvchi butunlay boshqa so'z yozishi kerak.
+                  <input
+                    type="text"
+                    className={cn(
+                      "air-input h-8 w-auto max-w-[220px] text-xs",
+                      categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
+                    )}
+                    value={categoryPicks[i] ?? level.chosen}
+                    placeholder="Toifa nomi..."
+                    onChange={(e) =>
+                      setCategoryPicks((prev) => {
+                        const next = [...prev];
+                        next[i] = e.target.value;
+                        return next;
+                      })
+                    }
+                  />
+                ) : (
+                  <select
+                    className={cn(
+                      "air-input h-8 w-auto max-w-[220px] text-xs",
+                      categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
+                    )}
+                    value={categoryPicks[i] ?? level.chosen}
+                    onChange={(e) =>
+                      setCategoryPicks((prev) => {
+                        const next = [...prev];
+                        next[i] = e.target.value;
+                        return next;
+                      })
+                    }
+                  >
+                    {level.candidates.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </React.Fragment>
             ))}
           </div>
+          <p className="text-center text-[11px] text-[color:var(--air-label)]">
+            1-maydon — erkin qidiruv so'zi (masalan, boshqa toifa uchun butunlay boshqa so'z yozing);
+            qolganlari — Uzum'ning shu daraja uchun taklif qilgan ro'yxati.
+          </p>
           <button
             type="button"
             className="air-btn-save"
