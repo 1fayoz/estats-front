@@ -78,6 +78,15 @@ export function UzumVncDialog({
         if (cancelled || !targetRef.current) return;
         try {
           rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
+          // Buni tashxis paytida vaqtincha olib tashlagandim (gumon
+          // qilingan sabab boshqa bo'lib chiqdi — VNC_PASSWORD) va
+          // qaytarishni unutgandim: buning YO'QLIGI aynan shu — pastki
+          // qism (kirish tugmasi) qirqilib ko'rinish — xatosining
+          // o'zi edi. Usiz noVNC masofaviy ekranni (1920x1080) ASL
+          // o'lchamda chizadi, konteyner esa faqat bir qismini
+          // ko'rsatib, qolganini `overflow-hidden` bilan kesib
+          // tashlaydi.
+          rfb.scaleViewport = true;
           rfb.addEventListener("connect", () => setConnecting(false));
           rfb.addEventListener("disconnect", (e) => {
             const clean = (e as CustomEvent<{ clean: boolean }>).detail?.clean;
