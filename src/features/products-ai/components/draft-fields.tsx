@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { AuditPanel } from "@/features/products-ai/components/audit-panel";
+import { CategoryPicker } from "@/features/products-ai/components/category-picker";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -219,6 +220,14 @@ export function DraftFields({
   const uz = tab === "general";
   return (
     <div className="space-y-4">
+      {/*
+        Turkum ENG TEPADA va faqat o'zbekcha tabda: u kartochkaning
+        matnidan oldin keladigan qaror — noto'g'ri turkum matn
+        qanchalik yaxshi bo'lsa ham kartochkani ko'rinmas qiladi.
+        Joylashni ham to'sadi, shuning uchun sotuvchi uni birinchi
+        ko'rishi kerak, oxirida emas.
+      */}
+      {uz && <CategoryPicker draft={draft} locked={locked} onDraft={onChange} />}
       <div>
         <label className="air-label">Nom {uz ? "(o'zbekcha)" : "(ruscha)"}</label>
         <input

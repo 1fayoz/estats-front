@@ -1533,6 +1533,29 @@ export interface AiUzumPublish {
   productId: string | null;
 }
 
+export interface AiCategoryNode {
+  id: number;
+  title: string;
+  /** "Goʻzallik va parvarish → Shaxsiy gigiyena → ..." — bitta nom yetmaydi: bir xil nom daraxtning bir necha joyida bor. */
+  fullTitle: string | null;
+  level: number;
+  /** Uzum shu tugunga tovar qo'yishga ruxsat beradimi. */
+  canUse: boolean;
+  hasChildren: boolean;
+  okpd2Required: boolean;
+}
+
+export interface AiCategoryPick {
+  id: number | null;
+  title: string | null;
+  fullTitle: string | null;
+  /** Ildizdan nishongacha — har darajani alohida o'zgartirish uchun. */
+  path: AiCategoryNode[];
+  /** "ai" | "manual" | "product" — sotuvchi tanlovini quvur bosib ketmasligi uchun. */
+  source: string | null;
+  treeReady: boolean;
+}
+
 export interface AiDraft extends AiDraftRow {
   sourceImages: string[];
   hint: string | null;
@@ -1564,6 +1587,8 @@ export interface AiDraft extends AiDraftRow {
   audit: AiAudit | null;
   /** Uzum'ga avtomatik joylash holati. Hali boshlanmagan bo'lsa `null`. */
   uzumPublish: AiUzumPublish | null;
+  /** Uzum turkumi — endi qoralamaning O'Z maydoni, joylash paytida topiladigan narsa emas. */
+  category: AiCategoryPick | null;
   updatedAt: string;
 }
 

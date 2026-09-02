@@ -44,6 +44,7 @@ import type {
   ShopCreateResult,
   AiKeyState,
   AiDraft,
+  AiCategoryNode,
   AiDraftPatch,
   AiDraftRow,
   AiImageRedo,
@@ -779,6 +780,32 @@ export const patchAiDraft = (id: number, patch: AiDraftPatch) =>
 
 export const approveAiDraft = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/approve`, { method: "POST" });
+
+// ── Uzum turkumi ────────────────────────────────────────────────
+// Daraxt BIZNING bazamizda (sotuvchi kabinetidan bir marta
+// ko'chirilgan), shuning uchun bu so'rovlar oddiy va tez — brauzer
+// ochilmaydi, Uzum'ga chiqilmaydi.
+
+/** Bitta daraja (`parentId` bo'lmasa — ildiz) yoki nom bo'yicha qidiruv (`q`). */
+export const fetchAiCategories = (params: { parentId?: number; q?: string }) =>
+  request<AiCategoryNode[]>(`/product-ai/categories${qs(params)}`);
+
+export const setAiDraftCategory = (id: number, categoryId: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/category`, {
+    method: "PUT",
+    body: JSON.stringify({ categoryId }),
+  });
+
+/** Tayyor uzum.uz tovaridan turkumni ko'chiradi — havola yoki tovar raqami. */
+export const setAiDraftCategoryFromUrl = (id: number, url: string) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/category/from-url`, {
+    method: "POST",
+    body: JSON.stringify({ url }),
+  });
+
+/** Daraxtni Uzum kabinetidan qayta ko'chiradi. Kamdan-kam kerak. */
+export const syncAiCategories = () =>
+  request<{ count: number }>(`/product-ai/categories/sync`, { method: "POST" });
 
 export const deleteAiDraft = (id: number) =>
   request<void>(`/product-ai/drafts/${id}`, { method: "DELETE" });

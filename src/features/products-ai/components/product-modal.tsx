@@ -172,6 +172,9 @@ export function ProductAiModal({
 
   const locked = draft?.stage === "approved" && !editMode;
   const isLiveOnUzum = Boolean(draft?.uzumPublish?.productId);
+  const draftPublishStatus = draft?.uzumPublish?.status || null;
+  const draftPublishing =
+    draftPublishStatus === "queued" || draftPublishStatus === "running";
   const dirty =
     draft !== null &&
     form !== null &&
@@ -195,7 +198,24 @@ export function ProductAiModal({
       }
       subheader={
         <>
-          <StageStrip draft={draft} />
+          {/*
+            BITTA bosqich chizig'i, navbat bilan: AI kartochkani
+            tayyorlagunicha — quvur qadamlari; Uzumga joylash
+            boshlangach — joylash fazalari. Ikkalasi bir vaqtda
+            ko'rinsa oynada uchta o'xshash gorizontal chiziq bo'lardi
+            va qaysi biri navigatsiya, qaysi biri holat ekani
+            bilinmasdi.
+          */}
+          {draftPublishStatus ? (
+            <PublishProgress
+              draft={draft!}
+              publishing={draftPublishing}
+              publishStage={draft?.uzumPublish?.stage || null}
+              publishStatus={draftPublishStatus}
+            />
+          ) : (
+            <StageStrip draft={draft} />
+          )}
           <DraftTabs draft={draft} tab={tab} onTab={setTab} />
         </>
       }
@@ -599,68 +619,6 @@ function Footer({
           Yopish
         </button>
       </div>
-      {publishStatus && (
-        // Uzum'ning O'Z bosqich chizig'iga o'xshab (kategoriya →
-        // ma'lumot → yakunlash) — sotuvchi HAR safar bitta xira
-        // "43%" o'rniga QAYSI faza tugagani, qaysi ketayotgani,
-        // qaysi hali kelmaganini ko'radi. Chiziq NATIJADAN keyin
-        // ham qoladi — muvaffaqiyatsiz urinish qaysi fazada
-        // to'xtaganini keyin qaytib ochganda ham ko'rsatib turadi.
-        <div className="w-full space-y-1.5">
-          <div className="air-stages" role="list">
-            {PUBLISH_PHASES.map((phase) => {
-              const state = publishPhaseState(phase, draft.uzumPublish, publishing);
-              return (
-                <div
-                  key={phase.key}
-                  role="listitem"
-                  data-state={state}
-                  className="air-stage"
-                  title={phase.label}
-                >
-                  {phase.short}
-                </div>
-              );
-            })}
-          </div>
-          {publishing && publishStage ? (
-            <p className="text-center text-xs text-[color:var(--air-label)]">
-              {PUBLISH_STAGE_LABEL[publishStage] ?? publishStage}…
-              {Object.keys(draft.uzumPublish?.timings || {}).length > 0 && (
-                <span className="ml-1">
-                  (
-                  {Object.entries(draft.uzumPublish!.timings)
-                    .map(([stage, ms]) => `${PUBLISH_STAGE_LABEL[stage] ?? stage}: ${(ms / 1000).toFixed(1)}s`)
-                    .join(", ")}
-                  )
-                </span>
-              )}
-            </p>
-          ) : (
-            <p
-              className={cn(
-                "text-center text-xs",
-                publishStatus === "published"
-                  ? "air-ok"
-                  : FAILED_PUBLISH.has(publishStatus)
-                    ? "air-bad"
-                    : "air-warn",
-              )}
-            >
-              {PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
-              {publishStatus === "published" && draft.uzumPublish?.timings && (
-                <span className="ml-1 text-[color:var(--air-label)]">
-                  (jami{" "}
-                  {(
-                    Object.values(draft.uzumPublish.timings).reduce((a, b) => a + b, 0) / 1000
-                  ).toFixed(1)}
-                  s)
-                </span>
-              )}
-            </p>
-          )}
-        </div>
-      )}
       {publishStatus === "category_unresolved" && !publishing && categoryLevels.length > 0 && (
         // Avtomatika biror darajada ishonchsiz tanlov qilgan
         // (`category.js`dagi ball tekshiruvi) — VNC ochish shart
@@ -782,6 +740,99 @@ function Footer({
         <Trash2 className="h-3 w-3" />
         {confirmDelete ? "aniqmi? bosing" : "o'chirish"}
       </button>
+    </>
+  );
+}
+
+
+/**
+ * Uzumga joylash bosqichlari — kategoriya → ma'lumot → yakunlash.
+ *
+ * ATAYLAB oynaning TEPASIDA, AI bosqich chizig'ining O'RNIDA
+ * (ikkalasi bir vaqtda ko'rinmaydi). Ilgari u Footer ichida,
+ * tugmalar qatoridan KEYIN chizilardi: natijada oynada uchta
+ * o'xshash gorizontal chiziq bo'lardi (AI bosqichlari, tablar,
+ * joylash bosqichlari) va oxirgisi harakat tugmalaridan pastda
+ * yetim bo'lib osilib qolardi — qaysi biri navigatsiya, qaysi
+ * biri holat ekani bilinmasdi.
+ *
+ * Sotuvchi uchun bu BITTA yo'l: avval AI kartochkani tayyorlaydi,
+ * keyin u Uzumga ko'chadi. Shuning uchun bitta joyda, navbat
+ * bilan ko'rsatiladi.
+ */
+function PublishProgress({
+  draft,
+  publishing,
+  publishStage,
+  publishStatus,
+}: {
+  draft: AiDraft;
+  publishing: boolean;
+  publishStage: string | null;
+  publishStatus: string;
+}) {
+  return (
+    <>
+        // Uzum'ning O'Z bosqich chizig'iga o'xshab (kategoriya →
+        // ma'lumot → yakunlash) — sotuvchi HAR safar bitta xira
+        // "43%" o'rniga QAYSI faza tugagani, qaysi ketayotgani,
+        // qaysi hali kelmaganini ko'radi. Chiziq NATIJADAN keyin
+        // ham qoladi — muvaffaqiyatsiz urinish qaysi fazada
+        // to'xtaganini keyin qaytib ochganda ham ko'rsatib turadi.
+        <div className="w-full space-y-1.5">
+          <div className="air-stages" role="list">
+            {PUBLISH_PHASES.map((phase) => {
+              const state = publishPhaseState(phase, draft.uzumPublish, publishing);
+              return (
+                <div
+                  key={phase.key}
+                  role="listitem"
+                  data-state={state}
+                  className="air-stage"
+                  title={phase.label}
+                >
+                  {phase.short}
+                </div>
+              );
+            })}
+          </div>
+          {publishing && publishStage ? (
+            <p className="text-center text-xs text-[color:var(--air-label)]">
+              {PUBLISH_STAGE_LABEL[publishStage] ?? publishStage}…
+              {Object.keys(draft.uzumPublish?.timings || {}).length > 0 && (
+                <span className="ml-1">
+                  (
+                  {Object.entries(draft.uzumPublish!.timings)
+                    .map(([stage, ms]) => `${PUBLISH_STAGE_LABEL[stage] ?? stage}: ${(ms / 1000).toFixed(1)}s`)
+                    .join(", ")}
+                  )
+                </span>
+              )}
+            </p>
+          ) : (
+            <p
+              className={cn(
+                "text-center text-xs",
+                publishStatus === "published"
+                  ? "air-ok"
+                  : FAILED_PUBLISH.has(publishStatus)
+                    ? "air-bad"
+                    : "air-warn",
+              )}
+            >
+              {PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
+              {publishStatus === "published" && draft.uzumPublish?.timings && (
+                <span className="ml-1 text-[color:var(--air-label)]">
+                  (jami{" "}
+                  {(
+                    Object.values(draft.uzumPublish.timings).reduce((a, b) => a + b, 0) / 1000
+                  ).toFixed(1)}
+                  s)
+                </span>
+              )}
+            </p>
+          )}
+        </div>
     </>
   );
 }
