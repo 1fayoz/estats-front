@@ -674,67 +674,95 @@ function Footer({
         // bilan qoladi.
         <div className="flex w-full flex-col items-center gap-2">
           <div className="flex flex-wrap items-center justify-center gap-1.5">
-            {categoryLevels.map((level, i) => (
-              <React.Fragment key={level.depth}>
-                {i > 0 && (
-                  <span className="text-[11px] text-[color:var(--air-label)]">→</span>
-                )}
-                {i === 0 ? (
-                  // 1-bosqich Uzum'da QIDIRUV maydoni, ro'yxat emas
-                  // (`category.js`) — shuning uchun bu yerda ham
-                  // erkin matn: variant faqat SHU URINISHDA topilgan
-                  // bitta nomni ko'rsatadi, boshqa shoxni tanlash
-                  // uchun sotuvchi butunlay boshqa so'z yozishi kerak.
-                  <input
-                    type="text"
-                    className={cn(
-                      "air-input h-8 w-auto max-w-[220px] text-xs",
-                      categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
-                    )}
-                    value={categoryPicks[i] ?? level.chosen}
-                    placeholder="Toifa nomi..."
-                    onChange={(e) =>
-                      setCategoryPicks((prev) => {
-                        const next = [...prev];
-                        next[i] = e.target.value;
-                        return next;
-                      })
-                    }
-                  />
-                ) : (
-                  <select
-                    className={cn(
-                      "air-input h-8 w-auto max-w-[220px] text-xs",
-                      categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
-                    )}
-                    value={categoryPicks[i] ?? level.chosen}
-                    onChange={(e) =>
-                      setCategoryPicks((prev) => {
-                        const next = [...prev];
-                        next[i] = e.target.value;
-                        return next;
-                      })
-                    }
-                  >
-                    {level.candidates.map((name) => (
-                      <option key={name} value={name}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </React.Fragment>
-            ))}
+            {categoryLevels.map((level, i) => {
+              // Bu daraja hali eskisi (avtomatika tanlagan)mi — shu
+              // bo'lsa, undan KEYINGI barcha darajalar ENDI ISHONCHSIZ:
+              // ular O'SHA ESKI (noto'g'ri) shoxning bolalari sifatida
+              // ushlangan edi. Haqiqiy sinovda aynan shu tuzoq topildi:
+              // sotuvchi 2-bosqichni to'g'irlasa ("Shaxsiy gigiyena"),
+              // 3-4-bosqich hamon ESKI shox ("Sochlar parvarishi")ning
+              // bolalarini ko'rsatardi ("Bigudi" kabi) — kerakli
+              // "Og'iz bo'shlig'i gigiyenasi" hech qachon ro'yxatda
+              // ko'rinmasdi, chunki u UMUMAN boshqa so'rovning natijasi.
+              // Yechim: o'zgartirilgan darajadan KEYINGISI ko'rsatilmaydi
+              // — `category.js`ning o'zi ularni "Davom etish"da yangi
+              // (to'g'ri) shoxdan qayta kashf qiladi (`clickBestOption`
+              // eskirgan/mos kelmagan `forcedText`ni jimgina e'tiborsiz
+              // qoldirib, oddiy ballashga tushadi).
+              const priorChanged = categoryPicks
+                .slice(0, i)
+                .some((pick, j) => pick !== categoryLevels[j]?.chosen);
+              if (priorChanged) return null;
+              return (
+                <React.Fragment key={level.depth}>
+                  {i > 0 && (
+                    <span className="text-[11px] text-[color:var(--air-label)]">→</span>
+                  )}
+                  {i === 0 ? (
+                    // 1-bosqich Uzum'da QIDIRUV maydoni, ro'yxat emas
+                    // (`category.js`) — shuning uchun bu yerda ham
+                    // erkin matn: variant faqat SHU URINISHDA topilgan
+                    // bitta nomni ko'rsatadi, boshqa shoxni tanlash
+                    // uchun sotuvchi butunlay boshqa so'z yozishi kerak.
+                    <input
+                      type="text"
+                      className={cn(
+                        "air-input h-8 w-auto max-w-[220px] text-xs",
+                        categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
+                      )}
+                      value={categoryPicks[i] ?? level.chosen}
+                      placeholder="Toifa nomi..."
+                      onChange={(e) =>
+                        setCategoryPicks((prev) => [
+                          ...prev.slice(0, i),
+                          e.target.value,
+                        ])
+                      }
+                    />
+                  ) : (
+                    <select
+                      className={cn(
+                        "air-input h-8 w-auto max-w-[220px] text-xs",
+                        categoryPicks[i] !== level.chosen && "border-[color:var(--warn)]",
+                      )}
+                      value={categoryPicks[i] ?? level.chosen}
+                      onChange={(e) =>
+                        setCategoryPicks((prev) => [
+                          ...prev.slice(0, i),
+                          e.target.value,
+                        ])
+                      }
+                    >
+                      {level.candidates.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
           <p className="text-center text-[11px] text-[color:var(--air-label)]">
             1-maydon — erkin qidiruv so'zi (masalan, boshqa toifa uchun butunlay boshqa so'z yozing);
-            qolganlari — Uzum'ning shu daraja uchun taklif qilgan ro'yxati.
+            qolganlari — Uzum'ning shu daraja uchun taklif qilgan ro'yxati. Darajani
+            o'zgartirsangiz, undan keyingisi "Davom etish"da yangi shoxdan qayta topiladi.
           </p>
           <button
             type="button"
             className="air-btn-save"
             disabled={busy === "publish"}
-            onClick={() => onPublish(categoryPicks)}
+            onClick={() => {
+              const priorChangedAt = categoryPicks.findIndex(
+                (pick, j) => pick !== categoryLevels[j]?.chosen,
+              );
+              onPublish(
+                priorChangedAt === -1
+                  ? categoryPicks
+                  : categoryPicks.slice(0, priorChangedAt + 1),
+              );
+            }}
           >
             Shu yo&apos;l bilan davom etish
           </button>
