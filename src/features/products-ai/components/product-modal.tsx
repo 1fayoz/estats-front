@@ -771,14 +771,14 @@ function PublishProgress({
   publishStage: string | null;
   publishStatus: string;
 }) {
+  // Uzum'ning O'Z bosqich chizig'iga o'xshab (kategoriya →
+  // ma'lumot → yakunlash) — sotuvchi HAR safar bitta xira "43%"
+  // o'rniga QAYSI faza tugagani, qaysi ketayotgani, qaysi hali
+  // kelmaganini ko'radi. Chiziq NATIJADAN keyin ham qoladi —
+  // muvaffaqiyatsiz urinish qaysi fazada to'xtaganini keyin
+  // qaytib ochganda ham ko'rsatib turadi.
   return (
     <>
-        // Uzum'ning O'Z bosqich chizig'iga o'xshab (kategoriya →
-        // ma'lumot → yakunlash) — sotuvchi HAR safar bitta xira
-        // "43%" o'rniga QAYSI faza tugagani, qaysi ketayotgani,
-        // qaysi hali kelmaganini ko'radi. Chiziq NATIJADAN keyin
-        // ham qoladi — muvaffaqiyatsiz urinish qaysi fazada
-        // to'xtaganini keyin qaytib ochganda ham ko'rsatib turadi.
         <div className="w-full space-y-1.5">
           <div className="air-stages" role="list">
             {PUBLISH_PHASES.map((phase) => {
