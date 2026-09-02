@@ -788,6 +788,7 @@ function PublishProgress({
                   key={phase.key}
                   role="listitem"
                   data-state={state}
+                  data-phase={phase.key}
                   className="air-stage"
                   title={phase.label}
                 >

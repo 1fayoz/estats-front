@@ -715,6 +715,18 @@ table.air-table tbody tr:last-child td { border-bottom: none; }
   --air-label: #a3a9b1;
   --air-head: #525c69;
 
+  /* Qo'shimcha ikkita aksent — `--primary`/`--ok`/`--bad`/`--warn`
+   * ustiga. Bir xil oq karta ichida turli manba/toifadagi
+   * ma'lumot (turkum manbai, tab hisoblagichlari) FAQAT kulrang
+   * matn bilan farqlanardi — panel "bitta rangda" ko'rinardi.
+   * Ranglar TOKEN: qattiq Tailwind klassi emas, shuning uchun
+   * shaffof rejimda ham pastda ALOHIDA qiymat bilan qayta
+   * ochiladi (xuddi --ok/--bad/--warn kabi). */
+  --air-teal: #0e7490;
+  --air-teal-bg: #ecfeff;
+  --air-pink: #a21caf;
+  --air-pink-bg: #fdf4ff;
+
   color-scheme: light;
   background: var(--air-canvas);
   color: #333;
@@ -782,6 +794,11 @@ table.air-table tbody tr:last-child td { border-bottom: none; }
   --warn-bg: rgba(250, 204, 21, 0.14);
   --warn-line: rgba(250, 204, 21, 0.4);
   --warn-ink: #ffe4a3;
+
+  --air-teal: #67e8f9;
+  --air-teal-bg: rgba(103, 232, 249, 0.14);
+  --air-pink: #f0abfc;
+  --air-pink-bg: rgba(240, 171, 252, 0.14);
 }
 
 /* ── Kulrang kanvas ustidagi oq karta ───────────────────────── */
@@ -901,6 +918,25 @@ textarea.air-input {
   color: var(--bad);
 }
 
+/* Kelayotgan (hali yetilmagan) fazalar HAM bir xil kulrang emas —
+ * har biri o'z rangida, juda past to'yinganlikda: chiziq oldindan
+ * "keyin nima bo'ladi"ni his qildiradi, faqat bitta xira chiziq
+ * bo'lib qolmaydi. `done`/`active`/`failed` ustidan YOZILMAYDI —
+ * ular allaqachon o'z ma'nosiga ega, ustuvorlik CSS tartibidan
+ * kelib chiqadi (bu qoidalar pastda, lekin faqat `next`ga tegadi). */
+.air-stage[data-phase="category"][data-state="next"] {
+  background: color-mix(in oklab, var(--primary) 10%, var(--air-card));
+  color: color-mix(in oklab, var(--primary) 70%, var(--air-head));
+}
+.air-stage[data-phase="content"][data-state="next"] {
+  background: color-mix(in oklab, var(--air-teal) 14%, var(--air-card));
+  color: color-mix(in oklab, var(--air-teal) 75%, var(--air-head));
+}
+.air-stage[data-phase="review"][data-state="next"] {
+  background: color-mix(in oklab, var(--air-pink) 14%, var(--air-card));
+  color: color-mix(in oklab, var(--air-pink) 75%, var(--air-head));
+}
+
 /* ── Ost qismdagi tugmalar ──────────────────────────────────
  *
  * Yashil #bbed21 ustida matn OQ EMAS, to'q kulrang #525c69 —
@@ -930,3 +966,25 @@ textarea.air-input {
 }
 .air-btn-flat:hover:not(:disabled) { background: color-mix(in oklab, var(--air-head) 10%, transparent); }
 .air-btn-flat:disabled { opacity: 0.5; }
+
+/* ── Rangli belgi (chip) ──────────────────────────────────────
+ *
+ * Manba/toifa ko'rsatish uchun: "qayerdan keldi", "nechta bor".
+ * Rang `--air-chip-fg`/`--air-chip-bg` ORQALI beriladi (inline
+ * style bilan) — shu ikkita CSS o'zgaruvchisini bergan har qanday
+ * ota-element bolasi avtomatik shu rangda bo'ladi, har chaqiruvda
+ * klass to'plamini takrorlash shart emas.
+ */
+.air-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--air-chip-fg, var(--air-head));
+  background: var(--air-chip-bg, color-mix(in oklab, var(--air-head) 8%, transparent));
+}

@@ -76,9 +76,31 @@ export function CategoryPicker({
 }
 
 const SOURCE_LABEL: Record<string, string> = {
-  ai: "bozor tahlilidan",
-  manual: "o'zingiz tanladingiz",
-  product: "uzum.uz havolasidan",
+  ai: "Bozor tahlilidan",
+  manual: "O'zingiz tanladingiz",
+  product: "Havoladan ko'chirildi",
+};
+
+/**
+ * Manba — panelning yagona rangli belgisi (`.air-chip`,
+ * `globals.css`). Uch xil manba uchun uch xil rang, sun'iy
+ * ajratish emas: `ai` — brend rangida (aynan shu asosiy, "aqlli"
+ * yo'l), `manual` — sokin ko'k-yashil (sotuvchining o'z ishi),
+ * `product` — pushti (tashqaridan, boshqa tovardan olingan).
+ */
+const SOURCE_CHIP: Record<string, React.CSSProperties> = {
+  ai: {
+    ["--air-chip-fg" as string]: "var(--primary)",
+    ["--air-chip-bg" as string]: "color-mix(in oklab, var(--primary) 12%, transparent)",
+  },
+  manual: {
+    ["--air-chip-fg" as string]: "var(--air-teal)",
+    ["--air-chip-bg" as string]: "var(--air-teal-bg)",
+  },
+  product: {
+    ["--air-chip-fg" as string]: "var(--air-pink)",
+    ["--air-chip-bg" as string]: "var(--air-pink-bg)",
+  },
 };
 
 function CategoryTrail({ pick }: { pick: AiCategoryPick | null }) {
@@ -104,9 +126,9 @@ function CategoryTrail({ pick }: { pick: AiCategoryPick | null }) {
         ))}
       </div>
       {pick.source && (
-        <div className="mt-1 text-xs [color:var(--air-label)]">
+        <span className="air-chip mt-1.5" style={SOURCE_CHIP[pick.source]}>
           {SOURCE_LABEL[pick.source] || pick.source}
-        </div>
+        </span>
       )}
     </div>
   );

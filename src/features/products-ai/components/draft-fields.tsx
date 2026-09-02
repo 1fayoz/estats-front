@@ -55,7 +55,11 @@ export function DraftTabs({
   tab: DraftTabKey;
   onTab: (tab: DraftTabKey) => void;
 }) {
-  const tabs: { key: DraftTabKey; label: string; count?: number; ready: boolean }[] = [
+  // Har hisoblagichning O'Z rangi bor — hammasi bir xil xira
+  // kulrang bo'lsa, tab qatori "bitta rangda" ko'rinardi.
+  // `audit` alohida: uning soni BLOKLOVCHI kamchilik, shuning
+  // uchun neytral emas, ogohlantirish (`--bad`) rangida.
+  const tabs: { key: DraftTabKey; label: string; count?: number; ready: boolean; color?: string }[] = [
     { key: "general", label: "Umumiy", ready: true },
     { key: "ru", label: "Ruscha", ready: Boolean(draft?.titleRu) },
     {
@@ -63,30 +67,35 @@ export function DraftTabs({
       label: "Rasmlar",
       count: (draft?.images.length ?? 0) + (draft?.sourceImages.length ?? 0),
       ready: Boolean(draft),
+      color: "var(--primary)",
     },
     {
       key: "attrs",
       label: "Xususiyatlar",
       count: Object.keys(draft?.attributes ?? {}).length,
       ready: Object.keys(draft?.attributes ?? {}).length > 0,
+      color: "var(--air-teal)",
     },
     {
       key: "keywords",
       label: "Kalit so'zlar",
       count: draft?.keywords.length ?? 0,
       ready: (draft?.keywords.length ?? 0) > 0,
+      color: "var(--air-pink)",
     },
     {
       key: "market",
       label: "Bozor",
       count: draft?.market?.rivals.length ?? 0,
       ready: (draft?.market?.rivals.length ?? 0) > 0,
+      color: "var(--warn)",
     },
     {
       key: "audit",
       label: "Tayyorlik",
       count: draft?.audit ? draft.audit.blocking || undefined : undefined,
       ready: Boolean(draft?.audit),
+      color: "var(--bad)",
     },
   ];
 
@@ -108,7 +117,12 @@ export function DraftTabs({
         >
           {item.label}
           {item.count ? (
-            <span className="ml-1 text-[11px] tabular-nums opacity-70">{item.count}</span>
+            <span
+              className="ml-1 rounded-full px-1.5 py-px text-[11px] font-semibold tabular-nums"
+              style={{ color: item.color, background: `color-mix(in oklab, ${item.color} 14%, transparent)` }}
+            >
+              {item.count}
+            </span>
           ) : null}
         </button>
       ))}
