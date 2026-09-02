@@ -162,8 +162,17 @@ function NewHint() {
         Bir necha o&apos;n soniya ketadi. Oynani yopsangiz ham to&apos;xtamaydi.
       </p>
       <p className="text-xs text-muted-foreground">
-        Matn qismi bir tiyin turadi; qimmati — rasm yasash (~$0.042). OpenAI
-        kaliti kiritilmagan bo&apos;lsa rasm qadami jimgina o&apos;tkaziladi va
+        {/*
+          Aniq raqam ATAYLAB yo'q: narx modelga bog'liq va
+          o'zgarib turadi (backenddagi narx jadvali — bitta
+          manba). Qoralama yaratilgach aniq summa `imagePriceUsd`/
+          `imageSetPriceUsd` orqali ko'rinadi. Ilgari bu yerda
+          qattiq yozilgan "~$0.042" turardi va model almashganda
+          jimgina eskirib qolgan edi.
+        */}
+        Matn qismi deyarli bepul; eng qimmati — rasm yasash. Narxni
+        qoralama tayyor bo&apos;lgach aniq ko&apos;rasiz. OpenAI kaliti
+        kiritilmagan bo&apos;lsa rasm qadami jimgina o&apos;tkaziladi va
         qolgani baribir tayyor bo&apos;ladi.
       </p>
     </div>
