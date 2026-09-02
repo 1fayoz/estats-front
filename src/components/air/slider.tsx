@@ -110,11 +110,19 @@ export function AirSlider({
 
         {subheader && <div className="space-y-3 px-5 pt-4">{subheader}</div>}
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-4">{children}</div>
+        {/* `pb-3` — footer bilan BIR XIL bo'shliq (uning `py-3`i):
+            ikkalasi bir-biriga tegishli bitta chegara chizig'i
+            bilan ajralib, alohida kulrang tasma ko'rinmasin. */}
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-3 pt-4">{children}</div>
 
         {footer && (
+          // Namunadagi kabi ULANGAN: kartadan keyin bo'sh kulrang
+          // chiziq QOLDIRIB, alohida suzib turgan panel EMAS —
+          // yuqori chegara (`border-t`) bilan kontentga TO'G'RIDAN-
+          // TO'G'RI yopishtirilgan, panelning pastki chetiga tegib
+          // turadi (`.air-slider`ning o'zi `bottom-0`).
           <div
-            className="flex flex-wrap items-center gap-3 px-5 py-3"
+            className="flex flex-wrap items-center gap-3 border-t px-5 py-3 [border-color:var(--air-line)]"
             style={{ background: "var(--air-card)" }}
           >
             {footer}
