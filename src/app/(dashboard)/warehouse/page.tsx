@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, Boxes, Plus, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -20,7 +21,34 @@ import { formatNumber, formatSum } from "@/lib/format";
 import { fetchProducts } from "@/lib/api";
 import type { WarehouseProduct } from "@/lib/types";
 
+// `useSearchParams` Suspense chegarasini talab qiladi — usiz Next
+// qurilishda yiqiladi. Sahifaning o'zi allaqachon mijoz komponenti,
+// shuning uchun chegara shu yerda, eng tashqarida turadi.
 export default function WarehousePage() {
+  return (
+    <React.Suspense fallback={<WarehouseSkeleton />}>
+      <WarehouseContent />
+    </React.Suspense>
+  );
+}
+
+function WarehouseSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-16 w-full rounded-lg" />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full rounded-lg" />
+        ))}
+      </div>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} className="h-16 w-full rounded-lg" />
+      ))}
+    </div>
+  );
+}
+
+function WarehouseContent() {
   const { items: activeItems, error, isInitialLoading, refresh } = useWarehouseProducts();
   // Tugma o'rniga: sahifaga qaytganda va vaqti-vaqti bilan o'zi yangilanadi.
   useAutoRefresh(refresh);
@@ -53,13 +81,37 @@ export default function WarehousePage() {
   const canSeeAi = useCan("products_ai.view");
   const canAddAi = useCan("products_ai.control");
   const drafts = useAiDrafts(canSeeAi);
-  const [aiOpen, setAiOpen] = React.useState(false);
-  const [aiDraftId, setAiDraftId] = React.useState<number | null>(null);
 
-  const openAi = (id: number | null) => {
-    setAiDraftId(id);
-    setAiOpen(true);
-  };
+  // ── Oyna holati URL'DA turadi ──────────────────────────────
+  // Ilgari u oddiy `useState` edi va sahifa yangilanganda oyna
+  // yopilib qolardi — quvur bir necha daqiqa ishlaydi, sotuvchi
+  // esa shu vaqt ichida sahifani yangilashi butunlay normal.
+  // Havolani hamkasbiga tashlash ham imkonsiz edi.
+  //   ?draft=12   — mavjud qoralama
+  //   ?draft=new  — yangi tovar qo'shish
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const draftParam = searchParams.get("draft");
+  const aiOpen = draftParam !== null;
+  const aiDraftId = draftParam && draftParam !== "new" ? Number(draftParam) : null;
+
+  const setDraftParam = React.useCallback(
+    (value: string | null) => {
+      const next = new URLSearchParams(searchParams.toString());
+      if (value === null) next.delete("draft");
+      else next.set("draft", value);
+      const query = next.toString();
+      // `replace` — `push` EMAS: oynani ochib-yopish brauzer
+      // tarixini to'ldirmasligi kerak, "orqaga" tugmasi sotuvchini
+      // ombordan chiqarib yuborishi kerak, o'ndan oldingi oyna
+      // holatiga emas. `scroll: false` — jadval o'z joyida qolsin.
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
+  const openAi = (id: number | null) => setDraftParam(id === null ? "new" : String(id));
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -199,7 +251,7 @@ export default function WarehousePage() {
       <ProductAiModal
         open={aiOpen}
         draftId={aiDraftId}
-        onClose={() => setAiOpen(false)}
+        onClose={() => setDraftParam(null)}
         onDraft={drafts.upsert}
         onDeleted={drafts.remove}
       />
