@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronRight, Link2, Loader2, Search } from "lucide-react";
+import { Check, ChevronRight, Link2, Loader2, RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -9,6 +9,7 @@ import {
   fetchAiCategories,
   setAiDraftCategory,
   setAiDraftCategoryFromUrl,
+  syncAiCategories,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiCategoryNode, AiCategoryPick, AiDraft } from "@/lib/types";
@@ -237,6 +238,8 @@ function TreeBrowser({
   const [rows, setRows] = React.useState<AiCategoryNode[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [failed, setFailed] = React.useState<string | null>(null);
+  // Daraxt ko'chirilgach ro'yxatni qayta so'raymiz.
+  const [reloadKey, setReloadKey] = React.useState(0);
 
   const text = query.trim();
   const parentId = trail.length ? trail[trail.length - 1].id : undefined;
@@ -268,9 +271,10 @@ function TreeBrowser({
     };
     // `parentId` — primitiv: `trail` massivini bog'liqlikka qo'ysak
     // har renderda yangi havola bo'lib cheksiz halqa bo'lardi.
-  }, [text, parentId]);
+  }, [text, parentId, reloadKey]);
 
   const searching = text.length >= 2;
+  const empty = !loading && !failed && rows.length === 0;
 
   return (
     <div>
@@ -321,11 +325,20 @@ function TreeBrowser({
           </div>
         )}
         {!loading && failed && <div className="air-bad p-4 text-xs">{failed}</div>}
-        {!loading && !failed && rows.length === 0 && (
-          <div className="p-4 text-xs [color:var(--air-label)]">
-            {searching
-              ? "Bunday turkum topilmadi."
-              : "Turkumlar ro'yxati bo'sh — daraxt hali ko'chirilmagan bo'lishi mumkin."}
+        {empty && (
+          <div className="space-y-2 p-4 text-xs [color:var(--air-label)]">
+            {searching ? (
+              "Bunday turkum topilmadi."
+            ) : (
+              <>
+                <p>
+                  Turkumlar ro&apos;yxati bo&apos;sh — Uzum daraxti hali ko&apos;chirilmagan.
+                  Bir marta ko&apos;chirilsa, keyin turkum har yangi tovarga
+                  raqobatchilar bo&apos;yicha O&apos;ZI aniqlanadi.
+                </p>
+                <SyncTreeButton onSynced={() => setReloadKey((k) => k + 1)} />
+              </>
+            )}
           </div>
         )}
         {!loading &&
@@ -345,6 +358,45 @@ function TreeBrowser({
           ))}
       </div>
     </div>
+  );
+}
+
+/**
+ * Uzum turkum daraxtini kabinetdan bir marta ko'chirish.
+ *
+ * `syncAiCategories` `api.ts`da bor edi-yu, hech qayerdan
+ * chaqirilmasdi — natijada sotuvchi daraxtni O'ZI boshlata
+ * olmasdi. `estats-publish` Uzum sotuvchi kabineti sessiyasini
+ * talab qiladi: sessiya tugagan bo'lsa backend aniq shu haqda
+ * xabar beradi (Integratsiyalar → kabinetga qayta ulanish).
+ */
+function SyncTreeButton({ onSynced }: { onSynced: () => void }) {
+  const [busy, setBusy] = React.useState(false);
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          const { count } = await syncAiCategories();
+          toast.success(`Daraxt ko'chirildi — ${count} ta turkum`);
+          onSynced();
+        } catch (err) {
+          toast.error(err instanceof ApiError ? err.message : "Daraxtni ko'chirib bo'lmadi");
+        } finally {
+          setBusy(false);
+        }
+      }}
+      className="air-btn-flat h-auto px-2.5 py-1"
+    >
+      {busy ? (
+        <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <RefreshCw className="mr-1.5 inline h-3.5 w-3.5" />
+      )}
+      Uzum daraxtini ko&apos;chirish
+    </button>
   );
 }
 
