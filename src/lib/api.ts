@@ -874,3 +874,12 @@ export const editAiDraftUzum = (id: number, replaceImages: boolean) =>
     `/product-ai/drafts/${id}/edit-uzum${replaceImages ? "?replace_images=true" : ""}`,
     { method: "POST" },
   );
+
+/**
+ * Bizning bazamizdagi holat va Uzum'ning HAQIQIY holati — ikki
+ * xil manba, ular ajralib qolishi mumkin (server qayta ishga
+ * tushishi, yoki tovar keyinroq Uzum tomonidan o'chirilishi).
+ * Bu `productId` ni ochiq katalog orqali qayta tekshiradi.
+ */
+export const verifyAiDraftUzum = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/verify-uzum`, { method: "POST" });

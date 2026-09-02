@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, Loader2, Pencil, Square, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, Check, Copy, Loader2, Pencil, Search, Square, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { AirSlider } from "@/components/air/slider";
@@ -29,6 +29,7 @@ import {
   publishAiDraftUzum,
   retryAiDraft,
   stopAiDraftUzum,
+  verifyAiDraftUzum,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
@@ -300,6 +301,15 @@ export function ProductAiModal({
               );
             })
           }
+          onVerify={() =>
+            act("verify", async () => {
+              if (!draft) return;
+              const fresh = await verifyAiDraftUzum(draft.id);
+              apply(fresh);
+              if (fresh.uzumPublish?.verified) toast.success("Uzum'da topildi — mos keladi.");
+              else toast.error(fresh.uzumPublish?.verifyMessage || "Uzum'da topilmadi.");
+            })
+          }
           onDelete={() =>
             act("delete", async () => {
               if (!draft) return;
@@ -426,6 +436,7 @@ function Footer({
   onStopPublish,
   onToggleEdit,
   onEditUzum,
+  onVerify,
   onDelete,
   onClose,
 }: {
@@ -446,6 +457,7 @@ function Footer({
   onStopPublish: () => void;
   onToggleEdit: () => void;
   onEditUzum: (replaceImages: boolean) => void;
+  onVerify: () => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
@@ -590,6 +602,39 @@ function Footer({
             <Pencil className="mr-1.5 inline h-3.5 w-3.5" />
             Tahrirlash
           </button>
+        )}
+        {/* Bizning bazamizdagi holat va Uzum'ning HAQIQIY holati —
+            ikki xil manba, ular ajralib qolishi mumkin (server
+            qayta ishga tushishi, yoki tovar keyinroq Uzum
+            tomonidan o'chirilishi). Sotuvchi bir bosishda
+            tekshiradi, natija shu yerda — tugma yonida — qoladi. */}
+        {locked && isLiveOnUzum && (
+          <button
+            type="button"
+            className="air-btn-flat"
+            onClick={onVerify}
+            disabled={busy === "verify"}
+            title="Bu tovar Uzum katalogida haqiqatan bor-yo'qligini qayta tekshiradi."
+          >
+            {spin("verify") ?? <Search className="mr-1.5 inline h-3.5 w-3.5" />}
+            Uzumda tekshirish
+          </button>
+        )}
+        {draft.uzumPublish?.verified !== null && draft.uzumPublish?.verified !== undefined && (
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 text-xs",
+              draft.uzumPublish.verified ? "air-ok" : "air-bad",
+            )}
+            title={draft.uzumPublish.verifyMessage || undefined}
+          >
+            {draft.uzumPublish.verified ? (
+              <Check className="h-3.5 w-3.5" />
+            ) : (
+              <AlertTriangle className="h-3.5 w-3.5" />
+            )}
+            {draft.uzumPublish.verified ? "Uzum'da tasdiqlandi" : "Uzum'da topilmadi"}
+          </span>
         )}
         {editMode && (
           <>

@@ -1531,6 +1531,10 @@ export interface AiUzumPublish {
   categoryLevels: AiCategoryLevel[];
   /** `status === "published"` bo'lgach Uzum'ning o'z tovar ID'si — keyingi tahrirlash shunga tayanadi. */
   productId: string | null;
+  /** Oxirgi "Uzumda tekshirish" natijasi. `null` — hali tekshirilmagan. */
+  verified: boolean | null;
+  verifiedAt: string | null;
+  verifyMessage: string | null;
 }
 
 export interface AiCategoryNode {
