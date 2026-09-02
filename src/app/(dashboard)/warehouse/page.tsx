@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AlertTriangle, Boxes, Plus, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -89,27 +89,44 @@ function WarehouseContent() {
   // Havolani hamkasbiga tashlash ham imkonsiz edi.
   //   ?draft=12   — mavjud qoralama
   //   ?draft=new  — yangi tovar qo'shish
-  const router = useRouter();
-  const pathname = usePathname();
+  // `useSearchParams()` FAQAT boshlang'ich qiymat uchun — reload
+  // yoki havola orqali ochilganda. Undan KEYIN mahalliy holat
+  // (`draftParam`) yagona manba: Next'ning `router.replace()`i
+  // BILAN sinovda topilgan real xato bor edi — yopishda
+  // (`?draft=3` → bo'sh) `history.replaceState` HAR SAFAR eski
+  // "?draft=3"ni QAYTA yozib qo'yardi (brauzer konsolida
+  // `history.replaceState`ni ushlab tekshirilgan — Next'ning o'z
+  // marshrutlash keshi bilan bog'liq bo'lishi mumkin). Natija:
+  // × tugmasi bosilardi-yu, oyna hech qachon yopilmasdi. Endi
+  // React holati DARHOL, sinxron yangilanadi (router kutilmaydi);
+  // URL esa faqat ULASHISH/YANGILASH uchun brauzerning O'Z
+  // `history.replaceState`i bilan yoziladi — Next routerisiz.
   const searchParams = useSearchParams();
-  const draftParam = searchParams.get("draft");
+  const [draftParam, setDraftParamState] = React.useState<string | null>(
+    () => searchParams.get("draft"),
+  );
+  // Orqaga/oldinga tugmasi — brauzerning o'z hodisasidan
+  // (`popstate`), Next hookidan emas: yuqoridagi sababga ko'ra.
+  React.useEffect(() => {
+    const onPop = () => {
+      setDraftParamState(new URLSearchParams(window.location.search).get("draft"));
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   const aiOpen = draftParam !== null;
   const aiDraftId = draftParam && draftParam !== "new" ? Number(draftParam) : null;
 
-  const setDraftParam = React.useCallback(
-    (value: string | null) => {
-      const next = new URLSearchParams(searchParams.toString());
-      if (value === null) next.delete("draft");
-      else next.set("draft", value);
-      const query = next.toString();
-      // `replace` — `push` EMAS: oynani ochib-yopish brauzer
-      // tarixini to'ldirmasligi kerak, "orqaga" tugmasi sotuvchini
-      // ombordan chiqarib yuborishi kerak, o'ndan oldingi oyna
-      // holatiga emas. `scroll: false` — jadval o'z joyida qolsin.
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-    },
-    [router, pathname, searchParams],
-  );
+  const setDraftParam = React.useCallback((value: string | null) => {
+    setDraftParamState(value);
+    const next = new URLSearchParams(window.location.search);
+    if (value === null) next.delete("draft");
+    else next.set("draft", value);
+    const query = next.toString();
+    const url = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    window.history.replaceState(window.history.state, "", url);
+  }, []);
 
   const openAi = (id: number | null) => setDraftParam(id === null ? "new" : String(id));
 
