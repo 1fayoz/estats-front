@@ -66,5 +66,15 @@ export function useAiDrafts(enabled: boolean) {
   // ko'rsatishda) — masalan `upsert` hali ham to'g'ri ishlaydi.
   const visibleRows = React.useMemo(() => rows.filter((row) => !row.uzumPublished), [rows]);
 
-  return { rows: visibleRows, loading, reload, upsert, remove };
+  // Uzum tovar ID'si → qoralama ID'si. Ombor jadvali shu bilan
+  // tovar qatoridan joylangan qoralamaga havola qo'yadi —
+  // yashiringan (`!visibleRows`) qoralamalar ham kerak, shuning
+  // uchun TO'LIQ `rows`dan yig'iladi.
+  const draftByProduct = React.useMemo(() => {
+    const map = new Map<string, number>();
+    for (const row of rows) if (row.productId) map.set(String(row.productId), row.id);
+    return map;
+  }, [rows]);
+
+  return { rows: visibleRows, draftByProduct, loading, reload, upsert, remove };
 }

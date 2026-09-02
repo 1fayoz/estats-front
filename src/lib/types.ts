@@ -1461,6 +1461,14 @@ export interface AiDraftRow {
   createdAt: string;
   /** Uzum'ga muvaffaqiyatli joylangan bo'lsa — qatordan yashiriladi. */
   uzumPublished: boolean;
+  /**
+   * Uzum'ning O'Z tovar ID'si (joylangan bo'lsa). Ombor jadvali
+   * shuni `WarehouseProduct.externalProductId` bilan solishtirib,
+   * tovar qatoridan aynan shu qoralamaga havola qo'yadi. FAQAT
+   * ro'yxat (`DraftListOut`) qaytaradi — to'liq qoralamada
+   * `uzumPublish.productId` bor.
+   */
+  productId?: string | null;
 }
 
 export interface AiRival {

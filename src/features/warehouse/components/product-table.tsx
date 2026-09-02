@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { PackagePlus, PackageX, Truck } from "lucide-react";
+import { PackagePlus, PackageX, Sparkles, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,10 +16,26 @@ import type { WarehouseProduct } from "@/lib/types";
 interface ProductTableProps {
   items: WarehouseProduct[];
   onIntake: (product: WarehouseProduct) => void;
+  /**
+   * Uzum tovar ID'si → joylangan AI qoralamasi ID'si. Bo'lsa,
+   * tegishli tovar qatorida "AI kartochka" tugmasi chiqadi —
+   * joylangan qoralamani ("Tahrirlash", "Uzumda tekshirish")
+   * qayta ochishning yagona yo'li.
+   */
+  aiDraftByProduct?: Map<string, number>;
+  onOpenAiDraft?: (draftId: number) => void;
 }
 
-export function ProductTable({ items, onIntake }: ProductTableProps) {
+export function ProductTable({
+  items,
+  onIntake,
+  aiDraftByProduct,
+  onOpenAiDraft,
+}: ProductTableProps) {
   const router = useRouter();
+
+  const aiDraftId = (item: WarehouseProduct): number | null =>
+    (item.externalProductId && aiDraftByProduct?.get(item.externalProductId)) || null;
 
   if (!items.length) {
     return (
@@ -36,6 +52,7 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
       <CardList>
         {items.map((item) => {
           const hasCost = item.lastCost != null || item.averageCost > 0;
+          const draftId = aiDraftId(item);
           return (
             <DataCard key={item.id} onClick={() => router.push(`/warehouse/${item.id}`)}>
               <CardHead
@@ -84,17 +101,31 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
                   },
                 ]}
               />
-              <Button
-                size="sm"
-                variant="outline"
-                className="mt-3 w-full"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onIntake(item);
-                }}
-              >
-                <PackagePlus className="h-3.5 w-3.5" /> Kirim qo&apos;shish
-              </Button>
+              <div className="mt-3 flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onIntake(item);
+                  }}
+                >
+                  <PackagePlus className="h-3.5 w-3.5" /> Kirim qo&apos;shish
+                </Button>
+                {draftId != null && onOpenAiDraft && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenAiDraft(draftId);
+                    }}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" /> AI kartochka
+                  </Button>
+                )}
+              </div>
             </DataCard>
           );
         })}
@@ -127,6 +158,7 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
         <tbody className="divide-y">
           {items.map((item) => {
             const hasCost = item.lastCost != null || item.averageCost > 0;
+            const draftId = aiDraftId(item);
             return (
               <tr
                 key={item.id}
@@ -223,18 +255,34 @@ export function ProductTable({ items, onIntake }: ProductTableProps) {
                   {item.marketplaceStock ?? 0}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    // Qator bosilganda detalga o'tadi — tugma bosilsa faqat
-                    // kirim oynasi ochilishi kerak, ikkalasi bir vaqtda emas.
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onIntake(item);
-                    }}
-                  >
-                    <PackagePlus className="h-3.5 w-3.5" /> Kirim
-                  </Button>
+                  <div className="flex items-center justify-end gap-2">
+                    {draftId != null && onOpenAiDraft && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-primary"
+                        title="AI kartochkasini ochish — Uzum'da tahrirlash yoki tekshirish"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenAiDraft(draftId);
+                        }}
+                      >
+                        <Sparkles className="h-3.5 w-3.5" /> AI
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      // Qator bosilganda detalga o'tadi — tugma bosilsa faqat
+                      // kirim oynasi ochilishi kerak, ikkalasi bir vaqtda emas.
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onIntake(item);
+                      }}
+                    >
+                      <PackagePlus className="h-3.5 w-3.5" /> Kirim
+                    </Button>
+                  </div>
                 </td>
               </tr>
             );

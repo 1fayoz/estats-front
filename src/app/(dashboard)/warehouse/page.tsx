@@ -256,7 +256,15 @@ function WarehouseContent() {
           ))}
         </div>
       ) : (
-        <ProductTable items={filtered} onIntake={setIntakeFor} />
+        <ProductTable
+          items={filtered}
+          onIntake={setIntakeFor}
+          // Joylangan AI qoralamasi tovarning o'zidan ochiladi:
+          // joylangach u "AI qoralamalari" qatoridan chiqadi va
+          // qayta ochishning boshqa yo'li yo'q edi.
+          aiDraftByProduct={canSeeAi ? drafts.draftByProduct : undefined}
+          onOpenAiDraft={openAi}
+        />
       )}
 
       <IntakeDialog
