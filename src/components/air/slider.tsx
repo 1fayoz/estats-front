@@ -71,6 +71,28 @@ export function AirSlider({
         aria-hidden
       />
 
+      {/* Yopish yorlig'i panelning TASHQARISIDA, chap chetida —
+          namunadagi kabi. Sarlavhada × yo'q: u yerda faqat sarlavha
+          turadi va ko'z uni bir qarashda o'qiydi.
+
+          ATAYLAB panel <div>ning TASHQARISIDA (shu darajada, uning
+          birodari): panel `overflow-hidden` tashiydi (ichidagi
+          aylantiruvchi bo'limlarni kesish uchun kerak) va manfiy
+          joylashuv (`-left-11` — panelning O'Z chetidan tashqarida)
+          o'sha overflow tomonidan KESIB tashlanardi — tugma kodda
+          bor edi-yu, hech qachon ko'rinmasdi, sotuvchi faqat
+          pastdagi "Yopish" tugmasini ko'rardi. Endi koordinata
+          panelga NISBATAN emas, ekranga nisbatan: `lg:left-64`
+          (panelning chap cheti) minus tugma kengligi. */}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Yopish"
+        className="absolute right-3 top-3 z-10 rounded-md p-1.5 text-[color:var(--air-head)] transition-colors hover:bg-black/5 lg:left-[13.25rem] lg:right-auto lg:top-4 lg:bg-white/15 lg:text-white lg:hover:bg-white/25"
+      >
+        <X className="h-4 w-4" />
+      </button>
+
       {/* Panel: yon menyudan keyin, pastga tegib turadi. */}
       <div
         role="dialog"
@@ -80,18 +102,6 @@ export function AirSlider({
           "rounded-t-[18px] lg:left-64 lg:top-4",
         )}
       >
-        {/* Yopish yorlig'i panelning tashqarisida, chap chetida —
-            namunadagi kabi. Sarlavhada × yo'q: u yerda faqat
-            sarlavha turadi va ko'z uni bir qarashda o'qiydi. */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Yopish"
-          className="absolute right-3 top-3 z-10 rounded-md p-1.5 text-[color:var(--air-head)] transition-colors hover:bg-black/5 lg:-left-11 lg:right-auto lg:top-4 lg:bg-white/15 lg:text-white lg:hover:bg-white/25"
-        >
-          <X className="h-4 w-4" />
-        </button>
-
         <div className="px-5 pt-5">
           <div className="text-[25px] font-medium leading-tight tracking-tight">
             {title}

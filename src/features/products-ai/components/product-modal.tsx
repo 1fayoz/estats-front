@@ -615,9 +615,14 @@ function Footer({
             </button>
           </>
         )}
-        <button type="button" className="air-btn-flat" onClick={onClose}>
-          Yopish
-        </button>
+        {/*
+          Pastda alohida "Yopish" tugmasi YO'Q ENDI: panelning
+          burchagida (AirSlider) doim ko'rinadigan × xuddi shu
+          ishni qiladi — Bitrix namunasidagi kabi. Ikkalasi bir
+          xil ishni qilsa, biri ortiqcha; qoralama bilan ishlashda
+          bu qatorda faqat HARAKAT tugmalari (Saqlash, Nusxalash,
+          Tasdiqlash, Joylash...) qolishi kerak, chiqish yo'li emas.
+        */}
       </div>
       {publishStatus === "category_unresolved" && !publishing && categoryLevels.length > 0 && (
         // Avtomatika biror darajada ishonchsiz tanlov qilgan
