@@ -19,7 +19,69 @@ import { useActiveShop, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
 import { bulkAutoFixProductsUzum, bulkCheckProductsUzum, fetchProducts } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { WarehouseProduct } from "@/lib/types";
+
+// ── Uzum sotuvchi kabineti holat-tablari ──────────────────────
+type StatusTab =
+  | "all" | "selling" | "ending" | "not_selling"
+  | "blocked" | "moderation" | "attrs" | "archived";
+
+const STATUS_TABS: { key: StatusTab; label: string }[] = [
+  { key: "all", label: "Barchasi" },
+  { key: "selling", label: "Sotuvda" },
+  { key: "ending", label: "Tugayapti" },
+  { key: "not_selling", label: "Sotuvda emas" },
+  { key: "blocked", label: "Bloklangan" },
+  { key: "moderation", label: "Moderatsiyada" },
+  { key: "attrs", label: "Xususiyat to'ldirilmagan" },
+  { key: "archived", label: "Arxiv" },
+];
+
+//: "Tugayapti" — Uzum ham shunga o'xshash kam qoldiqni ajratadi.
+const ENDING_STOCK = 5;
+
+function isBlocked(i: WarehouseProduct): boolean {
+  return (
+    i.uzumBlocked ||
+    i.uzumStatusValue === "BLOCKED" ||
+    i.uzumStatusValue === "SKU_BLOCKED" ||
+    i.uzumModerationValue === "HAS_COMPLAINTS"
+  );
+}
+
+function matchesTab(i: WarehouseProduct, tab: StatusTab): boolean {
+  const s = i.uzumStatusValue ?? "";
+  const m = i.uzumModerationValue ?? "";
+  switch (tab) {
+    case "all":
+    case "archived":
+      return true;
+    case "selling":
+      return s === "IN_STOCK" && !isBlocked(i);
+    case "ending":
+      return (
+        s === "IN_STOCK" && !isBlocked(i) &&
+        i.marketplaceStock != null && i.marketplaceStock > 0 &&
+        i.marketplaceStock <= ENDING_STOCK
+      );
+    case "not_selling":
+      return (
+        !isBlocked(i) &&
+        (["RUN_OUT", "NO_SKU", "NOT_READY_TO_SEND"].includes(s) || i.marketplaceStock === 0)
+      );
+    case "blocked":
+      return isBlocked(i);
+    case "moderation":
+      return !isBlocked(i) && ["ON_MODERATION", "ON_PREMODERATION", "NOT_MODERATED"].includes(m);
+    case "attrs": {
+      const a = i.uzumValidation?.areas?.attributes;
+      return a != null && a !== "ok";
+    }
+    default:
+      return true;
+  }
+}
 
 // `useSearchParams` Suspense chegarasini talab qiladi — usiz Next
 // qurilishda yiqiladi. Sahifaning o'zi allaqachon mijoz komponenti,
@@ -58,22 +120,38 @@ function WarehouseContent() {
   const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
   const [bulkResult, setBulkResult] = React.useState<string | null>(null);
 
-  // ── Arxiv ── ATAYLAB asosiy do'kondan (`useWarehouseProducts`)
-  // ALOHIDA: u sahifalar bo'ylab umumiy kesh, boshqa joylarda ham
-  // ishlatiladi va "faqat FAOL tovarlar" degan ma'noni bergani
-  // uchun uni arxiv bilan aralashtirish boshqa ekranlarni ham
-  // buzardi. Arxiv sukut bo'yicha yashiringan — faqat so'ralganda
-  // alohida so'rov bilan yuklanadi.
-  const [view, setView] = React.useState<"active" | "archived">("active");
+  // ── Holat bo'yicha filtr — Uzum sotuvchi kabinetidagi kabi ──
+  // Uzum'da tovarlar tepasida: "Barchasi · Sotuvda · Tugayapti ·
+  // Sotuvda emas · Bloklangan · Moderatsiyada · Xususiyat
+  // to'ldirilmagan · Arxiv", har birida son. Bir xil qildik:
+  // filtr MIJOZ tomonida (`uzumStatusValue`/`uzumModerationValue`
+  // sync bilan keladi), faqat Arxiv alohida so'rov.
+  //
+  // ATAYLAB asosiy do'kondan (`useWarehouseProducts`) ALOHIDA: u
+  // sahifalar bo'ylab umumiy kesh, "faqat FAOL tovarlar" degan
+  // ma'noni beradi — arxiv bilan aralashtirish boshqa ekranlarni
+  // buzardi. Arxiv faqat so'ralganda yuklanadi.
+  const [tab, setTab] = React.useState<StatusTab>("all");
+  const view = tab === "archived" ? "archived" : "active";
   const [archivedItems, setArchivedItems] = React.useState<WarehouseProduct[]>([]);
+  const [archivedCount, setArchivedCount] = React.useState<number | null>(null);
   const [archivedLoading, setArchivedLoading] = React.useState(false);
+  // Son har doim ko'rinsin — tab ochilmasa ham. Bitta yengil so'rov.
   React.useEffect(() => {
-    if (view !== "archived") return;
+    fetchProducts({ archived: true, size: 1 })
+      .then((page) => setArchivedCount(page.count))
+      .catch(() => setArchivedCount(null));
+  }, []);
+  React.useEffect(() => {
+    if (view !== "archived" || archivedItems.length) return;
     setArchivedLoading(true);
-    fetchProducts({ archived: true })
-      .then((page) => setArchivedItems(page.results))
+    fetchProducts({ archived: true, size: 500 })
+      .then((page) => {
+        setArchivedItems(page.results);
+        setArchivedCount(page.count);
+      })
       .finally(() => setArchivedLoading(false));
-  }, [view]);
+  }, [view, archivedItems.length]);
   const items = view === "archived" ? archivedItems : activeItems;
 
   // ── Tovar qo'shish (AI) ────────────────────────────────────
@@ -132,19 +210,37 @@ function WarehouseContent() {
 
   const openAi = (id: number | null) => setDraftParam(id === null ? "new" : String(id));
 
+  // Tab sonlari — FAOL ro'yxatdan (arxiv alohida). Uzum ham
+  // shunday: har tab yonida son, ustma-ust bo'lishi mumkin
+  // (bloklangan tovar ham "Barchasi"ga kiradi).
+  const tabCounts = React.useMemo(() => {
+    const c: Record<StatusTab, number> = {
+      all: activeItems.length, selling: 0, ending: 0, not_selling: 0,
+      blocked: 0, moderation: 0, attrs: 0,
+      archived: archivedCount ?? archivedItems.length,
+    };
+    for (const it of activeItems) {
+      for (const t of ["selling", "ending", "not_selling", "blocked", "moderation", "attrs"] as StatusTab[]) {
+        if (matchesTab(it, t)) c[t] += 1;
+      }
+    }
+    return c;
+  }, [activeItems, archivedItems.length, archivedCount]);
+
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((item) =>
-      [item.title, item.skuCode, item.barcode, item.sellerSku, item.categoryName]
+    return items.filter((item) => {
+      if (!matchesTab(item, tab)) return false;
+      if (!q) return true;
+      return [item.title, item.skuCode, item.barcode, item.sellerSku, item.categoryName]
         .filter(Boolean)
-        .some((field) => String(field).toLowerCase().includes(q))
-    );
-  }, [items, query]);
+        .some((field) => String(field).toLowerCase().includes(q));
+    });
+  }, [items, query, tab]);
 
   React.useEffect(() => {
     setSelectedIds(new Set());
-  }, [view, query]);
+  }, [tab, query]);
 
   const totals = React.useMemo(
     () => ({
@@ -186,6 +282,37 @@ function WarehouseContent() {
 
       {canSeeAi && <DraftStrip rows={drafts.rows} onOpen={(id) => openAi(id)} />}
 
+      {/* Uzum sotuvchi kabinetidagi kabi holat-tablari. */}
+      <div className="flex flex-wrap items-center gap-x-1 gap-y-2 border-b pb-1">
+        {STATUS_TABS.map(({ key, label }) => {
+          const active = tab === key;
+          const count = tabCounts[key];
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTab(key)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
+                active
+                  ? "bg-muted font-semibold text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {label}
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums",
+                  active ? "bg-foreground text-background" : "bg-muted text-muted-foreground",
+                )}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative max-w-md flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -195,30 +322,6 @@ function WarehouseContent() {
             onChange={(e) => setQuery(e.target.value)}
             className="pl-9"
           />
-        </div>
-        <div className="flex overflow-hidden rounded-md border">
-          <button
-            type="button"
-            onClick={() => setView("active")}
-            className={
-              view === "active"
-                ? "bg-foreground px-3 py-1.5 text-xs font-medium text-background"
-                : "px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-            }
-          >
-            Faol
-          </button>
-          <button
-            type="button"
-            onClick={() => setView("archived")}
-            className={
-              view === "archived"
-                ? "bg-foreground px-3 py-1.5 text-xs font-medium text-background"
-                : "px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-            }
-          >
-            Arxiv
-          </button>
         </div>
         <Button
           variant="outline"
