@@ -42,19 +42,20 @@ export function ProductTable({
     (item.externalProductId && aiDraftByProduct?.get(item.externalProductId)) || null;
 
   const statusBadge = (item: WarehouseProduct) => {
+    const summary = item.uzumValidation?.summary;
     const label = item.uzumBlocked
       ? "Blocked"
       : item.uzumModerationTitle || item.uzumStatusTitle || "Unknown";
     const tone = item.uzumBlocked
       ? "destructive"
-      : item.uzumValidation?.summary.error
+      : summary?.error
         ? "destructive"
-        : item.uzumValidation?.summary.warning
+        : summary?.warning
           ? "secondary"
           : "outline";
     const Icon = item.uzumBlocked
       ? XCircle
-      : item.uzumValidation?.summary.error
+      : summary?.error
         ? AlertTriangle
         : item.uzumModerationValue?.includes("MODERATION")
           ? Clock3
