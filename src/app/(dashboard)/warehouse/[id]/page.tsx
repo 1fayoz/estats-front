@@ -13,6 +13,7 @@ import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
+import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
@@ -278,6 +279,8 @@ export default function ProductDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      <ChangeHistoryCard productId={id} changeLogs={data.changeLogs ?? []} onReverted={load} />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Tile label="Jami keldi" value={`${formatNumber(data.totalIntakeQuantity)} dona`} />

@@ -38,6 +38,7 @@ import type {
   UzumLoginStatus,
   BroadcastResult,
   BulkValidationResult,
+  ChangeImpact,
   ProductMarket,
   ProductFixResult,
   PublishPreview,
@@ -241,6 +242,17 @@ export const syncModerationReasons = (productId?: number) =>
     `/warehouse/moderation/sync${productId ? `?product_id=${productId}` : ""}`,
     { method: "POST" },
   );
+
+/** Bitta matn o'zgarishini oldingi holatiga qaytaradi (qoralamada). */
+export const revertProductChange = (id: number, logId: number) =>
+  request<ProductFixResult>(
+    `/warehouse/products/${id}/change-logs/${logId}/revert`,
+    { method: "POST" },
+  );
+
+/** Har matn o'zgarishining SEO/sotuvga ta'siri: oldin ↔ keyin. */
+export const fetchChangeImpact = (id: number) =>
+  request<ChangeImpact[]>(`/warehouse/products/${id}/change-impact`);
 
 /** "Qaysi narxda qancha foyda" jadvalidagi bir narxni haqiqiy Uzum narxiga aylantiradi. */
 export const applyProductPrice = (id: number, sellPrice: number) =>

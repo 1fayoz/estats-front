@@ -147,6 +147,10 @@ export interface WarehouseProduct {
   uzumModerationColor: string | null;
   uzumBlocked: boolean;
   uzumBlockingReason: string | null;
+  /** Bir marta bloklangan bo'lsa — "tuzatilib, qayta moderatsiyaga yuborildi"ni ajratish uchun. */
+  uzumHadBlock: boolean;
+  /** Bir marta tasdiqlangan bo'lsa — "o'zgartirilib qayta moderatsiyaga tushdi"ni ajratish uchun. */
+  uzumWasModerated: boolean;
   uzumValidation: ProductValidation | null;
   uzumValidatedAt: string | null;
   /** Butun davr bo'yicha — qoldiq = keldi − sotildi ekani ko'rinib tursin. */
@@ -568,6 +572,27 @@ export interface ProductChangeLog {
   reason: string | null;
   changedBy: string;
   createdAt: string;
+}
+
+/** O'zgarish sanasidan oldingi yoki keyingi ~7 kunlik o'rtachalar. */
+export interface ChangeImpactWindow {
+  avgPosition: number | null;
+  trackedPhrases: number;
+  dailySold: number;
+  dailyRevenue: number;
+  days: number;
+}
+
+/** Bitta matn o'zgarishining SEO/sotuvga ta'siri: oldin ↔ keyin. */
+export interface ChangeImpact {
+  logId: number;
+  date: string;
+  fieldName: string;
+  reason: string | null;
+  before: ChangeImpactWindow;
+  after: ChangeImpactWindow;
+  /** `improved` | `worsened` | `flat` | `unknown`. */
+  verdict: string;
 }
 
 export interface BulkValidationResult {

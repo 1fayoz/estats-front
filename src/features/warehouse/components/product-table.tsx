@@ -76,6 +76,21 @@ function costOf(v: WarehouseProduct): number | null {
   return null;
 }
 
+// "Bloklangan edi, tuzatilib qayta yuborildi" / "Tasdiqlangan edi,
+// o'zgartirilib qayta moderatsiyaga tushdi" — bu ikkalasi ham tashqi
+// ko'zga oddiy "Moderatsiyada" bo'lib ko'rinadi, lekin sotuvchi UCHUN
+// farqi katta: birinchisida xato TUZATILGAN, ikkinchisida esa TIRIK
+// (bloklanmagan) kartochkani O'ZI o'zgartirgan.
+function resubmitHint(item: WarehouseProduct): string | null {
+  const pending = ["ON_MODERATION", "ON_PREMODERATION", "NOT_MODERATED"].includes(
+    item.uzumModerationValue ?? "",
+  );
+  if (item.uzumBlocked || !pending) return null;
+  if (item.uzumHadBlock) return "Tuzatildi → qayta moderatsiyada";
+  if (item.uzumWasModerated) return "Tahrirlandi → qayta moderatsiyada";
+  return null;
+}
+
 export function ProductTable({
   items,
   onIntake,
@@ -160,6 +175,11 @@ export function ProductTable({
                 }
                 right={statusBadge(groupStatusItem(g))}
               />
+              {resubmitHint(groupStatusItem(g)) && (
+                <Badge variant="outline" className="mb-2 gap-1 text-[10px] text-muted-foreground">
+                  {resubmitHint(groupStatusItem(g))}
+                </Badge>
+              )}
               <CardStats
                 items={[
                   {
@@ -468,6 +488,11 @@ function ProductRow(props: {
             >
               {groupStatusItem(g).uzumBlockingReason}
             </div>
+          )}
+          {resubmitHint(groupStatusItem(g)) && (
+            <Badge variant="outline" className="gap-1 text-[10px] text-muted-foreground">
+              {resubmitHint(groupStatusItem(g))}
+            </Badge>
           )}
         </div>
       </td>

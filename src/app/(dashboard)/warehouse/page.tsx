@@ -25,7 +25,8 @@ import type { WarehouseProduct } from "@/lib/types";
 // ── Uzum sotuvchi kabineti holat-tablari ──────────────────────
 type StatusTab =
   | "all" | "selling" | "ending" | "not_selling"
-  | "blocked" | "moderation" | "attrs" | "archived";
+  | "blocked" | "moderation" | "resubmitted" | "re_moderation"
+  | "attrs" | "archived";
 
 const STATUS_TABS: { key: StatusTab; label: string }[] = [
   { key: "all", label: "Barchasi" },
@@ -34,6 +35,12 @@ const STATUS_TABS: { key: StatusTab; label: string }[] = [
   { key: "not_selling", label: "Sotuvda emas" },
   { key: "blocked", label: "Bloklangan" },
   { key: "moderation", label: "Moderatsiyada" },
+  // Ikkalasi ham "moderation"ning ICHIDA (kesishadi) — sotuvchiga
+  // "nega qayta moderatsiyada?" degan savolga aniq javob kerak: xato
+  // tuzatilganmi (avval bloklangan edi) yoki tirik kartochka o'zi
+  // tahrirlanganmi (bloklanmagan, tasdiqlangan edi).
+  { key: "resubmitted", label: "Tuzatildi → qayta yuborildi" },
+  { key: "re_moderation", label: "Tahrirlandi → qayta moderatsiyada" },
   { key: "attrs", label: "Xususiyat to'ldirilmagan" },
   { key: "archived", label: "Arxiv" },
 ];
@@ -78,6 +85,13 @@ function matchesTab(i: WarehouseProduct, tab: StatusTab): boolean {
       return isBlocked(i);
     case "moderation":
       return !isBlocked(i) && pending;
+    case "resubmitted":
+      // Avval bloklangan edi, tuzatilib qayta moderatsiyaga yuborilgan.
+      return !isBlocked(i) && pending && i.uzumHadBlock;
+    case "re_moderation":
+      // Bloklanmagan, tasdiqlangan edi — matn/rasm o'zgartirilib qayta
+      // moderatsiyaga tushgan (hech qachon bloklanmagan).
+      return !isBlocked(i) && pending && !i.uzumHadBlock && i.uzumWasModerated;
     case "attrs": {
       const a = i.uzumValidation?.areas?.attributes;
       return a != null && a !== "ok";
@@ -220,11 +234,14 @@ function WarehouseContent() {
   const tabCounts = React.useMemo(() => {
     const c: Record<StatusTab, number> = {
       all: activeItems.length, selling: 0, ending: 0, not_selling: 0,
-      blocked: 0, moderation: 0, attrs: 0,
+      blocked: 0, moderation: 0, resubmitted: 0, re_moderation: 0, attrs: 0,
       archived: archivedCount ?? archivedItems.length,
     };
     for (const it of activeItems) {
-      for (const t of ["selling", "ending", "not_selling", "blocked", "moderation", "attrs"] as StatusTab[]) {
+      for (const t of [
+        "selling", "ending", "not_selling", "blocked",
+        "moderation", "resubmitted", "re_moderation", "attrs",
+      ] as StatusTab[]) {
         if (matchesTab(it, t)) c[t] += 1;
       }
     }
