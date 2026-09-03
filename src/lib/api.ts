@@ -235,6 +235,13 @@ export const bulkAutoFixProductsUzum = (productIds: number[]) =>
     body: JSON.stringify({ productIds }),
   });
 
+/** Bloklangan tovarlarning aniq moderatsiya sabablarini Uzum kabinetidan ko'chiradi. */
+export const syncModerationReasons = (productId?: number) =>
+  request<{ checked: number; updated: number; message: string }>(
+    `/warehouse/moderation/sync${productId ? `?product_id=${productId}` : ""}`,
+    { method: "POST" },
+  );
+
 /** "Qaysi narxda qancha foyda" jadvalidagi bir narxni haqiqiy Uzum narxiga aylantiradi. */
 export const applyProductPrice = (id: number, sellPrice: number) =>
   request<{ marketplacePrice: number }>(`/warehouse/products/${id}/price`, {

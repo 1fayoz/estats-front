@@ -577,9 +577,23 @@ export interface BulkValidationResult {
   error: number;
 }
 
+export interface ModerationManualBlock {
+  blockType: string | null;
+  reason: string | null;
+  instruction: string | null;
+  ruleTitle: string | null;
+  ruleUrl: string | null;
+}
+
 export interface ProductFixResult {
   draftId: number;
   validation: ProductValidation;
+  /** Deterministik (AI'siz) nima tuzatildi va nima qo'lda qoldi. */
+  deterministicFix?: {
+    applied?: string[];
+    manual?: ModerationManualBlock[];
+    at?: string;
+  };
 }
 
 /** Hamma sinxronizatsiyaning bir joydagi holati (Sozlamalar → Uzum). */

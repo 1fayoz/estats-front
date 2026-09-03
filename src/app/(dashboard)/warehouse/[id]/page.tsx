@@ -25,7 +25,13 @@ import { ProductInstagramCard } from "@/features/instagram/components/product-in
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
-import { aiFixProductUzum, autoFixProductUzum, checkProductUzum, fetchProductDetail } from "@/lib/api";
+import {
+  aiFixProductUzum,
+  autoFixProductUzum,
+  checkProductUzum,
+  fetchProductDetail,
+  syncModerationReasons,
+} from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
@@ -41,7 +47,8 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
-  const [busy, setBusy] = React.useState<"" | "check" | "ai" | "auto">("");
+  const [busy, setBusy] = React.useState<"" | "check" | "ai" | "auto" | "reason">("");
+  const [fixNote, setFixNote] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -149,6 +156,28 @@ export default function ProductDetailPage() {
             >
               Uzum tekshiruvi
             </Button>
+            {(p.uzumBlocked || p.uzumModerationValue === "HAS_COMPLAINTS") && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy !== ""}
+                onClick={async () => {
+                  setBusy("reason");
+                  setFixNote(null);
+                  try {
+                    const res = await syncModerationReasons(id);
+                    setFixNote(res.message);
+                    await load();
+                  } catch (e) {
+                    setFixNote(e instanceof Error ? e.message : "Xatolik");
+                  } finally {
+                    setBusy("");
+                  }
+                }}
+              >
+                Uzum sababini aniqlash
+              </Button>
+            )}
             <Button
               size="sm"
               variant="outline"
@@ -171,9 +200,26 @@ export default function ProductDetailPage() {
               disabled={busy !== ""}
               onClick={async () => {
                 setBusy("auto");
+                setFixNote(null);
                 try {
                   const res = await autoFixProductUzum(id);
+                  const applied = res.deterministicFix?.applied ?? [];
+                  const manual = res.deterministicFix?.manual ?? [];
+                  if (applied.length || manual.length) {
+                    const parts: string[] = [];
+                    if (applied.length) parts.push(`tuzatildi: ${applied.join(", ")}`);
+                    if (manual.length)
+                      parts.push(
+                        `qo'lda kerak: ${manual
+                          .map((m) => m.blockType || m.reason)
+                          .filter(Boolean)
+                          .join(", ")}`,
+                      );
+                    setFixNote(parts.join(" · "));
+                  }
                   window.location.assign(`/warehouse?draft=${res.draftId}`);
+                } catch (e) {
+                  setFixNote(e instanceof Error ? e.message : "Xatolik");
                 } finally {
                   setBusy("");
                 }
@@ -182,6 +228,12 @@ export default function ProductDetailPage() {
               Avtomatik tuzatish
             </Button>
           </div>
+
+          {fixNote && (
+            <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              {fixNote}
+            </div>
+          )}
 
           {p.uzumValidation && validationAreas.length > 0 && (
             <div className="grid gap-2 md:grid-cols-2">
