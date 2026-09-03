@@ -28,8 +28,6 @@ interface ProductTableProps {
    */
   aiDraftByProduct?: Map<string, number>;
   onOpenAiDraft?: (draftId: number) => void;
-  selectedIds?: Set<number>;
-  onToggleSelected?: (productId: number) => void;
 }
 
 // ── Kartochka bo'yicha guruhlash (Uzum kabinetidagi kabi) ──────
@@ -83,8 +81,6 @@ export function ProductTable({
   onIntake,
   aiDraftByProduct,
   onOpenAiDraft,
-  selectedIds,
-  onToggleSelected,
 }: ProductTableProps) {
   const router = useRouter();
   const groups = React.useMemo(() => groupByCard(items), [items]);
@@ -131,20 +127,6 @@ export function ProductTable({
     g.variants.find((v) => v.uzumBlocked) ??
     g.variants.find((v) => v.uzumValidation?.summary?.error) ??
     g.card;
-
-  // Guruh checkbox holati: hammasi belgilanganmi.
-  const groupChecked = (g: Group): boolean =>
-    g.variants.every((v) => selectedIds?.has(v.id));
-  const groupSomeChecked = (g: Group): boolean =>
-    g.variants.some((v) => selectedIds?.has(v.id));
-  const toggleGroup = (g: Group) => {
-    if (!onToggleSelected) return;
-    const all = groupChecked(g);
-    for (const v of g.variants) {
-      // faqat holatni to'g'ri yo'nalishga o'zgartiramiz
-      if (all ? selectedIds?.has(v.id) : !selectedIds?.has(v.id)) onToggleSelected(v.id);
-    }
-  };
 
   if (!items.length) {
     return (
@@ -260,7 +242,6 @@ export function ProductTable({
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
             <th className="w-8 px-1 py-3" />
-            {onToggleSelected && <th className="px-2 py-3 text-center font-medium" />}
             <th className="px-4 py-3 text-left font-medium">Tovar</th>
             <th className="px-3 py-3 text-left font-medium">Status</th>
             <th className="px-3 py-3 text-right font-medium">Uzum narxi</th>
@@ -291,11 +272,6 @@ export function ProductTable({
                   onIntake={onIntake}
                   aiDraftId={aiDraftId}
                   onOpenAiDraft={onOpenAiDraft}
-                  onToggleSelected={onToggleSelected}
-                  selectedIds={selectedIds}
-                  groupChecked={groupChecked}
-                  groupSomeChecked={groupSomeChecked}
-                  toggleGroup={toggleGroup}
                 />
                 {/* ── Variantlar (ochilganda) ── */}
                 {g.isGroup && open &&
@@ -314,21 +290,19 @@ export function ProductTable({
                       className="cursor-pointer bg-muted/20 text-[13px] transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
                     >
                       <td className="px-1 py-2" />
-                      {onToggleSelected && (
-                        <td className="px-2 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds?.has(v.id) ?? false}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              onToggleSelected(v.id);
-                            }}
-                          />
-                        </td>
-                      )}
                       <td className="max-w-[380px] px-4 py-2">
-                        <div className="flex items-center gap-2 pl-8">
-                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+                        <div className="flex items-center gap-3 pl-6">
+                          {v.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={v.image}
+                              alt=""
+                              className="h-9 w-9 shrink-0 rounded-md border object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="h-9 w-9 shrink-0 rounded-md border bg-muted" />
+                          )}
                           <div className="min-w-0">
                             <div className="truncate font-medium">
                               {v.variantName || "Variant"}
@@ -412,16 +386,10 @@ function ProductRow(props: {
   onIntake: (p: WarehouseProduct) => void;
   aiDraftId: (i: WarehouseProduct) => number | null;
   onOpenAiDraft?: (id: number) => void;
-  onToggleSelected?: (id: number) => void;
-  selectedIds?: Set<number>;
-  groupChecked: (g: Group) => boolean;
-  groupSomeChecked: (g: Group) => boolean;
-  toggleGroup: (g: Group) => void;
 }) {
   const {
     item, group: g, open, onToggleOpen, router, statusBadge, groupStatusItem,
-    onIntake, aiDraftId, onOpenAiDraft, onToggleSelected, selectedIds,
-    groupChecked, groupSomeChecked, toggleGroup,
+    onIntake, aiDraftId, onOpenAiDraft,
   } = props;
 
   const hasCost = costOf(item) != null;
@@ -460,22 +428,6 @@ function ProductRow(props: {
           />
         )}
       </td>
-      {onToggleSelected && (
-        <td className="px-2 py-3 text-center">
-          <input
-            type="checkbox"
-            checked={g.isGroup ? groupChecked(g) : selectedIds?.has(item.id) ?? false}
-            ref={(el) => {
-              if (el) el.indeterminate = g.isGroup && !groupChecked(g) && groupSomeChecked(g);
-            }}
-            onChange={(e) => {
-              e.stopPropagation();
-              if (g.isGroup) toggleGroup(g);
-              else onToggleSelected(item.id);
-            }}
-          />
-        </td>
-      )}
       <td className="max-w-[380px] px-4 py-3">
         <div className="flex items-center gap-3">
           {item.image ? (

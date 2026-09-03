@@ -121,7 +121,7 @@ function WarehouseContent() {
   const shop = useActiveShop();
   const [query, setQuery] = React.useState("");
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
-  const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
+  const [bulkBusy, setBulkBusy] = React.useState(false);
   const [bulkResult, setBulkResult] = React.useState<string | null>(null);
 
   // ── Holat bo'yicha filtr — Uzum sotuvchi kabinetidagi kabi ──
@@ -243,7 +243,7 @@ function WarehouseContent() {
   }, [items, query, tab]);
 
   React.useEffect(() => {
-    setSelectedIds(new Set());
+    setBulkResult(null);
   }, [tab, query]);
 
   const totals = React.useMemo(
@@ -327,28 +327,50 @@ function WarehouseContent() {
             className="pl-9"
           />
         </div>
-        <Button
-          variant="outline"
-          disabled={selectedIds.size === 0}
-          onClick={async () => {
-            const res = await bulkCheckProductsUzum(Array.from(selectedIds));
-            setBulkResult(`${res.checked} ta tekshirildi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`);
-            refresh();
-          }}
-        >
-          Uzum tekshiruvi
-        </Button>
-        <Button
-          variant="outline"
-          disabled={selectedIds.size === 0}
-          onClick={async () => {
-            const res = await bulkAutoFixProductsUzum(Array.from(selectedIds));
-            setBulkResult(`${res.checked} ta uchun auto-fix draft tayyorlandi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`);
-            drafts.reload();
-          }}
-        >
-          Xavfsiz Auto-Fix
-        </Button>
+        {/* Ommaviy amallar — belgilash o'rniga: shu tabda KO'RINAYOTGAN
+            tovarlarga (Uzum kabinetiga o'xshab, checkbox'siz). Faqat
+            «Bloklangan» / «Xususiyat to'ldirilmagan» tablarida — o'sha
+            yerda ommaviy tuzatish mantiqiy. */}
+        {(tab === "blocked" || tab === "attrs") && filtered.length > 0 && (
+          <>
+            <Button
+              variant="outline"
+              disabled={bulkBusy}
+              onClick={async () => {
+                setBulkBusy(true);
+                try {
+                  const res = await bulkCheckProductsUzum(filtered.map((p) => p.id));
+                  setBulkResult(
+                    `${res.checked} ta tekshirildi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`,
+                  );
+                  refresh();
+                } finally {
+                  setBulkBusy(false);
+                }
+              }}
+            >
+              Uzum tekshiruvi ({filtered.length})
+            </Button>
+            <Button
+              variant="outline"
+              disabled={bulkBusy}
+              onClick={async () => {
+                setBulkBusy(true);
+                try {
+                  const res = await bulkAutoFixProductsUzum(filtered.map((p) => p.id));
+                  setBulkResult(
+                    `${res.checked} ta uchun auto-fix draft tayyorlandi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`,
+                  );
+                  drafts.reload();
+                } finally {
+                  setBulkBusy(false);
+                }
+              }}
+            >
+              Xavfsiz Auto-Fix ({filtered.length})
+            </Button>
+          </>
+        )}
       </div>
 
       {bulkResult && (
@@ -405,15 +427,6 @@ function WarehouseContent() {
           // qayta ochishning boshqa yo'li yo'q edi.
           aiDraftByProduct={canSeeAi ? drafts.draftByProduct : undefined}
           onOpenAiDraft={openAi}
-          selectedIds={selectedIds}
-          onToggleSelected={(productId) =>
-            setSelectedIds((prev) => {
-              const next = new Set(prev);
-              if (next.has(productId)) next.delete(productId);
-              else next.add(productId);
-              return next;
-            })
-          }
         />
       )}
 
