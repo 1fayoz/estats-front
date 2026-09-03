@@ -1477,6 +1477,8 @@ export interface AiRival {
   orders: number;
   url: string;
   image: string;
+  reviews: number;
+  rating: number | null;
 }
 
 export interface AiMarket {
@@ -1601,6 +1603,14 @@ export interface AiDraft extends AiDraftRow {
   uzumPublish: AiUzumPublish | null;
   /** Uzum turkumi — endi qoralamaning O'Z maydoni, joylash paytida topiladigan narsa emas. */
   category: AiCategoryPick | null;
+  /** Sotuvchi kiritgan xom qiymatlar — «Tan narx» maydonlarini oldindan to'ldirish uchun. */
+  pricing: {
+    unitCost?: number | null;
+    commissionPct?: number | null;
+    logisticsPerUnit?: number | null;
+  };
+  /** Tan narx bo'yicha «beziyon nuqta» va narx-foyda jadvali. Tan narx yo'q bo'lsa `hasCost=false`. */
+  economics: UnitEconomics | null;
   updatedAt: string;
 }
 
@@ -1627,6 +1637,12 @@ export interface AiDraftPatch {
     product?: string;
     features?: string[];
     category?: string;
+  };
+  /** Tan narx va (ixtiyoriy) komissiya foizi / dona-logistikasi. */
+  pricing?: {
+    unitCost?: number | null;
+    commissionPct?: number | null;
+    logisticsPerUnit?: number | null;
   };
 }
 

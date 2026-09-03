@@ -807,6 +807,10 @@ export const setAiDraftCategoryFromUrl = (id: number, url: string) =>
 export const syncAiCategories = () =>
   request<{ count: number }>(`/product-ai/categories/sync`, { method: "POST" });
 
+/** Bozor tahlilini qayta yuritadi — endi tanlangan turkum bo'yicha. */
+export const refreshAiDraftMarket = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/market/refresh`, { method: "POST" });
+
 export const deleteAiDraft = (id: number) =>
   request<void>(`/product-ai/drafts/${id}`, { method: "DELETE" });
 

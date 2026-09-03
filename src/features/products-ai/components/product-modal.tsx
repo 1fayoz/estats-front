@@ -37,6 +37,35 @@ import type { AiDraft } from "@/lib/types";
 /** Quvur ishlayotganda holat shuncha vaqtda bir so'raladi. */
 const POLL_MS = 4000;
 
+const TAB_KEYS: DraftTabKey[] = [
+  "general", "ru", "images", "attrs", "keywords", "market", "pricing", "audit",
+];
+
+// Tanlangan tab URL'da (`?draft=5&tab=market`) — sahifa yangilanganda
+// yoki havola orqali ochilganda o'sha tabga qaytadi. Warehouse
+// sahifasidagi `?draft=` bilan bir xil naqsh: Next routerisiz,
+// brauzerning O'Z `history.replaceState`i bilan (Next'ning marshrut
+// keshi bilan bog'liq xato bor edi — o'sha sahifa izohiga q.).
+function readTabFromUrl(): DraftTabKey | null {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("tab");
+  return value && (TAB_KEYS as string[]).includes(value)
+    ? (value as DraftTabKey)
+    : null;
+}
+
+function writeTabToUrl(tab: DraftTabKey) {
+  if (typeof window === "undefined") return;
+  const next = new URLSearchParams(window.location.search);
+  if (tab === "general") next.delete("tab");
+  else next.set("tab", tab);
+  const query = next.toString();
+  const url = query
+    ? `${window.location.pathname}?${query}`
+    : window.location.pathname;
+  window.history.replaceState(window.history.state, "", url);
+}
+
 /**
  * «Tovar qo'shish» oynasi — Bitrix24 dagi «Создание сделки»
  * naqshi bo'yicha (namuna foydalanuvchi ko'rsatgan sayt,
@@ -78,7 +107,13 @@ export function ProductAiModal({
   const [loading, setLoading] = React.useState(false);
   const [files, setFiles] = React.useState<File[]>([]);
   const [hint, setHint] = React.useState("");
-  const [tab, setTab] = React.useState<DraftTabKey>("general");
+  const [tab, setTabState] = React.useState<DraftTabKey>(
+    () => readTabFromUrl() ?? "general",
+  );
+  const setTab = React.useCallback((next: DraftTabKey) => {
+    setTabState(next);
+    writeTabToUrl(next);
+  }, []);
   const [form, setForm] = React.useState<DraftForm | null>(null);
   const [busy, setBusy] = React.useState("");
   const [confirmDelete, setConfirmDelete] = React.useState(false);
@@ -99,12 +134,15 @@ export function ProductAiModal({
     setBusy("");
     setConfirmDelete(false);
     setEditMode(false);
-    setTab("general");
     if (draftId === null) {
+      // Yangi qoralamada tab ma'nosiz — «Umumiy»ga qaytamiz.
+      setTab("general");
       setDraft(null);
       setForm(null);
       return;
     }
+    // Mavjud qoralama: URL'dagi tabni tiklaymiz (reload / havola).
+    setTabState(readTabFromUrl() ?? "general");
     setLoading(true);
     void (async () => {
       try {
@@ -120,6 +158,13 @@ export function ProductAiModal({
     // funksiya bo'lishi mumkin va qoralamani qayta-qayta yuklardi.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, draftId]);
+
+  // Orqaga/oldinga tugmasi — brauzerning o'z hodisasidan.
+  React.useEffect(() => {
+    const onPop = () => setTabState(readTabFromUrl() ?? "general");
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   // Quvur fonda ishlaydi va oyna uni so'rab turadi. So'rash FAQAT
   // tugallanmagan qoralamada ketadi — tayyorini qayta-qayta
@@ -409,6 +454,7 @@ const TAB_TITLE: Record<DraftTabKey, string> = {
   attrs: "Xususiyatlar",
   keywords: "Kalit so'zlar",
   market: "Bozordagi raqobatchilar",
+  pricing: "Tan narx va foyda",
   audit: "Joylashga tayyorlik",
 };
 

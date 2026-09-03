@@ -137,7 +137,11 @@ export function ImagePanel({
   // rangni ko'rishi kerak.
   const groups = React.useMemo(() => {
     const map = new Map<string, number[]>();
-    draft.images.forEach((_, index) => {
+    draft.images.forEach((url, index) => {
+      // Rang o'chirilgach reja o'rtasida bo'sh joy qolishi mumkin
+      // (`_recolor`) — bo'sh kadr ko'rsatilmaydi, sotuvchi «shu
+      // rangni qayta yasash» bilan to'ldiradi.
+      if (!url) return;
       const color = checkFor(index)?.color ?? "";
       map.set(color, [...(map.get(color) ?? []), index]);
     });

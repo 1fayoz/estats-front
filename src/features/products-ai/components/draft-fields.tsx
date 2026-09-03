@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { AuditPanel } from "@/features/products-ai/components/audit-panel";
 import { CategoryPicker } from "@/features/products-ai/components/category-picker";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
-import { formatNumber } from "@/lib/format";
+import { MarketPanel } from "@/features/products-ai/components/market-panel";
+import { PricePanel } from "@/features/products-ai/components/price-panel";
 import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
 
@@ -36,7 +37,7 @@ export function initialForm(draft: AiDraft): DraftForm {
 }
 
 export type DraftTabKey =
-  | "general" | "ru" | "images" | "attrs" | "keywords" | "market" | "audit";
+  | "general" | "ru" | "images" | "attrs" | "keywords" | "market" | "pricing" | "audit";
 
 /**
  * Tab qatori — namunadagi «Общие · Товары · Предложения …» kabi.
@@ -89,6 +90,12 @@ export function DraftTabs({
       count: draft?.market?.rivals.length ?? 0,
       ready: (draft?.market?.rivals.length ?? 0) > 0,
       color: "var(--warn)",
+    },
+    {
+      key: "pricing",
+      label: "Tan narx",
+      ready: Boolean(draft),
+      color: "var(--ok)",
     },
     {
       key: "audit",
@@ -189,46 +196,11 @@ export function DraftFields({
   }
 
   if (tab === "market") {
-    return draft.market?.rivals.length ? (
-      <table className="w-full text-[13px]">
-        <thead>
-          <tr className="border-b border-[color:var(--air-line)] text-[11px] uppercase text-[color:var(--air-head)]">
-            <th className="py-2 text-left font-semibold">Tovar</th>
-            <th className="py-2 text-right font-semibold">Buyurtma</th>
-            <th className="py-2 text-right font-semibold">Narx</th>
-          </tr>
-        </thead>
-        <tbody>
-          {draft.market.rivals.map((rival, index) => (
-            <tr
-              key={`${rival.url}-${index}`}
-              className="border-b border-[color:var(--air-line)] last:border-0"
-            >
-              <td className="max-w-0 truncate py-2 pr-3">
-                {rival.url ? (
-                  <a
-                    href={rival.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    {rival.title}
-                  </a>
-                ) : (
-                  rival.title
-                )}
-              </td>
-              <td className="py-2 text-right tabular-nums">{formatNumber(rival.orders)}</td>
-              <td className="py-2 text-right tabular-nums">
-                {rival.price ? formatNumber(rival.price) : "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <Empty />
-    );
+    return <MarketPanel draft={draft} locked={locked} onChange={onChange} />;
+  }
+
+  if (tab === "pricing") {
+    return <PricePanel draft={draft} locked={locked} onChange={onChange} />;
   }
 
   const uz = tab === "general";
