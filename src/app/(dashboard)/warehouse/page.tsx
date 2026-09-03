@@ -50,15 +50,19 @@ function isBlocked(i: WarehouseProduct): boolean {
   );
 }
 
+const MODERATION_PENDING = ["ON_MODERATION", "ON_PREMODERATION", "NOT_MODERATED"];
+
 function matchesTab(i: WarehouseProduct, tab: StatusTab): boolean {
   const s = i.uzumStatusValue ?? "";
   const m = i.uzumModerationValue ?? "";
+  const pending = MODERATION_PENDING.includes(m);
   switch (tab) {
     case "all":
     case "archived":
       return true;
     case "selling":
-      return s === "IN_STOCK" && !isBlocked(i);
+      // Uzum "Sotuvdagi": sotuvda + moderatsiyadan o'tган + bloklanmagan.
+      return s === "IN_STOCK" && !isBlocked(i) && !pending;
     case "ending":
       return (
         s === "IN_STOCK" && !isBlocked(i) &&
@@ -66,14 +70,14 @@ function matchesTab(i: WarehouseProduct, tab: StatusTab): boolean {
         i.marketplaceStock <= ENDING_STOCK
       );
     case "not_selling":
-      return (
-        !isBlocked(i) &&
-        (["RUN_OUT", "NO_SKU", "NOT_READY_TO_SEND"].includes(s) || i.marketplaceStock === 0)
-      );
+      // Uzum "Sotuvda bo'lmaganlar": tugagan yoki yetkazishga tayyor
+      // emas. Qoldiq 0 bo'lgan IN_STOCK ni bu yerga QO'SHMAYMIZ —
+      // Uzum ham qo'shmaydi (u "Sotuvdagi"da qoladi).
+      return !isBlocked(i) && ["RUN_OUT", "NO_SKU", "NOT_READY_TO_SEND"].includes(s);
     case "blocked":
       return isBlocked(i);
     case "moderation":
-      return !isBlocked(i) && ["ON_MODERATION", "ON_PREMODERATION", "NOT_MODERATED"].includes(m);
+      return !isBlocked(i) && pending;
     case "attrs": {
       const a = i.uzumValidation?.areas?.attributes;
       return a != null && a !== "ok";
