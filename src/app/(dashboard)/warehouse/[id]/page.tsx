@@ -205,9 +205,13 @@ export default function ProductDetailPage() {
                   const res = await autoFixProductUzum(id);
                   const applied = res.deterministicFix?.applied ?? [];
                   const manual = res.deterministicFix?.manual ?? [];
+                  const aiUsed = res.deterministicFix?.aiUsed ?? false;
                   if (applied.length || manual.length) {
                     const parts: string[] = [];
-                    if (applied.length) parts.push(`tuzatildi: ${applied.join(", ")}`);
+                    if (applied.length)
+                      parts.push(
+                        `${aiUsed ? "tuzatildi (AI tavsifni rasmga mosladi)" : "tuzatildi"}: ${applied.join(", ")}`,
+                      );
                     if (manual.length)
                       parts.push(
                         `qo'lda kerak: ${manual

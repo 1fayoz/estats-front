@@ -588,9 +588,11 @@ export interface ModerationManualBlock {
 export interface ProductFixResult {
   draftId: number;
   validation: ProductValidation;
-  /** Deterministik (AI'siz) nima tuzatildi va nima qo'lda qoldi. */
+  /** Nima tuzatildi (deterministik yoki AI) va nima qo'lda qoldi. */
   deterministicFix?: {
     applied?: string[];
+    /** Deterministik yechilmagan blok AI bilan (tavsif rasmga moslandi). */
+    aiUsed?: boolean;
     manual?: ModerationManualBlock[];
     at?: string;
   };
