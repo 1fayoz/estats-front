@@ -32,10 +32,15 @@ function uz(value: number, digits = 0): string {
   return sign + body;
 }
 
-const DATE_FORMATTER = new Intl.DateTimeFormat("uz-UZ", {
-  day: "2-digit",
-  month: "short",
-});
+// Xuddi shu Chrome/uz-UZ muammosi sanaga ham tegadi: `resolvedOptions().locale`
+// "uz-UZ" deb tursa ham, `month: "short"` "sen" o'rniga xom ICU token'ini
+// ("M09") qaytaradi. Shuning uchun oy nomi ham QO'LDA — Intl faqat kun/yil
+// raqamini yasaydi, ular hech qachon buzilmagan (`date-range.ts`dagi
+// `formatDayLabel`/`formatWeekday` ham xuddi shu sababdan qo'lda).
+const UZ_MONTHS_SHORT = [
+  "yan", "fev", "mar", "apr", "may", "iyun",
+  "iyul", "avg", "sen", "okt", "noy", "dek",
+];
 
 export function formatSum(value: number): string {
   return `${uz(Math.round(value))} so'm`;
@@ -83,7 +88,8 @@ export function formatPercent(value: number, fromRatio = false): string {
 
 export function formatDate(input: Date | string | number): string {
   const date = input instanceof Date ? input : new Date(input);
-  return DATE_FORMATTER.format(date);
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${day} ${UZ_MONTHS_SHORT[date.getMonth()]}`;
 }
 
 export function formatDelta(value: number): string {

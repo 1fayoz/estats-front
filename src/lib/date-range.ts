@@ -62,14 +62,23 @@ export function rangeKey({ from, to }: DateRange): string {
   return `${from}_${to}`;
 }
 
-const LABEL_FMT = new Intl.DateTimeFormat("uz-UZ", { day: "2-digit", month: "short" });
-const WEEKDAY_FMT = new Intl.DateTimeFormat("uz-UZ", { weekday: "short" });
+// Chrome'da `Intl.DateTimeFormat("uz-UZ", {month:"short"})` `resolvedOptions()
+// .locale`i "uz-UZ" bo'lsa ham xom ICU tokenini ("M09") qaytaradi — xuddi
+// `lib/format.ts`dagi raqam formatlagichi tortgan muammo. Shu sabab oy va
+// hafta kuni nomlari ham QO'LDA (ko'proq izoh: `lib/format.ts`).
+const UZ_MONTHS_SHORT = [
+  "yan", "fev", "mar", "apr", "may", "iyun",
+  "iyul", "avg", "sen", "okt", "noy", "dek",
+];
+const UZ_WEEKDAYS_SHORT = ["yak", "dush", "sesh", "chor", "pay", "jum", "shan"];
 
 /** "12-iyul" style short label from an ISO day (parsed as a UZ-local wall date). */
 export function formatDayLabel(isoDay: string): string {
-  return LABEL_FMT.format(new Date(`${isoDay}T12:00:00`));
+  const d = new Date(`${isoDay}T12:00:00`);
+  return `${d.getDate()}-${UZ_MONTHS_SHORT[d.getMonth()]}`;
 }
 
 export function formatWeekday(isoDay: string): string {
-  return WEEKDAY_FMT.format(new Date(`${isoDay}T12:00:00`));
+  const d = new Date(`${isoDay}T12:00:00`);
+  return UZ_WEEKDAYS_SHORT[d.getDay()];
 }
