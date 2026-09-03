@@ -86,6 +86,12 @@ export default function ProductDetailPage() {
   }
 
   const p = data.product;
+  const moderationErrors = Array.isArray(data.moderationErrors) ? data.moderationErrors : [];
+  const validationAreas =
+    p.uzumValidation?.areas && typeof p.uzumValidation.areas === "object"
+      ? Object.entries(p.uzumValidation.areas)
+      : [];
+  const validationFindings = Array.isArray(p.uzumValidation?.findings) ? p.uzumValidation.findings : [];
   const profitPositive = data.totalProfit >= 0;
 
   return (
@@ -177,9 +183,9 @@ export default function ProductDetailPage() {
             </Button>
           </div>
 
-          {p.uzumValidation && (
+          {p.uzumValidation && validationAreas.length > 0 && (
             <div className="grid gap-2 md:grid-cols-2">
-              {Object.entries(p.uzumValidation.areas).map(([field, state]) => (
+              {validationAreas.map(([field, state]) => (
                 <div key={field} className="rounded-md border px-3 py-2 text-sm">
                   <span className="font-medium">{field}</span>
                   <span className="ml-2 text-muted-foreground">{state}</span>
@@ -188,9 +194,9 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          {data.moderationErrors.length > 0 && (
+          {moderationErrors.length > 0 && (
             <div className="space-y-2">
-              {data.moderationErrors.map((item) => (
+              {moderationErrors.map((item) => (
                 <div key={item.id} className="rounded-md border border-destructive/30 p-3 text-sm">
                   <div className="font-medium">{item.errorMessage}</div>
                   {item.ruleTitle && (
@@ -205,9 +211,9 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          {p.uzumValidation?.findings?.length ? (
+          {validationFindings.length ? (
             <div className="space-y-2">
-              {p.uzumValidation.findings.map((finding, index) => (
+              {validationFindings.map((finding, index) => (
                 <FindingRow key={`${finding.field}-${index}`} finding={finding} />
               ))}
             </div>
