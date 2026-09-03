@@ -1614,13 +1614,29 @@ export interface AiDraftPatch {
   mxik?: string;
   mxikName?: string;
   suggestedPrice?: number;
+  /**
+   * Rasm tahlilining (`vision`) sotuvchi tuzatishi mumkin bo'lgan
+   * qismi. RANGLAR alohida muhim — ular rasm rejasini belgilaydi
+   * (har rang uchun 4 kadr). Faqat oq ro'yxatdagi kalitlar
+   * (`colors`, `material`, `product`, `features`, `category`)
+   * qabul qilinadi.
+   */
+  vision?: {
+    colors?: string[];
+    material?: string;
+    product?: string;
+    features?: string[];
+    category?: string;
+  };
 }
 
 export interface AiImageRedo {
   /** Sotuvchining o'z ko'rsatmasi. Bo'sh bo'lsa faktlar bo'yicha. */
   prompt?: string;
-  /** Qaysi rasm. Berilmasa — hammasi. */
+  /** Qaysi rasm. Berilmasa — hammasi (yoki `color` berilsa, shu rang). */
   index?: number | null;
+  /** Faqat shu rangning 4 kadrini qayta yasaydi. `index` bilan birga berilmaydi. */
+  color?: string;
 }
 
 export interface AiPackage {
