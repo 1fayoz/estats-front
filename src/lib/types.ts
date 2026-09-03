@@ -138,12 +138,45 @@ export interface WarehouseProduct {
   images: string[];
   /** Tovarni Uzum'da ochish havolasi. */
   uzumUrl: string | null;
+  uzumStatusValue: string | null;
+  uzumStatusTitle: string | null;
+  uzumStatusColor: string | null;
+  uzumStatusAdditional: Array<Record<string, unknown>>;
+  uzumModerationValue: string | null;
+  uzumModerationTitle: string | null;
+  uzumModerationColor: string | null;
+  uzumBlocked: boolean;
+  uzumBlockingReason: string | null;
+  uzumValidation: ProductValidation | null;
+  uzumValidatedAt: string | null;
   /** Butun davr bo'yicha — qoldiq = keldi − sotildi ekani ko'rinib tursin. */
   totalIntakeQuantity: number;
   totalSoldQuantity: number;
   totalReturnedQuantity: number;
   /** Hisobda qoldiqqa qaytgan, lekin jismonan hali kelmagan donalar. */
   pendingReturnQuantity: number;
+}
+
+export interface ProductValidationFinding {
+  field: string;
+  level: string;
+  message: string;
+  ruleId: string | null;
+  ruleTitle: string | null;
+  ruleUrl: string | null;
+  explanation: string | null;
+  suggestion: string | null;
+  autoFixable: boolean;
+  currentValue: string | null;
+  proposedValue: string | null;
+}
+
+export interface ProductValidation {
+  checkedAt: string;
+  readiness: number;
+  summary: { ok: number; warning: number; error: number };
+  areas: Record<string, string>;
+  findings: ProductValidationFinding[];
 }
 
 export type ReturnStatus = "pending" | "sent" | "completed" | "canceled";
@@ -509,6 +542,44 @@ export interface ProductDetail {
   /** Shu kartochkadagi barcha variantlar (o'zi ham ichida). Bittasi bo'lsa — bo'sh. */
   siblings: SiblingSku[];
   marketplace: MarketplaceFacts;
+  moderationErrors: ModerationError[];
+  changeLogs: ProductChangeLog[];
+}
+
+export interface ModerationError {
+  id: number;
+  status: string | null;
+  errorCode: string | null;
+  errorMessage: string;
+  ruleId: string | null;
+  ruleTitle: string | null;
+  ruleUrl: string | null;
+  explanation: string | null;
+  suggestedFix: string | null;
+  createdAt: string;
+}
+
+export interface ProductChangeLog {
+  id: number;
+  draftId: number | null;
+  fieldName: string;
+  beforeValue: string | null;
+  afterValue: string | null;
+  reason: string | null;
+  changedBy: string;
+  createdAt: string;
+}
+
+export interface BulkValidationResult {
+  checked: number;
+  ready: number;
+  warning: number;
+  error: number;
+}
+
+export interface ProductFixResult {
+  draftId: number;
+  validation: ProductValidation;
 }
 
 /** Hamma sinxronizatsiyaning bir joydagi holati (Sozlamalar → Uzum). */

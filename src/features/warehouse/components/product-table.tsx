@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { PackagePlus, PackageX, Sparkles, Truck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, PackagePlus, PackageX, Sparkles, Truck, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,8 @@ interface ProductTableProps {
    */
   aiDraftByProduct?: Map<string, number>;
   onOpenAiDraft?: (draftId: number) => void;
+  selectedIds?: Set<number>;
+  onToggleSelected?: (productId: number) => void;
 }
 
 export function ProductTable({
@@ -31,11 +33,38 @@ export function ProductTable({
   onIntake,
   aiDraftByProduct,
   onOpenAiDraft,
+  selectedIds,
+  onToggleSelected,
 }: ProductTableProps) {
   const router = useRouter();
 
   const aiDraftId = (item: WarehouseProduct): number | null =>
     (item.externalProductId && aiDraftByProduct?.get(item.externalProductId)) || null;
+
+  const statusBadge = (item: WarehouseProduct) => {
+    const label = item.uzumBlocked
+      ? "Blocked"
+      : item.uzumModerationTitle || item.uzumStatusTitle || "Unknown";
+    const tone = item.uzumBlocked
+      ? "destructive"
+      : item.uzumValidation?.summary.error
+        ? "destructive"
+        : item.uzumValidation?.summary.warning
+          ? "secondary"
+          : "outline";
+    const Icon = item.uzumBlocked
+      ? XCircle
+      : item.uzumValidation?.summary.error
+        ? AlertTriangle
+        : item.uzumModerationValue?.includes("MODERATION")
+          ? Clock3
+          : CheckCircle2;
+    return (
+      <Badge variant={tone as "outline"} className="gap-1">
+        <Icon className="h-3 w-3" /> {label}
+      </Badge>
+    );
+  };
 
   if (!items.length) {
     return (
@@ -59,6 +88,7 @@ export function ProductTable({
                 image={item.image}
                 title={item.title}
                 note={[item.variantName, item.skuCode].filter(Boolean).join(" · ") || "—"}
+                right={statusBadge(item)}
               />
               <CardStats
                 items={[
@@ -135,7 +165,9 @@ export function ProductTable({
       <table className="w-full min-w-[1120px] text-sm">
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
+            {onToggleSelected && <th className="px-2 py-3 text-center font-medium" />}
             <th className="px-4 py-3 text-left font-medium">Tovar</th>
+            <th className="px-3 py-3 text-left font-medium">Status</th>
             <th className="px-3 py-3 text-right font-medium">Uzum narxi</th>
             <th className="px-3 py-3 text-right font-medium">Tan narx</th>
             <th className="px-3 py-3 text-right font-medium" title="Butun davr bo'yicha kirim">
@@ -174,6 +206,18 @@ export function ProductTable({
                 }}
                 className="cursor-pointer transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
               >
+                {onToggleSelected && (
+                  <td className="px-2 py-3 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds?.has(item.id) ?? false}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onToggleSelected(item.id);
+                      }}
+                    />
+                  </td>
+                )}
                 <td className="max-w-[380px] px-4 py-3">
                   <div className="flex items-center gap-3">
                     {item.image ? (
@@ -193,6 +237,16 @@ export function ProductTable({
                         {[item.variantName, item.skuCode].filter(Boolean).join(" · ") || "—"}
                       </div>
                     </div>
+                  </div>
+                </td>
+                <td className="px-3 py-3">
+                  <div className="flex flex-col items-start gap-1">
+                    {statusBadge(item)}
+                    {item.uzumBlockingReason && (
+                      <div className="max-w-[220px] truncate text-xs text-destructive" title={item.uzumBlockingReason}>
+                        {item.uzumBlockingReason}
+                      </div>
+                    )}
                   </div>
                 </td>
                 <td className="px-3 py-3 text-right tabular-nums">

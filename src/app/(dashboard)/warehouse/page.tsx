@@ -18,7 +18,7 @@ import { useWarehouseProducts } from "@/features/warehouse/store";
 import { useActiveShop, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
-import { fetchProducts } from "@/lib/api";
+import { bulkAutoFixProductsUzum, bulkCheckProductsUzum, fetchProducts } from "@/lib/api";
 import type { WarehouseProduct } from "@/lib/types";
 
 // `useSearchParams` Suspense chegarasini talab qiladi — usiz Next
@@ -55,6 +55,8 @@ function WarehouseContent() {
   const shop = useActiveShop();
   const [query, setQuery] = React.useState("");
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
+  const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
+  const [bulkResult, setBulkResult] = React.useState<string | null>(null);
 
   // ── Arxiv ── ATAYLAB asosiy do'kondan (`useWarehouseProducts`)
   // ALOHIDA: u sahifalar bo'ylab umumiy kesh, boshqa joylarda ham
@@ -140,6 +142,10 @@ function WarehouseContent() {
     );
   }, [items, query]);
 
+  React.useEffect(() => {
+    setSelectedIds(new Set());
+  }, [view, query]);
+
   const totals = React.useMemo(
     () => ({
       goods: items.length,
@@ -214,7 +220,35 @@ function WarehouseContent() {
             Arxiv
           </button>
         </div>
+        <Button
+          variant="outline"
+          disabled={selectedIds.size === 0}
+          onClick={async () => {
+            const res = await bulkCheckProductsUzum(Array.from(selectedIds));
+            setBulkResult(`${res.checked} ta tekshirildi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`);
+            refresh();
+          }}
+        >
+          Uzum tekshiruvi
+        </Button>
+        <Button
+          variant="outline"
+          disabled={selectedIds.size === 0}
+          onClick={async () => {
+            const res = await bulkAutoFixProductsUzum(Array.from(selectedIds));
+            setBulkResult(`${res.checked} ta uchun auto-fix draft tayyorlandi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`);
+            drafts.reload();
+          }}
+        >
+          Xavfsiz Auto-Fix
+        </Button>
       </div>
+
+      {bulkResult && (
+        <div className="rounded-lg border bg-muted/40 px-4 py-2.5 text-sm text-muted-foreground">
+          {bulkResult}
+        </div>
+      )}
 
       {/* Qoldiq = keldi − sotildi. "Sotildi" esa faqat YUKLANGAN sotuvlardan
           chiqadi, shuning uchun qaysi davr yuklangani yonida turishi shart —
@@ -264,6 +298,15 @@ function WarehouseContent() {
           // qayta ochishning boshqa yo'li yo'q edi.
           aiDraftByProduct={canSeeAi ? drafts.draftByProduct : undefined}
           onOpenAiDraft={openAi}
+          selectedIds={selectedIds}
+          onToggleSelected={(productId) =>
+            setSelectedIds((prev) => {
+              const next = new Set(prev);
+              if (next.has(productId)) next.delete(productId);
+              else next.add(productId);
+              return next;
+            })
+          }
         />
       )}
 

@@ -25,11 +25,11 @@ import { ProductInstagramCard } from "@/features/instagram/components/product-in
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
-import { fetchProductDetail } from "@/lib/api";
+import { aiFixProductUzum, autoFixProductUzum, checkProductUzum, fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
-import type { ProductDetail, SalesPeriod, WarehouseProduct } from "@/lib/types";
+import type { ProductDetail, ProductValidationFinding, SalesPeriod, WarehouseProduct } from "@/lib/types";
 
 export default function ProductDetailPage() {
   const [tab, setTab] = useQueryState("view", "daily");
@@ -41,6 +41,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
+  const [busy, setBusy] = React.useState<"" | "check" | "ai" | "auto">("");
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -108,6 +109,113 @@ export default function ProductDetailPage() {
       />
 
       <ProductGallery images={p.images} title={p.title} uzumUrl={p.uzumUrl} />
+
+      <Card className={cn("border", p.uzumBlocked && "border-destructive/40 bg-destructive/5")}>
+        <CardHeader>
+          <CardTitle className="text-base">Uzum tekshiruvi</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={p.uzumBlocked ? "destructive" : "outline"}>
+              {p.uzumBlocked ? "Blocked" : p.uzumModerationTitle || p.uzumStatusTitle || "Unknown"}
+            </Badge>
+            {p.uzumValidation && (
+              <Badge variant="secondary">Readiness {p.uzumValidation.readiness}%</Badge>
+            )}
+            {p.uzumBlockingReason && (
+              <span className="text-sm text-destructive">{p.uzumBlockingReason}</span>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy !== ""}
+              onClick={async () => {
+                setBusy("check");
+                try {
+                  setData(await checkProductUzum(id));
+                } finally {
+                  setBusy("");
+                }
+              }}
+            >
+              Uzum tekshiruvi
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy !== ""}
+              onClick={async () => {
+                setBusy("ai");
+                try {
+                  const res = await aiFixProductUzum(id);
+                  window.location.assign(`/warehouse?draft=${res.draftId}`);
+                } finally {
+                  setBusy("");
+                }
+              }}
+            >
+              AI bilan tuzatish
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy !== ""}
+              onClick={async () => {
+                setBusy("auto");
+                try {
+                  const res = await autoFixProductUzum(id);
+                  window.location.assign(`/warehouse?draft=${res.draftId}`);
+                } finally {
+                  setBusy("");
+                }
+              }}
+            >
+              Avtomatik tuzatish
+            </Button>
+          </div>
+
+          {p.uzumValidation && (
+            <div className="grid gap-2 md:grid-cols-2">
+              {Object.entries(p.uzumValidation.areas).map(([field, state]) => (
+                <div key={field} className="rounded-md border px-3 py-2 text-sm">
+                  <span className="font-medium">{field}</span>
+                  <span className="ml-2 text-muted-foreground">{state}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {data.moderationErrors.length > 0 && (
+            <div className="space-y-2">
+              {data.moderationErrors.map((item) => (
+                <div key={item.id} className="rounded-md border border-destructive/30 p-3 text-sm">
+                  <div className="font-medium">{item.errorMessage}</div>
+                  {item.ruleTitle && (
+                    <div className="text-muted-foreground">
+                      Qoida: {item.ruleTitle}
+                    </div>
+                  )}
+                  {item.explanation && <div className="text-muted-foreground">{item.explanation}</div>}
+                  {item.suggestedFix && <div className="mt-1">{item.suggestedFix}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {p.uzumValidation?.findings?.length ? (
+            <div className="space-y-2">
+              {p.uzumValidation.findings.map((finding, index) => (
+                <FindingRow key={`${finding.field}-${index}`} finding={finding} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">Hali tekshiruv natijasi yo&apos;q.</div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Tile label="Jami keldi" value={`${formatNumber(data.totalIntakeQuantity)} dona`} />
@@ -253,6 +361,32 @@ export default function ProductDetailPage() {
         onOpenChange={(open) => !open && setIntakeFor(null)}
         onSaved={load}
       />
+    </div>
+  );
+}
+
+function FindingRow({ finding }: { finding: ProductValidationFinding }) {
+  return (
+    <div className="rounded-md border p-3 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-medium">{finding.field}</span>
+        <Badge variant={finding.level === "error" ? "destructive" : finding.level === "warning" ? "secondary" : "outline"}>
+          {finding.level}
+        </Badge>
+      </div>
+      <div className="mt-1">{finding.message}</div>
+      {finding.ruleTitle && (
+        <div className="text-muted-foreground">
+          Qoida: {finding.ruleTitle}
+        </div>
+      )}
+      {finding.explanation && <div className="text-muted-foreground">{finding.explanation}</div>}
+      {finding.suggestion && <div className="mt-1">{finding.suggestion}</div>}
+      {finding.proposedValue && (
+        <div className="mt-1 text-muted-foreground">
+          Taklif: {finding.proposedValue}
+        </div>
+      )}
     </div>
   );
 }

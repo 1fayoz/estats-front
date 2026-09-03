@@ -37,7 +37,9 @@ import type {
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
+  BulkValidationResult,
   ProductMarket,
+  ProductFixResult,
   PublishPreview,
   RecurringExpense,
   Shop,
@@ -211,6 +213,27 @@ export const fetchProducts = (
 
 export const fetchProductDetail = (id: number) =>
   request<ProductDetail>(`/warehouse/products/${id}`);
+
+export const checkProductUzum = (id: number) =>
+  request<ProductDetail>(`/warehouse/products/${id}/uzum-check`, { method: "POST" });
+
+export const bulkCheckProductsUzum = (productIds: number[]) =>
+  request<BulkValidationResult>("/warehouse/products/uzum-check", {
+    method: "POST",
+    body: JSON.stringify({ productIds }),
+  });
+
+export const aiFixProductUzum = (id: number) =>
+  request<ProductFixResult>(`/warehouse/products/${id}/ai-fix`, { method: "POST" });
+
+export const autoFixProductUzum = (id: number) =>
+  request<ProductFixResult>(`/warehouse/products/${id}/auto-fix`, { method: "POST" });
+
+export const bulkAutoFixProductsUzum = (productIds: number[]) =>
+  request<BulkValidationResult>("/warehouse/products/auto-fix", {
+    method: "POST",
+    body: JSON.stringify({ productIds }),
+  });
 
 /** "Qaysi narxda qancha foyda" jadvalidagi bir narxni haqiqiy Uzum narxiga aylantiradi. */
 export const applyProductPrice = (id: number, sellPrice: number) =>
