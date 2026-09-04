@@ -626,6 +626,10 @@ export interface ProductFixResult {
     manual?: ModerationManualBlock[];
     at?: string;
   };
+  /** SEO bali past bo'lgani uchun chaqirilgan AI-fix qoralamani tuzatgach
+   *  avtomatik Uzum'ga ham yubordi — natija shu yerda (moderatsiya-
+   *  tetiklangan AI-fix'da bo'sh: sotuvchi "Uzumda yangilash"ni o'zi bosadi). */
+  uzumPush?: { ok: boolean; message: string } | null;
 }
 
 /** Hamma sinxronizatsiyaning bir joydagi holati (Sozlamalar → Uzum). */

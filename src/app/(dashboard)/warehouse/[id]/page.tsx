@@ -219,6 +219,13 @@ function ProductDetailPage() {
                 setFixNote(null);
                 try {
                   const res = await aiFixProductUzum(id);
+                  if (res.uzumPush) {
+                    setFixNote(
+                      res.uzumPush.ok
+                        ? res.uzumPush.message
+                        : `SEO uchun tuzatildi, lekin Uzum'ga yubormadi: ${res.uzumPush.message}`,
+                    );
+                  }
                   openAi(res.draftId);
                 } catch (e) {
                   setFixNote(e instanceof Error ? e.message : "Xatolik");
