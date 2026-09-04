@@ -24,7 +24,12 @@ docker compose -p my-stats-front -f docker-compose.prod.yaml up -d --remove-orph
 
 echo ">> Eski image'larni tozalash"
 # `docker system prune` QILMAYMIZ — serverdagi boshqa loyihalarga tegib ketadi.
-docker image prune -af --filter "until=72h"
+# Muvaffaqiyatsiz bo'lsa ham DEPLOY'ni to'xtatmaymiz: bu faqat disk
+# tozalash, konteyner allaqachon YANGILANGAN. Ketma-ket ikkita deploy
+# (backend+frontend) bir vaqtda tozalasa Docker daemon ikkinchisini
+# "a prune operation is already running" bilan rad etadi — muvaffaqiyatli
+# deployni SOXTA "failed" qilib ko'rsatardi (haqiqiy holatda tekshirilgan).
+docker image prune -af --filter "until=72h" || echo "   (prune band edi — o'tkazib yuborildi)"
 
 echo ">> Deploy tugadi"
 docker compose -p my-stats-front -f docker-compose.prod.yaml ps

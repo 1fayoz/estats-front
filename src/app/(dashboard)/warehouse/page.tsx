@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useSearchParams } from "next/navigation";
 import { AlertTriangle, Boxes, Plus, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -14,6 +13,7 @@ import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { DraftStrip } from "@/features/products-ai/components/draft-strip";
 import { ProductAiModal } from "@/features/products-ai/components/product-modal";
 import { useAiDrafts } from "@/features/products-ai/use-drafts";
+import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useWarehouseProducts } from "@/features/warehouse/store";
 import { useActiveShop, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
@@ -180,53 +180,10 @@ function WarehouseContent() {
   const canAddAi = useCan("products_ai.control");
   const drafts = useAiDrafts(canSeeAi);
 
-  // ── Oyna holati URL'DA turadi ──────────────────────────────
-  // Ilgari u oddiy `useState` edi va sahifa yangilanganda oyna
-  // yopilib qolardi — quvur bir necha daqiqa ishlaydi, sotuvchi
-  // esa shu vaqt ichida sahifani yangilashi butunlay normal.
-  // Havolani hamkasbiga tashlash ham imkonsiz edi.
-  //   ?draft=12   — mavjud qoralama
-  //   ?draft=new  — yangi tovar qo'shish
-  // `useSearchParams()` FAQAT boshlang'ich qiymat uchun — reload
-  // yoki havola orqali ochilganda. Undan KEYIN mahalliy holat
-  // (`draftParam`) yagona manba: Next'ning `router.replace()`i
-  // BILAN sinovda topilgan real xato bor edi — yopishda
-  // (`?draft=3` → bo'sh) `history.replaceState` HAR SAFAR eski
-  // "?draft=3"ni QAYTA yozib qo'yardi (brauzer konsolida
-  // `history.replaceState`ni ushlab tekshirilgan — Next'ning o'z
-  // marshrutlash keshi bilan bog'liq bo'lishi mumkin). Natija:
-  // × tugmasi bosilardi-yu, oyna hech qachon yopilmasdi. Endi
-  // React holati DARHOL, sinxron yangilanadi (router kutilmaydi);
-  // URL esa faqat ULASHISH/YANGILASH uchun brauzerning O'Z
-  // `history.replaceState`i bilan yoziladi — Next routerisiz.
-  const searchParams = useSearchParams();
-  const [draftParam, setDraftParamState] = React.useState<string | null>(
-    () => searchParams.get("draft"),
-  );
-  // Orqaga/oldinga tugmasi — brauzerning o'z hodisasidan
-  // (`popstate`), Next hookidan emas: yuqoridagi sababga ko'ra.
-  React.useEffect(() => {
-    const onPop = () => {
-      setDraftParamState(new URLSearchParams(window.location.search).get("draft"));
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, []);
-
-  const aiOpen = draftParam !== null;
-  const aiDraftId = draftParam && draftParam !== "new" ? Number(draftParam) : null;
-
-  const setDraftParam = React.useCallback((value: string | null) => {
-    setDraftParamState(value);
-    const next = new URLSearchParams(window.location.search);
-    if (value === null) next.delete("draft");
-    else next.set("draft", value);
-    const query = next.toString();
-    const url = query ? `${window.location.pathname}?${query}` : window.location.pathname;
-    window.history.replaceState(window.history.state, "", url);
-  }, []);
-
-  const openAi = (id: number | null) => setDraftParam(id === null ? "new" : String(id));
+  // Oyna holati URL'DA turadi (`?draft=12`/`?draft=new`) — endi
+  // `useDraftParam()`da, `/warehouse/[id]` sahifasi bilan BIR XIL
+  // (izoh o'sha faylda: nega URL'da, nega Next router emas).
+  const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
 
   // Tab sonlari — FAOL ro'yxatdan (arxiv alohida). Uzum ham
   // shunday: har tab yonida son, ustma-ust bo'lishi mumkin

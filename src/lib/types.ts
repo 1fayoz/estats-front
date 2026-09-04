@@ -551,6 +551,8 @@ export interface ProductDetail {
   /** Qoralama matni oxirgi marta Uzum'ga qachon yuborilgani — undan keyingi
    *  `changeLogs` yozuvlari hali tirik e'londa emas ("joriy, tasdiqlanmagan"). */
   draftTextPushedAt: string | null;
+  /** Shu tovarga bog'langan AI qoralamasi (bo'lsa) — "AI kartochka" tugmasi shuni ochadi. */
+  aiDraftId: number | null;
 }
 
 export interface ModerationError {

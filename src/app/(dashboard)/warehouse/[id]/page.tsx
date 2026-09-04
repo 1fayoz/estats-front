@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, PackagePlus } from "lucide-react";
+import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,8 @@ import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
+import { ProductAiModal } from "@/features/products-ai/components/product-modal";
+import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import {
   aiFixProductUzum,
@@ -36,10 +38,33 @@ import {
 import { formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
+import { useCan } from "@/stores/user-store";
 import type { ProductDetail, ProductValidationFinding, SalesPeriod, WarehouseProduct } from "@/lib/types";
 
-export default function ProductDetailPage() {
+// `useSearchParams()` (AI oyna holati, `useDraftParam` ichida)
+// Suspense chegarasini talab qiladi — usiz Next qurilishda yiqiladi.
+export default function ProductDetailPageRoute() {
+  return (
+    <React.Suspense fallback={<PageSkeleton />}>
+      <ProductDetailPage />
+    </React.Suspense>
+  );
+}
+
+function PageSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-64" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+      <Skeleton className="h-72 w-full rounded-xl" />
+    </div>
+  );
+}
+
+function ProductDetailPage() {
   const [tab, setTab] = useQueryState("view", "daily");
+  const canSeeAi = useCan("products_ai.view");
+  const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
 
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
@@ -115,6 +140,11 @@ export default function ProductDetailPage() {
         description={[p.variantName, p.skuCode, p.categoryName].filter(Boolean).join(" · ")}
         actions={
           <>
+            {canSeeAi && data.aiDraftId != null && (
+              <Button size="sm" variant="outline" onClick={() => openAi(data.aiDraftId)}>
+                <Sparkles className="h-3.5 w-3.5" /> AI kartochka
+              </Button>
+            )}
             <Button size="sm" onClick={() => setIntakeFor(p)}>
               <PackagePlus className="h-3.5 w-3.5" /> Kirim
             </Button>
@@ -185,9 +215,12 @@ export default function ProductDetailPage() {
               disabled={busy !== ""}
               onClick={async () => {
                 setBusy("ai");
+                setFixNote(null);
                 try {
                   const res = await aiFixProductUzum(id);
-                  window.location.assign(`/warehouse?draft=${res.draftId}`);
+                  openAi(res.draftId);
+                } catch (e) {
+                  setFixNote(e instanceof Error ? e.message : "Xatolik");
                 } finally {
                   setBusy("");
                 }
@@ -222,7 +255,7 @@ export default function ProductDetailPage() {
                       );
                     setFixNote(parts.join(" · "));
                   }
-                  window.location.assign(`/warehouse?draft=${res.draftId}`);
+                  openAi(res.draftId);
                 } catch (e) {
                   setFixNote(e instanceof Error ? e.message : "Xatolik");
                 } finally {
@@ -431,6 +464,22 @@ export default function ProductDetailPage() {
         onOpenChange={(open) => !open && setIntakeFor(null)}
         onSaved={load}
       />
+
+      {canSeeAi && (
+        <ProductAiModal
+          open={aiOpen}
+          draftId={aiDraftId}
+          onClose={() => setDraftParam(null)}
+          // Ro'yxat sahifasidan farqli — bu yerda faqat SHU tovarning
+          // o'zi qiziq: har o'zgarishda butun tovar sahifasini qayta
+          // yuklaymiz (status, o'zgarishlar tarixi ham yangilanadi).
+          onDraft={() => void load()}
+          onDeleted={() => {
+            setDraftParam(null);
+            void load();
+          }}
+        />
+      )}
     </div>
   );
 }
