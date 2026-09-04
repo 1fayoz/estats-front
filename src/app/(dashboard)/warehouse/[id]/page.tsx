@@ -22,6 +22,7 @@ import { SiblingsCard } from "@/features/warehouse/components/siblings-card";
 import { ProductStats } from "@/features/warehouse/components/product-stats";
 import { UzumFactsCard } from "@/features/warehouse/components/uzum-facts-card";
 import { PositionsBlock } from "@/features/seo/components/positions-block";
+import { SeoAuditCard } from "@/features/seo/components/seo-audit-card";
 import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
@@ -355,6 +356,8 @@ function ProductDetailPage() {
       {/* Qidiruvdagi o'rin — "qaysi so'z bilan izlaganda nechanchimiz".
           Tovarning o'z sahifasida turishi shart: sotuvchi narx va
           qoldiqni ko'rib turib, o'sha yerda kalit so'z qo'shadi. */}
+      <SeoAuditCard productId={id} />
+
       <PositionsBlock productId={id} />
 
       <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
