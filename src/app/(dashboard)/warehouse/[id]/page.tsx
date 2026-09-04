@@ -280,7 +280,12 @@ export default function ProductDetailPage() {
         </CardContent>
       </Card>
 
-      <ChangeHistoryCard productId={id} changeLogs={data.changeLogs ?? []} onReverted={load} />
+      <ChangeHistoryCard
+        productId={id}
+        changeLogs={data.changeLogs ?? []}
+        draftTextPushedAt={data.draftTextPushedAt ?? null}
+        onReverted={load}
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Tile label="Jami keldi" value={`${formatNumber(data.totalIntakeQuantity)} dona`} />

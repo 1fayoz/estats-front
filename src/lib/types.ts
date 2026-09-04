@@ -548,6 +548,9 @@ export interface ProductDetail {
   marketplace: MarketplaceFacts;
   moderationErrors: ModerationError[];
   changeLogs: ProductChangeLog[];
+  /** Qoralama matni oxirgi marta Uzum'ga qachon yuborilgani — undan keyingi
+   *  `changeLogs` yozuvlari hali tirik e'londa emas ("joriy, tasdiqlanmagan"). */
+  draftTextPushedAt: string | null;
 }
 
 export interface ModerationError {

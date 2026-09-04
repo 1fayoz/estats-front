@@ -79,10 +79,13 @@ function ImpactRow({ impact }: { impact: ChangeImpact }) {
 export function ChangeHistoryCard({
   productId,
   changeLogs,
+  draftTextPushedAt,
   onReverted,
 }: {
   productId: number;
   changeLogs: ProductChangeLog[];
+  /** Qoralama matni oxirgi marta Uzum'ga qachon yuborilgani (`edit-uzum`). */
+  draftTextPushedAt: string | null;
   onReverted: () => void | Promise<void>;
 }) {
   const [impacts, setImpacts] = React.useState<Record<number, ChangeImpact>>({});
@@ -144,6 +147,13 @@ export function ChangeHistoryCard({
         {changeLogs.map((log) => {
           const impact = impacts[log.id];
           const canRevert = REVERTABLE.has(log.fieldName) && log.changedBy !== "revert";
+          // Uzum'dagi TIRIK kartochka matni oxirgi marta shu paytda
+          // yangilangan (`edit-uzum`) — shundan KEYINGI yozuv hali
+          // faqat qoralamada, tirik e'londa emas. Umuman yuborilmagan
+          // bo'lsa (`draftTextPushedAt` yo'q) — barchasi kutilyapti.
+          const isPending =
+            REVERTABLE.has(log.fieldName) &&
+            (!draftTextPushedAt || Date.parse(log.createdAt) > Date.parse(draftTextPushedAt));
           return (
             <div key={log.id} className="rounded-md border p-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -157,6 +167,14 @@ export function ChangeHistoryCard({
                         : log.changedBy === "ai_auto_fix"
                           ? "AI Auto-Fix"
                           : log.changedBy}
+                    </Badge>
+                  )}
+                  {isPending && (
+                    <Badge
+                      variant="outline"
+                      className="border-amber-500/40 text-[10px] text-amber-600 dark:text-amber-400"
+                    >
+                      Joriy — Uzum&apos;ga hali yuborilmagan
                     </Badge>
                   )}
                 </div>
