@@ -3,12 +3,20 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
+import { ArrowLeft, ChevronDown, PackagePlus, Sparkles } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -128,6 +136,30 @@ function ProductDetailPage() {
   const validationFindings = Array.isArray(p.uzumValidation?.findings) ? p.uzumValidation.findings : [];
   const profitPositive = data.totalProfit >= 0;
 
+  // `field` — SEO auditdagi kabi alohida-alohida qayta yasash
+  // (foydalanuvchi so'rovi): faqat nom, faqat tavsif, yoki (bo'sh)
+  // ikkalasi ham — asosiy tugma bilan bir xil oqim, faqat maydon
+  // tor qilinadi.
+  const runAiFix = async (field?: "title" | "description") => {
+    setBusy("ai");
+    setFixNote(null);
+    try {
+      const res = await aiFixProductUzum(id, field);
+      if (res.uzumPush) {
+        setFixNote(
+          res.uzumPush.ok
+            ? res.uzumPush.message
+            : `Tuzatildi, lekin Uzum'ga yubormadi: ${res.uzumPush.message}`,
+        );
+      }
+      openAi(res.draftId);
+    } catch (e) {
+      setFixNote(e instanceof Error ? e.message : "Xatolik");
+    } finally {
+      setBusy("");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
@@ -210,32 +242,39 @@ function ProductDetailPage() {
                 Uzum sababini aniqlash
               </Button>
             )}
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={busy !== ""}
-              onClick={async () => {
-                setBusy("ai");
-                setFixNote(null);
-                try {
-                  const res = await aiFixProductUzum(id);
-                  if (res.uzumPush) {
-                    setFixNote(
-                      res.uzumPush.ok
-                        ? res.uzumPush.message
-                        : `SEO uchun tuzatildi, lekin Uzum'ga yubormadi: ${res.uzumPush.message}`,
-                    );
-                  }
-                  openAi(res.draftId);
-                } catch (e) {
-                  setFixNote(e instanceof Error ? e.message : "Xatolik");
-                } finally {
-                  setBusy("");
-                }
-              }}
-            >
-              AI bilan tuzatish
-            </Button>
+            <DropdownMenu>
+              <div className="inline-flex">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="rounded-r-none border-r-0"
+                  disabled={busy !== ""}
+                  onClick={() => runAiFix()}
+                >
+                  AI bilan tuzatish
+                </Button>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-l-none px-1.5"
+                    disabled={busy !== ""}
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </div>
+              <DropdownMenuContent align="start">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Alohida qayta yasash
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => runAiFix("title")}>Faqat nomni</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => runAiFix("description")}>
+                  Faqat tavsifni
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               size="sm"
               variant="outline"

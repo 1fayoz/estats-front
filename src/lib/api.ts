@@ -224,8 +224,10 @@ export const bulkCheckProductsUzum = (productIds: number[]) =>
     body: JSON.stringify({ productIds }),
   });
 
-export const aiFixProductUzum = (id: number) =>
-  request<ProductFixResult>(`/warehouse/products/${id}/ai-fix`, { method: "POST" });
+/** `field` — SEO auditdagi kabi alohida-alohida: "title" yoki "description".
+ *  Berilmasa ikkalasi ham qayta yasaladi. */
+export const aiFixProductUzum = (id: number, field?: "title" | "description") =>
+  request<ProductFixResult>(`/warehouse/products/${id}/ai-fix${qs({ field })}`, { method: "POST" });
 
 export const autoFixProductUzum = (id: number) =>
   request<ProductFixResult>(`/warehouse/products/${id}/auto-fix`, { method: "POST" });
