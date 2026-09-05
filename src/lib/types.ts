@@ -756,6 +756,8 @@ export interface MarketAutoRefresh {
   lastRunAt: string | null;
   lastStatus: string | null;
   lastMessage: string | null;
+  /** Oxirgi muvaffaqiyatli tokenning turi: session (shaxsiy) | anonymous (mehmon, avtomatik tiklangan). */
+  lastMode: string | null;
   intervalSeconds: number;
 }
 

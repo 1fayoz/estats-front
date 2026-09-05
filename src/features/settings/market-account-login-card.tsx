@@ -81,13 +81,21 @@ export function MarketAccountLoginCard() {
 
   const connected = state?.connected ?? false;
   const lastStatus = state?.lastStatus ?? null;
-  const badgeVariant =
-    !connected ? "secondary" : lastStatus === "ok" || lastStatus === null ? "success" : "warning";
+  const anonymous = lastStatus === "ok" && state?.lastMode === "anonymous";
+  const badgeVariant = !connected
+    ? "secondary"
+    : lastStatus === "ok"
+      ? (anonymous ? "warning" : "success")
+      : lastStatus === null
+        ? "success"
+        : "warning";
   const badgeText = !connected
     ? "ulanmagan"
-    : lastStatus
-      ? STATUS_LABEL[lastStatus] ?? lastStatus
-      : "kutilmoqda";
+    : anonymous
+      ? "anonim rejimda"
+      : lastStatus
+        ? STATUS_LABEL[lastStatus] ?? lastStatus
+        : "kutilmoqda";
 
   return (
     <Card>
@@ -108,16 +116,33 @@ export function MarketAccountLoginCard() {
       </CardHeader>
       <CardContent className="space-y-3">
         {connected && (
-          <div className="flex items-start gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/5 p-3 text-sm">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div
+            className={
+              "flex items-start gap-3 rounded-lg border p-3 text-sm " +
+              (anonymous
+                ? "border-amber-500/40 bg-amber-500/5"
+                : "border-emerald-500/40 bg-emerald-500/5")
+            }
+          >
+            <CheckCircle2
+              className={
+                "mt-0.5 h-4 w-4 shrink-0 " +
+                (anonymous
+                  ? "text-amber-600 dark:text-amber-500"
+                  : "text-emerald-600 dark:text-emerald-400")
+              }
+            />
             <span>
               {state?.connectedAt &&
                 `${new Date(state.connectedAt).toLocaleString("uz-UZ")} da ulangan. `}
-              {lastStatus === "ok" && state?.lastRunAt
-                ? `Oxirgi yangilanish: ${new Date(state.lastRunAt).toLocaleTimeString("uz-UZ")}.`
-                : null}
+              {lastStatus === "ok" && !anonymous && state?.lastRunAt &&
+                `Oxirgi yangilanish: ${new Date(state.lastRunAt).toLocaleTimeString("uz-UZ")}.`}
+              {anonymous &&
+                "Sessiya bir marta uzilgan — avtomatika o'zi tiklab, hozircha anonim " +
+                  "(mehmon) token bilan ishlayapti. Bu ham ishlaydi, lekin shaxsiy hisobga " +
+                  "qaytish uchun qayta ulang."}
               {lastStatus === "needs_login" &&
-                "Sessiya tugagan ko'rinadi — qayta ulaning."}
+                "Sessiya ham, avtomatik tiklash ham ishlamadi — qayta ulaning."}
               {lastStatus === "captcha" &&
                 "Uzum CAPTCHA so'radi — qayta ulanib, o'zingiz yeching."}
               {lastStatus === "error" && state?.lastMessage && ` Xato: ${state.lastMessage}`}
@@ -127,7 +152,9 @@ export function MarketAccountLoginCard() {
         <p className="text-xs text-muted-foreground">
           Bosganingizda brauzer oynasi shu sahifada ochiladi (VNC orqali) — parolingiz
           eStats serveriga hech qachon yuborilmaydi. Bitta hisob — barcha do&apos;konlar
-          uchun umumiy.
+          uchun umumiy. Sessiya o&apos;zidan-o&apos;zi uzilib qolsa avtomatika buni
+          o&apos;zi payqab tuzatishga harakat qiladi — qayta ulanish faqat u ham
+          yetmagandagina kerak bo&apos;ladi.
         </p>
         <Button size="sm" onClick={onConnect} disabled={busy}>
           {busy && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}

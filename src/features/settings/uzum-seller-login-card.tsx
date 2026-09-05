@@ -81,7 +81,9 @@ export function UzumSellerLoginCard() {
         )}
         <p className="text-xs text-muted-foreground">
           Bosganingizda brauzer oynasi shu sahifada ochiladi (VNC orqali) — parolingiz
-          eStats serveriga hech qachon yuborilmaydi.
+          eStats serveriga hech qachon yuborilmaydi. Brauzer avvalgi urinishdan buzilib
+          qolgan bo&apos;lsa (ochilmay qolsa) avtomatika uni o&apos;zi tozalab, 0&apos;dan
+          ochadi — &quot;Qayta ulash&quot; har doim ishlashi kerak.
         </p>
         <Button size="sm" onClick={onConnect} disabled={busy}>
           {busy && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
