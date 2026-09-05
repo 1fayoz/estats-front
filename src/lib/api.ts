@@ -41,6 +41,7 @@ import type {
   TelegramLoginStep,
   ComplaintPreview,
   ComplaintSendResult,
+  ComplaintJob,
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
@@ -432,11 +433,19 @@ export const disconnectTelegramAccount = () =>
 export const fetchComplaintPreview = (productId: number) =>
   request<ComplaintPreview>(`/telegram-operator/complaint/${productId}`);
 
+/**
+ * Yozishni BOSHLAYDI va darhol qaytadi — ish FONDA ketadi (menyu
+ * bo'ylab yurish 20-40 soniya oladi, sotuvchi kutib o'tirmasin).
+ * Holat `fetchComplaintJob` bilan so'rab turiladi.
+ */
 export const sendComplaint = (productId: number, text: string, force = false) =>
-  request<ComplaintSendResult>(`/telegram-operator/complaint/${productId}`, {
+  request<ComplaintJob>(`/telegram-operator/complaint/${productId}`, {
     method: "POST",
     body: JSON.stringify({ text, force }),
   });
+
+export const fetchComplaintJob = (productId: number) =>
+  request<ComplaintJob>(`/telegram-operator/complaint/${productId}/job`);
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────
 
