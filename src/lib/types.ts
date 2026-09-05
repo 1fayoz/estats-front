@@ -749,7 +749,10 @@ export interface MarketLoginSession {
   startedAt: number | null;
 }
 
-/** Uzum moderatsiya operatoriga Telegram orqali yozish uchun hisob holati. */
+/**
+ * Uzum moderatsiya operatoriga Telegram orqali yozish uchun hisob holati.
+ * Ulash adminkada ("Telegram userbot"), bu yerda faqat holat o'qiladi.
+ */
 export interface TelegramOperatorStatus {
   credentialsConfigured: boolean;
   connected: boolean;
@@ -758,16 +761,6 @@ export interface TelegramOperatorStatus {
   lastName: string | null;
   username: string | null;
   connectedAt: string | null;
-}
-
-export interface TelegramLoginStart {
-  loginId: string;
-}
-
-/** `status`: "ok" (ulandi) | "password_required" (ikki bosqichli parol kerak). */
-export interface TelegramLoginStatus {
-  status: string;
-  account: TelegramOperatorStatus | null;
 }
 
 /** Bozor tokenini avtomatik yangilash holati — `lastStatus`: ok | needs_login | captcha | error. */

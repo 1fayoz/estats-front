@@ -37,8 +37,6 @@ import type {
   MarketAutoRefresh,
   MarketLoginSession,
   TelegramOperatorStatus,
-  TelegramLoginStart,
-  TelegramLoginStatus,
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
@@ -388,37 +386,13 @@ export function marketLoginVncUrl(): string {
 
 // ── Uzum moderatsiya operatoriga Telegram orqali yozish ───────────────────────
 //
-// Fayozning O'Z Telegram hisobi (MTProto) — APP darajasida BITTA, do'konga
-// bog'liq emas. `telegram_operator_api_id`/`_api_hash` bu yerdan
-// KIRITILMAYDI — /admin/ (Django adminka, AppSetting) orqali, bir martalik.
-// Login uch bosqichli: telefon → SMS kod → (kerak bo'lsa) ikki bosqichli parol.
+// Userbot ULASH bu yerda EMAS — Django adminkada ("Telegram userbot" →
+// "Qo'shish"): bir martalik, ilova darajasidagi sozlash. Front faqat
+// "ulanganmi?" deb so'raydi — kelajakda tovar kartochkasidagi "Operatorga
+// yozish" tugmasi shunga qarab yoqiladi.
 
 export const fetchTelegramOperatorStatus = () =>
   request<TelegramOperatorStatus>("/telegram-operator/status", { shopScoped: false });
-
-export const startTelegramOperatorLogin = (phone: string) =>
-  request<TelegramLoginStart>("/telegram-operator/login/start", {
-    method: "POST",
-    shopScoped: false,
-    body: JSON.stringify({ phone }),
-  });
-
-export const submitTelegramOperatorCode = (loginId: string, code: string) =>
-  request<TelegramLoginStatus>("/telegram-operator/login/code", {
-    method: "POST",
-    shopScoped: false,
-    body: JSON.stringify({ loginId, code }),
-  });
-
-export const submitTelegramOperatorPassword = (loginId: string, password: string) =>
-  request<TelegramLoginStatus>("/telegram-operator/login/password", {
-    method: "POST",
-    shopScoped: false,
-    body: JSON.stringify({ loginId, password }),
-  });
-
-export const logoutTelegramOperator = () =>
-  request<void>("/telegram-operator/logout", { method: "POST", shopScoped: false });
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────
 
