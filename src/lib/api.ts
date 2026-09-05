@@ -42,6 +42,7 @@ import type {
   ComplaintPreview,
   ComplaintSendResult,
   ComplaintJob,
+  ShopRequestPreview,
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
@@ -446,6 +447,22 @@ export const sendComplaint = (productId: number, text: string, force = false) =>
 
 export const fetchComplaintJob = (productId: number) =>
   request<ComplaintJob>(`/telegram-operator/complaint/${productId}/job`);
+
+// Do'kon darajasidagi so'rovlar — bitta tovar haqida emas
+// (qaytarilgan tovarlar, nuqsonli tovarlar, mablag' yechish…).
+// Ish ayni o'sha fon mexanizmida ketadi.
+
+export const fetchShopRequestPreview = (kind: string) =>
+  request<ShopRequestPreview>(`/telegram-operator/request/${kind}`);
+
+export const sendShopRequest = (kind: string, text: string, note?: string) =>
+  request<ComplaintJob>(`/telegram-operator/request/${kind}`, {
+    method: "POST",
+    body: JSON.stringify({ kind, text, note }),
+  });
+
+export const fetchShopRequestJob = () =>
+  request<ComplaintJob>("/telegram-operator/request-job/state");
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────
 

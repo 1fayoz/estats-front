@@ -822,7 +822,7 @@ export interface ComplaintStep {
  */
 export interface ComplaintJob {
   productId: number;
-  status: "idle" | "queued" | "running" | "done" | "failed";
+  status: "idle" | "scheduled" | "queued" | "running" | "done" | "failed";
   percent: number;
   step: string;
   error: string | null;
@@ -832,6 +832,24 @@ export interface ComplaintJob {
   replyText: string | null;
   replyAt: string | null;
   finishedAt: string | null;
+}
+
+/**
+ * Do'kon darajasidagi so'rov (bitta tovar haqida EMAS): ombordagi
+ * qaytarilgan tovarlar, nuqsonli tovarlar, mablag' yechish…
+ *
+ * `items` — matnga qo'shilgan haqiqiy tovarlar soni (Uzum
+ * javobidagi `quantityReturned`/`quantityDefected` dan).
+ * `supportOpen` — qo'llab-quvvatlash markazi hozir ishlayaptimi
+ * (09:00–21:00, Toshkent).
+ */
+export interface ShopRequestPreview {
+  kind: string;
+  title: string;
+  text: string;
+  items: number;
+  connected: boolean;
+  supportOpen: boolean;
 }
 
 export interface ComplaintSendResult {

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, Loader2, MessageSquare, Send, XCircle } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -15,13 +15,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { ApiError, fetchComplaintJob, fetchComplaintPreview, sendComplaint } from "@/lib/api";
 import type { ComplaintJob, ComplaintPreview } from "@/lib/types";
+import { JobProgress, jobIsActive } from "./job-progress";
 
 interface Props {
   productId: number | null;
   onOpenChange: (open: boolean) => void;
 }
-
-const ACTIVE = new Set(["queued", "running"]);
 
 /**
  * Uzum moderatsiya operatoriga (`@umarket_business_bot`) xabar.
@@ -41,7 +40,7 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const active = job !== null && ACTIVE.has(job.status);
+  const active = jobIsActive(job);
 
   // Matn va mavjud fon vazifasi — oyna ochilganda birga o'qiladi:
   // ish allaqachon ketayotgan bo'lsa progress darhol ko'rinadi.
@@ -69,7 +68,7 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
   React.useEffect(() => {
     if (productId == null || job === null) return;
     const waitingReply = job.status === "done" && !job.replyText;
-    if (!ACTIVE.has(job.status) && !waitingReply) return;
+    if (!jobIsActive(job) && !waitingReply) return;
 
     const timer = setInterval(async () => {
       try {
@@ -78,7 +77,7 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
       } catch {
         /* tarmoq uzilishi — keyingi urinishda o'zi tiklanadi */
       }
-    }, ACTIVE.has(job.status) ? 2000 : 15000);
+    }, jobIsActive(job) ? 2000 : 15000);
     return () => clearInterval(timer);
   }, [productId, job]);
 
@@ -127,77 +126,7 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
           </p>
         )}
 
-        {/* ── fon vazifasi: foiz va qadam ── */}
-        {job && (
-          <div className="space-y-2 rounded-lg border p-3">
-            <div className="flex items-center gap-2 text-sm">
-              {active && <Loader2 className="h-4 w-4 shrink-0 animate-spin" />}
-              {job.status === "done" && (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-              )}
-              {job.status === "failed" && (
-                <XCircle className="h-4 w-4 shrink-0 text-destructive" />
-              )}
-              <span className="font-medium">
-                {job.status === "queued" && "Navbatda"}
-                {job.status === "running" && "Yozilmoqda"}
-                {job.status === "done" &&
-                  (job.reachedOperator ? "Operatorga yuborildi" : "Yuborildi")}
-                {job.status === "failed" && "To'xtadi"}
-              </span>
-              <span className="text-muted-foreground">— {job.step}</span>
-              {active && <span className="ml-auto tabular-nums">{job.percent}%</span>}
-            </div>
-
-            {active && (
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${Math.max(4, job.percent)}%` }}
-                />
-              </div>
-            )}
-
-            {job.resumed && (
-              <p className="text-xs text-muted-foreground">
-                Suhbat yarim yo&apos;lda qolgan edi — boshidan emas, o&apos;sha joydan
-                davom etildi.
-              </p>
-            )}
-
-            {job.path.length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                Bosilgan qadamlar: {job.path.join(" → ")}
-              </p>
-            )}
-
-            {job.error && (
-              <p className="rounded-md border border-destructive/40 bg-destructive/5 p-2 text-sm">
-                {job.error}
-              </p>
-            )}
-
-            {job.status === "done" && !job.replyText && (
-              <p className="text-xs text-muted-foreground">
-                Operatorning javobi kutilmoqda — kelganda shu yerda ko&apos;rinadi.
-              </p>
-            )}
-
-            {job.replyText && (
-              <div className="rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3 text-sm">
-                <div className="mb-1 flex items-center gap-1.5 font-medium">
-                  <MessageSquare className="h-3.5 w-3.5" /> Operator javobi
-                  {job.replyAt && (
-                    <span className="font-normal text-muted-foreground">
-                      · {new Date(job.replyAt).toLocaleString("uz-UZ")}
-                    </span>
-                  )}
-                </div>
-                <p className="whitespace-pre-wrap">{job.replyText}</p>
-              </div>
-            )}
-          </div>
-        )}
+        {job && <JobProgress job={job} />}
 
         {alreadySent && !job && (
           <p className="text-xs text-muted-foreground">
