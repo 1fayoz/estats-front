@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Boxes, Plus, Search } from "lucide-react";
+import { AlertTriangle, Boxes, Package, Plus, Search, Wallet } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductTable } from "@/features/warehouse/components/product-table";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
@@ -134,6 +134,10 @@ function WarehouseContent() {
   useAutoRefresh(refresh);
   const shop = useActiveShop();
   const [query, setQuery] = React.useState("");
+  // "Tan narxsiz" kartasi bosilganda: faqat tan narxi kiritilmagan
+  // tovarlarni ko'rsatish — hint "kirim kiriting" ko'rinishidan
+  // amalda hech narsa qilmasligi CHALG'ITARDI, endi haqiqiy filtr.
+  const [onlyNoCost, setOnlyNoCost] = React.useState(false);
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
   const [bulkBusy, setBulkBusy] = React.useState(false);
   const [bulkResult, setBulkResult] = React.useState<string | null>(null);
@@ -209,12 +213,13 @@ function WarehouseContent() {
     const q = query.trim().toLowerCase();
     return items.filter((item) => {
       if (!matchesTab(item, tab)) return false;
+      if (onlyNoCost && (item.lastCost || item.averageCost)) return false;
       if (!q) return true;
       return [item.title, item.skuCode, item.barcode, item.sellerSku, item.categoryName]
         .filter(Boolean)
         .some((field) => String(field).toLowerCase().includes(q));
     });
-  }, [items, query, tab]);
+  }, [items, query, tab, onlyNoCost]);
 
   React.useEffect(() => {
     setBulkResult(null);
@@ -248,13 +253,24 @@ function WarehouseContent() {
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label="Tovarlar" value={formatNumber(totals.goods)} />
-        <StatTile label="Ombordagi qoldiq" value={`${formatNumber(totals.onHand)} dona`} />
-        <StatTile label="Zaxira qiymati" value={formatSum(totals.stockValue)} />
+        <StatTile icon={Boxes} label="Tovarlar" value={formatNumber(totals.goods)} />
+        <StatTile icon={Package} label="Ombordagi qoldiq" value={`${formatNumber(totals.onHand)} dona`} />
+        <StatTile icon={Wallet} label="Zaxira qiymati" value={formatSum(totals.stockValue)} />
         <StatTile
+          icon={AlertTriangle}
           label="Tan narxsiz"
           value={`${formatNumber(totals.withoutCost)} ta`}
-          hint={totals.withoutCost > 0 ? "kirim kiriting" : undefined}
+          hint={
+            totals.withoutCost > 0
+              ? onlyNoCost
+                ? "hammasini ko'rsatish"
+                : "kirim kiriting"
+              : undefined
+          }
+          active={onlyNoCost}
+          onClick={
+            totals.withoutCost > 0 ? () => setOnlyNoCost((v) => !v) : undefined
+          }
         />
       </div>
 
@@ -353,6 +369,15 @@ function WarehouseContent() {
         </div>
       )}
 
+      {onlyNoCost && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-2.5 text-sm">
+          <span>Faqat tan narxi kiritilmagan tovarlar ko&apos;rsatilmoqda.</span>
+          <Button variant="ghost" size="sm" onClick={() => setOnlyNoCost(false)}>
+            Hammasini ko&apos;rsatish
+          </Button>
+        </div>
+      )}
+
       {/* Qoldiq = keldi − sotildi. "Sotildi" esa faqat YUKLANGAN sotuvlardan
           chiqadi, shuning uchun qaysi davr yuklangani yonida turishi shart —
           aks holda qoldiq to'liq haqiqatdek ko'rinadi. */}
@@ -421,17 +446,39 @@ function WarehouseContent() {
   );
 }
 
-function StatTile({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function StatTile({
+  icon: Icon,
+  label,
+  value,
+  hint,
+  active,
+  onClick,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  hint?: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  const Tag = onClick ? "button" : "div";
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-1 p-4">
+    <Card className={cn(active && "border-amber-500/60 ring-1 ring-amber-500/40")}>
+      <Tag
+        type={onClick ? "button" : undefined}
+        onClick={onClick}
+        className={cn(
+          "flex w-full flex-col gap-1 rounded-xl p-4 text-left",
+          onClick && "transition-colors hover:bg-muted/40",
+        )}
+      >
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Boxes className="h-3.5 w-3.5" />
+          <Icon className="h-3.5 w-3.5" />
           {label}
         </div>
         <div className="text-lg font-semibold tabular-nums">{value}</div>
         {hint && <div className="text-xs text-amber-600 dark:text-amber-500">{hint}</div>}
-      </CardContent>
+      </Tag>
     </Card>
   );
 }

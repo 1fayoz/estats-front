@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Bell, Building2, Check, LogOut, Moon, Settings, Store, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -19,18 +19,9 @@ import {
 import { useUserStore } from "@/stores/user-store";
 import { ShopSwitcher } from "./shop-switcher";
 import { SurfaceToggle } from "./surface-toggle";
-import { ALL_NAV_ITEMS } from "@/config/nav";
-
-function getPageTitle(pathname: string): string {
-  const match = ALL_NAV_ITEMS.find((n) =>
-    n.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(String(n.href))
-  );
-  return match?.label ?? "Dashboard";
-}
 
 export function Topbar() {
   const router = useRouter();
-  const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const user = useUserStore((s) => s.user);
   const signOut = useUserStore((s) => s.signOut);
@@ -48,17 +39,13 @@ export function Topbar() {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 px-4 md:px-6">
+    <header className="air-topbar sticky top-0 z-30 flex h-16 items-center gap-4 px-4 md:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="hidden min-w-0 flex-col md:flex">
-          <span className="text-[11px] uppercase tracking-widest text-white/45">
-            Bo&apos;lim
-          </span>
-          <h1 className="truncate text-lg font-semibold leading-tight">{getPageTitle(pathname)}</h1>
-        </div>
-
         {/* Magazin almashtirgich — butun ilova qaysi magazinni ko'rsatayotgani
-            har doim ko'rinib tursin. */}
+            har doim ko'rinib tursin. Har sahifaning o'z sarlavhasi
+            (PageHeader) allaqachon bor — bu yerda "Bo'lim / <nom>" ni
+            takrorlash keraksiz va sahifa sarlavhasidan farqli nom
+            ko'rsatib chalkashtirardi (masalan "Tovarlar" vs "Ombor"). */}
         <div className="ml-auto">
           <ShopSwitcher />
         </div>

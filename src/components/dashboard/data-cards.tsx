@@ -36,19 +36,34 @@ export function DataCard({
   className?: string;
   onClick?: () => void;
 }) {
-  const Tag = onClick ? "button" : "div";
+  // `<button>` EMAS: kartochka ichida ko'pincha o'z tugmasi bor
+  // ("Kirim qo'shish", "AI kartochka") va `<button>` ichida
+  // `<button>` — noto'g'ri HTML, React'da hydration xatosi beradi
+  // (brauzerda ko'zga ko'rinmasa ham). Jadval qatoridagi bilan bir
+  // xil naqsh: `div` + `role="button"`, klaviatura uchun Enter/Space.
   return (
-    <Tag
-      type={onClick ? "button" : undefined}
+    <div
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       className={cn(
         "w-full rounded-xl border bg-card p-3.5 text-left",
-        onClick && "transition-colors active:bg-muted/50",
+        onClick && "cursor-pointer transition-colors active:bg-muted/50",
         className
       )}
     >
       {children}
-    </Tag>
+    </div>
   );
 }
 

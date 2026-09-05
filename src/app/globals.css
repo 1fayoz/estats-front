@@ -387,6 +387,22 @@
   border-radius: var(--air-radius);
 }
 
+/* Yuqori panel (Topbar) `sticky top-0` — orqasidan aylanadigan
+   `.air-surface` paneli (sarlavha, tablar, jadval — hammasi
+   BITTA katta panel, §9.5) HECH QANDAY fonsiz to'g'ridan-to'g'ri
+   ko'rinib o'tardi: sahifa aylantirilganda ikkalasi bir xil
+   ekranda ustma-ust chiqib, matnlar bir-biriga aralashib ketardi
+   ("Tovarlar" va "Barchasi/Sotuvda/..." bitta joyda). Jadval
+   sarlavhasi uchun aynan shu muammo allaqachon blur bilan
+   tuzatilgan edi (pastda, "tinted" rejim) — Topbar shu naqshni
+   olmagan edi. */
+.air-topbar {
+  background: rgba(34, 28, 99, 0.72);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* ── Menyu ──────────────────────────────────────────────────── */
 
 .air-nav-item {
