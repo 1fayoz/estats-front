@@ -418,6 +418,12 @@
   background: var(--air-active);
   color: var(--air-ink);
 }
+/* Bosilgan/Tab bilan tanlangan bandda brauzerning sukut ko'k
+   halqasi chiqib, binafsha "Air" mavzusi bilan mos kelmasdi. */
+.air-nav-item:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
 .air-nav-group {
   color: var(--air-ink-3);
   font-size: 10px;
@@ -436,6 +442,10 @@
 }
 .air-control:hover { background: rgba(255, 255, 255, 0.12); }
 .air-control::placeholder { color: var(--air-ink-3); }
+.air-control:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
 
 .air-tab {
   border-radius: 8px;
@@ -444,6 +454,10 @@
 }
 .air-tab:hover { background: var(--air-hover); color: var(--air-ink); }
 .air-tab[data-active="true"] { background: var(--air-active); color: var(--air-ink); }
+.air-tab:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
 
 .air-btn-accent {
   background: var(--air-success);

@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HelpCircle } from "lucide-react";
@@ -16,6 +17,19 @@ export function Sidebar() {
   // ko'rinib turishi — bosib, 403 olib, "buzuq" degan taassurot.
   const groups = visibleNav(useActions());
 
+  // Faol band — ENG UZUN mos kelgan yo'l bo'yicha, hammasi orasidan
+  // bittasi. Oddiy `startsWith` bilan "/market" ("Bozor holati")
+  // "/market/shops" ("Do'konlar") sahifasida ham faol bo'lib qolardi
+  // — ikkalasi baravar yorishardi. Yo'l chegarasi ("/" bilan tugashi
+  // yoki teng bo'lishi) ham SHART: aks holda "/market" "/marketing"da
+  // ham "mos keladi" deb hisoblanardi.
+  const bestHref = React.useMemo(() => {
+    const hrefs = groups.flatMap((g) => g.items.map((i) => String(i.href)));
+    return hrefs
+      .filter((href) => pathname === href || pathname.startsWith(`${href}/`))
+      .sort((a, b) => b.length - a.length)[0];
+  }, [groups, pathname]);
+
   return (
     <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col lg:flex">
       <div className="flex items-center gap-2.5 px-5 py-5">
@@ -30,10 +44,7 @@ export function Sidebar() {
               {group.title}
             </div>
             {group.items.map((item) => {
-              const active =
-                item.href === "/dashboard"
-                  ? pathname === "/dashboard"
-                  : pathname.startsWith(String(item.href));
+              const active = String(item.href) === bestHref;
               return (
                 <Link
                   key={item.label}
