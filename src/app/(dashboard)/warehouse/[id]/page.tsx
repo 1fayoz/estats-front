@@ -3,7 +3,17 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ChevronDown, PackagePlus, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  History,
+  LayoutGrid,
+  Megaphone,
+  PackagePlus,
+  Radar,
+  ShoppingCart,
+  Sparkles,
+} from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
@@ -51,6 +61,14 @@ import { cn } from "@/lib/utils";
 import { useCan } from "@/stores/user-store";
 import type { ProductDetail, ProductValidationFinding, SalesPeriod, WarehouseProduct } from "@/lib/types";
 
+const SECTIONS: { value: string; label: string; icon: React.ReactNode }[] = [
+  { value: "umumiy", label: "Umumiy", icon: <LayoutGrid className="h-3.5 w-3.5" /> },
+  { value: "savdo", label: "Savdo", icon: <ShoppingCart className="h-3.5 w-3.5" /> },
+  { value: "bozor", label: "Bozor va SEO", icon: <Radar className="h-3.5 w-3.5" /> },
+  { value: "reklama", label: "Reklama", icon: <Megaphone className="h-3.5 w-3.5" /> },
+  { value: "tarix", label: "O'zgarishlar tarixi", icon: <History className="h-3.5 w-3.5" /> },
+];
+
 // `useSearchParams()` (AI oyna holati, `useDraftParam` ichida)
 // Suspense chegarasini talab qiladi — usiz Next qurilishda yiqiladi.
 export default function ProductDetailPageRoute() {
@@ -73,6 +91,7 @@ function PageSkeleton() {
 
 function ProductDetailPage() {
   const [tab, setTab] = useQueryState("view", "daily");
+  const [section, setSection] = useQueryState("section", "umumiy");
   const canSeeAi = useCan("products_ai.view");
   const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
 
@@ -189,6 +208,58 @@ function ProductDetailPage() {
 
       <ProductGallery images={p.images} title={p.title} uzumUrl={p.uzumUrl} />
 
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+        <Tile label="Jami keldi" value={`${formatNumber(data.totalIntakeQuantity)} dona`} />
+        <Tile label="Jami sotildi" value={`${formatNumber(data.totalSoldQuantity)} dona`} />
+        <Tile label="Qoldiq" value={`${formatNumber(data.onHand)} dona`} hint={formatSum(data.stockValue)} />
+        <Tile label="Uzum to'lovi" value={formatSum(data.totalRevenue)} />
+        <Tile label="Tan narx (FIFO)" value={formatSum(data.totalCogs)} />
+        <Tile
+          label={profitPositive ? "Sof foyda" : "Zarar"}
+          value={formatSum(data.totalProfit)}
+          tone={profitPositive ? "positive" : "negative"}
+        />
+      </div>
+
+      {data.uncoveredQuantity > 0 && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+          <span className="font-medium">{data.uncoveredQuantity} dona</span> sotilgan, lekin
+          unga mos kirim kiritilmagan — bu qismning tan narxi hisobga olinmagan, ya&apos;ni
+          haqiqiy foyda ko&apos;rsatilganidan kamroq.
+        </div>
+      )}
+
+      {/*
+        Sahifa yigirmaga yaqin kartochkadan iborat edi va hammasi
+        bitta uzun ustunda — "loglar boshqa narsalar bilan
+        aralashib, juda uzun va chalkash" (foydalanuvchi so'rovi).
+        Endi mazmuniga qarab 5 bo'limga bo'lingan; yuqoridagi
+        umumiy raqamlar va rasm hamma bo'limda ko'rinib tursin
+        deb tabdan TASHQARIDA qoldi.
+      */}
+      <div className="flex flex-wrap gap-1 rounded-xl border bg-muted/30 p-1">
+        {SECTIONS.map(({ value, label, icon }) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setSection(value)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              section === value
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
+            )}
+          >
+            {icon}
+            {label}
+            {value === "umumiy" && p.uzumBlocked && (
+              <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {section === "umumiy" && (
       <Card className={cn("border", p.uzumBlocked && "border-destructive/40 bg-destructive/5")}>
         <CardHeader>
           <CardTitle className="text-base">Uzum tekshiruvi</CardTitle>
@@ -373,82 +444,11 @@ function ProductDetailPage() {
           )}
         </CardContent>
       </Card>
-
-      <ChangeHistoryCard
-        productId={id}
-        changeLogs={data.changeLogs ?? []}
-        draftTextPushedAt={data.draftTextPushedAt ?? null}
-        onReverted={load}
-      />
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
-        <Tile label="Jami keldi" value={`${formatNumber(data.totalIntakeQuantity)} dona`} />
-        <Tile label="Jami sotildi" value={`${formatNumber(data.totalSoldQuantity)} dona`} />
-        <Tile label="Qoldiq" value={`${formatNumber(data.onHand)} dona`} hint={formatSum(data.stockValue)} />
-        <Tile label="Uzum to'lovi" value={formatSum(data.totalRevenue)} />
-        <Tile label="Tan narx (FIFO)" value={formatSum(data.totalCogs)} />
-        <Tile
-          label={profitPositive ? "Sof foyda" : "Zarar"}
-          value={formatSum(data.totalProfit)}
-          tone={profitPositive ? "positive" : "negative"}
-        />
-      </div>
-
-      {data.uncoveredQuantity > 0 && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
-          <span className="font-medium">{data.uncoveredQuantity} dona</span> sotilgan, lekin
-          unga mos kirim kiritilmagan — bu qismning tan narxi hisobga olinmagan, ya&apos;ni
-          haqiqiy foyda ko&apos;rsatilganidan kamroq.
-        </div>
       )}
 
-      <ProductStats
-        productId={id}
-        tempo={data.tempo}
-        onHand={data.onHand}
-        facts={data.marketplace}
-      />
-
-      <UzumFactsCard facts={data.marketplace} />
-
-      <SiblingsCard siblings={data.siblings} tempo={data.tempo} />
-
-      {/* Qidiruvdagi o'rin — "qaysi so'z bilan izlaganda nechanchimiz".
-          Tovarning o'z sahifasida turishi shart: sotuvchi narx va
-          qoldiqni ko'rib turib, o'sha yerda kalit so'z qo'shadi. */}
-      <SeoAuditCard productId={id} />
-
-      <PositionsBlock productId={id} />
-
+      {section === "umumiy" && (
+      <>
       <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
-
-      <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
-
-      <AdVerdictCard productId={id} />
-
-      <ProductNetworksCard product={p} />
-
-      <ProductInstagramCard productId={id} />
-
-      <MarketCard productId={id} />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Sotuvlar kesimi</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={tab} onValueChange={setTab}>
-            <TabsList>
-              <TabsTrigger value="daily">Kunlik</TabsTrigger>
-              <TabsTrigger value="monthly">Oylik</TabsTrigger>
-              <TabsTrigger value="yearly">Yillik</TabsTrigger>
-            </TabsList>
-            <TabsContent value="daily"><PeriodTable rows={[...data.daily].reverse()} /></TabsContent>
-            <TabsContent value="monthly"><PeriodTable rows={[...data.monthly].reverse()} /></TabsContent>
-            <TabsContent value="yearly"><PeriodTable rows={[...data.yearly].reverse()} /></TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>
@@ -521,6 +521,75 @@ function ProductDetailPage() {
           )}
         </CardContent>
       </Card>
+      </>
+      )}
+
+      {section === "savdo" && (
+      <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Sotuvlar kesimi</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={tab} onValueChange={setTab}>
+            <TabsList>
+              <TabsTrigger value="daily">Kunlik</TabsTrigger>
+              <TabsTrigger value="monthly">Oylik</TabsTrigger>
+              <TabsTrigger value="yearly">Yillik</TabsTrigger>
+            </TabsList>
+            <TabsContent value="daily"><PeriodTable rows={[...data.daily].reverse()} /></TabsContent>
+            <TabsContent value="monthly"><PeriodTable rows={[...data.monthly].reverse()} /></TabsContent>
+            <TabsContent value="yearly"><PeriodTable rows={[...data.yearly].reverse()} /></TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <ProductStats
+        productId={id}
+        tempo={data.tempo}
+        onHand={data.onHand}
+        facts={data.marketplace}
+      />
+
+      <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
+      </>
+      )}
+
+      {section === "bozor" && (
+      <>
+      {/* Qidiruvdagi o'rin — "qaysi so'z bilan izlaganda nechanchimiz".
+          Tovarning o'z sahifasida turishi shart: sotuvchi narx va
+          qoldiqni ko'rib turib, o'sha yerda kalit so'z qo'shadi. */}
+      <SeoAuditCard productId={id} />
+
+      <PositionsBlock productId={id} />
+
+      <MarketCard productId={id} />
+
+      <SiblingsCard siblings={data.siblings} tempo={data.tempo} />
+
+      <UzumFactsCard facts={data.marketplace} />
+      </>
+      )}
+
+      {section === "reklama" && (
+      <>
+      <AdVerdictCard productId={id} />
+
+      <ProductNetworksCard product={p} />
+
+      <ProductInstagramCard productId={id} />
+      </>
+      )}
+
+      {section === "tarix" && (
+        <ChangeHistoryCard
+          productId={id}
+          changeLogs={data.changeLogs ?? []}
+          draftTextPushedAt={data.draftTextPushedAt ?? null}
+          onReverted={load}
+        />
+      )}
 
       <ComplaintDialog
         productId={complaintFor}
