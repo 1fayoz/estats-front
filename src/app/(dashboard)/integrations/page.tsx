@@ -17,6 +17,7 @@ import { InstagramConnectCard } from "@/features/instagram/components/connect-ca
 import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { MarketAccountLoginCard } from "@/features/settings/market-account-login-card";
 import { ShopsCard } from "@/features/settings/shops-card";
+import { TelegramOperatorCard } from "@/features/settings/telegram-operator-card";
 import { UzumSellerLoginCard } from "@/features/settings/uzum-seller-login-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import {
@@ -221,6 +222,7 @@ export default function IntegrationsPage() {
               <UzumSellerLoginCard />
               <MarketAccountLoginCard />
               <MarketTokenCard />
+              <TelegramOperatorCard />
             </div>
           )}
         </div>

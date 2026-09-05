@@ -36,6 +36,9 @@ import type {
   MarketUploader,
   MarketAutoRefresh,
   MarketLoginSession,
+  TelegramOperatorStatus,
+  TelegramLoginStart,
+  TelegramLoginStatus,
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
@@ -382,6 +385,46 @@ export function marketLoginVncUrl(): string {
   const wsBase = API_BASE.replace(/^http/, "ws");
   return `${wsBase}/product-ai/market-login-vnc?token=${encodeURIComponent(token)}`;
 }
+
+// ── Uzum moderatsiya operatoriga Telegram orqali yozish ───────────────────────
+//
+// Fayozning O'Z Telegram hisobi (MTProto) — APP darajasida BITTA, do'konga
+// bog'liq emas. Login uch bosqichli: telefon → SMS kod → (kerak bo'lsa)
+// ikki bosqichli parol.
+
+export const fetchTelegramOperatorStatus = () =>
+  request<TelegramOperatorStatus>("/telegram-operator/status", { shopScoped: false });
+
+export const saveTelegramOperatorCredentials = (apiId: number, apiHash: string) =>
+  request<TelegramOperatorStatus>("/telegram-operator/credentials", {
+    method: "PUT",
+    shopScoped: false,
+    body: JSON.stringify({ apiId, apiHash }),
+  });
+
+export const startTelegramOperatorLogin = (phone: string) =>
+  request<TelegramLoginStart>("/telegram-operator/login/start", {
+    method: "POST",
+    shopScoped: false,
+    body: JSON.stringify({ phone }),
+  });
+
+export const submitTelegramOperatorCode = (loginId: string, code: string) =>
+  request<TelegramLoginStatus>("/telegram-operator/login/code", {
+    method: "POST",
+    shopScoped: false,
+    body: JSON.stringify({ loginId, code }),
+  });
+
+export const submitTelegramOperatorPassword = (loginId: string, password: string) =>
+  request<TelegramLoginStatus>("/telegram-operator/login/password", {
+    method: "POST",
+    shopScoped: false,
+    body: JSON.stringify({ loginId, password }),
+  });
+
+export const logoutTelegramOperator = () =>
+  request<void>("/telegram-operator/logout", { method: "POST", shopScoped: false });
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────
 
