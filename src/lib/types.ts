@@ -743,6 +743,22 @@ export interface MarketTokenStatus {
   isExpired: boolean;
 }
 
+/** Uzum MIJOZ (bozor) hisobiga o'z sessiyasi bilan kirish holati — do'konga bog'liq emas. */
+export interface MarketLoginSession {
+  active: boolean;
+  startedAt: number | null;
+}
+
+/** Bozor tokenini avtomatik yangilash holati — `lastStatus`: ok | needs_login | captcha | error. */
+export interface MarketAutoRefresh {
+  connected: boolean;
+  connectedAt: string | null;
+  lastRunAt: string | null;
+  lastStatus: string | null;
+  lastMessage: string | null;
+  intervalSeconds: number;
+}
+
 // ── reja (plan) ──────────────────────────────────────────────────────────────
 
 /** Hisoblangan balans — Uzum'da balans endpointi yo'q, bu buyurtmalardan chiqadi. */

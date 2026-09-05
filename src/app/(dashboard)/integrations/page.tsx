@@ -17,6 +17,7 @@ import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import { TelegramDialog } from "@/features/social/components/telegram-dialog";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
+import { MarketAccountLoginCard } from "@/features/settings/market-account-login-card";
 import { ShopsCard } from "@/features/settings/shops-card";
 import { UzumSellerLoginCard } from "@/features/settings/uzum-seller-login-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
@@ -183,6 +184,7 @@ export default function IntegrationsPage() {
             <div className="grid gap-4 lg:grid-cols-2">
               <UzumSyncCard />
               <UzumSellerLoginCard />
+              <MarketAccountLoginCard />
               <MarketTokenCard />
             </div>
           )}

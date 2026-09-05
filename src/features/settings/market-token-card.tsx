@@ -86,12 +86,12 @@ export function MarketTokenCard() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-4 w-4" /> Bozor ma&apos;lumoti
+              <Globe className="h-4 w-4" /> Bozor ma&apos;lumoti (qo&apos;lda)
             </CardTitle>
             <CardDescription>
-              Raqobatchilar narxini ko&apos;rsatish uchun uzum.uz tokeni. U ~3 soat
-              yashaydi, lekin ma&apos;lumot 24 soat keshlanadi — ya&apos;ni kuniga bir
-              marta yangilash yetadi.
+              Yuqoridagi &quot;Bozor hisobiga ulanish&quot; avtomatik ishlasa, bu
+              shart emas — faqat ZAXIRA. Token ~3 soat yashaydi, ma&apos;lumot
+              24 soat keshlanadi.
             </CardDescription>
           </div>
           {status && (

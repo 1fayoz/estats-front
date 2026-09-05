@@ -34,6 +34,8 @@ import type {
   ProductTimeline,
   MarketTokenStatus,
   MarketUploader,
+  MarketAutoRefresh,
+  MarketLoginSession,
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
@@ -349,6 +351,36 @@ export function uzumLoginVncUrl(shopId: number): string {
   const token = persisted.accessToken ?? "";
   const wsBase = API_BASE.replace(/^http/, "ws");
   return `${wsBase}/product-ai/uzum-login-vnc?token=${encodeURIComponent(token)}&shop_id=${shopId}`;
+}
+
+// ── Uzum MIJOZ (bozor) hisobiga o'z sessiyasi bilan kirish ────────────────────
+//
+// Yuqoridagi sotuvchi-kabinet loginidan farqli: BITTA, APP darajasidagi
+// hisob — do'konga bog'liq emas, shuning uchun `X-Shop-Id` yubormaydi.
+// Bir marta ulangach bozor tokeni har ~3 daqiqada o'zi yangilanadi
+// (`/market/token/auto-refresh`), qo'lda qayta kirish shart emas.
+
+export const startMarketLogin = () =>
+  request<UzumLoginStart>("/market/uzum-market-login/start", { method: "POST", shopScoped: false });
+
+export const completeMarketLogin = () =>
+  request<MarketAutoRefresh>("/market/uzum-market-login/complete", {
+    method: "POST",
+    shopScoped: false,
+  });
+
+export const fetchMarketLoginStatus = () =>
+  request<MarketLoginSession>("/market/uzum-market-login/status", { shopScoped: false });
+
+export const fetchMarketAutoRefresh = () =>
+  request<MarketAutoRefresh>("/market/token/auto-refresh", { shopScoped: false });
+
+/** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz. */
+export function marketLoginVncUrl(): string {
+  const persisted = readPersisted();
+  const token = persisted.accessToken ?? "";
+  const wsBase = API_BASE.replace(/^http/, "ws");
+  return `${wsBase}/product-ai/market-login-vnc?token=${encodeURIComponent(token)}`;
 }
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────
