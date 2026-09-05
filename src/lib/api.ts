@@ -389,18 +389,12 @@ export function marketLoginVncUrl(): string {
 // ── Uzum moderatsiya operatoriga Telegram orqali yozish ───────────────────────
 //
 // Fayozning O'Z Telegram hisobi (MTProto) — APP darajasida BITTA, do'konga
-// bog'liq emas. Login uch bosqichli: telefon → SMS kod → (kerak bo'lsa)
-// ikki bosqichli parol.
+// bog'liq emas. `telegram_operator_api_id`/`_api_hash` bu yerdan
+// KIRITILMAYDI — /admin/ (Django adminka, AppSetting) orqali, bir martalik.
+// Login uch bosqichli: telefon → SMS kod → (kerak bo'lsa) ikki bosqichli parol.
 
 export const fetchTelegramOperatorStatus = () =>
   request<TelegramOperatorStatus>("/telegram-operator/status", { shopScoped: false });
-
-export const saveTelegramOperatorCredentials = (apiId: number, apiHash: string) =>
-  request<TelegramOperatorStatus>("/telegram-operator/credentials", {
-    method: "PUT",
-    shopScoped: false,
-    body: JSON.stringify({ apiId, apiHash }),
-  });
 
 export const startTelegramOperatorLogin = (phone: string) =>
   request<TelegramLoginStart>("/telegram-operator/login/start", {
