@@ -763,6 +763,61 @@ export interface TelegramOperatorStatus {
   connectedAt: string | null;
 }
 
+/**
+ * Sotuvchining O'Z Telegram hisobi (do'konga bog'liq) — `/integrations`
+ * dagi karta shu bilan ishlaydi.
+ *
+ * `credentialsConfigured` — ilova kaliti (`api_id`/`api_hash`,
+ * adminkada) bormi: usiz login umuman boshlanmaydi.
+ * `pendingStep` — boshlangan, lekin tugamagan login qaysi qadamda
+ * ("code" | "password"): sahifa yopilib qayta ochilsa sotuvchi
+ * raqamdan emas, o'sha yerdan davom etadi (kod qayta so'ralmaydi).
+ */
+export interface TelegramAccountStatus {
+  credentialsConfigured: boolean;
+  connected: boolean;
+  phone: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  connectedAt: string | null;
+  pendingStep: "code" | "password" | null;
+}
+
+/** Login qadamining natijasi: `code_sent` · `password_required` · `connected`. */
+export interface TelegramLoginStep {
+  status: "code_sent" | "password_required" | "connected";
+  phone: string | null;
+  username: string | null;
+  firstName: string | null;
+  message: string | null;
+}
+
+/** Operatorga yuboriladigan matn — YUBORISHDAN OLDIN ko'rsatiladi va tahrirlanadi. */
+export interface ComplaintPreview {
+  productId: number;
+  text: string;
+  blocked: boolean;
+  reasons: number;
+  changes: number;
+  lastSentAt: string | null;
+  connected: boolean;
+}
+
+export interface ComplaintStep {
+  sent: string;
+  text: string | null;
+  buttons: string[][];
+}
+
+export interface ComplaintSendResult {
+  sent: boolean;
+  /** Bosilgan menyu tugmalari. Bo'sh — menyu topilmadi, xabar to'g'ridan-to'g'ri ketdi. */
+  path: string[];
+  steps: ComplaintStep[];
+  sentAt: string | null;
+}
+
 /** Bozor tokenini avtomatik yangilash holati — `lastStatus`: ok | needs_login | captcha | error. */
 export interface MarketAutoRefresh {
   connected: boolean;
