@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductTable } from "@/features/warehouse/components/product-table";
+import { SupportRequestDialog } from "@/features/warehouse/components/support-request-dialog";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { DraftStrip } from "@/features/products-ai/components/draft-strip";
 import { ProductAiModal } from "@/features/products-ai/components/product-modal";
@@ -140,6 +141,7 @@ function WarehouseContent() {
   const [onlyNoCost, setOnlyNoCost] = React.useState(false);
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
   const [bulkBusy, setBulkBusy] = React.useState(false);
+  const [supportOpen, setSupportOpen] = React.useState(false);
   const [bulkResult, setBulkResult] = React.useState<string | null>(null);
 
   // ── Holat bo'yicha filtr — Uzum sotuvchi kabinetidagi kabi ──
@@ -361,7 +363,16 @@ function WarehouseContent() {
             </Button>
           </>
         )}
+        {/* Uzum qo'llab-quvvatlashiga DO'KON darajasidagi savol:
+            ombordagi qaytarilgan/nuqsonli tovarlar, mablag' yechish.
+            Matn haqiqiy raqamlardan tuziladi, xabar sotuvchining
+            O'Z Telegram hisobidan ketadi va fonda yuboriladi. */}
+        <Button variant="outline" onClick={() => setSupportOpen(true)}>
+          Uzum qo&apos;llab-quvvatlashiga yozish
+        </Button>
       </div>
+
+      <SupportRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
 
       {bulkResult && (
         <div className="rounded-lg border bg-muted/40 px-4 py-2.5 text-sm text-muted-foreground">
