@@ -7,7 +7,6 @@ import {
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 
-import { MARKET_TABS, ModuleTabs } from "@/components/air/module-tabs";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StateBanner } from "@/features/market/state-banner";
 import { Failed, Loading, NoData, PeriodPicker, Score, usePeriod } from "@/features/market/shared";
@@ -53,8 +52,6 @@ export default function MarketOverviewPage() {
 
   return (
     <div className="space-y-5">
-      <ModuleTabs tabs={MARKET_TABS} />
-
       <PageHeader
         title="Bozor holati"
         description="Butun Uzum bozorining kunlik kesimi — tushum, do'konlar, kartochkalar, oborot."

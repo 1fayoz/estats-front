@@ -3,29 +3,21 @@
 import * as React from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
-import { Check, LogOut, Palette, Plug } from "lucide-react";
+import { Palette, Plug } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { PhoneCard } from "@/features/settings/phone-card";
-import { NameCard } from "@/features/settings/name-card";
-import { useUserStore } from "@/stores/user-store";
 
 export default function SettingsPage() {
-  const router = useRouter();
   const { theme, setTheme } = useTheme();
-
-  const user = useUserStore((s) => s.user);
-  const signOut = useUserStore((s) => s.signOut);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Sozlamalar"
-        description="Hisob va tashqi ko'rinish. Magazinlar va tokenlar — Integratsiyalarda"
+        description="Tashqi ko'rinish. Ism, raqam va tokenlar — Jamoa va Integratsiyalarda"
         actions={
           <Link href={"/integrations" as Route}>
             <Button variant="outline" size="sm" className="gap-1.5">
@@ -36,9 +28,6 @@ export default function SettingsPage() {
       />
 
       <div className="grid grid-cols-1 gap-6">
-        <NameCard />
-        <PhoneCard />
-
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -71,32 +60,6 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Check className="h-4 w-4" /> Hisob
-            </CardTitle>
-            <CardDescription>Google akkaunt orqali kirgansiz</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
-              <div className="font-medium">{user?.fullName ?? "—"}</div>
-              <div className="text-xs text-muted-foreground">{user?.email}</div>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-destructive hover:text-destructive"
-              onClick={() => {
-                signOut();
-                router.push("/");
-              }}
-            >
-              <LogOut className="h-3.5 w-3.5" /> Chiqish
-            </Button>
           </CardContent>
         </Card>
       </div>

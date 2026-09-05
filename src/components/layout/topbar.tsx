@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Building2, Check, LogOut, Moon, Settings, Store, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Bell, Building2, Check, LogOut, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -22,13 +21,9 @@ import { SurfaceToggle } from "./surface-toggle";
 
 export function Topbar() {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
   const user = useUserStore((s) => s.user);
   const signOut = useUserStore((s) => s.signOut);
   const setWorkspace = useUserStore((s) => s.setWorkspace);
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => setMounted(true), []);
 
   const displayName = user?.fullName || user?.email || "eStats";
   const initials = displayName
@@ -53,16 +48,6 @@ export function Topbar() {
 
       <div className="flex items-center gap-2">
         <SurfaceToggle />
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="air-control text-white hover:text-white"
-          aria-label="Theme toggle"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          {mounted && theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
 
         <Button variant="ghost" size="icon" className="air-control relative text-white hover:text-white" aria-label="Bildirishnomalar">
           <Bell className="h-4 w-4" />
@@ -138,10 +123,6 @@ export function Topbar() {
               </>
             ) : null}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/integrations")}>
-              <Store className="h-4 w-4" /> Magazinlar
-              <Badge variant="info" className="ml-auto">{user?.shops.length ?? 0}</Badge>
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push("/settings")}>
               <Settings className="h-4 w-4" /> Sozlamalar
             </DropdownMenuItem>

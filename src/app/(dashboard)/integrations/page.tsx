@@ -2,14 +2,12 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { Plug, ShoppingBag, Sparkles } from "lucide-react";
+import { ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { NetworkIcon } from "@/components/brand/network-icons";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiKeyCard } from "@/features/seo/components/ai-key-card";
 import { OpenAiKeyCard } from "@/features/products-ai/components/openai-key-card";
@@ -28,6 +26,7 @@ import {
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useQueryState } from "@/lib/use-query-state";
+import { cn } from "@/lib/utils";
 import { useUserStore } from "@/stores/user-store";
 import type { AiKeyState, OpenAiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
 
@@ -128,6 +127,28 @@ export default function IntegrationsPage() {
 
   const connectedCount = new Set(accounts.map((a) => a.platform)).size;
 
+  const TAB_ITEMS = React.useMemo(() => {
+    const items: { value: string; label: string; icon: React.ReactNode; badge?: React.ReactNode }[] = [
+      { value: "uzum", label: "Uzum", icon: <ShoppingBag className="h-3.5 w-3.5" /> },
+      {
+        value: "ai",
+        label: "AI",
+        icon: <Sparkles className="h-3.5 w-3.5" />,
+        badge: aiKey?.configured ? "✓" : undefined,
+      },
+    ];
+    for (const row of ordered) {
+      const mine = accounts.filter((a) => a.platform === row.platform).length;
+      items.push({
+        value: row.platform,
+        label: PLATFORM_LABEL[row.platform],
+        icon: <NetworkIcon platform={row.platform} colored className="h-3.5 w-3.5" />,
+        badge: mine > 0 ? mine : undefined,
+      });
+    }
+    return items;
+  }, [ordered, accounts, aiKey]);
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -152,33 +173,47 @@ export default function IntegrationsPage() {
         }
       />
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
-          <TabsTrigger value="uzum" className="gap-1.5">
-            <ShoppingBag className="h-3.5 w-3.5" /> Uzum
-          </TabsTrigger>
-          <TabsTrigger value="ai" className="gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" /> AI
-            {aiKey?.configured && (
-              <span className="rounded bg-background/70 px-1 text-[10px]">✓</span>
+      {/*
+        Radix `Tabs` shu yerda ATAYLAB ishlatilmaydi: `?tab=` manzildan
+        kelgan qiymat bilan boshlanganda (masalan to'g'ridan-to'g'ri
+        `/integrations?tab=instagram` havolasidan kirilganda) keyingi
+        bosishlar tasodifiy ishlamay qolardi — `onValueChange` HECH
+        chaqirilmasdan (tekshirilgan: konsolga chiqarilgan log
+        umuman ko'rinmadi). Oddiy tugma + shart bo'yicha ko'rsatish
+        — jadval sahifasidagi bilan bir xil, ishonchli naqsh.
+      */}
+      <div className="flex flex-wrap gap-1 rounded-xl border bg-muted/30 p-1">
+        {TAB_ITEMS.map(({ value, label, icon, badge }) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTab(value)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              tab === value
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
             )}
-          </TabsTrigger>
-          {ordered.map((row) => {
-            const mine = accounts.filter((a) => a.platform === row.platform);
-            return (
-              <TabsTrigger key={row.platform} value={row.platform} className="gap-1.5">
-                <NetworkIcon platform={row.platform} colored className="h-3.5 w-3.5" />
-                {PLATFORM_LABEL[row.platform]}
-                {mine.length > 0 && (
-                  <span className="rounded bg-background/70 px-1 text-[10px]">{mine.length}</span>
+          >
+            {icon}
+            {label}
+            {badge != null && (
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-[10px] font-semibold leading-none",
+                  tab === value ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
                 )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+              >
+                {badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
 
-        {/* ── Uzum ─────────────────────────────────────────────────────── */}
-        <TabsContent value="uzum" className="mt-4 space-y-4">
+      {/* ── Uzum ─────────────────────────────────────────────────────── */}
+      {tab === "uzum" && (
+        <div className="space-y-4">
           <ShopsCard />
           {hasShop && (
             <div className="grid gap-4 lg:grid-cols-2">
@@ -188,45 +223,38 @@ export default function IntegrationsPage() {
               <MarketTokenCard />
             </div>
           )}
-        </TabsContent>
+        </div>
+      )}
 
-        <TabsContent value="ai" className="mt-4 space-y-4">
+      {tab === "ai" && (
+        <div className="space-y-4">
           {aiKey && <AiKeyCard state={aiKey} onSaved={load} />}
           {openAiKey && <OpenAiKeyCard state={openAiKey} onSaved={load} />}
-        </TabsContent>
-
-        {/* ── Ijtimoiy tarmoqlar ───────────────────────────────────────── */}
-        {ordered.map((row) => {
-          const mine = accounts.filter((a) => a.platform === row.platform);
-          const app = socialApps.find((a) => a.platform === row.platform);
-          return (
-            <TabsContent key={row.platform} value={row.platform} className="mt-4">
-              <NetworkPanel
-                row={row}
-                accounts={mine}
-                onConnect={() => onConnect(row.platform, mine.length > 0)}
-                onChanged={load}
-              >
-                {/* Instagram ulanishi ko'p bosqichli: Facebook -> Page ->
-                    reklama kabineti. Tanlash qadami shu yerda ochiladi. */}
-                {row.platform === "instagram" && <InstagramConnectCard />}
-                {/* LinkedIn va TikTok sotuvchining O'Z ilovasi bilan
-                    ishlaydi — kalitlar shu yerda kiritiladi. */}
-                {app && <AppKeysCard app={app} onSaved={load} />}
-              </NetworkPanel>
-            </TabsContent>
-          );
-        })}
-      </Tabs>
-
-      {hasShop && (
-        <p className="text-xs text-muted-foreground">
-          <Plug className="mr-1 inline h-3 w-3" />
-          Bir tarmoqqa bir nechta akkaunt ulash mumkin — masalan ikkita do&apos;kon
-          yoki uchta kanal. <Badge variant="secondary">Asosiy</Badge> deb belgilangani
-          &quot;hamma tarmoqqa joylash&quot; deganda ishlatiladi.
-        </p>
+        </div>
       )}
+
+      {/* ── Ijtimoiy tarmoqlar ───────────────────────────────────────── */}
+      {ordered.map((row) => {
+        if (tab !== row.platform) return null;
+        const mine = accounts.filter((a) => a.platform === row.platform);
+        const app = socialApps.find((a) => a.platform === row.platform);
+        return (
+          <NetworkPanel
+            key={row.platform}
+            row={row}
+            accounts={mine}
+            onConnect={() => onConnect(row.platform, mine.length > 0)}
+            onChanged={load}
+          >
+            {/* Instagram ulanishi ko'p bosqichli: Facebook -> Page ->
+                reklama kabineti. Tanlash qadami shu yerda ochiladi. */}
+            {row.platform === "instagram" && <InstagramConnectCard />}
+            {/* LinkedIn va TikTok sotuvchining O'Z ilovasi bilan
+                ishlaydi — kalitlar shu yerda kiritiladi. */}
+            {app && <AppKeysCard app={app} onSaved={load} />}
+          </NetworkPanel>
+        );
+      })}
 
       <TelegramDialog open={telegramOpen} onOpenChange={setTelegramOpen} onConnected={load} />
     </div>

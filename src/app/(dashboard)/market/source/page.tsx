@@ -2,9 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { History, KeyRound, Play, RefreshCw } from "lucide-react";
+import { History, Play } from "lucide-react";
 
-import { MARKET_TABS, ModuleTabs } from "@/components/air/module-tabs";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Failed, Grid, Loading, type Column } from "@/features/market/shared";
@@ -85,71 +84,35 @@ export default function MarketSourcePage() {
 
   return (
     <div className="space-y-5">
-      <ModuleTabs tabs={MARKET_TABS} />
-
       <PageHeader
         title="Ma'lumot manbai"
         description="Uzum katalog tokeni, qazib olish quvuri va kunlar to'liqligi."
-        actions={
-          <Button variant="outline" size="sm" onClick={reload}>
-            <RefreshCw className="h-3.5 w-3.5" /> Yangilash
-          </Button>
-        }
       />
 
-      <section className="space-y-3 rounded-xl border bg-card p-4">
-        <div className="font-semibold">Uzum katalog tokeni</div>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Token <b>bu yerda kiritilmaydi</b>. U bitta joyda —{" "}
-          <Link href="/integrations" className="font-medium text-primary hover:underline">
+      {!token.configured && (
+        <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--bad)", color: "var(--bad)" }}>
+          Uzum tokeni kiritilmagan —{" "}
+          <Link href="/integrations" className="font-medium underline">
             Integratsiyalar
           </Link>{" "}
-          sahifasida turadi va bu xizmat uni o&apos;sha yerdan o&apos;qib oladi.
-          Ikki joyda kiritilsa ikkita nusxa paydo bo&apos;lardi va ularning biri
-          jimgina eskirib qolardi.
-        </p>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Token <b>taxminan uch soat</b>{" "}
-          yashaydi — muddati o&apos;tishi xato emas,
-          kutilgan holat: quvur to&apos;xtaydi, yig&apos;ilgani saqlanadi va token
-          yangilangach uzilgan joydan o&apos;zi davom etadi.
-        </p>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span
-            className="rounded-lg border px-2.5 py-1.5 text-xs font-medium"
-            style={{
-              color: !token.configured
-                ? "var(--bad)"
-                : token.likely_expired
-                  ? "var(--warn)"
-                  : "var(--ok)",
-              borderColor: "currentColor",
-            }}
-          >
-            {!token.configured
-              ? "Kiritilmagan"
-              : token.likely_expired
-                ? `Muddati o'tgan · ${token.hint}`
-                : token.expires_in_minutes != null
-                  ? `Yaroqli · ${token.hint} · ${formatNumber(token.expires_in_minutes)} daqiqa qoldi`
-                  : `Yaroqli · ${token.hint}`}
-          </span>
-          <Button size="sm" variant="outline" asChild>
-            <Link href="/integrations">
-              <KeyRound className="h-3.5 w-3.5" /> Integratsiyalarda ochish
-            </Link>
-          </Button>
-          <Button size="sm" variant="ghost" onClick={reload}>
-            Holatni yangilash
-          </Button>
+          sahifasida kiriting, aks holda quvur ishlamaydi.
         </div>
-        {token.error && (
-          <div className="text-xs" style={{ color: "var(--bad)" }}>
-            {token.error}
-          </div>
-        )}
-        {note && <div className="text-xs text-muted-foreground">{note}</div>}
-      </section>
+      )}
+      {token.likely_expired && token.configured && (
+        <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--warn)", color: "var(--warn)" }}>
+          Token muddati o&apos;tgan ({token.hint}) — quvur to&apos;xtaydi, yig&apos;ilgani saqlanadi.{" "}
+          <Link href="/integrations" className="font-medium underline">
+            Integratsiyalarda yangilang
+          </Link>
+          .
+        </div>
+      )}
+      {token.error && (
+        <div className="rounded-xl border p-4 text-xs" style={{ borderColor: "var(--bad)", color: "var(--bad)" }}>
+          {token.error}
+        </div>
+      )}
+      {note && <div className="text-xs text-muted-foreground">{note}</div>}
 
       <section className="space-y-3 rounded-xl border bg-card p-4">
         <div className="font-semibold">Qazib olish quvuri</div>

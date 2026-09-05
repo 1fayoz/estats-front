@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { MARKET_TABS, ModuleTabs } from "@/components/air/module-tabs";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StateBanner } from "@/features/market/state-banner";
 import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
@@ -66,8 +65,6 @@ export default function NichesPage() {
 
   return (
     <div className="space-y-4">
-      <ModuleTabs tabs={MARKET_TABS} />
-
       <PageHeader
         title="Nishalar"
         description="Qaysi nishada qancha aylanadi va bir do'konga qancha tegadi."
