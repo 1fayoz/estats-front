@@ -20,12 +20,7 @@ export function Sidebar() {
     <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col lg:flex">
       <div className="flex items-center gap-2.5 px-5 py-5">
         <LogoMark size={36} priority className="h-9 w-9" />
-        <div className="flex flex-col">
-          <span className="text-sm font-bold tracking-tight">{siteConfig.name}</span>
-          <span className="text-[10px] uppercase tracking-widest text-white/45">
-            uzum analytics
-          </span>
-        </div>
+        <span className="text-sm font-bold tracking-tight">{siteConfig.name}</span>
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-3 scrollbar-thin">

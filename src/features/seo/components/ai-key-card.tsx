@@ -135,14 +135,6 @@ export function AiKeyCard({
             </div>
           </>
         )}
-
-        <p className="rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
-          {"Ishlatiladigan modellar ataylab eng arzoni: matn uchun "}
-          <code>gemini-3.6-flash</code>
-          {", rasm uchun "}
-          <code>gemini-3.5-flash-lite</code>
-          {". Model yopilib qolsa keyingisiga o'zi o'tadi — Google ularni vaqti-vaqti bilan yopadi."}
-        </p>
       </CardContent>
     </Card>
   );

@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, PackagePlus, Wallet, Calculator, Compass, Database, Globe2, Megaphone, Plug, Radar, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { Boxes, PackagePlus, Wallet, Calculator, Compass, Globe2, Megaphone, Plug, Radar, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -144,13 +144,6 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/market/seo" as Route,
         icon: SearchCheck,
         description: "Xaridor nima deb yozadi",
-      },
-      {
-        label: "Ma'lumot manbai",
-        action: "market.control",
-        href: "/market/source" as Route,
-        icon: Database,
-        description: "Uzum tokeni va qazib olish quvuri",
       },
     ],
   },
