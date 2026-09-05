@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
+import { ComplaintDialog } from "@/features/warehouse/components/complaint-dialog";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
@@ -82,6 +83,7 @@ function ProductDetailPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
+  const [complaintFor, setComplaintFor] = React.useState<number | null>(null);
   const [busy, setBusy] = React.useState<"" | "check" | "ai" | "auto" | "reason">("");
   const [fixNote, setFixNote] = React.useState<string | null>(null);
 
@@ -312,6 +314,18 @@ function ProductDetailPage() {
             >
               Avtomatik tuzatish
             </Button>
+            {/* Uzum operatoriga yozish — tuzatish O'ZIMIZDA tugagach
+                qoladigan yagona yo'l: kartochka bloklangan yoki uzoq
+                vaqt moderatsiyada tursa, sabab bizda emas, ularda.
+                Xabar sotuvchining O'Z Telegram hisobidan ketadi
+                (Integratsiyalar → Telegram). */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setComplaintFor(p.id)}
+            >
+              Operatorga yozish
+            </Button>
           </div>
 
           {fixNote && (
@@ -507,6 +521,13 @@ function ProductDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      <ComplaintDialog
+        productId={complaintFor}
+        onOpenChange={(open) => {
+          if (!open) setComplaintFor(null);
+        }}
+      />
 
       <IntakeDialog
         product={intakeFor}

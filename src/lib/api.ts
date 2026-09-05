@@ -37,6 +37,10 @@ import type {
   MarketAutoRefresh,
   MarketLoginSession,
   TelegramOperatorStatus,
+  TelegramAccountStatus,
+  TelegramLoginStep,
+  ComplaintPreview,
+  ComplaintSendResult,
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
@@ -393,6 +397,46 @@ export function marketLoginVncUrl(): string {
 
 export const fetchTelegramOperatorStatus = () =>
   request<TelegramOperatorStatus>("/telegram-operator/status", { shopScoped: false });
+
+// Sotuvchining O'Z hisobi — bu do'konga bog'liq (`shopScoped`, ya'ni
+// `X-Shop-Id` bilan): shikoyat operatorga DO'KON EGASI nomidan ketadi.
+// Kod/parol serverga faqat o'tib ketadi, hech qayerda saqlanmaydi;
+// oraliq holat (Telegram sessiyasi) server tomonida turadi, shuning
+// uchun brauzerda saqlanadigan `loginId` ham yo'q.
+
+export const fetchTelegramAccount = () =>
+  request<TelegramAccountStatus>("/telegram-operator/account");
+
+export const startTelegramAccountLogin = (phone: string) =>
+  request<TelegramLoginStep>("/telegram-operator/account/start", {
+    method: "POST",
+    body: JSON.stringify({ phone }),
+  });
+
+export const submitTelegramAccountCode = (code: string) =>
+  request<TelegramLoginStep>("/telegram-operator/account/code", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+
+export const submitTelegramAccountPassword = (password: string) =>
+  request<TelegramLoginStep>("/telegram-operator/account/password", {
+    method: "POST",
+    body: JSON.stringify({ password }),
+  });
+
+export const disconnectTelegramAccount = () =>
+  request<TelegramAccountStatus>("/telegram-operator/account", { method: "DELETE" });
+
+/** Operatorga yuboriladigan matnni tuzib beradi — hech nima yubormaydi. */
+export const fetchComplaintPreview = (productId: number) =>
+  request<ComplaintPreview>(`/telegram-operator/complaint/${productId}`);
+
+export const sendComplaint = (productId: number, text: string, force = false) =>
+  request<ComplaintSendResult>(`/telegram-operator/complaint/${productId}`, {
+    method: "POST",
+    body: JSON.stringify({ text, force }),
+  });
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────
 
