@@ -89,7 +89,7 @@ export function PnlTable({ rows }: { rows: ProductPnl[] }) {
                       {formatNumber(row.soldQuantity)} dona
                       {row.returnedQuantity > 0 && (
                         <span className="ml-1 text-xs text-amber-600 dark:text-amber-500">
-                          {row.returnedQuantity} qaytdi
+                          {row.returnedQuantity} qaytdi ({formatSum(row.returnedAmount)})
                         </span>
                       )}
                     </>
@@ -192,7 +192,7 @@ export function PnlTable({ rows }: { rows: ProductPnl[] }) {
                 <div>{formatNumber(row.soldQuantity)} dona</div>
                 {row.returnedQuantity > 0 && (
                   <div className="text-xs text-amber-600 dark:text-amber-500">
-                    {row.returnedQuantity} qaytdi
+                    {row.returnedQuantity} qaytdi ({formatSum(row.returnedAmount)})
                   </div>
                 )}
               </td>

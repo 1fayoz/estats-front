@@ -38,9 +38,10 @@ export function SummaryCards({ totals }: { totals: PnlTotals }) {
         value={`${formatNumber(totals.soldQuantity)} dona`}
         hint={
           totals.returnedQuantity > 0
-            ? `${formatNumber(totals.returnedQuantity)} dona qaytdi`
+            ? `${formatNumber(totals.returnedQuantity)} dona qaytdi — ${formatSum(totals.returnedAmount)}`
             : "qaytarilgani yo'q"
         }
+        warn={totals.returnedQuantity > 0}
       />
       <Tile
         icon={Coins}

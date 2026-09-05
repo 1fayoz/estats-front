@@ -319,6 +319,7 @@ export interface ProductPnl {
   intakeCost: number;
   soldQuantity: number;
   returnedQuantity: number;
+  returnedAmount: number;
   orders: number;
   gross: number;
   commission: number;
@@ -351,6 +352,7 @@ export interface PnlTotals {
   intakeCost: number;
   soldQuantity: number;
   returnedQuantity: number;
+  returnedAmount: number;
   gross: number;
   commission: number;
   logistics: number;
