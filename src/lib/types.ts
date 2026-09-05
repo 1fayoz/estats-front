@@ -812,6 +812,28 @@ export interface ComplaintStep {
   buttons: string[][];
 }
 
+/**
+ * Operatorga yozish FON vazifasining holati.
+ *
+ * `status`: `idle` · `queued` (navbatda — boshqa kartochka
+ * yozilmoqda) · `running` · `done` · `failed`.
+ * `replyText` — OPERATORNING javobi (tirik odam), sotuvchi uni
+ * saytda ko'radi, Telegramni ochmasdan.
+ */
+export interface ComplaintJob {
+  productId: number;
+  status: "idle" | "queued" | "running" | "done" | "failed";
+  percent: number;
+  step: string;
+  error: string | null;
+  path: string[];
+  reachedOperator: boolean;
+  resumed: boolean;
+  replyText: string | null;
+  replyAt: string | null;
+  finishedAt: string | null;
+}
+
 export interface ComplaintSendResult {
   sent: boolean;
   /** Bosilgan menyu tugmalari. Bo'sh — menyu topilmadi, xabar to'g'ridan-to'g'ri ketdi. */

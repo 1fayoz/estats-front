@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Send } from "lucide-react";
+import { CheckCircle2, Loader2, MessageSquare, Send, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -13,58 +13,85 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ApiError, fetchComplaintPreview, sendComplaint } from "@/lib/api";
-import type { ComplaintPreview, ComplaintSendResult } from "@/lib/types";
+import { ApiError, fetchComplaintJob, fetchComplaintPreview, sendComplaint } from "@/lib/api";
+import type { ComplaintJob, ComplaintPreview } from "@/lib/types";
 
 interface Props {
   productId: number | null;
   onOpenChange: (open: boolean) => void;
 }
 
+const ACTIVE = new Set(["queued", "running"]);
+
 /**
  * Uzum moderatsiya operatoriga (`@umarket_business_bot`) xabar.
  *
- * Matn server tomonda ANIQ ma'lumotdan tuziladi (blok sabablari va
- * kartochkaga kiritilgan tuzatishlar), lekin YUBORISHDAN OLDIN shu
- * yerda ko'rsatiladi va tahrirlanadi: xabar sotuvchining O'Z
- * hisobidan ketadi, ya'ni uni odam yozgan bo'lib hisoblanadi va u
- * nima yozilganini ko'rgan bo'lishi kerak.
+ * Yuborish FONDA ketadi: bot menyusi bo'ylab yurish 20-40 soniya
+ * oladi (bot javobini kutish + odam kabi tanaffuslar), sotuvchi
+ * shuncha vaqt oynaga tikilib o'tirmasligi kerak. Oyna yopilsa ham
+ * ish davom etadi va qayta ochilganda holat o'sha yerdan ko'rinadi.
+ *
+ * Operatorning JAVOBI ham shu yerda ko'rinadi — Telegramni ochish
+ * shart emas.
  */
 export function ComplaintDialog({ productId, onOpenChange }: Props) {
   const [preview, setPreview] = React.useState<ComplaintPreview | null>(null);
   const [text, setText] = React.useState("");
+  const [job, setJob] = React.useState<ComplaintJob | null>(null);
   const [busy, setBusy] = React.useState(false);
-  const [result, setResult] = React.useState<ComplaintSendResult | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
+  const active = job !== null && ACTIVE.has(job.status);
+
+  // Matn va mavjud fon vazifasi — oyna ochilganda birga o'qiladi:
+  // ish allaqachon ketayotgan bo'lsa progress darhol ko'rinadi.
   React.useEffect(() => {
     if (productId == null) return;
     setPreview(null);
-    setResult(null);
     setError(null);
     void (async () => {
       try {
-        const next = await fetchComplaintPreview(productId);
+        const [next, state] = await Promise.all([
+          fetchComplaintPreview(productId),
+          fetchComplaintJob(productId).catch(() => null),
+        ]);
         setPreview(next);
         setText(next.text);
+        setJob(state && state.status !== "idle" ? state : null);
       } catch (err) {
         setError(err instanceof ApiError ? err.message : "Matnni tayyorlab bo'lmadi.");
       }
     })();
   }, [productId]);
 
-  const onSend = async (force = false) => {
+  // Ish ketayotganda holatni so'rab turamiz. Tugagach ham bir necha
+  // daqiqa davom etadi: operator javobi keyinroq keladi.
+  React.useEffect(() => {
+    if (productId == null || job === null) return;
+    const waitingReply = job.status === "done" && !job.replyText;
+    if (!ACTIVE.has(job.status) && !waitingReply) return;
+
+    const timer = setInterval(async () => {
+      try {
+        const next = await fetchComplaintJob(productId);
+        setJob(next.status === "idle" ? null : next);
+      } catch {
+        /* tarmoq uzilishi — keyingi urinishda o'zi tiklanadi */
+      }
+    }, ACTIVE.has(job.status) ? 2000 : 15000);
+    return () => clearInterval(timer);
+  }, [productId, job]);
+
+  const onSend = async () => {
     if (productId == null || !text.trim()) return;
     setBusy(true);
+    setError(null);
     try {
-      const res = await sendComplaint(productId, text.trim(), force);
-      setResult(res);
-      toast.success("Operatorga yuborildi.");
+      const started = await sendComplaint(productId, text.trim(), Boolean(preview?.lastSentAt));
+      setJob(started);
+      toast.success("Yozish boshlandi — fonda davom etadi, kutib turish shart emas.");
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Yuborib bo'lmadi.";
-      // 429 — shu tovar bo'yicha 24 soat ichida allaqachon yozilgan.
-      // Bu taqiq emas, ogohlantirish: sotuvchi baribir yubormoqchi
-      // bo'lsa "Baribir yuborish" bilan davom etadi.
+      const message = err instanceof ApiError ? err.message : "Boshlab bo'lmadi.";
       setError(message);
       toast.error(message);
     } finally {
@@ -93,70 +120,126 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
           </div>
         )}
 
-        {preview && !preview.connected && (
+        {preview && !preview.connected && !job && (
           <p className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
             Telegram hisobi ulanmagan. Integratsiyalar → Telegram bo&apos;limidan
             raqamingizni ulang, keyin bu yerdan yuborasiz.
           </p>
         )}
 
-        {alreadySent && !result && (
+        {/* ── fon vazifasi: foiz va qadam ── */}
+        {job && (
+          <div className="space-y-2 rounded-lg border p-3">
+            <div className="flex items-center gap-2 text-sm">
+              {active && <Loader2 className="h-4 w-4 shrink-0 animate-spin" />}
+              {job.status === "done" && (
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              )}
+              {job.status === "failed" && (
+                <XCircle className="h-4 w-4 shrink-0 text-destructive" />
+              )}
+              <span className="font-medium">
+                {job.status === "queued" && "Navbatda"}
+                {job.status === "running" && "Yozilmoqda"}
+                {job.status === "done" &&
+                  (job.reachedOperator ? "Operatorga yuborildi" : "Yuborildi")}
+                {job.status === "failed" && "To'xtadi"}
+              </span>
+              <span className="text-muted-foreground">— {job.step}</span>
+              {active && <span className="ml-auto tabular-nums">{job.percent}%</span>}
+            </div>
+
+            {active && (
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  style={{ width: `${Math.max(4, job.percent)}%` }}
+                />
+              </div>
+            )}
+
+            {job.resumed && (
+              <p className="text-xs text-muted-foreground">
+                Suhbat yarim yo&apos;lda qolgan edi — boshidan emas, o&apos;sha joydan
+                davom etildi.
+              </p>
+            )}
+
+            {job.path.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Bosilgan qadamlar: {job.path.join(" → ")}
+              </p>
+            )}
+
+            {job.error && (
+              <p className="rounded-md border border-destructive/40 bg-destructive/5 p-2 text-sm">
+                {job.error}
+              </p>
+            )}
+
+            {job.status === "done" && !job.replyText && (
+              <p className="text-xs text-muted-foreground">
+                Operatorning javobi kutilmoqda — kelganda shu yerda ko&apos;rinadi.
+              </p>
+            )}
+
+            {job.replyText && (
+              <div className="rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3 text-sm">
+                <div className="mb-1 flex items-center gap-1.5 font-medium">
+                  <MessageSquare className="h-3.5 w-3.5" /> Operator javobi
+                  {job.replyAt && (
+                    <span className="font-normal text-muted-foreground">
+                      · {new Date(job.replyAt).toLocaleString("uz-UZ")}
+                    </span>
+                  )}
+                </div>
+                <p className="whitespace-pre-wrap">{job.replyText}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {alreadySent && !job && (
           <p className="text-xs text-muted-foreground">
-            Bu tovar bo&apos;yicha oxirgi marta{" "}
-            {alreadySent.toLocaleString("uz-UZ")} da yozilgan.
+            Bu tovar bo&apos;yicha oxirgi marta {alreadySent.toLocaleString("uz-UZ")} da
+            yozilgan.
           </p>
         )}
 
-        {preview && !result && (
+        {preview && !active && (
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            rows={14}
+            rows={job ? 8 : 14}
             className="w-full resize-y rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         )}
 
-        {result && (
-          <div className="space-y-2 text-sm">
-            <p className="rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3">
-              Yuborildi. {result.path.length > 0
-                ? `Menyu bo'ylab: ${result.path.join(" → ")}`
-                : "Bot menyusi topilmadi — xabar to'g'ridan-to'g'ri botga yuborildi."}
-            </p>
-            {result.steps.map((step, i) => (
-              <div key={i} className="rounded-md border px-3 py-2">
-                <div className="text-xs text-muted-foreground">→ {step.sent}</div>
-                {step.text && <div className="whitespace-pre-wrap">{step.text}</div>}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {error && !result && (
+        {error && (
           <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
             {error}
           </p>
         )}
 
         <DialogFooter>
-          {result ? (
-            <Button size="sm" onClick={() => onOpenChange(false)}>
-              Yopish
+          <Button size="sm" variant="ghost" onClick={() => onOpenChange(false)}>
+            {active ? "Fonda davom etsin" : "Yopish"}
+          </Button>
+          {!active && (
+            <Button
+              size="sm"
+              onClick={onSend}
+              disabled={busy || !preview?.connected || !text.trim()}
+            >
+              {busy && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+              {job?.status === "failed"
+                ? "Qayta urinish"
+                : job?.status === "done"
+                  ? "Yana yozish"
+                  : alreadySent
+                    ? "Baribir yuborish"
+                    : "Yuborish"}
             </Button>
-          ) : (
-            <>
-              <Button size="sm" variant="ghost" onClick={() => onOpenChange(false)}>
-                Bekor qilish
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => onSend(Boolean(alreadySent))}
-                disabled={busy || !preview?.connected || !text.trim()}
-              >
-                {busy && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
-                {alreadySent ? "Baribir yuborish" : "Yuborish"}
-              </Button>
-            </>
           )}
         </DialogFooter>
       </DialogContent>
