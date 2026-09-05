@@ -222,7 +222,6 @@ export default function IntegrationsPage() {
               <UzumSellerLoginCard />
               <MarketAccountLoginCard />
               <MarketTokenCard />
-              <TelegramOperatorCard />
             </div>
           )}
         </div>
@@ -254,6 +253,11 @@ export default function IntegrationsPage() {
             {/* LinkedIn va TikTok sotuvchining O'Z ilovasi bilan
                 ishlaydi — kalitlar shu yerda kiritiladi. */}
             {app && <AppKeysCard app={app} onSaved={load} />}
+            {/* Uzum moderatsiya operatoriga yozish uchun — kanal
+                ulanishidan BUTUNLAY BOSHQA hisob (Fayozning O'Z shaxsiy
+                Telegram akkaunti), lekin joyi shu yerda tabiiy: ikkalasi
+                ham "Telegram" haqida. */}
+            {row.platform === "telegram" && <TelegramOperatorCard />}
           </NetworkPanel>
         );
       })}

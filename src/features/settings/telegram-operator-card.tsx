@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, ExternalLink, Loader2, MessageCircle } from "lucide-react";
+import { CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +64,11 @@ export function TelegramOperatorCard() {
     void load();
   }, [load]);
 
-  if (forbidden) return null;
+  // Sozlanmagan bo'lsa hech narsa ko'rsatilmaydi — bu ILOVA darajasidagi,
+  // bir martalik sozlama (adminka orqali kiritiladi), sotuvchi/oddiy
+  // foydalanuvchi buni ko'rishi/bilishi shart emas. Fayoz adminkadan
+  // kiritgach karta o'zi paydo bo'ladi (keyingi `load()`da).
+  if (forbidden || step === "not_configured") return null;
 
   const onSendCode = async () => {
     if (!phone.trim()) {
@@ -154,25 +158,6 @@ export function TelegramOperatorCard() {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {step === "not_configured" && (
-          <p className="text-xs text-muted-foreground">
-            Ilova sozlamasi hali kiritilmagan — bu administrator panelidan bir
-            martalik kiritiladi: Django adminka (
-            <span className="font-mono">/admin/</span>) → AppSetting →{" "}
-            <span className="font-mono">telegram_operator_api_id</span> /{" "}
-            <span className="font-mono">telegram_operator_api_hash</span> (
-            <a
-              href="https://my.telegram.org/apps"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-primary underline"
-            >
-              my.telegram.org/apps <ExternalLink className="h-3 w-3" />
-            </a>
-            {" "}dan olinadi).
-          </p>
-        )}
-
         {step === "phone" && (
           <div className="space-y-2">
             <div className="space-y-1.5">
