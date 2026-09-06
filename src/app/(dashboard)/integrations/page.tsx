@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, CircleCheck, Link2, RefreshCw, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
+import { AlertCircle, CircleCheck, Link2, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
@@ -161,14 +161,12 @@ function IntegrationsWorkspace() {
 
   return (
     <div className={cn(styles.workspace, "space-y-5 sm:space-y-6")}>
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary"><Link2 className="size-3.5" /> Ulanish markazi</div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Integratsiyalar</h1>
-          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">Do‘konlar, ijtimoiy tarmoqlar va AI — barchasini bir joydan boshqaring.</p>
-        </div>
-        {hasShop && selected !== "uzum" && <Button variant="outline" className="min-h-11 rounded-xl" disabled={refreshing} onClick={() => void load()}><RefreshCw className={cn(refreshing && "motion-safe:animate-spin")} />{refreshing ? "Yangilanmoqda" : "Yangilash"}</Button>}
-      </header>
+      {/* Sahifa tepasidagi sarlavha bloki («Ulanish markazi»,
+          «Integratsiyalar», tavsif) va «Yangilash» tugmasi OLIB
+          TASHLANDI (foydalanuvchi so'rovi): qaysi sahifada turgani
+          yon menyuda ko'rinadi, ma'lumot esa `useAutoRefresh` bilan
+          o'zi yangilanadi — tugma qo'lda bosishga qolmagan edi.
+          Xato holatida chiqadigan «Yangilash» tugmasi joyida. */}
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         {[
