@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, Loader2, MonitorSmartphone } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock3, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import {
   ApiError, fetchMarketAutoRefresh, startMarketLogin,
 } from "@/lib/api";
@@ -14,10 +14,10 @@ import type { MarketAutoRefresh } from "@/lib/types";
 import { MarketVncDialog } from "./market-vnc-dialog";
 
 const STATUS_LABEL: Record<string, string> = {
-  ok: "faol",
-  needs_login: "sessiya tugagan",
-  captcha: "CAPTCHA chiqdi",
-  error: "xato",
+  ok: "Faol",
+  needs_login: "Qayta ulash kerak",
+  captcha: "Tasdiqlash kerak",
+  error: "Ulanishda xato",
 };
 
 /**
@@ -37,14 +37,20 @@ export function MarketAccountLoginCard() {
   const [forbidden, setForbidden] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [vncOpen, setVncOpen] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
     try {
       const next = await fetchMarketAutoRefresh();
       setState(next);
       setForbidden(false);
+      setError(null);
     } catch (err) {
       if (err instanceof ApiError && err.status === 403) setForbidden(true);
+      else setError(err instanceof ApiError ? err.message : "Ulanish holatini yuklab bo'lmadi.");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -62,12 +68,13 @@ export function MarketAccountLoginCard() {
   if (forbidden) return null;
 
   const onConnect = async () => {
+    if (busy) return;
     setBusy(true);
     try {
       const result = await startMarketLogin();
       if (result.status === "busy") {
         toast.error(
-          "Hozir ekran boshqa ish bilan band — bir necha daqiqadan keyin qayta urinib ko'ring.",
+          "Hozir boshqa ulanish davom etmoqda. Birozdan keyin qayta urining.",
         );
         return;
       }
@@ -82,84 +89,79 @@ export function MarketAccountLoginCard() {
   const connected = state?.connected ?? false;
   const lastStatus = state?.lastStatus ?? null;
   const anonymous = lastStatus === "ok" && state?.lastMode === "anonymous";
-  const badgeVariant = !connected
+  const healthy = connected && lastStatus === "ok" && !anonymous;
+  const needsAttention = connected && (anonymous || Boolean(lastStatus && lastStatus !== "ok"));
+  const badgeVariant = !state || error || !connected
     ? "secondary"
     : lastStatus === "ok"
       ? (anonymous ? "warning" : "success")
       : lastStatus === null
-        ? "success"
+        ? "secondary"
         : "warning";
-  const badgeText = !connected
-    ? "ulanmagan"
+  const badgeText = error
+    ? "Holat noma'lum"
+    : !state
+      ? "Tekshirilmoqda"
+      : !connected
+    ? "Ulanmagan"
     : anonymous
-      ? "anonim rejimda"
+      ? "Mehmon rejimi"
       : lastStatus
         ? STATUS_LABEL[lastStatus] ?? lastStatus
-        : "kutilmoqda";
+        : "Kutilmoqda";
 
   return (
-    <Card>
+    <Card className="rounded-2xl shadow-none">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <MonitorSmartphone className="h-4 w-4" /> Bozor hisobiga ulanish
-            </CardTitle>
-            <CardDescription>
-              Raqobatchilar narxi uchun Uzum mijoz hisobi — bir marta ulang, token
-              o&apos;zi har {state?.intervalSeconds ? Math.round(state.intervalSeconds / 60) : 3}{" "}
-              daqiqada yangilanaveradi.
+          <div className="min-w-0 flex-1 space-y-2">
+            <h3 className="text-base font-semibold tracking-tight">Bozor hisobi</h3>
+            <CardDescription className="leading-relaxed">
+              Raqobatchilar narxini kuzatish uchun Uzum mijoz hisobingizni ulang.
             </CardDescription>
           </div>
           <Badge variant={badgeVariant}>{badgeText}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {connected && (
+      <CardContent className="space-y-4">
+        {error && <div role="alert" className="flex flex-col gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm leading-relaxed">{error}</p><Button variant="outline" className="min-h-11 rounded-xl" disabled={loading} onClick={() => { setLoading(true); void load(); }}><RefreshCw className={loading ? "size-4 animate-spin" : "size-4"} />Qayta urinish</Button></div>}
+        {connected && !error && (
           <div
             className={
-              "flex items-start gap-3 rounded-lg border p-3 text-sm " +
-              (anonymous
-                ? "border-amber-500/40 bg-amber-500/5"
-                : "border-emerald-500/40 bg-emerald-500/5")
+              "flex items-start gap-3 rounded-xl border p-4 text-sm " +
+              (needsAttention
+                ? "border-amber-500/20 bg-amber-500/5"
+                : healthy ? "border-emerald-500/20 bg-emerald-500/5" : "bg-muted/20")
             }
           >
-            <CheckCircle2
-              className={
-                "mt-0.5 h-4 w-4 shrink-0 " +
-                (anonymous
-                  ? "text-amber-600 dark:text-amber-500"
-                  : "text-emerald-600 dark:text-emerald-400")
-              }
-            />
-            <span>
-              {state?.connectedAt &&
-                `${new Date(state.connectedAt).toLocaleString("uz-UZ")} da ulangan. `}
-              {lastStatus === "ok" && !anonymous && state?.lastRunAt &&
-                `Oxirgi yangilanish: ${new Date(state.lastRunAt).toLocaleTimeString("uz-UZ")}.`}
+            {needsAttention ? <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" /> : healthy ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" /> : <Clock3 className="mt-0.5 size-4 shrink-0 text-muted-foreground" />}
+            <div className="min-w-0 space-y-1 leading-relaxed">
+              <p className="font-medium">{healthy ? "Bozor ma'lumotlari yangilanmoqda" : needsAttention ? "Ulanishni tekshiring" : "Birinchi yangilanish kutilmoqda"}</p>
+              <p className="text-xs text-muted-foreground">
+              {healthy && state?.lastRunAt && `Oxirgi yangilanish: ${new Date(state.lastRunAt).toLocaleString("uz-UZ")}.`}
+              {!lastStatus && state?.connectedAt && `${new Date(state.connectedAt).toLocaleString("uz-UZ")} da ulangan.`}
               {anonymous &&
-                "Sessiya bir marta uzilgan — avtomatika o'zi tiklab, hozircha anonim " +
-                  "(mehmon) token bilan ishlayapti. Bu ham ishlaydi, lekin shaxsiy hisobga " +
-                  "qaytish uchun qayta ulang."}
+                "Hozir mehmon rejimi ishlayapti. Shaxsiy hisobingizga qaytish uchun qayta ulang."}
               {lastStatus === "needs_login" &&
-                "Sessiya ham, avtomatik tiklash ham ishlamadi — qayta ulaning."}
+                "Hisobga kirish muddati tugagan. Davom etish uchun qayta ulang."}
               {lastStatus === "captcha" &&
-                "Uzum CAPTCHA so'radi — qayta ulanib, o'zingiz yeching."}
-              {lastStatus === "error" && state?.lastMessage && ` Xato: ${state.lastMessage}`}
-            </span>
+                "Uzum qo'shimcha tasdiqlashni so'radi. Qayta ulanib, tekshiruvdan o'ting."}
+              {lastStatus === "error" && (state?.lastMessage || "Hisobni yangilab bo'lmadi. Qayta ulab ko'ring.")}
+              </p>
+            </div>
           </div>
         )}
-        <p className="text-xs text-muted-foreground">
-          Bosganingizda brauzer oynasi shu sahifada ochiladi (VNC orqali) — parolingiz
-          eStats serveriga hech qachon yuborilmaydi. Bitta hisob — barcha do&apos;konlar
-          uchun umumiy. Sessiya o&apos;zidan-o&apos;zi uzilib qolsa avtomatika buni
-          o&apos;zi payqab tuzatishga harakat qiladi — qayta ulanish faqat u ham
-          yetmagandagina kerak bo&apos;ladi.
-        </p>
-        <Button size="sm" onClick={onConnect} disabled={busy}>
-          {busy && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
-          {connected ? "Qayta ulash" : "Ulash"}
-        </Button>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border bg-muted/15 p-4"><p className="mb-1 text-xs text-muted-foreground">Avtomatik yangilanish</p><p className="flex items-center gap-2 text-sm font-medium"><RefreshCw className="size-4 text-primary" />Har {state?.intervalSeconds ? Math.round(state.intervalSeconds / 60) : 3} daqiqada</p></div>
+          <div className="rounded-xl border bg-muted/15 p-4"><p className="mb-1 text-xs text-muted-foreground">Hisob doirasi</p><p className="text-sm font-medium">Barcha do&apos;konlar uchun umumiy</p></div>
+        </div>
+        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center">
+          <Button className="min-h-11 rounded-xl" onClick={onConnect} disabled={busy || loading}>
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}
+            {busy ? "Ochilmoqda…" : connected ? "Qayta ulash" : "Bozor hisobini ulash"}
+          </Button>
+          <p className="text-xs leading-relaxed text-muted-foreground">Ochilgan oynada Uzum hisobingizga kiring.</p>
+        </div>
       </CardContent>
 
       <MarketVncDialog

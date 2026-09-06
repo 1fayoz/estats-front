@@ -31,6 +31,7 @@ export function TelegramDialog({
   const [token, setToken] = React.useState("");
   const [chat, setChat] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  const savingRef = React.useRef(false);
 
   React.useEffect(() => {
     if (open) {
@@ -41,8 +42,10 @@ export function TelegramDialog({
 
   const valid = token.trim().length > 20 && chat.trim().length > 1;
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!valid || savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     try {
       const account = await connectSocialAccount({
@@ -56,15 +59,16 @@ export function TelegramDialog({
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Ulanmadi.");
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!savingRef.current) onOpenChange(nextOpen); }}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto rounded-2xl p-5 sm:p-6 [&>button:last-child]:flex [&>button:last-child]:size-11 [&>button:last-child]:items-center [&>button:last-child]:justify-center">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 pr-8 leading-snug">
             <Send className="h-4 w-4" /> Telegram kanalini ulash
           </DialogTitle>
           <DialogDescription>
@@ -72,15 +76,13 @@ export function TelegramDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ol className="space-y-1.5 rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
+        <ol className="list-decimal space-y-2 rounded-xl border bg-muted/40 p-4 pl-8 text-sm leading-relaxed text-muted-foreground">
           <li>
-            1. Telegram&apos;da <span className="font-medium text-foreground">@BotFather</span> ga
-            yozing → <code className="text-xs">/newbot</code> → bot yarating.
+            Telegram&apos;da{" "}<span className="font-medium text-foreground">@BotFather</span>{" "}ga yozing →{" "}<code className="text-xs">/newbot</code>{" "}→ bot yarating.
           </li>
-          <li>2. BotFather bergan tokenni nusxalang.</li>
+          <li>BotFather bergan tokenni nusxalang.</li>
           <li>
-            3. Botni kanalingizga <span className="font-medium text-foreground">admin</span> qilib
-            qo&apos;shing (xabar yuborish huquqi bilan).
+            Botni kanalingizga{" "}<span className="font-medium text-foreground">admin</span>{" "}qilib qo&apos;shing (xabar yuborish huquqi bilan).
           </li>
         </ol>
 
@@ -89,10 +91,15 @@ export function TelegramDialog({
             <Label htmlFor="tg-token">Bot tokeni</Label>
             <Input
               id="tg-token"
-              autoFocus
+              type="password"
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              disabled={saving}
+              className="min-h-11 rounded-xl text-base sm:text-sm"
               placeholder="1234567890:AAH..."
               value={token}
-              onChange={(e) => setToken(e.target.value)}
+              onChange={(event) => setToken(event.target.value)}
             />
           </div>
 
@@ -100,9 +107,14 @@ export function TelegramDialog({
             <Label htmlFor="tg-chat">Kanal manzili</Label>
             <Input
               id="tg-chat"
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              disabled={saving}
+              className="min-h-11 rounded-xl text-base sm:text-sm"
               placeholder="@dokonim"
               value={chat}
-              onChange={(e) => setChat(e.target.value)}
+              onChange={(event) => setChat(event.target.value)}
             />
             <p className="text-xs text-muted-foreground">
               Kanal ochiq bo&apos;lsa @ bilan yozing. Yopiq kanal uchun uning
@@ -111,12 +123,12 @@ export function TelegramDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" className="min-h-11 rounded-xl" disabled={saving} onClick={() => onOpenChange(false)}>
               Bekor qilish
             </Button>
-            <Button type="submit" disabled={saving || !valid}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Ulash
+            <Button type="submit" className="min-h-11 rounded-xl" disabled={saving || !valid}>
+              {saving ? <Loader2 className="h-4 w-4 motion-safe:animate-spin" /> : null}
+              {saving ? "Ulanmoqda…" : "Kanalni ulash"}
             </Button>
           </DialogFooter>
         </form>
