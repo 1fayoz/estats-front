@@ -20,7 +20,7 @@ const RANGES = [14, 30, 60, 90] as const;
 const DEPTH = 100;
 
 function decimal(value: number): string {
-  return new Intl.NumberFormat("uz-UZ", { maximumFractionDigits: 1 }).format(value);
+  return formatNumber(value);
 }
 
 /**
@@ -50,17 +50,20 @@ export function ProductStats({
   facts: MarketplaceFacts;
 }) {
   const [days, setDays] = React.useState<number>(30);
-  const [data, setData] = React.useState<ProductTimeline | null>(null);
+  const [result, setResult] = React.useState<{ productId: number; days: number; timeline: ProductTimeline } | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [retry, setRetry] = React.useState(0);
+  const data = result?.productId === productId && result.days === days ? result.timeline : null;
 
   React.useEffect(() => {
     let alive = true;
     setLoading(true);
+    setError(null);
     fetchProductTimeline(productId, days)
       .then((found) => {
         if (!alive) return;
-        setData(found);
+        setResult({ productId, days, timeline: found });
         setError(null);
       })
       .catch((err) => {
@@ -71,7 +74,7 @@ export function ProductStats({
     return () => {
       alive = false;
     };
-  }, [productId, days]);
+  }, [productId, days, retry]);
 
   const rows = data?.days ?? [];
   const phrases = data?.phrases ?? [];
@@ -85,58 +88,50 @@ export function ProductStats({
   const alarm = low || (empty && tempo.soldQuantity > 0);
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
+    <Card className="overflow-hidden rounded-2xl shadow-none">
+      <CardHeader className="gap-4 border-b pb-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <CardTitle className="flex items-center gap-2 text-base">
               <CalendarRange className="h-4 w-4" /> Savdo ko&apos;rsatkichlari
             </CardTitle>
-            <CardDescription>
-              {data ? `${data.from} — ${data.to}` : `Oxirgi ${days} kun`}
+            <CardDescription className="mt-2 leading-6">
+              Asosiy ko&apos;rsatkichlar: {tempo.days} kunlik hisob.
               {tempo.firstSaleAt && ` · birinchi sotuv ${tempo.firstSaleAt.slice(0, 10)}`}
             </CardDescription>
-          </div>
-          <div className="flex items-center gap-1">
-            {RANGES.map((value) => (
-              <Button
-                key={value}
-                size="sm"
-                variant={value === days ? "secondary" : "ghost"}
-                onClick={() => setDays(value)}
-              >
-                {value} kun
-              </Button>
-            ))}
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5 pt-4 sm:pt-5">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
           <Tile
             label="Tushum"
             value={formatSumShort(tempo.revenue)}
             note={`${tempo.days} kunda`}
             series={chrono.map((r) => r.revenue)}
+            seriesLabel={`${days} kunlik grafik`}
           />
           <Tile
             label="Sotuv, donada"
             value={formatNumber(tempo.soldQuantity)}
-            note={`${formatNumber(tempo.orders)} ta buyurtma`}
+            note={`${tempo.days} kunda · ${formatNumber(tempo.orders)} ta buyurtma`}
             series={chrono.map((r) => r.soldQuantity)}
+            seriesLabel={`${days} kunlik grafik`}
           />
           <Tile
             label="Kuniga o'rtacha"
             value={`${decimal(tempo.avgPerDay)} dona`}
             note={`${tempo.days} kun bo'yicha`}
             series={chrono.map((r) => r.soldQuantity)}
+            seriesLabel={`${days} kunlik grafik`}
           />
           <Tile
             label="O'rtacha qoldiq"
             value={`${decimal(tempo.avgStock)} dona`}
-            note={`hozir ${formatNumber(onHand)} dona`}
+            note={`${tempo.days} kun bo'yicha · hozir ${formatNumber(onHand)} dona`}
             series={chrono.map((r) => r.stock)}
+            seriesLabel={`${days} kunlik grafik`}
           />
           <Tile
             label="Qoldiq yetadi"
@@ -180,30 +175,31 @@ export function ProductStats({
           <Tile
             label="O'rtacha narx"
             value={
-              tempo.soldQuantity > 0
+              data && chrono.some((row) => row.soldQuantity > 0)
                 ? formatSumShort(
                     chrono.reduce((sum, r) => sum + (r.avgPrice ?? 0) * r.soldQuantity, 0) /
                       Math.max(1, chrono.reduce((sum, r) => sum + r.soldQuantity, 0)),
                   )
                 : "—"
             }
-            note="sotilgan donaga"
+            note={data ? `${days} kunda · sotilgan donaga` : loading ? "Yuklanmoqda..." : "Ma'lumot olinmadi"}
             series={chrono.map((r) => r.avgPrice ?? 0)}
+            seriesLabel={`${days} kunlik grafik`}
           />
           <Tile
             label="Kuzatilayotgan so'z"
-            value={formatNumber(phrases.length)}
+            value={data ? formatNumber(phrases.length) : "—"}
             note={
-              phrases.length
-                ? `TOP-${TOP} da ${countTop(rows, phrases)} tasi`
+              !data ? loading ? "Yuklanmoqda..." : "Ma'lumot olinmadi" : phrases.length
+                ? `${days} kunda · TOP-${TOP} da ${countTop(rows, phrases)} tasi`
                 : "hali qo'shilmagan"
             }
           />
         </div>
 
         {alarm && (
-          <div className="flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-500" />
+          <div className="flex items-start gap-3 rounded-xl border border-[color:var(--warn)]/25 bg-[color:var(--warn)]/5 p-4 text-sm leading-6">
+            <AlertTriangle className="mt-1 h-4 w-4 shrink-0 text-[var(--warn)]" />
             <span>
               {empty ? (
                 <>
@@ -221,22 +217,40 @@ export function ProductStats({
           </div>
         )}
 
-        {error ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">{error}</p>
-        ) : loading && !data ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Yuklanmoqda...
+        <div className="flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold">Kunlik savdo va qidiruvdagi o&apos;rin</h3>
+            <p className="mt-1 text-xs text-muted-foreground">{data ? `${data.from} — ${data.to}` : `Oxirgi ${days} kun`}</p>
           </div>
+          <div role="group" aria-label="Grafik va jadval davri" className="grid grid-cols-4 gap-1 rounded-xl border bg-muted/30 p-1">
+            {RANGES.map((value) => (
+              <Button key={value} variant="ghost" aria-pressed={value === days} className={cn("h-11 rounded-lg px-2 text-xs sm:px-3", value === days && "bg-background font-semibold text-foreground shadow-sm")} onClick={() => { setError(null); setDays(value); }}>
+                {value} kun
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {error ? (
+          <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm"><p className="font-medium">Kunlik ma&apos;lumotlar yuklanmadi</p><p className="mt-1 text-muted-foreground">{error}</p></div>
+            <Button variant="outline" className="h-11 shrink-0 rounded-xl" onClick={() => setRetry((attempt) => attempt + 1)}>Qayta urinish</Button>
+          </div>
+        ) : loading || !data ? (
+          <div role="status" className="flex items-center justify-center gap-2 rounded-xl border border-dashed py-12 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> {days} kunlik ma&apos;lumotlar yuklanmoqda...
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="rounded-xl border border-dashed px-4 py-12 text-center"><CalendarRange className="mx-auto mb-3 size-7 text-muted-foreground" /><p className="text-sm font-medium">Bu davrda ma&apos;lumot yo&apos;q</p><p className="mt-1 text-xs text-muted-foreground">Boshqa davrni tanlab ko&apos;ring.</p></div>
         ) : (
           <>
-            {/* Jadval o'z ichida siljiydi: kalit so'zlar ko'p bo'lsa
-                ustunlar sig'maydi, sahifaning o'zi esa hech qachon
-                gorizontal siljimasligi kerak. */}
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full text-sm">
+            <p className="text-xs text-muted-foreground sm:hidden">Barcha ustunlarni ko&apos;rish uchun jadvalni yon tomonga suring.</p>
+            <div role="region" aria-label="Kunlik savdo va qidiruv o'rinlari jadvali" tabIndex={0} className="max-w-full overflow-x-auto rounded-xl border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <table className="w-full min-w-[600px] text-sm [&_th]:py-3 [&_td]:py-3">
+                <caption className="sr-only">{data.from} — {data.to}: kunlik sotuv, tushum, narx, qoldiq va qidiruvdagi o&apos;rinlar</caption>
                 <thead className="border-b bg-muted/40 text-xs text-muted-foreground">
                   <tr>
-                    <th className="sticky left-0 z-10 bg-muted/40 px-3 py-2 text-left font-medium">
+                    <th className="sticky left-0 z-10 bg-background px-3 py-2 text-left font-medium">
                       Kun
                     </th>
                     <th className="px-3 py-2 text-right font-medium">Sotildi</th>
@@ -257,7 +271,7 @@ export function ProductStats({
                 <tbody className="divide-y">
                   {rows.map((row) => (
                     <tr key={row.day} className="transition-colors hover:bg-muted/30">
-                      <td className="sticky left-0 z-10 bg-card px-3 py-2 tabular-nums">
+                      <td className="sticky left-0 z-10 whitespace-nowrap bg-background px-3 py-2 tabular-nums">
                         {row.day}
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -269,10 +283,10 @@ export function ProductStats({
                           <span
                             className={cn(
                               "tabular-nums",
-                              row.soldQuantity === 0 && "text-muted-foreground/50",
+                              row.soldQuantity === 0 && "text-muted-foreground",
                             )}
                           >
-                            {row.soldQuantity}
+                            {formatNumber(row.soldQuantity)}
                           </span>
                         </span>
                       </td>
@@ -281,10 +295,10 @@ export function ProductStats({
                       <td
                         className={cn(
                           "px-3 py-2 text-right tabular-nums",
-                          row.stock === 0 && "text-amber-600 dark:text-amber-500",
+                          row.stock === 0 && "text-[var(--warn)]",
                         )}
                       >
-                        {row.stock}
+                        {formatNumber(row.stock)}
                       </td>
                       {phrases.map((phrase) => (
                         <PositionCell
@@ -300,7 +314,7 @@ export function ProductStats({
               </table>
             </div>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="rounded-xl bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
               {"Qoldiq kirim va sotuvdan orqaga qarab tiklanadi. O'rin katagi: raqam — "}
               {"o'lchandi va topildi (quyuqroq — yuqoriroq o'rin); `·` — o'lchandi, lekin "}
               {`birinchi ${DEPTH} talikda yo'q; bo'sh katak — o'sha kuni o'lchov bo'lmagan.`}
@@ -325,8 +339,8 @@ function Money({ value }: { value: number | null }) {
   return (
     <td
       className={cn(
-        "px-3 py-2 text-right tabular-nums",
-        !value && "text-muted-foreground/50",
+        "whitespace-nowrap px-3 py-2 text-right tabular-nums",
+        !value && "text-muted-foreground",
       )}
     >
       {value ? formatSum(value) : "—"}
@@ -356,7 +370,7 @@ function PositionCell({
   if (value === null) {
     return (
       <td
-        className="px-3 py-2 text-right text-xs tabular-nums text-muted-foreground/40"
+        className="px-3 py-2 text-right text-xs tabular-nums text-muted-foreground"
         title={`${day} · ${phrase}: birinchi ${DEPTH} talikda topilmadi`}
       >
         ·
@@ -387,32 +401,34 @@ function Tile({
   value,
   note,
   series,
+  seriesLabel,
   tone,
 }: {
   label: string;
   value: string;
   note?: string;
   series?: number[];
+  seriesLabel?: string;
   tone?: "warn";
 }) {
   return (
     <div
       className={cn(
-        "flex flex-col rounded-lg border p-3",
-        tone === "warn" && "border-amber-500/40 bg-amber-500/5",
+        "flex min-w-0 flex-col rounded-xl border bg-muted/15 p-3 sm:p-4",
+        tone === "warn" && "border-[color:var(--warn)]/25 bg-[color:var(--warn)]/5",
       )}
     >
       <div className="text-xs text-muted-foreground">{label}</div>
       <div
         className={cn(
-          "mt-0.5 font-semibold tabular-nums",
-          tone === "warn" && "text-amber-600 dark:text-amber-500",
+          "mt-2 text-base font-semibold leading-6 tabular-nums [overflow-wrap:anywhere] sm:text-lg",
+          tone === "warn" && "text-[var(--warn)]",
         )}
       >
         {value}
       </div>
-      {note && <div className="mt-0.5 text-xs text-muted-foreground">{note}</div>}
-      {series && series.length > 1 && <Sparkline values={series} />}
+      {note && <div className="mt-1 text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere]">{note}</div>}
+      {series && series.length > 1 && <><Sparkline values={series} />{seriesLabel && <div className="mt-1 text-[10px] text-muted-foreground">{seriesLabel}</div>}</>}
     </div>
   );
 }

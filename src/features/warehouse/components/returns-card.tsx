@@ -49,8 +49,8 @@ export function ReturnsCard({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="overflow-hidden rounded-2xl shadow-none">
+      <CardHeader className="border-b">
         <CardTitle className="flex items-center gap-2 text-base">
           <PackageX className="h-4 w-4" /> Qaytarishlar
         </CardTitle>
@@ -59,7 +59,7 @@ export function ReturnsCard({
           haqiqatan qo&apos;lingizga yetib kelgani.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5 pt-5">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Stat icon={PackageX} label="Jami qaytgan" value={summary.totalQuantity} />
           <Stat
@@ -89,9 +89,7 @@ export function ReturnsCard({
               <span className="font-medium">
                 {formatNumber(summary.pendingQuantity)} dona hali yo&apos;lda.
               </span>{" "}
-              Uzum bu donalarni hisobda qoldig&apos;ingizga qaytargan, lekin ular
-              jismonan hali kelmagan — ya&apos;ni ombordagi raqam shuncha donaga
-              optimistik. Yetib kelgach, holat &quot;qabul qilindi&quot;ga o&apos;zgaradi.
+              Bu donalar hisobdagi qoldiqqa qaytgan, lekin hali qo‘lingizga yetib kelmagan. Yetib kelgach, holat «Qabul qilindi»ga o‘zgaradi.
             </div>
           </div>
         )}

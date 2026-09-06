@@ -1,0 +1,31 @@
+.workspace { min-width: 0; }
+.workspace :global(.bg-card) { border-radius: 1rem; }
+.workspace :global(.text-emerald-600), .workspace :global(.text-emerald-400) { color: var(--ok); }
+.workspace :global(.text-amber-600), .workspace :global(.text-amber-500) { color: var(--warn); }
+.workspace :global(.text-sky-600) { color: var(--primary); }
+.workspace p, .workspace dd { overflow-wrap: anywhere; }
+.workspace :global(button.h-7), .workspace :global(button.h-8), .workspace :global(button.h-9),
+.workspace :global(a.h-8), .workspace :global(a.h-9) { min-height: 44px; }
+.workspace :global(button.w-8), .workspace :global(button.w-9) { min-width: 44px; }
+.workspace input:not([type="checkbox"]):not([type="radio"]), .workspace select { min-height: 44px; border-radius: .75rem; }
+.workspace button { touch-action: manipulation; }
+.workspace article table th { padding: .875rem 1rem; text-align: left; font-weight: 500; }
+.workspace article table td { padding: .875rem 1rem; }
+.workspace article table :global(.text-right) { text-align: right; }
+.navigation { display: flex; gap: .375rem; min-width: 0; overflow-x: auto; padding: .375rem; border: 1px solid var(--border); border-radius: 1rem; background: color-mix(in srgb, var(--card) 90%, transparent); scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.sectionButton { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: .625rem 1rem; border: 1px solid transparent; border-radius: .75rem; color: var(--muted-foreground); font-size: .875rem; font-weight: 500; white-space: nowrap; transition: background-color 160ms ease, color 160ms ease; }
+.sectionButton:hover { background: var(--muted); color: var(--foreground); }
+.sectionButton:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.selected { border-color: color-mix(in srgb, var(--primary) 18%, transparent); background: color-mix(in srgb, var(--primary) 8%, transparent); color: var(--primary); }
+.content { animation: content-in 180ms ease-out; }
+.content button, .content :global(a.h-8), .content :global(a.h-9) { max-width: 100%; white-space: normal; }
+@keyframes content-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 639px) {
+  .workspace input:not([type="checkbox"]):not([type="radio"]), .workspace select { font-size: 16px; }
+  .workspace :global(.p-6) { padding: 1rem; }
+  .workspace :global(.px-6) { padding-left: 1rem; padding-right: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .content { animation: none; }
+  .workspace *, .workspace *::before, .workspace *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+}

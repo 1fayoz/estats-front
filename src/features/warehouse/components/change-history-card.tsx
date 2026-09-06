@@ -6,6 +6,7 @@ import { History, RotateCcw, TrendingDown, TrendingUp, Minus, HelpCircle } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fetchChangeImpact, revertProductChange } from "@/lib/api";
 import { formatDate, formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -91,6 +92,25 @@ export function ChangeHistoryCard({
   const [impacts, setImpacts] = React.useState<Record<number, ChangeImpact>>({});
   const [revertBusy, setRevertBusy] = React.useState<number | null>(null);
   const [note, setNote] = React.useState<string | null>(null);
+  const [pendingRevert, setPendingRevert] = React.useState<ProductChangeLog | null>(null);
+  const actionRef = React.useRef(false);
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const triggerRef = React.useRef<HTMLElement | null>(null);
+
+  const confirmRevert = async () => {
+    if (actionRef.current || !pendingRevert) return;
+    actionRef.current = true;
+    setRevertBusy(pendingRevert.id);
+    setNote(null);
+    try {
+      await revertProductChange(productId, pendingRevert.id);
+      setNote("Oldingi matn qoralamaga qaytarildi. Uzumdagi kartochkani o‘zgartirish uchun AI kartochkada «Uzumda yangilash»ni bosing.");
+      setPendingRevert(null);
+      await onReverted();
+    } catch (error) {
+      setNote(error instanceof Error ? error.message : "Qaytarib bo‘lmadi.");
+    } finally { actionRef.current = false; setRevertBusy(null); }
+  };
 
   React.useEffect(() => {
     if (!changeLogs.length) return;
@@ -155,7 +175,7 @@ export function ChangeHistoryCard({
             REVERTABLE.has(log.fieldName) &&
             (!draftTextPushedAt || Date.parse(log.createdAt) > Date.parse(draftTextPushedAt));
           return (
-            <div key={log.id} className="rounded-md border p-3 text-sm">
+            <div key={log.id} className="rounded-xl border bg-muted/[.08] p-4 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">{FIELD_LABEL[log.fieldName] ?? log.fieldName}</Badge>
@@ -183,22 +203,7 @@ export function ChangeHistoryCard({
                     size="sm"
                     variant="outline"
                     disabled={revertBusy !== null}
-                    onClick={async () => {
-                      setRevertBusy(log.id);
-                      setNote(null);
-                      try {
-                        await revertProductChange(productId, log.id);
-                        setNote(
-                          `"${FIELD_LABEL[log.fieldName] ?? log.fieldName}" oldingi holatiga qaytarildi. ` +
-                            "Uzumdagi tirik kartochkaga ko'chirish uchun \"Tahrirlash\" → \"Uzumda yangilash\"ni ishlating.",
-                        );
-                        await onReverted();
-                      } catch (e) {
-                        setNote(e instanceof Error ? e.message : "Qaytarib bo'lmadi.");
-                      } finally {
-                        setRevertBusy(null);
-                      }
-                    }}
+                    onClick={(event) => { triggerRef.current = event.currentTarget; setPendingRevert(log); }}
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     {revertBusy === log.id ? "Qaytarilmoqda…" : "Qaytarish"}
@@ -208,7 +213,7 @@ export function ChangeHistoryCard({
 
               {log.reason && <div className="mt-1 text-xs text-muted-foreground">{log.reason}</div>}
 
-              <div className="mt-2 grid gap-2 md:grid-cols-2">
+              <div className="mt-4 grid gap-3 md:grid-cols-2 [&>div]:rounded-xl [&>div]:border [&>div]:bg-muted/20 [&>div]:p-3">
                 <div>
                   <div className="text-xs font-medium text-muted-foreground">Oldin edi</div>
                   <div className="text-muted-foreground">{truncate(log.beforeValue)}</div>
@@ -219,11 +224,18 @@ export function ChangeHistoryCard({
                 </div>
               </div>
 
+              {((log.beforeValue?.length ?? 0) > 140 || (log.afterValue?.length ?? 0) > 140) && <details className="mt-2"><summary className="min-h-11 cursor-pointer py-3 text-xs font-medium text-primary">To‘liq matnni ko‘rish</summary><div className="grid gap-3 md:grid-cols-2"><p className="whitespace-pre-wrap break-words rounded-xl border p-3">{log.beforeValue || "—"}</p><p className="whitespace-pre-wrap break-words rounded-xl border p-3">{log.afterValue || "—"}</p></div></details>}
               {impact && <ImpactRow impact={impact} />}
             </div>
           );
         })}
       </CardContent>
+      <Dialog open={pendingRevert !== null} onOpenChange={(open) => { if (!open && !actionRef.current) setPendingRevert(null); }}>
+        <DialogContent onOpenAutoFocus={(event) => { event.preventDefault(); cancelRef.current?.focus(); }} onCloseAutoFocus={(event) => { event.preventDefault(); triggerRef.current?.focus(); }} className="w-[calc(100%_-_2rem)] max-w-md rounded-2xl [&>button:last-child]:flex [&>button:last-child]:size-11 [&>button:last-child]:items-center [&>button:last-child]:justify-center">
+          <DialogHeader className="pr-8"><DialogTitle className="leading-snug">Oldingi matnga qaytarilsinmi?</DialogTitle><DialogDescription>Tanlangan o‘zgarish qoralamada bekor qilinadi. Uzumdagi jonli kartochka avtomatik o‘zgarmaydi.</DialogDescription></DialogHeader>
+          <DialogFooter><Button ref={cancelRef} variant="outline" className="min-h-11 rounded-xl" disabled={revertBusy !== null} onClick={() => setPendingRevert(null)}>Bekor qilish</Button><Button className="min-h-11 rounded-xl" disabled={revertBusy !== null} onClick={() => void confirmRevert()}>{revertBusy !== null ? "Qaytarilmoqda…" : "Matnni qaytarish"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

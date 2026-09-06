@@ -4,32 +4,14 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
-  ArrowLeft,
-  ChevronDown,
-  History,
-  LayoutGrid,
-  Megaphone,
-  PackagePlus,
-  Radar,
-  ShoppingCart,
-  Sparkles,
+  AlertCircle, ArrowDownToLine, ArrowLeft, ArrowUpRight, Boxes, Check, Copy,
+  History, LayoutGrid, Megaphone, Package, PackagePlus, Radar, RefreshCw,
+  ShoppingCart, Sparkles, TrendingUp, Wallet,
 } from "lucide-react";
+import { toast } from "sonner";
 
-import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
 import { ComplaintDialog } from "@/features/warehouse/components/complaint-dialog";
@@ -37,6 +19,8 @@ import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
 import { ProductGallery } from "@/features/warehouse/components/product-gallery";
+import { ProductModerationCard } from "@/features/warehouse/components/product-moderation-card";
+import { DetailIntakes, DetailSales } from "@/features/warehouse/components/detail-ledgers";
 import { SiblingsCard } from "@/features/warehouse/components/siblings-card";
 import { ProductStats } from "@/features/warehouse/components/product-stats";
 import { UzumFactsCard } from "@/features/warehouse/components/uzum-facts-card";
@@ -48,711 +32,258 @@ import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
 import { ProductAiModal } from "@/features/products-ai/components/product-modal";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
-import {
-  aiFixProductUzum,
-  autoFixProductUzum,
-  checkProductUzum,
-  fetchProductDetail,
-  syncModerationReasons,
-} from "@/lib/api";
+import { fetchProductDetail } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
-import { useCan } from "@/stores/user-store";
-import type { ProductDetail, ProductValidationFinding, SalesPeriod, WarehouseProduct } from "@/lib/types";
+import { useCan, useUserStore } from "@/stores/user-store";
+import type { ProductDetail, WarehouseProduct } from "@/lib/types";
+import styles from "@/features/warehouse/components/product-detail.module.css";
 
-const SECTIONS: { value: string; label: string; icon: React.ReactNode }[] = [
-  { value: "umumiy", label: "Umumiy", icon: <LayoutGrid className="h-3.5 w-3.5" /> },
-  { value: "savdo", label: "Savdo", icon: <ShoppingCart className="h-3.5 w-3.5" /> },
-  { value: "bozor", label: "Bozor va SEO", icon: <Radar className="h-3.5 w-3.5" /> },
-  { value: "reklama", label: "Reklama", icon: <Megaphone className="h-3.5 w-3.5" /> },
-  { value: "tarix", label: "O'zgarishlar tarixi", icon: <History className="h-3.5 w-3.5" /> },
+const SECTIONS = [
+  { value: "umumiy", label: "Umumiy", Icon: LayoutGrid },
+  { value: "savdo", label: "Savdo", Icon: ShoppingCart },
+  { value: "bozor", label: "Bozor va SEO", Icon: Radar },
+  { value: "reklama", label: "Reklama", Icon: Megaphone },
+  { value: "tarix", label: "O‘zgarishlar tarixi", Icon: History },
 ];
 
-// `useSearchParams()` (AI oyna holati, `useDraftParam` ichida)
-// Suspense chegarasini talab qiladi — usiz Next qurilishda yiqiladi.
 export default function ProductDetailPageRoute() {
+  const params = useParams<{ id: string }>();
+  const activeShopId = useUserStore((state) => state.activeShopId);
+  const workspaceId = useUserStore((state) => state.workspaceId);
   return (
     <React.Suspense fallback={<PageSkeleton />}>
-      <ProductDetailPage />
+      <ProductDetailPage key={`${workspaceId}:${activeShopId}:${params.id}`} id={Number(params.id)} />
     </React.Suspense>
   );
 }
 
 function PageSkeleton() {
   return (
-    <div className="space-y-4">
-      <Skeleton className="h-10 w-64" />
-      <Skeleton className="h-40 w-full rounded-xl" />
-      <Skeleton className="h-72 w-full rounded-xl" />
+    <div className="space-y-5" role="status" aria-label="Tovar ma’lumotlari yuklanmoqda">
+      <Skeleton className="h-11 w-44 rounded-xl" />
+      <div className="grid gap-5 rounded-2xl border p-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <div className="space-y-4"><Skeleton className="h-8 w-3/4" /><Skeleton className="h-5 w-1/2" /><Skeleton className="h-28 rounded-2xl" /><Skeleton className="h-11 w-44 rounded-xl" /></div>
+      </div>
+      <Skeleton className="h-28 rounded-2xl" />
     </div>
   );
 }
 
-function ProductDetailPage() {
-  const [tab, setTab] = useQueryState("view", "daily");
-  const [section, setSection] = useQueryState("section", "umumiy");
+function ProductDetailPage({ id }: { id: number }) {
+  const [rawPeriod, setPeriod] = useQueryState("view", "daily");
+  const [rawSection, setSection] = useQueryState("section", "umumiy");
+  const section = SECTIONS.some((item) => item.value === rawSection) ? rawSection : "umumiy";
+  const period = ["daily", "monthly", "yearly"].includes(rawPeriod) ? rawPeriod : "daily";
   const canSeeAi = useCan("products_ai.view");
   const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
-
-  const params = useParams<{ id: string }>();
-  const id = Number(params.id);
-
   const [data, setData] = React.useState<ProductDetail | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
   const [complaintFor, setComplaintFor] = React.useState<number | null>(null);
-  const [busy, setBusy] = React.useState<"" | "check" | "ai" | "auto" | "reason">("");
-  const [fixNote, setFixNote] = React.useState<string | null>(null);
+  const requestVersion = React.useRef(0);
+  const navigationRef = React.useRef<HTMLElement>(null);
 
   const load = React.useCallback(async () => {
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      setError("Tovar manzili noto‘g‘ri. Ombordan tovarni qayta tanlang.");
+      setLoading(false);
+      return;
+    }
+    const version = ++requestVersion.current;
     setLoading(true);
     try {
-      setData(await fetchProductDetail(id));
+      const detail = await fetchProductDetail(id);
+      if (version !== requestVersion.current) return;
+      setData(detail);
       setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Yuklab bo'lmadi");
+    } catch (failure) {
+      if (version === requestVersion.current) setError(failure instanceof Error ? failure.message : "Tovar ma’lumotlarini yuklab bo‘lmadi.");
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [id]);
 
   React.useEffect(() => {
-    if (Number.isFinite(id)) void load();
-  }, [id, load]);
+    void load();
+    return () => { requestVersion.current += 1; };
+  }, [load]);
   useAutoRefresh(load);
 
-  if (loading && !data) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-40 w-full rounded-xl" />
-        <Skeleton className="h-72 w-full rounded-xl" />
-      </div>
-    );
-  }
+  React.useEffect(() => {
+    const navigation = navigationRef.current;
+    if (!navigation) return;
+    const reveal = () => {
+      if (navigation.scrollWidth <= navigation.clientWidth) return;
+      const button = navigation.querySelector<HTMLElement>('[aria-pressed="true"]');
+      if (!button) return;
+      const bounds = button.getBoundingClientRect();
+      navigation.scrollTo({
+        left: navigation.scrollLeft + bounds.left - navigation.getBoundingClientRect().left - (navigation.clientWidth - bounds.width) / 2,
+        behavior: "instant",
+      });
+    };
+    reveal();
+    const observer = new ResizeObserver(reveal);
+    observer.observe(navigation);
+    return () => observer.disconnect();
+  }, [section, Boolean(data)]);
 
-  if (error || !data) {
-    return (
-      <div className="space-y-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/warehouse">
-            <ArrowLeft className="h-3.5 w-3.5" /> Omborga qaytish
-          </Link>
-        </Button>
-        <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-          {error ?? "Tovar topilmadi"}
-        </div>
-      </div>
-    );
-  }
-
-  const p = data.product;
-  const moderationErrors = Array.isArray(data.moderationErrors) ? data.moderationErrors : [];
-  const validationAreas =
-    p.uzumValidation?.areas && typeof p.uzumValidation.areas === "object"
-      ? Object.entries(p.uzumValidation.areas)
-      : [];
-  const validationFindings = Array.isArray(p.uzumValidation?.findings) ? p.uzumValidation.findings : [];
-  const profitPositive = data.totalProfit >= 0;
-
-  // `field` — SEO auditdagi kabi alohida-alohida qayta yasash
-  // (foydalanuvchi so'rovi): faqat nom, faqat tavsif, yoki (bo'sh)
-  // ikkalasi ham — asosiy tugma bilan bir xil oqim, faqat maydon
-  // tor qilinadi.
-  const runAiFix = async (field?: "title" | "description") => {
-    setBusy("ai");
-    setFixNote(null);
-    try {
-      const res = await aiFixProductUzum(id, field);
-      if (res.uzumPush) {
-        setFixNote(
-          res.uzumPush.ok
-            ? res.uzumPush.message
-            : `Tuzatildi, lekin Uzum'ga yubormadi: ${res.uzumPush.message}`,
-        );
-      }
-      openAi(res.draftId);
-    } catch (e) {
-      setFixNote(e instanceof Error ? e.message : "Xatolik");
-    } finally {
-      setBusy("");
-    }
+  const onUpdated = (detail: ProductDetail) => {
+    requestVersion.current += 1;
+    setData(detail);
+    setError(null);
+    setLoading(false);
   };
 
+  if (loading && !data) return <PageSkeleton />;
+
+  if (!data) {
+    return (
+      <div className="space-y-5">
+        <Button asChild variant="ghost" className="min-h-11 rounded-xl"><Link href="/warehouse"><ArrowLeft /> Omborga qaytish</Link></Button>
+        <div role="alert" className="rounded-2xl border bg-card px-5 py-12 text-center">
+          <Package className="mx-auto size-10 text-muted-foreground" />
+          <h1 className="mt-4 text-xl font-semibold">Tovar ochilmadi</h1>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">{error ?? "Tovar topilmadi."}</p>
+          {Number.isSafeInteger(id) && id > 0 && <Button variant="outline" className="mt-5 min-h-11 rounded-xl" onClick={() => void load()}>Qayta urinish <RefreshCw /></Button>}
+        </div>
+      </div>
+    );
+  }
+
+  const product = data.product;
+  const images = product.images?.length ? product.images : product.image ? [product.image] : [];
+  const profitPositive = data.totalProfit >= 0;
+  const salesRows = period === "monthly" ? data.monthly : period === "yearly" ? data.yearly : data.daily;
+
   return (
-    <div className="space-y-6">
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
-        <Link href="/warehouse">
-          <ArrowLeft className="h-3.5 w-3.5" /> Omborga qaytish
-        </Link>
-      </Button>
-
-      <PageHeader
-        title={p.title}
-        description={[p.variantName, p.skuCode, p.categoryName].filter(Boolean).join(" · ")}
-        actions={
-          <>
-            {canSeeAi && data.aiDraftId != null && (
-              <Button size="sm" variant="outline" onClick={() => openAi(data.aiDraftId)}>
-                <Sparkles className="h-3.5 w-3.5" /> AI kartochka
-              </Button>
-            )}
-            <Button size="sm" onClick={() => setIntakeFor(p)}>
-              <PackagePlus className="h-3.5 w-3.5" /> Kirim
-            </Button>
-          </>
-        }
-      />
-
-      <ProductGallery images={p.images} title={p.title} uzumUrl={p.uzumUrl} />
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
-        <Tile label="Jami keldi" value={`${formatNumber(data.totalIntakeQuantity)} dona`} />
-        <Tile label="Jami sotildi" value={`${formatNumber(data.totalSoldQuantity)} dona`} />
-        <Tile label="Qoldiq" value={`${formatNumber(data.onHand)} dona`} hint={formatSum(data.stockValue)} />
-        <Tile label="Uzum to'lovi" value={formatSum(data.totalRevenue)} />
-        <Tile label="Tan narx (FIFO)" value={formatSum(data.totalCogs)} />
-        <Tile
-          label={profitPositive ? "Sof foyda" : "Zarar"}
-          value={formatSum(data.totalProfit)}
-          tone={profitPositive ? "positive" : "negative"}
-        />
+    <div className={cn(styles.workspace, "min-w-0 space-y-5 sm:space-y-6")}>
+      <div className="flex items-center justify-between gap-3">
+        <Button asChild variant="ghost" className="-ml-2 min-h-11 rounded-xl px-2 text-muted-foreground"><Link href="/warehouse"><ArrowLeft /> Omborga qaytish</Link></Button>
+        <Button variant="outline" className="min-h-11 rounded-xl" onClick={() => void load()} disabled={loading} aria-label="Tovar ma’lumotlarini yangilash">
+          <RefreshCw className={cn(loading && "motion-safe:animate-spin")} /><span className="hidden sm:inline">{loading ? "Yangilanmoqda…" : "Yangilash"}</span>
+        </Button>
       </div>
 
-      {data.uncoveredQuantity > 0 && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
-          <span className="font-medium">{data.uncoveredQuantity} dona</span> sotilgan, lekin
-          unga mos kirim kiritilmagan — bu qismning tan narxi hisobga olinmagan, ya&apos;ni
-          haqiqiy foyda ko&apos;rsatilganidan kamroq.
-        </div>
-      )}
+      {error && <div role="alert" className="flex items-start gap-3 rounded-2xl border border-[var(--warn)]/30 bg-[var(--warn)]/5 p-4 text-sm"><AlertCircle className="mt-0.5 size-5 shrink-0 text-[var(--warn)]" /><div><p className="font-medium">Ma’lumotlar yangilanmadi</p><p className="mt-1 text-muted-foreground">{error} Avvalgi ma’lumotlar ko‘rsatilmoqda.</p></div></div>}
 
-      {/*
-        Sahifa yigirmaga yaqin kartochkadan iborat edi va hammasi
-        bitta uzun ustunda — "loglar boshqa narsalar bilan
-        aralashib, juda uzun va chalkash" (foydalanuvchi so'rovi).
-        Endi mazmuniga qarab 5 bo'limga bo'lingan; yuqoridagi
-        umumiy raqamlar va rasm hamma bo'limda ko'rinib tursin
-        deb tabdan TASHQARIDA qoldi.
-      */}
-      <div className="flex flex-wrap gap-1 rounded-xl border bg-muted/30 p-1">
-        {SECTIONS.map(({ value, label, icon }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setSection(value)}
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              section === value
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
-            )}
-          >
-            {icon}
-            {label}
-            {value === "umumiy" && p.uzumBlocked && (
-              <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
-            )}
+      <section aria-label="Tovar haqida" className="grid min-w-0 gap-5 rounded-2xl border bg-card p-4 sm:gap-7 sm:p-6 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)]">
+        <ProductGallery images={images} title={product.title} uzumUrl={product.uzumUrl} />
+        <div className="flex min-w-0 flex-col">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary"><Package className="size-3.5" />{product.source === "uzum" ? "Uzum Market" : "Ombor tovari"}</span>
+            <span className={cn("rounded-full border px-3 py-1.5 font-medium", product.uzumBlocked ? "border-destructive/20 bg-destructive/5 text-destructive" : "text-muted-foreground")}>
+              {product.uzumBlocked ? "Bloklangan" : product.uzumModerationTitle || product.uzumStatusTitle || "Holat noma’lum"}
+            </span>
+          </div>
+          <h1 className="mt-4 break-words text-xl font-semibold leading-snug tracking-tight sm:text-2xl xl:text-[1.7rem]">{product.title}</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{[product.categoryName, product.variantName].filter(Boolean).join(" · ") || "Tovar ma’lumotlari"}</p>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-b pb-4">
+            <ProductCode label="SKU" value={product.skuCode} />
+            <ProductCode label="Shtrix-kod" value={product.barcode} />
+          </div>
+          <div className="mt-5 grid min-w-0 grid-cols-2 gap-3 sm:gap-5">
+            <div className="min-w-0"><p className="text-xs text-muted-foreground">Uzumdagi narx</p><p className="mt-2 break-words text-lg font-semibold tracking-tight tabular-nums sm:text-2xl">{product.marketplacePrice != null ? formatSum(product.marketplacePrice) : "—"}</p><p className="mt-1 text-xs text-muted-foreground">{product.marketplaceStock != null ? `Uzum qoldig‘i: ${formatNumber(product.marketplaceStock)} dona` : "Uzum qoldig‘i ko‘rsatilmagan"}</p></div>
+            <div className="min-w-0 border-l pl-3 sm:pl-5"><p className="text-xs text-muted-foreground">Hisobdagi qoldiq</p><p className="mt-2 text-lg font-semibold tracking-tight tabular-nums sm:text-2xl">{formatNumber(data.onHand)} <span className="text-sm font-normal text-muted-foreground">dona</span></p><p className="mt-1 break-words text-xs text-muted-foreground">Qiymati: {formatSum(data.stockValue)}</p></div>
+          </div>
+          <div className="mt-auto flex flex-wrap gap-2 pt-6">
+            <Button className="min-h-11 flex-1 rounded-xl px-5 sm:flex-none" onClick={() => setIntakeFor(product)}><PackagePlus /> Kirim qo‘shish</Button>
+            {canSeeAi && data.aiDraftId != null && <Button variant="outline" className="min-h-11 flex-1 rounded-xl sm:flex-none" onClick={() => openAi(data.aiDraftId)}><Sparkles /> AI kartochka</Button>}
+          </div>
+        </div>
+      </section>
+
+      <div className="grid min-w-0 grid-cols-2 gap-3 xl:grid-cols-4">
+        <SummaryTile label="Jami keldi" value={formatNumber(data.totalIntakeQuantity)} unit="dona" note="Barcha kirim partiyalari" Icon={ArrowDownToLine} />
+        <SummaryTile label="Jami sotildi" value={formatNumber(data.totalSoldQuantity)} unit="dona" note="Butun davr bo‘yicha" Icon={ShoppingCart} />
+        <SummaryTile label="Uzum to‘lovi" value={formatSum(data.totalRevenue)} note="Butun davr bo‘yicha" Icon={Wallet} />
+        <SummaryTile label={profitPositive ? "Sof foyda" : "Zarar"} value={formatSum(data.totalProfit)} note={`Tan narx (FIFO): ${formatSum(data.totalCogs)}`} Icon={TrendingUp} tone={profitPositive ? "positive" : "negative"} />
+      </div>
+
+      {data.uncoveredQuantity > 0 && <div className="flex flex-wrap items-start gap-3 rounded-2xl border border-[var(--warn)]/25 bg-[var(--warn)]/5 p-4" role="status">
+        <AlertCircle className="mt-0.5 size-5 shrink-0 text-[var(--warn)]" />
+        <div className="min-w-0 flex-1 text-sm leading-relaxed"><p className="font-medium">{formatNumber(data.uncoveredQuantity)} dona sotuvga kirim yetishmaydi</p><p className="mt-1 text-muted-foreground">Bu qismning tan narxi foydadan ayrilmagan. Haqiqiy foyda ko‘rsatilganidan kamroq bo‘lishi mumkin.</p></div>
+        <Button variant="outline" className="min-h-11 rounded-xl" onClick={() => setIntakeFor(product)}>Kirim qo‘shish <ArrowUpRight /></Button>
+      </div>}
+
+      <nav ref={navigationRef} aria-label="Tovar bo‘limlari" className={styles.navigation}>
+        {SECTIONS.map(({ value, label, Icon }) => (
+          <button key={value} type="button" aria-pressed={section === value} aria-controls="product-detail-content" onClick={() => setSection(value)} className={cn(styles.sectionButton, section === value && styles.selected)}>
+            <Icon className="size-4" />{label}
+            {value === "umumiy" && product.uzumBlocked && <span aria-label="E’tibor kerak" className="size-1.5 rounded-full bg-destructive" />}
           </button>
         ))}
-      </div>
+      </nav>
 
-      {section === "umumiy" && (
-      <Card className={cn("border", p.uzumBlocked && "border-destructive/40 bg-destructive/5")}>
-        <CardHeader>
-          <CardTitle className="text-base">Uzum tekshiruvi</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={p.uzumBlocked ? "destructive" : "outline"}>
-              {p.uzumBlocked ? "Blocked" : p.uzumModerationTitle || p.uzumStatusTitle || "Unknown"}
-            </Badge>
-            {p.uzumValidation && (
-              <Badge variant="secondary">Readiness {p.uzumValidation.readiness}%</Badge>
-            )}
-            {p.uzumBlockingReason && (
-              <span className="text-sm text-destructive">{p.uzumBlockingReason}</span>
-            )}
+      <section id="product-detail-content" key={section} aria-label={SECTIONS.find((item) => item.value === section)?.label} className={cn(styles.content, "min-w-0 space-y-5")}>
+        {section === "umumiy" && <>
+          <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} />
+          <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
+          <DetailIntakes intakes={data.intakes} onAdd={() => setIntakeFor(product)} />
+        </>}
+        {section === "savdo" && <>
+          <ProductStats productId={id} tempo={data.tempo} onHand={data.onHand} facts={data.marketplace} />
+          <DetailSales rows={[...salesRows].reverse()} period={period} onPeriodChange={setPeriod} />
+          <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
+        </>}
+        {section === "bozor" && <>
+          <SeoAuditCard productId={id} />
+          <PositionsBlock productId={id} />
+          <MarketCard productId={id} />
+          <SiblingsCard siblings={data.siblings} tempo={data.tempo} />
+          <UzumFactsCard facts={data.marketplace} />
+        </>}
+        {section === "reklama" && <>
+          <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border bg-card p-5">
+            <div className="min-w-0"><h2 className="flex items-center gap-2 text-base font-semibold"><Megaphone className="size-4 text-primary" /> Tovarni targ‘ib qilish</h2><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">E’lonlar va reklama natijalarini shu yerda boshqaring. Boshlash uchun ijtimoiy tarmoq akkauntingizni ulang.</p></div>
+            <Button asChild variant="outline" className="min-h-11 rounded-xl"><Link href="/integrations">Ulanishlarni sozlash <ArrowUpRight /></Link></Button>
           </div>
+          <AdVerdictCard productId={id} />
+          <ProductNetworksCard product={product} />
+          <ProductInstagramCard productId={id} />
+        </>}
+        {section === "tarix" && <ChangeHistoryCard productId={id} changeLogs={data.changeLogs ?? []} draftTextPushedAt={data.draftTextPushedAt ?? null} onReverted={load} />}
+      </section>
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={busy !== ""}
-              onClick={async () => {
-                setBusy("check");
-                try {
-                  setData(await checkProductUzum(id));
-                } finally {
-                  setBusy("");
-                }
-              }}
-            >
-              Uzum tekshiruvi
-            </Button>
-            {(p.uzumBlocked || p.uzumModerationValue === "HAS_COMPLAINTS") && (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={busy !== ""}
-                onClick={async () => {
-                  setBusy("reason");
-                  setFixNote(null);
-                  try {
-                    const res = await syncModerationReasons(id);
-                    setFixNote(res.message);
-                    await load();
-                  } catch (e) {
-                    setFixNote(e instanceof Error ? e.message : "Xatolik");
-                  } finally {
-                    setBusy("");
-                  }
-                }}
-              >
-                Uzum sababini aniqlash
-              </Button>
-            )}
-            <DropdownMenu>
-              <div className="inline-flex">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-r-none border-r-0"
-                  disabled={busy !== ""}
-                  onClick={() => runAiFix()}
-                >
-                  AI bilan tuzatish
-                </Button>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="rounded-l-none px-1.5"
-                    disabled={busy !== ""}
-                  >
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  </Button>
-                </DropdownMenuTrigger>
-              </div>
-              <DropdownMenuContent align="start">
-                <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Alohida qayta yasash
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => runAiFix("title")}>Faqat nomni</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => runAiFix("description")}>
-                  Faqat tavsifni
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={busy !== ""}
-              onClick={async () => {
-                setBusy("auto");
-                setFixNote(null);
-                try {
-                  const res = await autoFixProductUzum(id);
-                  const applied = res.deterministicFix?.applied ?? [];
-                  const manual = res.deterministicFix?.manual ?? [];
-                  const aiUsed = res.deterministicFix?.aiUsed ?? false;
-                  if (applied.length || manual.length) {
-                    const parts: string[] = [];
-                    if (applied.length)
-                      parts.push(
-                        `${aiUsed ? "tuzatildi (AI tavsifni rasmga mosladi)" : "tuzatildi"}: ${applied.join(", ")}`,
-                      );
-                    if (manual.length)
-                      parts.push(
-                        `qo'lda kerak: ${manual
-                          .map((m) => m.blockType || m.reason)
-                          .filter(Boolean)
-                          .join(", ")}`,
-                      );
-                    setFixNote(parts.join(" · "));
-                  }
-                  openAi(res.draftId);
-                } catch (e) {
-                  setFixNote(e instanceof Error ? e.message : "Xatolik");
-                } finally {
-                  setBusy("");
-                }
-              }}
-            >
-              Avtomatik tuzatish
-            </Button>
-            {/* Uzum operatoriga yozish — tuzatish O'ZIMIZDA tugagach
-                qoladigan yagona yo'l: kartochka bloklangan yoki uzoq
-                vaqt moderatsiyada tursa, sabab bizda emas, ularda.
-                Xabar sotuvchining O'Z Telegram hisobidan ketadi
-                (Integratsiyalar → Telegram). */}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setComplaintFor(p.id)}
-            >
-              Operatorga yozish
-            </Button>
-          </div>
-
-          {fixNote && (
-            <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-              {fixNote}
-            </div>
-          )}
-
-          {p.uzumValidation && validationAreas.length > 0 && (
-            <div className="grid gap-2 md:grid-cols-2">
-              {validationAreas.map(([field, state]) => (
-                <div key={field} className="rounded-md border px-3 py-2 text-sm">
-                  <span className="font-medium">{field}</span>
-                  <span className="ml-2 text-muted-foreground">{state}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {moderationErrors.length > 0 && (
-            <div className="space-y-2">
-              {moderationErrors.map((item) => (
-                <div key={item.id} className="rounded-md border border-destructive/30 p-3 text-sm">
-                  <div className="font-medium">{item.errorMessage}</div>
-                  {item.ruleTitle && (
-                    <div className="text-muted-foreground">
-                      Qoida: {item.ruleTitle}
-                    </div>
-                  )}
-                  {item.explanation && <div className="text-muted-foreground">{item.explanation}</div>}
-                  {item.suggestedFix && <div className="mt-1">{item.suggestedFix}</div>}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {validationFindings.length ? (
-            <div className="space-y-2">
-              {validationFindings.map((finding, index) => (
-                <FindingRow key={`${finding.field}-${index}`} finding={finding} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">Hali tekshiruv natijasi yo&apos;q.</div>
-          )}
-        </CardContent>
-      </Card>
-      )}
-
-      {section === "umumiy" && (
-      <>
-      <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Kirim partiyalari ({data.intakes.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {data.intakes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Hali kirim kiritilmagan.</p>
-          ) : (
-            <>
-            <CardList>
-              {data.intakes.map((b) => (
-                <DataCard key={b.id}>
-                  <CardHead
-                    title={b.receivedAt.slice(0, 10)}
-                    note={b.supplier ?? "—"}
-                    right={
-                      b.remainingQuantity === 0 ? (
-                        <Badge variant="secondary">tugagan</Badge>
-                      ) : (
-                        <span className="text-sm font-medium tabular-nums">
-                          {formatNumber(b.remainingQuantity)} qoldi
-                        </span>
-                      )
-                    }
-                  />
-                  <CardStats
-                    items={[
-                      { label: "Keldi", value: `${formatNumber(b.quantity)} dona` },
-                      { label: "Tan narx", value: formatSum(b.costPrice) },
-                      { label: "Sotildi", value: formatNumber(b.soldQuantity) },
-                      { label: "Jami", value: formatSum(b.costPrice * b.quantity) },
-                    ]}
-                  />
-                </DataCard>
-              ))}
-            </CardList>
-
-            <div className="hidden overflow-x-auto rounded-lg border md:block">
-              <table className="w-full min-w-[560px] text-sm">
-                <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium">Sana</th>
-                    <th className="px-3 py-2 text-right font-medium">Keldi</th>
-                    <th className="px-3 py-2 text-right font-medium">Tan narx</th>
-                    <th className="px-3 py-2 text-right font-medium">Sotildi / qoldi</th>
-                    <th className="px-3 py-2 text-left font-medium">Yetkazib beruvchi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {data.intakes.map((b) => (
-                    <tr key={b.id}>
-                      <td className="px-3 py-2 tabular-nums">{b.receivedAt.slice(0, 10)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{formatNumber(b.quantity)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{formatSum(b.costPrice)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {b.remainingQuantity === 0 ? (
-                          <Badge variant="secondary">tugagan</Badge>
-                        ) : (
-                          `${formatNumber(b.soldQuantity)} / ${formatNumber(b.remainingQuantity)}`
-                        )}
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground">{b.supplier ?? "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-      </>
-      )}
-
-      {section === "savdo" && (
-      <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Sotuvlar kesimi</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={tab} onValueChange={setTab}>
-            <TabsList>
-              <TabsTrigger value="daily">Kunlik</TabsTrigger>
-              <TabsTrigger value="monthly">Oylik</TabsTrigger>
-              <TabsTrigger value="yearly">Yillik</TabsTrigger>
-            </TabsList>
-            <TabsContent value="daily"><PeriodTable rows={[...data.daily].reverse()} /></TabsContent>
-            <TabsContent value="monthly"><PeriodTable rows={[...data.monthly].reverse()} /></TabsContent>
-            <TabsContent value="yearly"><PeriodTable rows={[...data.yearly].reverse()} /></TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      <ProductStats
-        productId={id}
-        tempo={data.tempo}
-        onHand={data.onHand}
-        facts={data.marketplace}
-      />
-
-      <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
-      </>
-      )}
-
-      {section === "bozor" && (
-      <>
-      {/* Qidiruvdagi o'rin — "qaysi so'z bilan izlaganda nechanchimiz".
-          Tovarning o'z sahifasida turishi shart: sotuvchi narx va
-          qoldiqni ko'rib turib, o'sha yerda kalit so'z qo'shadi. */}
-      <SeoAuditCard productId={id} />
-
-      <PositionsBlock productId={id} />
-
-      <MarketCard productId={id} />
-
-      <SiblingsCard siblings={data.siblings} tempo={data.tempo} />
-
-      <UzumFactsCard facts={data.marketplace} />
-      </>
-      )}
-
-      {section === "reklama" && (
-      <>
-      <AdVerdictCard productId={id} />
-
-      <ProductNetworksCard product={p} />
-
-      <ProductInstagramCard productId={id} />
-      </>
-      )}
-
-      {section === "tarix" && (
-        <ChangeHistoryCard
-          productId={id}
-          changeLogs={data.changeLogs ?? []}
-          draftTextPushedAt={data.draftTextPushedAt ?? null}
-          onReverted={load}
-        />
-      )}
-
-      <ComplaintDialog
-        productId={complaintFor}
-        onOpenChange={(open) => {
-          if (!open) setComplaintFor(null);
-        }}
-      />
-
-      <IntakeDialog
-        product={intakeFor}
-        onOpenChange={(open) => !open && setIntakeFor(null)}
-        onSaved={load}
-      />
-
-      {canSeeAi && (
-        <ProductAiModal
-          open={aiOpen}
-          draftId={aiDraftId}
-          onClose={() => setDraftParam(null)}
-          // Ro'yxat sahifasidan farqli — bu yerda faqat SHU tovarning
-          // o'zi qiziq: har o'zgarishda butun tovar sahifasini qayta
-          // yuklaymiz (status, o'zgarishlar tarixi ham yangilanadi).
-          onDraft={() => void load()}
-          onDeleted={() => {
-            setDraftParam(null);
-            void load();
-          }}
-        />
-      )}
+      <ComplaintDialog productId={complaintFor} onOpenChange={(open) => { if (!open) setComplaintFor(null); }} />
+      <IntakeDialog product={intakeFor} onOpenChange={(open) => { if (!open) setIntakeFor(null); }} onSaved={load} />
+      {canSeeAi && <ProductAiModal open={aiOpen} draftId={aiDraftId} onClose={() => setDraftParam(null)} onDraft={() => void load()} onDeleted={() => { setDraftParam(null); void load(); }} />}
     </div>
   );
 }
 
-function FindingRow({ finding }: { finding: ProductValidationFinding }) {
+function ProductCode({ label, value }: { label: string; value: string | null }) {
+  const [copied, setCopied] = React.useState(false);
+  React.useEffect(() => {
+    if (!copied) return;
+    const timeout = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timeout);
+  }, [copied]);
+  if (!value) return null;
   return (
-    <div className="rounded-md border p-3 text-sm">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-medium">{finding.field}</span>
-        <Badge variant={finding.level === "error" ? "destructive" : finding.level === "warning" ? "secondary" : "outline"}>
-          {finding.level}
-        </Badge>
-      </div>
-      <div className="mt-1">{finding.message}</div>
-      {finding.ruleTitle && (
-        <div className="text-muted-foreground">
-          Qoida: {finding.ruleTitle}
-        </div>
-      )}
-      {finding.explanation && <div className="text-muted-foreground">{finding.explanation}</div>}
-      {finding.suggestion && <div className="mt-1">{finding.suggestion}</div>}
-      {finding.proposedValue && (
-        <div className="mt-1 text-muted-foreground">
-          Taklif: {finding.proposedValue}
-        </div>
-      )}
+    <div className="flex min-w-0 max-w-full items-center gap-2 text-xs">
+      <span className="shrink-0 text-muted-foreground">{label}</span><span className="min-w-0 break-all font-medium">{value}</span>
+      <Button type="button" variant="ghost" className="size-11 shrink-0 rounded-xl text-muted-foreground" aria-label={`${label} nusxalash`} onClick={async () => {
+        try { await navigator.clipboard.writeText(value); setCopied(true); toast.success(`${label} nusxalandi`); }
+        catch { toast.error("Nusxalab bo‘lmadi. Kodni qo‘lda belgilang."); }
+      }}>{copied ? <Check /> : <Copy />}</Button>
     </div>
   );
 }
 
-function PeriodTable({ rows }: { rows: SalesPeriod[] }) {
-  if (!rows.length) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">Sotuv yo&apos;q.</p>;
-  }
-  return (
-    <>
-    <CardList className="mt-3">
-      {rows.map((r) => (
-        <DataCard key={r.period}>
-          <CardHead
-            title={r.period}
-            note={`${formatNumber(r.soldQuantity)} dona sotildi`}
-            right={
-              <span
-                className={cn(
-                  "text-sm font-semibold tabular-nums",
-                  r.profit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
-                )}
-              >
-                {formatSum(r.profit)}
-              </span>
-            }
-          />
-          <CardStats
-            items={[
-              { label: "O'rtacha narx", value: formatSum(r.avgPrice) },
-              { label: "Uzum to'lovi", value: formatSum(r.revenue) },
-              { label: "Tan narx", value: formatSum(r.cogs), tone: "muted" },
-            ]}
-          />
-        </DataCard>
-      ))}
-    </CardList>
-
-    <div className="mt-3 hidden overflow-x-auto rounded-lg border md:block">
-      <table className="w-full min-w-[640px] text-sm">
-        <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
-          <tr>
-            <th className="px-3 py-2 text-left font-medium">Davr</th>
-            <th className="px-3 py-2 text-right font-medium">Sotildi</th>
-            <th className="px-3 py-2 text-right font-medium">O&apos;rtacha narx</th>
-            <th className="px-3 py-2 text-right font-medium">Uzum to&apos;lovi</th>
-            <th className="px-3 py-2 text-right font-medium">Tan narx</th>
-            <th className="px-3 py-2 text-right font-medium">Foyda</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y">
-          {rows.map((r) => (
-            <tr key={r.period} className="transition-colors hover:bg-muted/30">
-              <td className="px-3 py-2 font-medium tabular-nums">{r.period}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatNumber(r.soldQuantity)}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatSum(r.avgPrice)}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatSum(r.revenue)}</td>
-              <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
-                {formatSum(r.cogs)}
-              </td>
-              <td
-                className={cn(
-                  "px-3 py-2 text-right font-medium tabular-nums",
-                  r.profit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
-                )}
-              >
-                {formatSum(r.profit)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    </>
-  );
-}
-
-function Tile({
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  tone?: "positive" | "negative";
+function SummaryTile({ label, value, unit, note, Icon, tone }: {
+  label: string; value: string; unit?: string; note: string;
+  Icon: typeof Boxes; tone?: "positive" | "negative";
 }) {
   return (
-    <Card
-      className={cn(
-        tone === "positive" && "border-emerald-500/40 bg-emerald-500/5",
-        tone === "negative" && "border-destructive/40 bg-destructive/5"
-      )}
-    >
-      <CardContent className="flex flex-col gap-1 p-4">
-        <div className="text-xs text-muted-foreground">{label}</div>
-        <div
-          className={cn(
-            "font-semibold tabular-nums",
-            tone === "positive" && "text-emerald-600 dark:text-emerald-400",
-            tone === "negative" && "text-destructive"
-          )}
-        >
-          {value}
-        </div>
-        {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
-      </CardContent>
-    </Card>
+    <div className={cn("min-w-0 rounded-2xl border bg-card p-3 sm:p-4", tone === "positive" && "border-[var(--ok)]/20 bg-[var(--ok)]/[.035]", tone === "negative" && "border-destructive/20 bg-destructive/[.035]")}>
+      <div className="flex items-start justify-between gap-2 text-xs text-muted-foreground"><span>{label}</span><Icon className="hidden size-4 shrink-0 sm:block" /></div>
+      <p className={cn("mt-3 break-words text-lg font-semibold leading-snug tracking-tight tabular-nums sm:text-xl", tone === "positive" && "text-[var(--ok)]", tone === "negative" && "text-destructive")}>{value}{unit && <span className="text-xs font-normal text-muted-foreground"> {unit}</span>}</p>
+      <p className="mt-2 break-words text-[11px] leading-relaxed text-muted-foreground">{note}</p>
+    </div>
   );
 }

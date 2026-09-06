@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ApiError, applyProductPrice } from "@/lib/api";
 import { formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -37,17 +38,32 @@ export function BreakEvenCard({
 }) {
   const [customPrice, setCustomPrice] = React.useState("");
   const [applying, setApplying] = React.useState<number | null>(null);
+  const [pendingPrice, setPendingPrice] = React.useState<number | null>(null);
+  const applyingRef = React.useRef(false);
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const applyTrigger = React.useRef<HTMLElement | null>(null);
 
-  const apply = async (price: number) => {
+  const apply = (price: number) => {
     const rounded = Math.round(price);
+    if (applyingRef.current || !Number.isSafeInteger(rounded) || rounded <= 0) return;
+    applyTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setPendingPrice(rounded);
+  };
+
+  const confirmApply = async () => {
+    if (applyingRef.current || pendingPrice === null) return;
+    const rounded = pendingPrice;
+    applyingRef.current = true;
     setApplying(rounded);
     try {
       await applyProductPrice(productId, rounded);
+      setPendingPrice(null);
       toast.success(`Narx ${formatSum(rounded)} ga o'zgartirildi — Uzum'da darhol qo'llanildi.`);
       onApplied?.();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Narx o'zgarmadi.");
     } finally {
+      applyingRef.current = false;
       setApplying(null);
     }
   };
@@ -84,9 +100,9 @@ export function BreakEvenCard({
   }
 
   return (
-    <Card>
+    <Card className="overflow-hidden rounded-2xl shadow-none">
       <CardHeader>
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <CardTitle className="flex items-center gap-2 text-base">
               <Calculator className="h-4 w-4" /> Beziyon nuqta va narx tanlash
@@ -125,7 +141,7 @@ export function BreakEvenCard({
         )}
 
         {/* Narx kalkulyatori — sotuvchi o'zi kiritib ko'radi */}
-        <div className="space-y-2 rounded-lg border p-3">
+        <div className="space-y-3 rounded-2xl border border-primary/20 bg-primary/[.03] p-4">
           <Label htmlFor="price-check" className="text-xs">
             Narxni tekshirib ko&apos;ring
           </Label>
@@ -136,7 +152,7 @@ export function BreakEvenCard({
               placeholder={String(Math.round(economics.avgSellPrice || economics.breakEvenPrice || 0))}
               value={customPrice}
               onChange={(e) => setCustomPrice(e.target.value)}
-              className="h-9 w-36"
+              className="h-11 w-full rounded-xl sm:w-44"
             />
             {hasCustom && (
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
@@ -304,6 +320,12 @@ export function BreakEvenCard({
           </div>
         )}
       </CardContent>
+      <Dialog open={pendingPrice !== null} onOpenChange={(open) => { if (!open && !applyingRef.current) setPendingPrice(null); }}>
+        <DialogContent onOpenAutoFocus={(event) => { event.preventDefault(); cancelRef.current?.focus(); }} onCloseAutoFocus={(event) => { event.preventDefault(); applyTrigger.current?.focus(); }} className="w-[calc(100%_-_2rem)] max-w-md rounded-2xl [&>button:last-child]:flex [&>button:last-child]:size-11 [&>button:last-child]:items-center [&>button:last-child]:justify-center">
+          <DialogHeader className="pr-8"><DialogTitle className="leading-snug">Uzumdagi narx o‘zgartirilsinmi?</DialogTitle><DialogDescription>Yangi narx — {pendingPrice !== null ? formatSum(pendingPrice) : "—"}. Tasdiqlasangiz, bu narx Uzumdagi haqiqiy tovarga darhol qo‘llanadi.</DialogDescription></DialogHeader>
+          <DialogFooter><Button ref={cancelRef} variant="outline" className="min-h-11 rounded-xl" disabled={applying !== null} onClick={() => setPendingPrice(null)}>Bekor qilish</Button><Button className="min-h-11 rounded-xl" disabled={applying !== null} onClick={() => void confirmApply()}>{applying !== null && <Loader2 className="motion-safe:animate-spin" />}Narxni qo‘llash</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
