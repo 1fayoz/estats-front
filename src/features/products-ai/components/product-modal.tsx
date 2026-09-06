@@ -703,12 +703,28 @@ function Footer({
             To&apos;xtatish
           </button>
         )}
-        {/* Allaqachon Uzum'da turgan tovar — "Tahrirlash" QULFNI
-            vaqtincha ochadi: matn/rasmni qayta generatsiya qilib,
-            "Uzumda yangilash" bilan HAQIQIY tovarga ko'chirish
-            mumkin. Bu yerda YANGI tovar hech qachon yaratilmaydi. */}
-        {locked && isLiveOnUzum && (
-          <button type="button" className="air-btn-flat" onClick={onToggleEdit}>
+        {/* "Tahrirlash" QULFNI vaqtincha ochadi — tasdiqlangan
+            qoralamada HAR DOIM, joylangan-joylanmaganidan qat'i
+            nazar (foydalanuvchi so'rovi: "tasdiqlagan bo'lsa ham
+            orqaga qaytarib edit qilish bo'lishi kerak").
+
+            Ikki holat, bitta tugma:
+            * Uzum'da turgan tovar — tahrirlab, "Uzumda yangilash"
+              bilan HAQIQIY e'longa ko'chiriladi;
+            * hali joylanmagan tasdiqlangan qoralama — tahrirlanadi,
+              saqlanadi va keyin "Uzumga joylash" bilan chiqadi.
+            Ikkalasida ham YANGI tovar tasodifan yaratilmaydi. */}
+        {locked && (
+          <button
+            type="button"
+            className="air-btn-flat"
+            onClick={onToggleEdit}
+            title={
+              isLiveOnUzum
+                ? "Matn/rasmni o'zgartirib, Uzum'dagi tovarga ko'chirish"
+                : "Tasdiqlangan qoralamani qayta tahrirlash"
+            }
+          >
             <Pencil className="mr-1.5 inline h-3.5 w-3.5" />
             Tahrirlash
           </button>
@@ -746,7 +762,11 @@ function Footer({
             {draft.uzumPublish.verified ? "Uzum'da tasdiqlandi" : "Uzum'da topilmadi"}
           </span>
         )}
-        {editMode && (
+        {/* "Uzum'da yangilash" FAQAT tovar Uzum'da bo'lganda:
+            joylanmagan qoralamada bosiladigan narsa yo'q (backend
+            `productId` yo'qligi uchun rad etardi). Joylanmaganda
+            oddiy "Saqlash" yetadi — u yuqorida turibdi. */}
+        {editMode && isLiveOnUzum && (
           <>
             <label className="flex items-center gap-1.5 text-xs text-[color:var(--air-label)]">
               <input
@@ -765,10 +785,17 @@ function Footer({
             >
               {spin("editUzum")}Uzum&apos;da yangilash
             </button>
-            <button type="button" className="air-btn-flat" onClick={onToggleEdit}>
-              Bekor qilish
-            </button>
           </>
+        )}
+        {editMode && (
+          <button
+            type="button"
+            className="air-btn-flat"
+            onClick={onToggleEdit}
+            title="Tahrirlashni yopadi — qoralama yana tasdiqlangan holatga qaytadi."
+          >
+            Tahrirlashni yakunlash
+          </button>
         )}
         {/*
           Pastda alohida "Yopish" tugmasi YO'Q ENDI: panelning
