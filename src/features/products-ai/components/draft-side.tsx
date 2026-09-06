@@ -58,7 +58,7 @@ export function DraftSide({
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
             <div>
-              <div className="font-medium">Quvur to&apos;xtadi</div>
+              <div className="font-medium">Tayyorlash to&apos;xtadi</div>
               <p className="text-muted-foreground">{draft.error}</p>
             </div>
           </div>

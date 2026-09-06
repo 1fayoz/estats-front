@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Boxes, Package, Plus, Search, Wallet } from "lucide-react";
+import { AlertTriangle, Boxes, Headphones, Info, Package, Plus, RefreshCw, Search, Wallet, X } from "lucide-react";
+import { toast } from "sonner";
 
-import { PageHeader } from "@/components/dashboard/page-header";
+import { InventoryHeader, InventoryStat } from "@/features/warehouse/components/inventory-workspace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductTable } from "@/features/warehouse/components/product-table";
 import { SupportRequestDialog } from "@/features/warehouse/components/support-request-dialog";
@@ -130,7 +130,7 @@ function WarehouseSkeleton() {
 }
 
 function WarehouseContent() {
-  const { items: activeItems, error, isInitialLoading, refresh } = useWarehouseProducts();
+  const { items: activeItems, status, error, isInitialLoading, refresh } = useWarehouseProducts();
   // Tugma o'rniga: sahifaga qaytganda va vaqti-vaqti bilan o'zi yangilanadi.
   useAutoRefresh(refresh);
   const shop = useActiveShop();
@@ -160,6 +160,8 @@ function WarehouseContent() {
   const [archivedItems, setArchivedItems] = React.useState<WarehouseProduct[]>([]);
   const [archivedCount, setArchivedCount] = React.useState<number | null>(null);
   const [archivedLoading, setArchivedLoading] = React.useState(false);
+  const [archivedError, setArchivedError] = React.useState<string | null>(null);
+  const [archiveAttempt, setArchiveAttempt] = React.useState(0);
   // Son har doim ko'rinsin — tab ochilmasa ham. Bitta yengil so'rov.
   React.useEffect(() => {
     fetchProducts({ archived: true, size: 1 })
@@ -168,14 +170,24 @@ function WarehouseContent() {
   }, []);
   React.useEffect(() => {
     if (view !== "archived" || archivedItems.length) return;
+    let cancelled = false;
     setArchivedLoading(true);
+    setArchivedError(null);
     fetchProducts({ archived: true, size: 500 })
       .then((page) => {
+        if (cancelled) return;
         setArchivedItems(page.results);
         setArchivedCount(page.count);
+        setArchivedLoading(false);
       })
-      .finally(() => setArchivedLoading(false));
-  }, [view, archivedItems.length]);
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setArchivedError(reason instanceof Error ? reason.message : "Arxivni yuklab bo‘lmadi");
+          setArchivedLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [view, archivedItems.length, archiveAttempt]);
   const items = view === "archived" ? archivedItems : activeItems;
 
   // ── Tovar qo'shish (AI) ────────────────────────────────────
@@ -236,17 +248,26 @@ function WarehouseContent() {
     }),
     [items]
   );
+  const loading = view === "active" ? status === "idle" || isInitialLoading : archivedLoading && items.length === 0;
+  const visibleError = view === "archived" ? archivedError : error;
+  const hasFilters = query.trim().length > 0 || onlyNoCost || tab !== "all";
+  const clearFilters = () => {
+    setQuery("");
+    setOnlyNoCost(false);
+    setTab("all");
+  };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Ombor"
-        description="Uzum katalogingiz va har bir tovarning tan narxi. Tovar kelganda 'Kirim' tugmasi orqali qo'shing; yangi kartochka esa 'Tovar qo'shish' orqali yasaladi."
+    <div className="min-w-0 space-y-5 sm:space-y-6">
+      <InventoryHeader
+        title="Tovarlar"
+        description="Qoldiq, tan narx va sotuv holati — hammasi bir joyda."
+        active="warehouse"
         actions={
           canAddAi ? (
             <Button
               onClick={() => openAi(null)}
-              className="bg-[#00904d] text-white hover:bg-[#00a457]"
+              className="min-h-11 rounded-xl bg-[#00904d] px-5 text-white shadow-sm hover:bg-[#007d43]"
             >
               <Plus className="h-4 w-4" /> Tovar qo&apos;shish
             </Button>
@@ -254,20 +275,22 @@ function WarehouseContent() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile icon={Boxes} label="Tovarlar" value={formatNumber(totals.goods)} />
-        <StatTile icon={Package} label="Ombordagi qoldiq" value={`${formatNumber(totals.onHand)} dona`} />
-        <StatTile icon={Wallet} label="Zaxira qiymati" value={formatSum(totals.stockValue)} />
-        <StatTile
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 sm:gap-3">
+        <InventoryStat loading={loading} icon={Boxes} label="Jami tovarlar" value={formatNumber(totals.goods)} hint="Katalogdagi SKUlar" />
+        <InventoryStat loading={loading} icon={Package} label="Ombordagi qoldiq" value={`${formatNumber(totals.onHand)} dona`} hint="Kirim va sotuvlar bo‘yicha" />
+        <InventoryStat loading={loading} icon={Wallet} label="Zaxira qiymati" value={formatSum(totals.stockValue)} hint="Tan narx bo‘yicha" />
+        <InventoryStat
+          loading={loading}
+          tone={totals.withoutCost > 0 ? "warning" : "default"}
           icon={AlertTriangle}
           label="Tan narxsiz"
           value={`${formatNumber(totals.withoutCost)} ta`}
           hint={
-            totals.withoutCost > 0
+            loading || visibleError ? undefined : totals.withoutCost > 0
               ? onlyNoCost
                 ? "hammasini ko'rsatish"
-                : "kirim kiriting"
-              : undefined
+                : "Tovarlarni ko‘rish →"
+              : "Barchasiga tan narx kiritilgan"
           }
           active={onlyNoCost}
           onClick={
@@ -279,8 +302,28 @@ function WarehouseContent() {
       {canSeeAi && <DraftStrip rows={drafts.rows} onOpen={(id) => openAi(id)} />}
 
       {/* Uzum sotuvchi kabinetidagi kabi holat-tablari. */}
-      <div className="flex flex-wrap items-center gap-x-1 gap-y-2 border-b pb-1">
-        {STATUS_TABS.map(({ key, label }) => {
+      <section aria-label="Tovarlarni qidirish va filtrlash" className="min-w-0 space-y-4 rounded-2xl border bg-card p-3.5 sm:p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-foreground">Tovarlar katalogi</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">Holatni tanlang yoki kerakli tovarni qidiring.</p>
+        </div>
+        <span role="status" aria-live="polite" className="text-xs text-muted-foreground">
+          {loading ? "Yuklanmoqda…" : `${formatNumber(filtered.length)} / ${formatNumber(items.length)} ta SKU`}
+        </span>
+      </div>
+      <label className="block space-y-1.5 md:hidden">
+        <span className="text-xs font-medium text-muted-foreground">Tovar holati</span>
+        <select
+          value={tab}
+          onChange={(event) => setTab(event.target.value as StatusTab)}
+          className="h-11 w-full min-w-0 rounded-xl border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {STATUS_TABS.map(({ key, label }) => <option key={key} value={key}>{label} ({tabCounts[key]})</option>)}
+        </select>
+      </label>
+      <div className="hidden flex-wrap items-center gap-1.5 md:flex" role="group" aria-label="Tovar holati">
+        {STATUS_TABS.slice(0, 5).map(({ key, label }) => {
           const active = tab === key;
           const count = tabCounts[key];
           return (
@@ -288,18 +331,19 @@ function WarehouseContent() {
               key={key}
               type="button"
               onClick={() => setTab(key)}
+              aria-pressed={active}
               className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
+                "flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
-                  ? "bg-muted font-semibold text-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "bg-primary/10 font-semibold text-primary ring-1 ring-primary/20"
+                  : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               {label}
               <span
                 className={cn(
                   "rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums",
-                  active ? "bg-foreground text-background" : "bg-muted text-muted-foreground",
+                  active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
                 )}
               >
                 {count}
@@ -307,17 +351,28 @@ function WarehouseContent() {
             </button>
           );
         })}
+        <select
+          aria-label="Boshqa tovar holatlari"
+          value={STATUS_TABS.slice(5).some((statusTab) => statusTab.key === tab) ? tab : "more"}
+          onChange={(event) => setTab(event.target.value as StatusTab)}
+          className={cn("h-11 max-w-full rounded-lg border bg-background px-3 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", STATUS_TABS.slice(5).some((statusTab) => statusTab.key === tab) && "border-primary/30 bg-primary/10 text-primary")}
+        >
+          <option value="more" disabled>Boshqa holatlar</option>
+          {STATUS_TABS.slice(5).map(({ key, label }) => <option key={key} value={key}>{label} ({tabCounts[key]})</option>)}
+        </select>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative max-w-md flex-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative w-full min-w-0 sm:min-w-64 sm:flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Nom, SKU, barcode yoki kategoriya..."
+            aria-label="Tovarlarni qidirish"
+            placeholder="Tovar nomi, SKU yoki barkod..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-9"
+            className="h-11 rounded-xl pl-9 pr-11 text-base sm:text-sm"
           />
+          {query && <button type="button" aria-label="Qidiruvni tozalash" onClick={() => setQuery("")} className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><X className="h-4 w-4" /></button>}
         </div>
         {/* Ommaviy amallar — belgilash o'rniga: shu tabda KO'RINAYOTGAN
             tovarlarga (Uzum kabinetiga o'xshab, checkbox'siz). Faqat
@@ -327,6 +382,7 @@ function WarehouseContent() {
           <>
             <Button
               variant="outline"
+              className="min-h-11 rounded-xl"
               disabled={bulkBusy}
               onClick={async () => {
                 setBulkBusy(true);
@@ -336,6 +392,8 @@ function WarehouseContent() {
                     `${res.checked} ta tekshirildi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`,
                   );
                   refresh();
+                } catch (reason) {
+                  toast.error(reason instanceof Error ? reason.message : "Tekshiruvni boshlashda xatolik yuz berdi");
                 } finally {
                   setBulkBusy(false);
                 }
@@ -345,6 +403,7 @@ function WarehouseContent() {
             </Button>
             <Button
               variant="outline"
+              className="min-h-11 rounded-xl"
               disabled={bulkBusy}
               onClick={async () => {
                 setBulkBusy(true);
@@ -354,6 +413,8 @@ function WarehouseContent() {
                     `${res.checked} ta uchun auto-fix draft tayyorlandi: ${res.ready} ready, ${res.warning} warning, ${res.error} error`,
                   );
                   drafts.reload();
+                } catch (reason) {
+                  toast.error(reason instanceof Error ? reason.message : "Tuzatishlarni tayyorlab bo‘lmadi");
                 } finally {
                   setBulkBusy(false);
                 }
@@ -367,25 +428,18 @@ function WarehouseContent() {
             ombordagi qaytarilgan/nuqsonli tovarlar, mablag' yechish.
             Matn haqiqiy raqamlardan tuziladi, xabar sotuvchining
             O'Z Telegram hisobidan ketadi va fonda yuboriladi. */}
-        <Button variant="outline" onClick={() => setSupportOpen(true)}>
-          Uzum qo&apos;llab-quvvatlashiga yozish
+        <Button variant="outline" className="min-h-11 rounded-xl" onClick={() => setSupportOpen(true)}>
+          <Headphones className="h-4 w-4" /> Uzum yordami
         </Button>
       </div>
+      {hasFilters && <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2"><span className="text-xs text-muted-foreground">{onlyNoCost ? "Tan narxi kiritilmagan tovarlar" : STATUS_TABS.find((statusTab) => statusTab.key === tab)?.label}</span><Button variant="ghost" className="min-h-11 rounded-xl text-xs" onClick={clearFilters}><X className="h-3.5 w-3.5" /> Filtrlarni tozalash</Button></div>}
+      </section>
 
       <SupportRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
 
       {bulkResult && (
         <div className="rounded-lg border bg-muted/40 px-4 py-2.5 text-sm text-muted-foreground">
           {bulkResult}
-        </div>
-      )}
-
-      {onlyNoCost && (
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-2.5 text-sm">
-          <span>Faqat tan narxi kiritilmagan tovarlar ko&apos;rsatilmoqda.</span>
-          <Button variant="ghost" size="sm" onClick={() => setOnlyNoCost(false)}>
-            Hammasini ko&apos;rsatish
-          </Button>
         </div>
       )}
 
@@ -406,29 +460,33 @@ function WarehouseContent() {
         </div>
       )}
       {shop?.salesSyncedFrom && (
-        <div className="rounded-lg border bg-muted/40 px-4 py-2.5 text-xs text-muted-foreground">
+        <details className="rounded-xl border bg-muted/30 px-3.5 text-xs text-muted-foreground">
+          <summary className="min-h-11 cursor-pointer py-3 leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Info className="mr-1.5 inline h-3.5 w-3.5" /> Sotuvlar davri: {shop.salesSyncedFrom} — {shop.salesSyncedTo}</summary>
+          <p className="pb-3 leading-relaxed">
           &quot;Sotildi&quot; va &quot;Qoldiq&quot; ustunlari{" "}
           <span className="font-medium text-foreground">
             {shop.salesSyncedFrom} … {shop.salesSyncedTo}
           </span>{" "}
           oralig&apos;idagi yuklangan sotuvlarga asoslangan. Undan oldingi sotuvlar
           hisobga olinmagan — kerak bo&apos;lsa o&apos;sha davrni ham yuklang.
+          </p>
+        </details>
+      )}
+
+      {visibleError && (
+        <div role="alert" className="flex flex-col gap-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between">
+          <span>{visibleError}</span>
+          <Button variant="outline" className="min-h-11 shrink-0 rounded-xl" onClick={() => view === "archived" ? setArchiveAttempt((attempt) => attempt + 1) : refresh()}><RefreshCw className="h-4 w-4" /> Qayta urinish</Button>
         </div>
       )}
 
-      {error && (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      {(view === "active" ? isInitialLoading : archivedLoading && items.length === 0) ? (
+      {loading ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-16 w-full rounded-lg" />
           ))}
         </div>
-      ) : (
+      ) : visibleError && items.length === 0 ? null : (
         <ProductTable
           items={filtered}
           onIntake={setIntakeFor}
@@ -454,42 +512,5 @@ function WarehouseContent() {
         onDeleted={drafts.remove}
       />
     </div>
-  );
-}
-
-function StatTile({
-  icon: Icon,
-  label,
-  value,
-  hint,
-  active,
-  onClick,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-  hint?: string;
-  active?: boolean;
-  onClick?: () => void;
-}) {
-  const Tag = onClick ? "button" : "div";
-  return (
-    <Card className={cn(active && "border-amber-500/60 ring-1 ring-amber-500/40")}>
-      <Tag
-        type={onClick ? "button" : undefined}
-        onClick={onClick}
-        className={cn(
-          "flex w-full flex-col gap-1 rounded-xl p-4 text-left",
-          onClick && "transition-colors hover:bg-muted/40",
-        )}
-      >
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Icon className="h-3.5 w-3.5" />
-          {label}
-        </div>
-        <div className="text-lg font-semibold tabular-nums">{value}</div>
-        {hint && <div className="text-xs text-amber-600 dark:text-amber-500">{hint}</div>}
-      </Tag>
-    </Card>
   );
 }

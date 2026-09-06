@@ -107,18 +107,36 @@ export function DraftTabs({
   ];
 
   return (
-    <div className="-mx-1 flex flex-wrap items-center gap-1 overflow-x-auto">
+    <div
+      role="tablist"
+      aria-label="Tovar ma'lumotlari"
+      className="flex gap-1 overflow-x-auto overscroll-x-contain rounded-xl bg-muted/60 p-1 [scrollbar-width:thin]"
+      onKeyDown={(event) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
+        const currentIndex = buttons.indexOf(document.activeElement as HTMLButtonElement);
+        const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + buttons.length) % buttons.length;
+        buttons[nextIndex]?.focus();
+        buttons[nextIndex]?.click();
+      }}
+    >
       {tabs.map((item) => (
         <button
           key={item.key}
           type="button"
+          role="tab"
+          id={`draft-tab-${item.key}`}
+          aria-controls={`draft-panel-${item.key}`}
+          aria-selected={tab === item.key}
+          tabIndex={tab === item.key || (!tabs.some((candidate) => candidate.key === tab && candidate.ready) && item.key === "general") ? 0 : -1}
           disabled={!item.ready}
           onClick={() => onTab(item.key)}
           className={cn(
-            "whitespace-nowrap rounded-md px-3 py-1.5 text-[15px] transition-colors",
+            "inline-flex min-h-10 shrink-0 items-center whitespace-nowrap rounded-lg px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none sm:text-[13px]",
             tab === item.key
-              ? "bg-primary/10 text-primary"
-              : "text-[color:var(--air-head)] hover:bg-black/[.04]",
+              ? "bg-[color:var(--air-card)] text-[color:var(--ok)] shadow-sm"
+              : "text-muted-foreground hover:bg-[color:var(--air-card)] hover:text-foreground",
             !item.ready && "cursor-default text-[color:var(--air-label)] opacity-60 hover:bg-transparent",
           )}
         >

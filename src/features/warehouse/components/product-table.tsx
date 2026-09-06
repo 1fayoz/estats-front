@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle, CheckCircle2, ChevronRight, Clock3,
@@ -114,8 +115,8 @@ export function ProductTable({
   const statusBadge = (item: WarehouseProduct) => {
     const summary = item.uzumValidation?.summary;
     const label = item.uzumBlocked
-      ? "Blocked"
-      : item.uzumModerationTitle || item.uzumStatusTitle || "Unknown";
+      ? "Bloklangan"
+      : item.uzumModerationTitle || item.uzumStatusTitle || "Holati noma’lum";
     const tone = item.uzumBlocked
       ? "destructive"
       : summary?.error
@@ -131,7 +132,7 @@ export function ProductTable({
           ? Clock3
           : CheckCircle2;
     return (
-      <Badge variant={tone as "outline"} className="gap-1">
+      <Badge variant={tone as "outline"} className="max-w-full gap-1 whitespace-normal text-left [&_svg]:shrink-0">
         <Icon className="h-3 w-3" /> {label}
       </Badge>
     );
@@ -156,31 +157,47 @@ export function ProductTable({
   return (
     <>
       {/* ── Mobil: guruh — bitta karta, variantlar chip bilan ── */}
-      <CardList>
+      <CardList className="grid min-w-0 gap-4 space-y-0 sm:grid-cols-2 md:grid xl:hidden">
         {groups.map((g) => {
           const item = g.card;
           const hasCost = costOf(item) != null;
           const draftId = aiDraftId(item);
           const range = priceRange(g.variants);
+          const open = expanded.has(g.key);
+          const statusItem = groupStatusItem(g);
+          const variantsId = `product-variants-${item.id}`;
           return (
-            <DataCard key={g.key} onClick={() => router.push(`/warehouse/${item.id}`)}>
-              <CardHead
-                image={item.image}
-                title={item.title}
-                note={
-                  g.isGroup
-                    ? `${g.variants.length} variant · ` +
-                      g.variants.map((v) => v.variantName).filter(Boolean).join(", ")
-                    : [item.variantName, item.skuCode].filter(Boolean).join(" · ") || "—"
-                }
-                right={statusBadge(groupStatusItem(g))}
-              />
-              {resubmitHint(groupStatusItem(g)) && (
-                <Badge variant="outline" className="mb-2 gap-1 text-[10px] text-muted-foreground">
-                  {resubmitHint(groupStatusItem(g))}
-                </Badge>
+            <DataCard key={g.key} className="min-w-0 self-start rounded-2xl border-border/70 p-4 shadow-sm">
+              <Link
+                href={`/warehouse/${item.id}`}
+                className="block min-h-11 min-w-0 rounded-lg transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <CardHead
+                  image={item.image}
+                  title={item.title}
+                  note={
+                    g.isGroup
+                      ? `${g.variants.length} variant · ` +
+                        g.variants.map((variant) => variant.variantName).filter(Boolean).join(", ")
+                      : [item.variantName, item.skuCode].filter(Boolean).join(" · ") || "—"
+                  }
+                />
+              </Link>
+              <div className="mt-3 flex flex-wrap items-start gap-1.5">
+                {statusBadge(statusItem)}
+                {resubmitHint(statusItem) && (
+                  <Badge variant="outline" className="max-w-full whitespace-normal text-xs text-muted-foreground">
+                    {resubmitHint(statusItem)}
+                  </Badge>
+                )}
+              </div>
+              {statusItem.uzumBlockingReason && (
+                <p className="mt-2 break-words text-xs leading-relaxed text-destructive">
+                  {statusItem.uzumBlockingReason}
+                </p>
               )}
               <CardStats
+                className="mt-4 gap-y-3 rounded-xl bg-muted/40 p-3 [&_dd]:whitespace-normal [&_dd]:break-words [&_dd]:leading-relaxed"
                 items={[
                   {
                     label: "Uzum narxi",
@@ -225,39 +242,114 @@ export function ProductTable({
                   },
                 ]}
               />
-              <div className="mt-3 flex gap-2">
-                {!g.isGroup && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {g.isGroup ? (
                   <Button
-                    size="sm"
+                    type="button"
                     variant="outline"
-                    className="flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onIntake(item);
-                    }}
+                    className="h-11 flex-1 rounded-xl border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
+                    aria-expanded={open}
+                    aria-controls={variantsId}
+                    onClick={() => toggle(g.key)}
+                  >
+                    <ChevronRight className={cn("h-4 w-4 transition-transform", open && "rotate-90")} />
+                    Variantlar ({g.variants.length})
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 flex-1 rounded-xl border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
+                    aria-label={`${item.title}: kirim qo'shish`}
+                    onClick={() => onIntake(item)}
                   >
                     <PackagePlus className="h-3.5 w-3.5" /> Kirim qo&apos;shish
                   </Button>
                 )}
+                <Button asChild variant="outline" className="h-11 rounded-xl">
+                  <Link href={`/warehouse/${item.id}`} aria-label={`${item.title}: batafsil`}>
+                    Batafsil <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </Button>
                 {draftId != null && onOpenAiDraft && (
                   <Button
-                    size="sm"
+                    type="button"
                     variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onOpenAiDraft(draftId);
-                    }}
+                    className="h-11 w-full rounded-xl"
+                    aria-label={`${item.title}: AI kartochkani ochish`}
+                    onClick={() => onOpenAiDraft(draftId)}
                   >
                     <Sparkles className="h-3.5 w-3.5" /> AI kartochka
                   </Button>
                 )}
               </div>
+              {g.isGroup && (
+                <div id={variantsId} hidden={!open} className="mt-4 space-y-3 border-t pt-4">
+                  {open && g.variants.map((variant) => (
+                    <div key={variant.id} className="min-w-0 rounded-xl border border-border/70 p-3">
+                      <Link
+                        href={`/warehouse/${variant.id}`}
+                        className="block min-h-11 min-w-0 rounded-lg transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <CardHead
+                          image={variant.image}
+                          title={variant.variantName || variant.title}
+                          note={variant.skuCode || "SKU kiritilmagan"}
+                        />
+                      </Link>
+                      <div className="mt-2">{statusBadge(variant)}</div>
+                      <CardStats
+                        className="gap-y-3 [&_dd]:whitespace-normal [&_dd]:break-words [&_dd]:leading-relaxed"
+                        items={[
+                          {
+                            label: "Uzum narxi",
+                            value: variant.marketplacePrice ? formatSum(variant.marketplacePrice) : "—",
+                          },
+                          {
+                            label: "Tan narx",
+                            value: costOf(variant) != null
+                              ? formatSum(costOf(variant)!)
+                              : <Badge variant="secondary">kiritilmagan</Badge>,
+                          },
+                          {
+                            label: "Qoldiq",
+                            value: `${formatNumber(variant.stockQuantity)} dona`,
+                          },
+                          {
+                            label: "Uzum qoldig'i",
+                            value: formatNumber(variant.marketplaceStock ?? 0),
+                          },
+                        ]}
+                      />
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-11 flex-1 rounded-xl text-foreground [&_svg]:text-[color:var(--ok)]"
+                          aria-label={`${variant.variantName || variant.title}, ${variant.skuCode || "variant"}: kirim qo'shish`}
+                          onClick={() => onIntake(variant)}
+                        >
+                          <PackagePlus className="h-4 w-4" /> Kirim
+                        </Button>
+                        <Button asChild variant="ghost" className="h-11 rounded-xl">
+                          <Link
+                            href={`/warehouse/${variant.id}`}
+                            aria-label={`${variant.variantName || variant.title}, ${variant.skuCode || "variant"}: batafsil`}
+                          >
+                            Batafsil <ChevronRight className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </DataCard>
           );
         })}
       </CardList>
 
-      <TableWrap>
+      <TableWrap className="rounded-2xl border-border/70 shadow-sm md:hidden xl:block">
       <table className="w-full min-w-[1160px] text-sm">
         <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
           <tr>
@@ -302,6 +394,7 @@ export function ProductTable({
                       tabIndex={0}
                       role="link"
                       onKeyDown={(e) => {
+                        if (e.target !== e.currentTarget) return;
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
                           router.push(`/warehouse/${v.id}`);
@@ -334,7 +427,7 @@ export function ProductTable({
                       <td className="px-3 py-2">
                         {v.uzumBlocked ? (
                           <Badge variant="destructive" className="gap-1">
-                            <XCircle className="h-3 w-3" /> Blocked
+                            <XCircle className="h-3 w-3" /> Bloklangan
                           </Badge>
                         ) : (
                           <span className="text-xs text-muted-foreground">
@@ -374,6 +467,7 @@ export function ProductTable({
                         <Button
                           size="sm"
                           variant="outline"
+                          aria-label={`${v.variantName || v.title}, ${v.skuCode || "variant"}: kirim qo'shish`}
                           onClick={(e) => {
                             e.stopPropagation();
                             onIntake(v);
@@ -428,6 +522,7 @@ function ProductRow(props: {
       role={g.isGroup ? "button" : "link"}
       aria-expanded={g.isGroup ? open : undefined}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onRowClick();
@@ -586,6 +681,7 @@ function ProductRow(props: {
               size="sm"
               variant="ghost"
               className="text-primary"
+              aria-label={`${item.title}: AI kartochkani ochish`}
               title="AI kartochkasini ochish — Uzum'da tahrirlash yoki tekshirish"
               onClick={(e) => {
                 e.stopPropagation();
@@ -599,6 +695,7 @@ function ProductRow(props: {
             <Button
               size="sm"
               variant="outline"
+              aria-label={`${item.title}: kirim qo'shish`}
               onClick={(e) => {
                 e.stopPropagation();
                 onIntake(item);

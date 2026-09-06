@@ -1,0 +1,86 @@
+.dialog {
+  --air-label: var(--muted-foreground);
+  max-height: 100dvh;
+}
+
+.dialog :global(.air-input) {
+  min-height: 44px;
+  border-radius: 10px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.dialog :global(.air-input):focus-visible {
+  border-color: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ok) 15%, transparent);
+}
+
+.dialog :global(.air-label) {
+  margin-bottom: 8px;
+  color: var(--air-head);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.dialog :global(.air-btn-save),
+.dialog :global(.air-btn-flat) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  height: auto;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.dialog :global(.air-btn-save) {
+  background: #047857;
+  color: #fff;
+  box-shadow: 0 3px 8px #04785720;
+}
+
+.dialog :global(.air-btn-save):hover:not(:disabled) {
+  background: #065f46;
+}
+
+.dialog :global(.air-btn-flat) {
+  border: 1px solid var(--air-line);
+}
+
+.dialog button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.dialog button:disabled {
+  cursor: not-allowed;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  max-height: 42dvh;
+  overflow-y: auto;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+@media (max-width: 639px) {
+  .dialog :global(.air-input) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog *,
+  .dialog *::before,
+  .dialog *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

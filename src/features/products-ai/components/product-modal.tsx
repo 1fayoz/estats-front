@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Check, Copy, Loader2, Pencil, Search, Square, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, CheckCircle2, Copy, ImagePlus, Lightbulb, Loader2, LockKeyhole, Pencil, Search, ShieldCheck, Sparkles, Square, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
-import { AirSlider } from "@/components/air/slider";
+import { ProductDialog } from "@/features/products-ai/components/product-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropZone } from "@/features/products-ai/components/dropzone";
 import {
@@ -229,19 +229,22 @@ export function ProductAiModal({
     );
 
   return (
-    <AirSlider
+    <ProductDialog
       open={open}
       onClose={onClose}
       title={
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="truncate">
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="line-clamp-2 break-words">
             {draft?.titleUz?.trim() || "Tovar qo'shish"}
           </span>
-          <span className="text-[13px] font-normal text-[color:var(--air-label)]">
-            {draft ? `qoralama #${draft.id} · ${draft.stageLabel}` : "rasmdan kartochka"}
-          </span>
-        </div>
+          {draft && (
+            <span className="inline-flex rounded-full border border-[color:var(--air-line)] px-2.5 py-1 text-[11px] font-medium tracking-normal text-muted-foreground">
+              Qoralama #{draft.id}
+            </span>
+          )}
+        </span>
       }
+      description={draft ? draft.stageLabel : "Rasm yuklang. AI tovar kartochkasini tayyorlashga yordam beradi."}
       subheader={
         <>
           {/*
@@ -262,7 +265,7 @@ export function ProductAiModal({
           ) : (
             <StageStrip draft={draft} />
           )}
-          <DraftTabs draft={draft} tab={tab} onTab={setTab} />
+          {draft && <DraftTabs draft={draft} tab={tab} onTab={setTab} />}
         </>
       }
       footer={
@@ -274,6 +277,7 @@ export function ProductAiModal({
           dirty={dirty}
           busy={busy}
           files={files}
+          loading={loading || (draftId !== null && draft === null)}
           confirmDelete={confirmDelete}
           onConfirmDelete={setConfirmDelete}
           onClose={onClose}
@@ -367,18 +371,31 @@ export function ProductAiModal({
         />
       }
     >
-      {/* Kulrang kanvas ustida ikkita oq karta — namunadagi kabi. */}
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="air-card min-w-0 px-[15px]">
-          <div className="air-card-head">
-            {draft === null ? "Tovar rasmi" : TAB_TITLE[tab]}
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_290px] xl:gap-6">
+        <section className="min-w-0 rounded-2xl border border-[color:var(--air-line)] bg-[color:var(--air-card)] p-4 shadow-sm sm:p-6">
+          <div className="mb-5 flex flex-wrap items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-semibold tracking-tight sm:text-lg">
+                {draft === null ? "Tovaringizni rasmdan boshlang" : TAB_TITLE[tab]}
+              </h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                {draft === null ? "Aniq rasmlar — sifatli kartochkaning birinchi qadami." : "Ma'lumotlarni tekshiring va kerak bo'lsa tahrirlang."}
+              </p>
+            </div>
             {locked && (
-              <span className="ml-auto text-[11px] font-normal normal-case text-[color:var(--air-label)]">
-                tasdiqlangan — tahrirlanmaydi
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-[11px] font-medium text-[color:var(--ok)]">
+                <LockKeyhole className="size-3" /> Tasdiqlangan
               </span>
             )}
           </div>
-          <div className="py-4">
+          <div
+            key={draft === null ? "upload" : tab}
+            id={draft ? `draft-panel-${tab}` : undefined}
+            role={draft ? "tabpanel" : undefined}
+            aria-labelledby={draft ? `draft-tab-${tab}` : undefined}
+            tabIndex={draft ? 0 : undefined}
+            className="min-w-0 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1 motion-safe:duration-200"
+          >
             {loading || (draftId !== null && draft === null) ? (
               <div className="space-y-3">
                 <Skeleton className="h-10 w-full" />
@@ -405,9 +422,13 @@ export function ProductAiModal({
           </div>
         </section>
 
-        <aside className="air-card min-w-0 px-[15px]">
-          <div className="air-card-head">Jarayon</div>
-          <div className="py-4">
+        {draft === null ? (
+          <NewProductGuide />
+        ) : (
+          <aside className="min-w-0 rounded-2xl border border-[color:var(--air-line)] bg-[color:var(--air-card)] p-4 shadow-sm sm:p-5">
+            <div className="mb-4 flex items-center gap-2 border-b border-[color:var(--air-line)] pb-4 text-sm font-semibold">
+              <Sparkles className="size-4 text-[color:var(--ok)]" /> Tayyorlanish jarayoni
+            </div>
             <DraftSide
               draft={draft}
               retrying={busy === "retry"}
@@ -419,10 +440,48 @@ export function ProductAiModal({
                 })
               }
             />
-          </div>
-        </aside>
+          </aside>
+        )}
       </div>
-    </AirSlider>
+    </ProductDialog>
+  );
+}
+
+function NewProductGuide() {
+  const steps = [
+    { icon: ImagePlus, title: "Rasmlarni qo'shing", description: "Tovarni old, yon va orqa tomondan ko'rsating." },
+    { icon: Sparkles, title: "AI kartochka tayyorlaydi", description: "Nom, tavsif, xususiyatlar va bozor tahlili bir joyda." },
+    { icon: CheckCircle2, title: "Tekshirib, tasdiqlang", description: "Natijani tahrirlang va Uzumga joylashga tayyorlang." },
+  ];
+
+  return (
+    <aside className="min-w-0 space-y-4">
+      <div className="rounded-2xl border border-[color:var(--air-line)] bg-[color:var(--air-card)] p-5 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Uch oddiy qadam</p>
+        <ol className="mt-5 space-y-5">
+          {steps.map(({ icon: Icon, title, description }, index) => (
+            <li key={title} className="flex gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-[color:var(--ok)]">
+                <Icon className="size-4" aria-hidden />
+              </span>
+              <div>
+                <p className="text-[13px] font-semibold">{index + 1}. {title}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-5 flex items-start gap-2 border-t border-[color:var(--air-line)] pt-4 text-xs leading-relaxed text-muted-foreground">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[color:var(--ok)]" />
+          Tovar faqat siz tasdiqlagandan keyin joylashga tayyor bo'ladi.
+        </div>
+      </div>
+      <div className="rounded-2xl border border-[color:var(--warn-line)] bg-[color:var(--warn-bg)] p-4 text-[color:var(--warn-ink)]">
+        <p className="flex items-center gap-2 text-[13px] font-semibold"><Lightbulb className="size-4" /> Yaxshi natija uchun</p>
+        <p className="mt-2 text-xs leading-relaxed">Yorug' fonda, tovar to'liq ko'rinadigan rasm tanlang. O'lcham va komplekt kabi tafsilotlarni izohga yozing.</p>
+      </div>
+      <p className="px-1 text-xs leading-relaxed text-muted-foreground">Rasm yaratish narxi qoralamada ko'rinadi. OpenAI kaliti ulanmagan bo'lsa, yangi rasm yaratilmaydi, qolgan ma'lumotlar tayyorlanadi.</p>
+    </aside>
   );
 }
 
@@ -472,6 +531,7 @@ function Footer({
   dirty,
   busy,
   files,
+  loading,
   confirmDelete,
   onConfirmDelete,
   onStart,
@@ -493,6 +553,7 @@ function Footer({
   dirty: boolean;
   busy: string;
   files: File[];
+  loading: boolean;
   confirmDelete: boolean;
   onConfirmDelete: (value: boolean) => void;
   onStart: () => void;
@@ -533,33 +594,36 @@ function Footer({
 
   if (draft === null) {
     return (
-      <>
-        <span className="hidden text-xs text-[color:var(--air-label)] sm:block">
-          {files.length ? `${files.length} ta rasm tanlandi` : "Rasm tanlanmagan"}
-        </span>
-        <div className="mx-auto flex items-center gap-2">
-          <button
-            type="button"
-            className="air-btn-save"
-            onClick={onStart}
-            disabled={!files.length || busy === "start"}
-          >
-            {spin("start")}Boshlash
-          </button>
-          <button type="button" className="air-btn-flat" onClick={onClose}>
+      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
+          {files.length ? <CheckCircle2 className="size-4 text-[color:var(--ok)]" /> : <ImagePlus className="size-4" />}
+          {loading ? "Qoralama ochilmoqda..." : busy === "start" ? "Rasmlar yuklanmoqda..." : files.length ? `${files.length} ta rasm tayyor. Boshlashingiz mumkin.` : "Boshlash uchun kamida 1 ta rasm qo'shing."}
+        </div>
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <button type="button" className="air-btn-flat shrink-0" onClick={onClose}>
             Bekor qilish
           </button>
+          <button
+            type="button"
+            className="air-btn-save flex-1 gap-2 sm:flex-none"
+            onClick={onStart}
+            disabled={loading || !files.length || busy === "start"}
+          >
+            {busy === "start" ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+            {busy === "start" ? "Yuklanmoqda..." : "Kartochka yaratish"}
+            {busy !== "start" && <ArrowRight className="hidden size-4 sm:block" />}
+          </button>
         </div>
-      </>
+      </div>
     );
   }
 
   return (
     <>
-      <span className="hidden text-xs text-[color:var(--air-label)] sm:block">
-        {draft.progress}% · {draft.stageLabel}
+      <span className="text-xs text-muted-foreground" role="status">
+        {dirty ? "Saqlanmagan o'zgarishlar bor" : `${draft.progress}% · ${draft.stageLabel}`}
       </span>
-      <div className="mx-auto flex flex-wrap items-center justify-center gap-2">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto [&>button]:grow sm:[&>button]:grow-0">
         {!locked && (
           <button
             type="button"
@@ -827,14 +891,14 @@ function Footer({
         onClick={() => (confirmDelete ? onDelete() : onConfirmDelete(true))}
         disabled={busy === "delete"}
         className={cn(
-          "ml-auto flex items-center gap-1.5 text-xs transition-colors",
+          "ml-auto flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-xs transition-colors",
           confirmDelete
             ? "air-bad font-medium"
             : "text-[color:var(--air-label)] hover:text-[color:var(--air-head)]",
         )}
       >
         <Trash2 className="h-3 w-3" />
-        {confirmDelete ? "aniqmi? bosing" : "o'chirish"}
+        {confirmDelete ? "O'chirishni tasdiqlash" : "Qoralamani o'chirish"}
       </button>
     </>
   );

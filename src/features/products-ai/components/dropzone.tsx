@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ImagePlus, X } from "lucide-react";
+import { Check, ImagePlus, Plus, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -36,6 +36,7 @@ export function DropZone({
 }) {
   const [dragging, setDragging] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const hintId = React.useId();
   const [previews, setPreviews] = React.useState<{ name: string; url: string }[]>([]);
 
   // Ob'ekt URL'lari qo'lda bo'shatiladi — aks holda modal ochilgan
@@ -66,11 +67,14 @@ export function DropZone({
       }
       picked.push(file);
     }
+    if (files.length + picked.length > MAX_FILES) {
+      toast.info(`Ko'pi bilan ${MAX_FILES} ta rasm qo'shish mumkin.`);
+    }
     onFiles([...files, ...picked].slice(0, MAX_FILES));
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -82,26 +86,55 @@ export function DropZone({
           setDragging(false);
           if (!disabled) add(e.dataTransfer.files);
         }}
-        onClick={() => !disabled && inputRef.current?.click()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-10 text-center transition",
+          "relative overflow-hidden rounded-2xl border-2 border-dashed transition-colors duration-200 motion-reduce:transition-none",
           dragging
-            ? "border-primary bg-primary/5"
-            : "border-[color:var(--air-ctl-line)] hover:border-primary/60",
-          disabled && "pointer-events-none opacity-60",
+            ? "border-[color:var(--ok)] bg-emerald-500/10"
+            : "border-[color:var(--air-ctl-line)] bg-muted/40 hover:border-[color:var(--ok)] hover:bg-emerald-500/5",
+          disabled && "opacity-60",
         )}
       >
-        <ImagePlus className="h-8 w-8 text-[color:var(--air-label)]" />
-        <div className="text-sm font-medium">Tovar rasmlarini shu yerga tashlang</div>
-        <p className="text-xs text-[color:var(--air-label)]">
-          Ko&apos;pi bilan {MAX_FILES} ta, har biri {MAX_MB} MB gacha. Qolganini AI qiladi.
-        </p>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={disabled || files.length >= MAX_FILES}
+          className={cn(
+            "group flex w-full flex-col items-center justify-center px-4 text-center outline-offset-[-4px] focus-visible:outline-2 focus-visible:outline-[color:var(--ok)]",
+            files.length ? "gap-2 py-5" : "gap-3 py-8 sm:py-12",
+          )}
+        >
+          {files.length ? (
+            <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-[color:var(--ok)]">
+              {files.length >= MAX_FILES ? <Check className="size-5" /> : <Plus className="size-5" />}
+            </span>
+          ) : (
+            <span className="relative mb-2 flex size-20 items-center justify-center">
+              <span className="absolute inset-1 rotate-[-10deg] rounded-2xl border border-emerald-500/20 bg-emerald-500/10 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:rotate-[-15deg]" />
+              <span className="relative flex size-16 rotate-[5deg] items-center justify-center rounded-2xl border border-[color:var(--air-line)] bg-[color:var(--air-card)] text-[color:var(--ok)] shadow-sm motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:rotate-0 motion-safe:group-hover:-translate-y-1">
+                <ImagePlus className="size-7" />
+              </span>
+            </span>
+          )}
+          <span className="text-sm font-semibold sm:text-base">
+            {files.length >= MAX_FILES ? "Barcha rasmlar qo'shildi" : files.length ? "Yana rasm qo'shish" : dragging ? "Rasmlarni shu yerga qo'yib yuboring" : "Rasmlarni shu yerga tashlang"}
+          </span>
+          {!files.length && (
+            <>
+              <span className="text-xs text-muted-foreground sm:text-sm">yoki qurilmangizdan tanlang</span>
+              <span className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[color:var(--air-card)] px-5 text-[13px] font-semibold shadow-sm ring-1 ring-[color:var(--air-ctl-line)]">
+                <Upload className="size-4 text-[color:var(--ok)]" /> Rasm tanlash
+              </span>
+            </>
+          )}
+          <span className="mt-1 text-[11px] text-muted-foreground sm:text-xs">JPG, PNG, WEBP · {MAX_FILES} tagacha · Har biri {MAX_MB} MB gacha</span>
+        </button>
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/*"
           multiple
           hidden
+          disabled={disabled || files.length >= MAX_FILES}
           onChange={(e) => {
             add(e.target.files);
             e.target.value = "";
@@ -110,44 +143,56 @@ export function DropZone({
       </div>
 
       {previews.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div>
+          <div className="mb-3 flex items-center justify-between text-xs">
+            <span className="font-medium">Tanlangan rasmlar</span>
+            <span className="tabular-nums text-muted-foreground" aria-live="polite">{files.length} / {MAX_FILES}</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-6">
           {previews.map((preview, index) => (
-            <div key={preview.url} className="relative">
+            <div key={preview.url} className="group relative min-w-0 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 motion-safe:duration-200">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={preview.url}
                 alt={preview.name}
-                className="h-20 w-20 rounded object-cover ring-1 ring-[color:var(--air-ctl-line)]"
+                className="aspect-square w-full rounded-xl bg-muted object-cover ring-1 ring-[color:var(--air-line)]"
               />
               <button
                 type="button"
-                onClick={() => onFiles(files.filter((_, k) => k !== index))}
+                onClick={() => onFiles(files.filter((_, fileIndex) => fileIndex !== index))}
                 disabled={disabled}
-                className="absolute -right-1.5 -top-1.5 rounded-full bg-[color:var(--air-card)] p-0.5 shadow ring-1 ring-[color:var(--air-ctl-line)]"
-                aria-label="Olib tashlash"
+                className="absolute right-0 top-0 flex size-11 items-center justify-center rounded-xl bg-slate-950/70 text-white transition-colors hover:bg-red-600"
+                aria-label={`${preview.name} rasmini olib tashlash`}
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="size-4" />
               </button>
+              <p className="mt-1.5 truncate text-[10px] text-muted-foreground" title={preview.name}>{preview.name}</p>
             </div>
           ))}
+          </div>
         </div>
       )}
 
       <div>
-        <label className="air-label" htmlFor="ai-hint">Izoh (ixtiyoriy)</label>
-        <input
-          id="ai-hint"
-          className="air-input"
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <label className="text-[13px] font-semibold" htmlFor={hintId}>Tovar haqida qo'shimcha</label>
+          <span className="rounded-md bg-muted px-2 py-1 text-[10px] text-muted-foreground">Ixtiyoriy</span>
+        </div>
+        <textarea
+          id={hintId}
+          className="air-input min-h-28 resize-y"
+          rows={3}
           value={hint}
           onChange={(e) => onHint(e.target.value)}
           disabled={disabled}
           maxLength={500}
-          placeholder="O'lcham, komplekt, kim uchun — rasm aytmaydigan narsa"
+          placeholder="Masalan: 500 ml, zanglamas po'lat, to'plamda 2 ta. Rang: oq."
+          aria-describedby={`${hintId}-help`}
         />
-        <p className="mt-1.5 text-xs text-[color:var(--air-label)]">
-          Rasmda ko&apos;rinmaydigan narsani shu yerda ayting: AI faqat rasmni
-          ko&apos;radi, tovarni esa siz bilasiz.
-        </p>
+        <div className="mt-2 flex items-start justify-between gap-3 text-[11px] text-muted-foreground">
+          <p id={`${hintId}-help`} className="leading-relaxed">O'lchami, materiali va komplektini yozsangiz, tavsif aniqroq bo'ladi.</p>
+          <span className="shrink-0 tabular-nums">{hint.length}/500</span>
+        </div>
       </div>
     </div>
   );
