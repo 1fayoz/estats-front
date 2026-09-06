@@ -1,60 +1,37 @@
 "use client";
 
 import type { ComponentType, ReactNode } from "react";
-import Link from "next/link";
-import { ArrowUpRight, Boxes, PackagePlus } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCan } from "@/stores/user-store";
 import { cn } from "@/lib/utils";
 
 /**
- * Ombor bo'limlarining tepasi: bo'lim almashtirgich va harakat
- * tugmalari.
+ * Ombor bo'limlarining tepasi — endi FAQAT harakat tugmalari.
  *
- * Sarlavha matnlari ("Ombor boshqaruvi", "Tovarlar", tavsif)
- * OLIB TASHLANDI (foydalanuvchi so'rovi): qaysi bo'limda
- * turganini yon menyu ham, quyidagi tab ham ko'rsatib turadi —
- * uchinchi marta takrorlash ekranning tepasidan joy yeb, jadval
- * pastga suriladi.
+ * Sarlavha matnlari ham, «Tovarlar / Kirimlar» tablari ham OLIB
+ * TASHLANDI (foydalanuvchi so'rovi): ikkala bo'lim yon menyuda
+ * («Ombor» guruhida) turibdi va qaysi biri ochiqligi o'sha yerda
+ * ko'rinadi — sahifaning burchagida ikkinchi marta takrorlash
+ * jadval uchun joy yeb qo'yardi.
+ *
+ * `active` prop qoldirilgan: chaqiruvchilar uni beradi va kelajakda
+ * bo'limga xos xatti-harakat kerak bo'lsa qo'l keladi — lekin
+ * hozir hech narsa chizmaydi.
  */
-export function InventoryHeader({ active, actions }: {
-  active: "warehouse" | "intakes";
+export function InventoryHeader({ actions }: {
+  active?: "warehouse" | "intakes";
   actions?: ReactNode;
 }) {
-  const canViewWarehouse = useCan("warehouse.view");
-  const canViewIntakes = useCan("intakes.view");
-  const sections = [
-    { key: "warehouse", href: "/warehouse", label: "Tovarlar", icon: Boxes, visible: canViewWarehouse },
-    { key: "intakes", href: "/intakes", label: "Kirimlar", icon: PackagePlus, visible: canViewIntakes },
-  ];
+  if (!actions) return null;
 
   return (
-    <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <nav aria-label="Ombor bo‘limlari" className="flex w-full gap-1 rounded-xl border bg-muted/40 p-1 sm:w-fit">
-        {sections.filter((section) => section.visible).map((section) => (
-          <Link
-            key={section.key}
-            href={section.href}
-            aria-current={active === section.key ? "page" : undefined}
-            className={cn(
-              "flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-none",
-              active === section.key ? "bg-card text-foreground shadow-sm ring-1 ring-border" : "text-muted-foreground hover:bg-card/60 hover:text-foreground",
-            )}
-          >
-            <section.icon className="h-4 w-4" aria-hidden="true" />
-            {section.label}
-          </Link>
-        ))}
-      </nav>
-      {actions && (
-        <div className="flex shrink-0 flex-wrap gap-2 [&>a]:min-h-11 [&>a]:flex-1 [&>button]:min-h-11 [&>button]:flex-1 sm:[&>a]:flex-none sm:[&>button]:flex-none">
-          {actions}
-        </div>
-      )}
+    <header className="flex flex-wrap justify-end gap-2 [&>a]:min-h-11 [&>a]:flex-1 [&>button]:min-h-11 [&>button]:flex-1 sm:[&>a]:flex-none sm:[&>button]:flex-none">
+      {actions}
     </header>
   );
 }
+
 
 export function InventoryStat({ icon: Icon, label, value, hint, loading, tone = "default", active, onClick }: {
   icon: ComponentType<{ className?: string }>;
