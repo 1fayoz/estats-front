@@ -260,8 +260,6 @@ function WarehouseContent() {
   return (
     <div className="min-w-0 space-y-5 sm:space-y-6">
       <InventoryHeader
-        title="Tovarlar"
-        description="Qoldiq, tan narx va sotuv holati — hammasi bir joyda."
         active="warehouse"
         actions={
           canAddAi ? (

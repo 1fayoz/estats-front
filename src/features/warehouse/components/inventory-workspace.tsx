@@ -8,9 +8,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCan } from "@/stores/user-store";
 import { cn } from "@/lib/utils";
 
-export function InventoryHeader({ title, description, active, actions }: {
-  title: string;
-  description: string;
+/**
+ * Ombor bo'limlarining tepasi: bo'lim almashtirgich va harakat
+ * tugmalari.
+ *
+ * Sarlavha matnlari ("Ombor boshqaruvi", "Tovarlar", tavsif)
+ * OLIB TASHLANDI (foydalanuvchi so'rovi): qaysi bo'limda
+ * turganini yon menyu ham, quyidagi tab ham ko'rsatib turadi —
+ * uchinchi marta takrorlash ekranning tepasidan joy yeb, jadval
+ * pastga suriladi.
+ */
+export function InventoryHeader({ active, actions }: {
   active: "warehouse" | "intakes";
   actions?: ReactNode;
 }) {
@@ -22,15 +30,7 @@ export function InventoryHeader({ title, description, active, actions }: {
   ];
 
   return (
-    <header className="space-y-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 space-y-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Ombor boshqaruvi</p>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{title}</h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{description}</p>
-        </div>
-        {actions && <div className="flex shrink-0 flex-wrap gap-2 [&>a]:min-h-11 [&>a]:flex-1 [&>button]:min-h-11 [&>button]:flex-1 sm:[&>a]:flex-none sm:[&>button]:flex-none">{actions}</div>}
-      </div>
+    <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <nav aria-label="Ombor bo‘limlari" className="flex w-full gap-1 rounded-xl border bg-muted/40 p-1 sm:w-fit">
         {sections.filter((section) => section.visible).map((section) => (
           <Link
@@ -47,6 +47,11 @@ export function InventoryHeader({ title, description, active, actions }: {
           </Link>
         ))}
       </nav>
+      {actions && (
+        <div className="flex shrink-0 flex-wrap gap-2 [&>a]:min-h-11 [&>a]:flex-1 [&>button]:min-h-11 [&>button]:flex-1 sm:[&>a]:flex-none sm:[&>button]:flex-none">
+          {actions}
+        </div>
+      )}
     </header>
   );
 }

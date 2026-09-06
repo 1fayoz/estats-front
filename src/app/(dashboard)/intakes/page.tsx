@@ -119,8 +119,6 @@ export default function IntakesPage() {
   return (
     <div className="space-y-5 sm:space-y-6">
       <InventoryHeader
-        title="Kirimlar"
-        description="Tovar partiyalari, xarajatlar va qolgan mahsulotlar bir joyda."
         active="intakes"
         actions={
           <Button asChild className="h-11 w-full rounded-xl bg-[#00904d] px-5 text-white hover:bg-[#007a41] sm:w-auto">
