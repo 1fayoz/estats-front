@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TopbarSlot } from "@/components/layout/topbar-slot";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
 import { ComplaintDialog } from "@/features/warehouse/components/complaint-dialog";
@@ -139,12 +140,32 @@ function ProductDetailPage({ id }: { id: number }) {
     setLoading(false);
   };
 
-  if (loading && !data) return <PageSkeleton />;
+  // «Omborga qaytish» — sahifa ichida EMAS, yuqori qatorda
+  // (foydalanuvchi so'rovi). U yerda u ilovaning doimiy burchagida
+  // turadi va oq idishning ichidan butun bir qator joy yemaydi.
+  // Uslub yuqori qatordagi boshqa boshqaruvlar bilan bir xil
+  // (`air-control` + oq matn) — shisha ustida to'q tugma yamoqdek
+  // ko'rinardi.
+  //
+  // Uchala holatda ham (skelet, xato, ma'lumot) ko'rinadi: qaytish
+  // yo'li tovar ochilmaganda AYNIQSA kerak.
+  const backLink = (
+    <TopbarSlot>
+      <Button asChild variant="outline" size="sm" className="air-control gap-2 text-white hover:text-white">
+        <Link href="/warehouse" aria-label="Omborga qaytish">
+          <ArrowLeft className="h-3.5 w-3.5 shrink-0 opacity-70" />
+          <span className="hidden sm:inline">Omborga qaytish</span>
+        </Link>
+      </Button>
+    </TopbarSlot>
+  );
+
+  if (loading && !data) return <>{backLink}<PageSkeleton /></>;
 
   if (!data) {
     return (
       <div className="space-y-5">
-        <Button asChild variant="ghost" className="min-h-11 rounded-xl"><Link href="/warehouse"><ArrowLeft /> Omborga qaytish</Link></Button>
+        {backLink}
         <div role="alert" className="rounded-2xl border bg-card px-5 py-12 text-center">
           <Package className="mx-auto size-10 text-muted-foreground" />
           <h1 className="mt-4 text-xl font-semibold">Tovar ochilmadi</h1>
@@ -162,12 +183,7 @@ function ProductDetailPage({ id }: { id: number }) {
 
   return (
     <div className={cn(styles.workspace, "min-w-0 space-y-5 sm:space-y-6")}>
-      <div className="flex items-center justify-between gap-3">
-        <Button asChild variant="ghost" className="-ml-2 min-h-11 rounded-xl px-2 text-muted-foreground"><Link href="/warehouse"><ArrowLeft /> Omborga qaytish</Link></Button>
-        <Button variant="outline" className="min-h-11 rounded-xl" onClick={() => void load()} disabled={loading} aria-label="Tovar ma’lumotlarini yangilash">
-          <RefreshCw className={cn(loading && "motion-safe:animate-spin")} /><span className="hidden sm:inline">{loading ? "Yangilanmoqda…" : "Yangilash"}</span>
-        </Button>
-      </div>
+      {backLink}
 
       {error && <div role="alert" className="flex items-start gap-3 rounded-2xl border border-[var(--warn)]/30 bg-[var(--warn)]/5 p-4 text-sm"><AlertCircle className="mt-0.5 size-5 shrink-0 text-[var(--warn)]" /><div><p className="font-medium">Ma’lumotlar yangilanmadi</p><p className="mt-1 text-muted-foreground">{error} Avvalgi ma’lumotlar ko‘rsatilmoqda.</p></div></div>}
 

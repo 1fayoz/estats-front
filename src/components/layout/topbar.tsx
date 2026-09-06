@@ -18,6 +18,7 @@ import {
 import { useUserStore } from "@/stores/user-store";
 import { ShopSwitcher } from "./shop-switcher";
 import { SurfaceToggle } from "./surface-toggle";
+import { TOPBAR_SLOT_ID } from "./topbar-slot";
 
 export function Topbar() {
   const router = useRouter();
@@ -41,6 +42,12 @@ export function Topbar() {
             (PageHeader) allaqachon bor — bu yerda "Bo'lim / <nom>" ni
             takrorlash keraksiz va sahifa sarlavhasidan farqli nom
             ko'rsatib chalkashtirardi (masalan "Tovarlar" vs "Ombor"). */}
+        {/* Sahifaga xos tugma joyi (`TopbarSlot` orqali to'ldiriladi).
+            Masalan tovar sahifasidagi «Omborga qaytish»: qaytish
+            havolasi ma'lumot idishining ichida emas, ilovaning
+            doimiy burchagida turadi. Bo'sh bo'lsa joy egallamaydi. */}
+        <div id={TOPBAR_SLOT_ID} className="flex min-w-0 items-center gap-2" />
+
         <div className="ml-auto">
           <ShopSwitcher />
         </div>
