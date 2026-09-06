@@ -843,6 +843,26 @@ export interface ComplaintJob {
  * `supportOpen` — qo'llab-quvvatlash markazi hozir ishlayaptimi
  * (09:00–21:00, Toshkent).
  */
+/**
+ * Uzum sotuvchi kabinetiga avtomatik kirish uchun saqlangan hisob.
+ *
+ * PAROL hech qachon qaytmaydi — faqat `saved`. `waitingCode` — Uzum
+ * tasdiqlash kodini so'radi va brauzer serverda ochiq turibdi.
+ */
+export interface UzumCredentials {
+  saved: boolean;
+  login: string | null;
+  lastLoginAt: string | null;
+  connectedAt: string | null;
+  waitingCode: boolean;
+}
+
+/** `status`: ok · sms_required · bad_credentials · captcha · bad_code · expired · error. */
+export interface UzumAutoLoginResult {
+  status: string;
+  message: string | null;
+}
+
 export interface ShopRequestPreview {
   kind: string;
   title: string;
