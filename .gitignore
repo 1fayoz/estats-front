@@ -75,3 +75,42 @@ ehthumbs.db
 /src/data/
 /src/app/api/
 /src/components/charts/
+
+# Xuddi shu narsa 2026-09-06 da QAYTA sodir bo'ldi: 25 ta eski
+# fayl commit'ga tushib, CI qizardi (`Cannot find module
+# '@/data/products'`, `'@/components/charts/sparkline'`,
+# `'../date-range'`, `../store`da yo'q eksportlar) va deploy
+# o'tmadi. Ular ham shu ro'yxatga qo'shildi.
+#
+# Papka darajasida — butunlay o'lik bo'limlar:
+/src/app/(dashboard)/boost/
+/src/app/(dashboard)/brands/
+/src/app/(dashboard)/categories/
+/src/app/(dashboard)/competitors/
+/src/app/(dashboard)/dashboard/
+/src/app/(dashboard)/keywords/
+/src/app/(dashboard)/lost-products/
+/src/app/(dashboard)/monitoring/
+/src/app/(dashboard)/opportunities/
+/src/app/(dashboard)/photo-search/
+/src/app/(dashboard)/products/
+/src/app/(dashboard)/reviews/
+/src/app/(dashboard)/sellers/
+/src/app/(dashboard)/trends/
+#
+# Fayl darajasida — TIRIK papkalar ichidagi o'lik fayllar
+# (`components/ui`, `components/dashboard`, `features/*` da
+# ishlatilayotgan fayllar ham bor, shuning uchun papka emas):
+/src/components/dashboard/ai-insights.tsx
+/src/components/dashboard/heatmap-cell.tsx
+/src/components/dashboard/kpi-card.tsx
+/src/components/dashboard/kpi-strip-item.tsx
+/src/components/dashboard/score-gauge.tsx
+/src/components/ui/progress.tsx
+/src/components/ui/scroll-area.tsx
+/src/features/finance/components/date-range-picker.tsx
+/src/features/warehouse/components/warehouse-table.tsx
+/src/features/warehouse/types.ts
+#
+# Kelajakda shu yo'llardan biri HAQIQATAN kerak bo'lsa:
+# `git add -f <fayl>` — e'tiborsizlik ataylab, taqiq emas.
