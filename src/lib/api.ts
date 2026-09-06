@@ -43,6 +43,8 @@ import type {
   ComplaintSendResult,
   ComplaintJob,
   ShopRequestPreview,
+  UzumCredentials,
+  UzumAutoLoginResult,
   UzumLoginStart,
   UzumLoginStatus,
   BroadcastResult,
@@ -347,6 +349,31 @@ export const completeUzumLogin = (shopId?: number) =>
   request<UzumLoginStatus>("/market/uzum-login/complete", {
     method: "POST",
     ...shopHeader(shopId),
+  });
+
+// Kabinetga AVTOMATIK kirish: login/parol saytda kiritiladi va
+// serverda shifrlangan holda saqlanadi; brauzer fonda ochiladi.
+// VNC oynasi (pastda) zaxira bo'lib qoladi.
+
+export const fetchUzumCredentials = () =>
+  request<UzumCredentials>("/market/uzum-seller/credentials");
+
+export const saveUzumCredentials = (login: string, password: string) =>
+  request<UzumCredentials>("/market/uzum-seller/credentials", {
+    method: "PUT",
+    body: JSON.stringify({ login, password }),
+  });
+
+export const clearUzumCredentials = () =>
+  request<UzumCredentials>("/market/uzum-seller/credentials", { method: "DELETE" });
+
+export const startUzumAutoLogin = () =>
+  request<UzumAutoLoginResult>("/market/uzum-seller/auto-login", { method: "POST" });
+
+export const submitUzumSms = (code: string) =>
+  request<UzumAutoLoginResult>("/market/uzum-seller/sms", {
+    method: "POST",
+    body: JSON.stringify({ code }),
   });
 
 export const fetchUzumLoginStatus = (shopId?: number) =>
