@@ -9,6 +9,7 @@ import type {
   AdPlan,
   AdVerdict,
   AdResult,
+  AiIntelligence,
   ExpenseBurn,
   ExpenseDueItem,
   ExpenseMonth,
@@ -1071,3 +1072,25 @@ export const editAiDraftUzum = (id: number, replaceImages: boolean) =>
  */
 export const verifyAiDraftUzum = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/verify-uzum`, { method: "POST" });
+
+// ── Product Intelligence (§18) ──────────────────────────────────
+
+/**
+ * Tadqiqotni FONDA boshlaydi va DARHOL qaytadi.
+ *
+ * Quvur bir necha daqiqa ishlaydi (80 raqobatchi rasmi,
+ * generatsiya), shuning uchun javob natijani KUTMAYDI — holat
+ * `fetchAiIntelligence` bilan so'rab turiladi.
+ *
+ * `only` — faqat shu qadamlarni qayta yuritish. Yiqilgan qadamni
+ * qayta urinish uchun: butun quvurni qaytadan yuritish pulni ikki
+ * barobar qilardi.
+ */
+export const startAiIntelligence = (id: number, only: string[] = []) =>
+  request<AiIntelligence>(`/product-ai/drafts/${id}/intelligence`, {
+    method: "POST",
+    body: JSON.stringify({ only }),
+  });
+
+export const fetchAiIntelligence = (id: number) =>
+  request<AiIntelligence>(`/product-ai/drafts/${id}/intelligence`);

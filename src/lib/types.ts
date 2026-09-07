@@ -1946,3 +1946,283 @@ export interface AiPackage {
   /** Nima yetishmayapti. Bo'sh bo'lsa to'plam to'liq. */
   missing: string[];
 }
+
+// ── Product Intelligence (§18) ──────────────────────────────────
+//
+// Backend `intelligence/service.py` `summarise()` shakli.
+//
+// **Bu yerdagi maydonlar SNAKE_CASE — loyihaning qolgan turlaridan
+// farqli.** Sabab: `IntelligenceOut.result` — Pydantic sxemasi
+// EMAS, oddiy `dict`, ya'ni Python nomlari o'zgarishsiz keladi.
+// Avtomatik camelCase'ga o'girish ATAYLAB qilinmadi: `grouped`
+// kalitlari (`long_tail`) o'girilsa, `Keyword.group` QIYMATI
+// (`"long_tail"` — u kalit emas, satr) o'girilmasdi va ikkalasi
+// bir-biriga mos kelmay qolardi.
+//
+// Har blok ixtiyoriy: quvur qadamma-qadam ketadi va sotuvchi
+// tugallanmagan natijani ham ko'radi (yiqilgan qadam qolganini
+// to'smaydi — §17).
+
+/** Bitta qiymat va u QAYERDAN kelgani. */
+export interface AiFact {
+  value: string;
+  /** seen — rasmda ko'rindi · given — sotuvchi bergan · assumed — taxmin. */
+  source: "seen" | "given" | "assumed";
+  confidence: number;
+}
+
+export interface AiUnderstanding {
+  product_type: AiFact;
+  category: AiFact;
+  subcategory: AiFact;
+  brand: AiFact;
+  material: AiFact[];
+  colors: AiFact[];
+  size: Record<string, unknown>;
+  quantity: number | null;
+  quantity_source: string;
+  usage: string[];
+  target_audience: string[];
+  main_features: string[];
+  visual_features: string[];
+  possible_keywords: string[];
+  search_queries: string[];
+  confidence: number;
+  /** Model aniqlay olmagani — bo'sh javobdan halolroq. */
+  unclear: string[];
+  /** Faqat ko'rilgan/berilgan faktlar. Ajratmani BACKEND qiladi. */
+  certain_facts: Record<string, string | string[]>;
+  assumptions: Record<string, string | string[]>;
+  provider: string;
+  model: string;
+}
+
+export interface AiCompetitor {
+  competitor_id: string;
+  title: string;
+  /** 0..1 — birga-bir o'xshashlik balli. */
+  similarity_score: number;
+  semantic_similarity: number;
+  visual_similarity: number | null;
+  price: number;
+  rating: number;
+  reviews: number;
+  orders: number;
+  image: string;
+  image_count: number;
+  category: string;
+  url: string;
+  /** Nega o'xshash deb topildi. */
+  why: string[];
+}
+
+export interface AiColorGuess {
+  name: string;
+  rgb: number[];
+  share: number;
+}
+
+export interface AiColors {
+  primary: string;
+  secondary: string;
+  multicolor: boolean;
+  confidence: number;
+  /** Piksel bo'yicha O'LCHANGAN — model taxmini emas. */
+  measured: AiColorGuess[];
+  model_named: string[];
+  /** O'lchov va model kelishdimi. */
+  agreed: boolean;
+  notes: string[];
+}
+
+export interface AiKeyword {
+  phrase: string;
+  source: string;
+  suggest_rank: number | null;
+  demand: number;
+  competitor_usage: number;
+  group: string;
+  covered: boolean;
+  weight: number;
+}
+
+export interface AiSeoPlan {
+  coverage: number;
+  /** Qo'ldan ketayotgan qamrov — ZoomSelling'dagi asosiy ko'rsatkich. */
+  missed_coverage: number;
+  keywords: AiKeyword[];
+  grouped: Record<string, AiKeyword[]>;
+  missing_top: AiKeyword[];
+}
+
+export interface AiTextIssue {
+  field: string;
+  message: string;
+}
+
+export interface AiTexts {
+  title_uz: string;
+  title_ru: string;
+  short_uz: string;
+  short_ru: string;
+  description_uz: string;
+  description_ru: string;
+  bullets_uz: string[];
+  bullets_ru: string[];
+  usage_uz: string;
+  usage_ru: string;
+  care_uz: string;
+  used_keywords: string[];
+  issues: AiTextIssue[];
+  /** Tekshiruvdan o'tdimi — o'tmagani QORALAMAGA yozilmaydi. */
+  ok: boolean;
+  provider: string;
+  model: string;
+}
+
+export interface AiPricing {
+  market_min: number;
+  market_median: number;
+  market_max: number;
+  recommended_price: number;
+  /** Ustidan chizib ko'rsatiladigan narx. */
+  recommended_full_price: number;
+  competitive_price: number;
+  premium_price: number;
+  discount_percent: number;
+  confidence: number;
+  /** Nechta raqobatchi hisobga olindi. */
+  sample: number;
+  /** Nechtasi chetlatildi (10 dona ≠ 1 dona). */
+  dropped: number;
+  reasoning_summary: string;
+  notes: string[];
+}
+
+export interface AiMxik {
+  code: string;
+  name: string;
+  path: string;
+  /** verified — katalogda tekshirildi · needs_review · not_found. */
+  status: string;
+  confidence: number;
+  reasoning: string;
+  alternatives: Record<string, unknown>[];
+  /** Qanday qidirilgani — audit uchun. */
+  evidence: string[];
+  agreed: boolean | null;
+  /** Qoralamaga AVTOMATIK yozish mumkinmi. */
+  auto_acceptable: boolean;
+  provider: string;
+  model: string;
+}
+
+export interface AiCharacteristic {
+  characteristic_id: string;
+  characteristic_name: string;
+  value_id: string;
+  value: string;
+  confidence: number;
+  /** deterministic — aniq moslik · model — AI tanlagan. */
+  source: string;
+  reason: string;
+  required: boolean;
+  accepted: boolean;
+}
+
+export interface AiComplianceIssue {
+  code: string;
+  level: string;
+  message: string;
+  auto_fixable: boolean;
+  action: string;
+}
+
+export interface AiCompliance {
+  ready: boolean;
+  summary: string;
+  blocking: AiComplianceIssue[];
+  warnings: AiComplianceIssue[];
+}
+
+export interface AiGeneratedImage {
+  position: number;
+  type: string;
+  accepted: boolean;
+  /** Asl tovarga o'xshashligi — 0.7 dan past bo'lsa rad etiladi. */
+  visual_similarity: number;
+  same_product: boolean;
+  quality: number;
+  differences: string[];
+  verdict: string;
+  attempts: number;
+  error: string;
+  has_image: boolean;
+}
+
+export interface AiPlannedImage {
+  position: number;
+  type: string;
+  purpose: string;
+  composition: string;
+  background: string;
+  text: string;
+  props: string[];
+}
+
+export interface AiImagePlan {
+  /** Shu tovarga XOS yo'nalish — umumiy shablon EMAS. */
+  creative_direction: string;
+  tone: string;
+  palette: string[];
+  hero_message: string;
+  avoid: string[];
+  recommended_image_count: number;
+  images: AiPlannedImage[];
+  provider: string;
+  model: string;
+}
+
+/** `draft.attributes["intelligence"]` — tayyor natija. */
+export interface AiIntelligenceResult {
+  updated_at?: string;
+  understanding?: AiUnderstanding;
+  competitors?: AiCompetitor[];
+  pattern?: Record<string, unknown>;
+  colors?: AiColors;
+  seo?: AiSeoPlan;
+  texts?: AiTexts;
+  pricing?: AiPricing;
+  mxik?: AiMxik;
+  image_plan?: AiImagePlan;
+  visual_identity?: Record<string, unknown>;
+  generated_images?: AiGeneratedImage[];
+  characteristics?: AiCharacteristic[];
+  compliance?: AiCompliance;
+}
+
+/**
+ * Quvur holati va natijasi — BITTA javobda.
+ *
+ * Bu Pydantic sxemasi, shuning uchun tashqi maydonlar camelCase
+ * (`result` ning ICHI esa snake_case — yuqoridagi izohga q.).
+ */
+export interface AiIntelligence {
+  running: boolean;
+  /** pending / running / done / failed. */
+  status: string;
+  progress: number;
+  /** Hozir bajarilayotgan qadam kaliti. */
+  current: string;
+  /** Qadam ichidagi hisob ("46/80"). */
+  detail: string;
+  /** {qadam: pending|running|done|failed|skipped}. */
+  steps: Record<string, string>;
+  /** {qadam: o'zbekcha nomi}. */
+  labels: Record<string, string>;
+  errors: Record<string, string>;
+  failedSteps: string[];
+  startedAt: string;
+  finishedAt: string;
+  result: AiIntelligenceResult;
+}

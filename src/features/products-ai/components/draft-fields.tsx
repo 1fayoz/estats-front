@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { AuditPanel } from "@/features/products-ai/components/audit-panel";
+import { IntelligencePanel } from "@/features/products-ai/components/intelligence-panel";
 import { CategoryPicker } from "@/features/products-ai/components/category-picker";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
 import { MarketPanel } from "@/features/products-ai/components/market-panel";
@@ -37,7 +38,8 @@ export function initialForm(draft: AiDraft): DraftForm {
 }
 
 export type DraftTabKey =
-  | "general" | "ru" | "images" | "attrs" | "keywords" | "market" | "pricing" | "audit";
+  | "general" | "ru" | "images" | "attrs" | "keywords" | "market" | "pricing"
+  | "intel" | "audit";
 
 /**
  * Tab qatori — namunadagi «Общие · Товары · Предложения …» kabi.
@@ -96,6 +98,17 @@ export function DraftTabs({
       label: "Tan narx",
       ready: Boolean(draft),
       color: "var(--ok)",
+    },
+    {
+      key: "intel",
+      label: "AI tadqiqot",
+      // Tadqiqot natijasi qoralamaning O'Z maydonlarida emas,
+      // `attributes.intelligence` da yashaydi — shuning uchun
+      // tayyorligi ham shundan aniqlanadi.
+      // Rang berilmagan: bu tabda hisoblagich yo'q (natija
+      // qadamma-qadam to'ladi va "nechta" degan son sotuvchiga
+      // hech nima demasdi), rang esa faqat hisoblagichga qo'llanadi.
+      ready: Boolean(draft),
     },
     {
       key: "audit",
@@ -207,6 +220,10 @@ export function DraftFields({
     ) : (
       <Empty />
     );
+  }
+
+  if (tab === "intel") {
+    return <IntelligencePanel draft={draft} locked={locked} />;
   }
 
   if (tab === "audit") {
