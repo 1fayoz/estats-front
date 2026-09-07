@@ -5,7 +5,17 @@ import { ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { AuditPanel } from "@/features/products-ai/components/audit-panel";
-import { IntelligencePanel } from "@/features/products-ai/components/intelligence-panel";
+import {
+  CharacteristicsSection,
+  ColorsSection,
+  CompetitorsSection,
+  ComplianceSection,
+  ImagesSection,
+  MxikSection,
+  PricingSection,
+  SeoSection,
+  UnderstandingSection,
+} from "@/features/products-ai/components/intelligence-sections";
 import { CategoryPicker } from "@/features/products-ai/components/category-picker";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
 import { MarketPanel } from "@/features/products-ai/components/market-panel";
@@ -39,7 +49,7 @@ export function initialForm(draft: AiDraft): DraftForm {
 
 export type DraftTabKey =
   | "general" | "ru" | "images" | "attrs" | "keywords" | "market" | "pricing"
-  | "intel" | "audit";
+  | "audit";
 
 /**
  * Tab qatori — namunadagi «Общие · Товары · Предложения …» kabi.
@@ -98,17 +108,6 @@ export function DraftTabs({
       label: "Tan narx",
       ready: Boolean(draft),
       color: "var(--ok)",
-    },
-    {
-      key: "intel",
-      label: "AI tadqiqot",
-      // Tadqiqot natijasi qoralamaning O'Z maydonlarida emas,
-      // `attributes.intelligence` da yashaydi — shuning uchun
-      // tayyorligi ham shundan aniqlanadi.
-      // Rang berilmagan: bu tabda hisoblagich yo'q (natija
-      // qadamma-qadam to'ladi va "nechta" degan son sotuvchiga
-      // hech nima demasdi), rang esa faqat hisoblagichga qo'llanadi.
-      ready: Boolean(draft),
     },
     {
       key: "audit",
@@ -189,26 +188,57 @@ export function DraftFields({
   locked: boolean;
   onChange: (draft: AiDraft) => void;
 }) {
+  // AI tadqiqoti qoralama BILAN keladi (alohida so'rov yo'q) —
+  // u quvurning o'zi, alohida bo'lim emas.
+  const ai = draft.intelligence ?? {};
+
   if (tab === "images") {
-    return <ImagePanel draft={draft} onChange={onChange} locked={locked} />;
+    return (
+      <div className="space-y-3">
+        <ImagePanel draft={draft} onChange={onChange} locked={locked} />
+        {(ai.image_plan || ai.generated_images) && (
+          <ImagesSection plan={ai.image_plan} generated={ai.generated_images} />
+        )}
+      </div>
+    );
   }
 
   if (tab === "attrs") {
-    return Object.keys(draft.attributes).length ? (
-      <dl className="divide-y text-sm">
-        {Object.entries(draft.attributes).map(([name, value]) => (
-          <div key={name} className="flex justify-between gap-4 py-2">
-            <dt className="text-muted-foreground">{name}</dt>
-            <dd className="text-right font-medium">{value}</dd>
-          </div>
-        ))}
-      </dl>
+    const extra = (
+      <>
+        {ai.mxik && <MxikSection data={ai.mxik} />}
+        {ai.characteristics && ai.characteristics.length > 0 && (
+          <CharacteristicsSection items={ai.characteristics} />
+        )}
+      </>
+    );
+    return Object.keys(draft.attributes).length || ai.mxik ? (
+      <div className="space-y-3">
+        {Object.keys(draft.attributes).length > 0 && (
+          <dl className="divide-y text-sm">
+            {Object.entries(draft.attributes).map(([name, value]) => (
+              <div key={name} className="flex justify-between gap-4 py-2">
+                <dt className="text-muted-foreground">{name}</dt>
+                <dd className="text-right font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {extra}
+      </div>
     ) : (
       <Empty />
     );
   }
 
   if (tab === "keywords") {
+    if (ai.seo) {
+      return (
+        <div className="space-y-3">
+          <SeoSection data={ai.seo} />
+        </div>
+      );
+    }
     return draft.keywords.length ? (
       <div className="flex flex-wrap gap-1.5">
         {draft.keywords.map((word) => (
@@ -222,25 +252,42 @@ export function DraftFields({
     );
   }
 
-  if (tab === "intel") {
-    return <IntelligencePanel draft={draft} locked={locked} />;
-  }
-
   if (tab === "audit") {
-    return <AuditPanel audit={draft.audit} />;
+    return (
+      <div className="space-y-3">
+        <AuditPanel audit={draft.audit} />
+        {ai.compliance && <ComplianceSection data={ai.compliance} />}
+      </div>
+    );
   }
 
   if (tab === "market") {
-    return <MarketPanel draft={draft} locked={locked} onChange={onChange} />;
+    return (
+      <div className="space-y-3">
+        <MarketPanel draft={draft} locked={locked} onChange={onChange} />
+        {ai.competitors && ai.competitors.length > 0 && (
+          <CompetitorsSection items={ai.competitors} />
+        )}
+      </div>
+    );
   }
 
   if (tab === "pricing") {
-    return <PricePanel draft={draft} locked={locked} onChange={onChange} />;
+    return (
+      <div className="space-y-3">
+        <PricePanel draft={draft} locked={locked} onChange={onChange} />
+        {ai.pricing && <PricingSection data={ai.pricing} />}
+      </div>
+    );
   }
 
   const uz = tab === "general";
   return (
     <div className="space-y-4">
+      {/* Tovar tahlili va rang — matndan OLDIN: ular matnning
+          nimaga tayanganini ko'rsatadi. */}
+      {uz && ai.understanding && <UnderstandingSection data={ai.understanding} />}
+      {uz && ai.colors && <ColorsSection data={ai.colors} />}
       {/*
         Turkum ENG TEPADA va faqat o'zbekcha tabda: u kartochkaning
         matnidan oldin keladigan qaror — noto'g'ri turkum matn

@@ -38,8 +38,7 @@ import type { AiDraft } from "@/lib/types";
 const POLL_MS = 4000;
 
 const TAB_KEYS: DraftTabKey[] = [
-  "general", "ru", "images", "attrs", "keywords", "market", "pricing",
-  "intel", "audit",
+  "general", "ru", "images", "attrs", "keywords", "market", "pricing", "audit",
 ];
 
 // Tanlangan tab URL'da (`?draft=5&tab=market`) — sahifa yangilanganda
@@ -515,7 +514,6 @@ const TAB_TITLE: Record<DraftTabKey, string> = {
   keywords: "Kalit so'zlar",
   market: "Bozordagi raqobatchilar",
   pricing: "Tan narx va foyda",
-  intel: "AI tadqiqot",
   audit: "Joylashga tayyorlik",
 };
 

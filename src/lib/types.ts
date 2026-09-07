@@ -1842,6 +1842,8 @@ export interface AiCategoryPick {
 
 export interface AiDraft extends AiDraftRow {
   sourceImages: string[];
+  /** To'liq AI tadqiqoti. Qoralama BILAN keladi — alohida so'rov yo'q. */
+  intelligence?: AiIntelligenceResult;
   hint: string | null;
   vision: Record<string, unknown> | null;
   market: AiMarket | null;
@@ -2199,30 +2201,4 @@ export interface AiIntelligenceResult {
   generated_images?: AiGeneratedImage[];
   characteristics?: AiCharacteristic[];
   compliance?: AiCompliance;
-}
-
-/**
- * Quvur holati va natijasi — BITTA javobda.
- *
- * Bu Pydantic sxemasi, shuning uchun tashqi maydonlar camelCase
- * (`result` ning ICHI esa snake_case — yuqoridagi izohga q.).
- */
-export interface AiIntelligence {
-  running: boolean;
-  /** pending / running / done / failed. */
-  status: string;
-  progress: number;
-  /** Hozir bajarilayotgan qadam kaliti. */
-  current: string;
-  /** Qadam ichidagi hisob ("46/80"). */
-  detail: string;
-  /** {qadam: pending|running|done|failed|skipped}. */
-  steps: Record<string, string>;
-  /** {qadam: o'zbekcha nomi}. */
-  labels: Record<string, string>;
-  errors: Record<string, string>;
-  failedSteps: string[];
-  startedAt: string;
-  finishedAt: string;
-  result: AiIntelligenceResult;
 }
