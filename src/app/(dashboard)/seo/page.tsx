@@ -3,41 +3,56 @@
 import * as React from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { motion } from "framer-motion";
-import { ArrowRight, Check, Loader2, Search, Sparkles, Wand2 } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowRight,
+  Check,
+  ChevronDown,
+  CircleCheckBig,
+  Info,
+  Loader2,
+  Search,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import { toast } from "sonner";
 
-import { PageHeader } from "@/components/dashboard/page-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScoreRing } from "@/features/seo/components/score-ring";
 import { ApiError, fetchAiKey, fetchSeoList, runSeoBulk } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
-import { queuedProductIds, useSeoJobStore } from "@/stores/seo-job-store";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
+import { queuedProductIds, useSeoJobStore } from "@/stores/seo-job-store";
 import type { AiKeyState, SeoAuditRow } from "@/lib/types";
+import styles from "./seo-list.module.css";
 
-/**
- * Katalogdagi hamma tovarning SEO holati.
- *
- * Tovarni qo'lda kiritish YO'Q: ro'yxat Uzum'dan kelgan katalogdan
- * chiqadi. Sotuvchi faqat qaysi tovarni tahlil qilishni tanlaydi.
- */
+type StatusFilter = "all" | "attention" | "good" | "pending";
+type SortOrder = "opportunity" | "scoreAsc" | "scoreDesc" | "name";
+
+const FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: "Barchasi" },
+  { value: "attention", label: "E'tibor kerak" },
+  { value: "good", label: "Yaxshi" },
+  { value: "pending", label: "Audit qilinmagan" },
+];
+
 export default function SeoPage() {
   const [rows, setRows] = React.useState<SeoAuditRow[]>([]);
   const [aiKey, setAiKey] = React.useState<AiKeyState | null>(null);
   const [query, setQuery] = useQueryState("q", "");
+  const [filter, setFilter] = React.useState<StatusFilter>("all");
+  const [sort, setSort] = React.useState<SortOrder>("opportunity");
   const [chosen, setChosen] = React.useState<Set<number>>(new Set());
   const [busy, setBusy] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
-  const put = useSeoJobStore((s) => s.put);
-  const jobs = useSeoJobStore((s) => s.jobs);
+  const put = useSeoJobStore((state) => state.put);
+  const jobs = useSeoJobStore((state) => state.jobs);
   const queued = React.useMemo(() => queuedProductIds(jobs), [jobs]);
-  const running = jobs.find((j) => j.active) ?? null;
+  const running = jobs.find((job) => job.active) ?? null;
 
   const load = React.useCallback(async () => {
     try {
@@ -48,7 +63,6 @@ export default function SeoPage() {
       setRows(list);
       setAiKey(ai);
     } catch {
-      /* qisman yuklansa ham sahifa ishlashi kerak */
     } finally {
       setLoading(false);
     }
@@ -57,12 +71,12 @@ export default function SeoPage() {
   React.useEffect(() => {
     void load();
   }, [load]);
-  // Vazifa tugagach ro'yxatni bir marta yangilaymiz: ballar o'zgargan.
-  const activeCount = jobs.filter((j) => j.active).length;
-  const previous = React.useRef(activeCount);
+
+  const activeCount = jobs.filter((job) => job.active).length;
+  const previousActiveCount = React.useRef(activeCount);
   React.useEffect(() => {
-    if (previous.current > 0 && activeCount === 0) void load();
-    previous.current = activeCount;
+    if (previousActiveCount.current > 0 && activeCount === 0) void load();
+    previousActiveCount.current = activeCount;
   }, [activeCount, load]);
 
   const analyse = async (ids: number[]) => {
@@ -72,249 +86,237 @@ export default function SeoPage() {
       put(await runSeoBulk({ productIds: ids }));
       setChosen(new Set());
       toast.success(`${ids.length} ta tovar navbatga qo'yildi`, {
-        description: "Kutib turish shart emas — boshqa bo'limga o'tsangiz ham davom etadi.",
+        description: "Tahlil fonda davom etadi — boshqa bo'limda ishlashingiz mumkin.",
       });
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Navbatga qo'yilmadi.");
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.message : "Navbatga qo'yilmadi.");
     } finally {
       setBusy(false);
     }
   };
 
-  const toggle = (id: number) =>
-    setChosen((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+  const toggle = (productId: number) => {
+    setChosen((current) => {
+      const next = new Set(current);
+      if (next.has(productId)) next.delete(productId);
+      else next.add(productId);
       return next;
     });
+  };
 
-  const visible = rows.filter((r) =>
-    r.title.toLowerCase().includes(query.trim().toLowerCase()),
-  );
-  const done = rows.filter((r) => r.score !== null);
+  const done = rows.filter((row) => row.score !== null);
+  const pending = rows.filter((row) => row.score === null);
+  const good = done.filter((row) => (row.score ?? 0) >= 75);
+  const attention = done.filter((row) => (row.score ?? 0) < 60);
   const average = done.length
-    ? Math.round(done.reduce((sum, r) => sum + (r.score ?? 0), 0) / done.length)
+    ? Math.round(done.reduce((sum, row) => sum + (row.score ?? 0), 0) / done.length)
     : null;
-  const missed = done.reduce((sum, r) => sum + r.coverageMissed, 0);
-  const worst = [...done].sort((a, b) => (a.score ?? 0) - (b.score ?? 0))[0];
+  const missed = done.reduce((sum, row) => sum + row.coverageMissed, 0);
+
+  const visible = React.useMemo(() => {
+    const search = query.trim().toLowerCase();
+    const filtered = rows.filter((row) => {
+      const matchesSearch = !search || row.title.toLowerCase().includes(search);
+      if (!matchesSearch) return false;
+      if (filter === "attention") return row.score !== null && row.score < 60;
+      if (filter === "good") return row.score !== null && row.score >= 75;
+      if (filter === "pending") return row.score === null;
+      return true;
+    });
+    return [...filtered].sort((left, right) => {
+      if (sort === "scoreAsc") return (left.score ?? 101) - (right.score ?? 101);
+      if (sort === "scoreDesc") return (right.score ?? -1) - (left.score ?? -1);
+      if (sort === "name") return left.title.localeCompare(right.title, "uz");
+      return right.coverageMissed - left.coverageMissed;
+    });
+  }, [filter, query, rows, sort]);
+
+  const allVisibleSelected = visible.length > 0 && visible.every((row) => chosen.has(row.productId));
+  const filterCount = (value: StatusFilter) => {
+    if (value === "attention") return attention.length;
+    if (value === "good") return good.length;
+    if (value === "pending") return pending.length;
+    return rows.length;
+  };
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-56" />
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-96 w-full rounded-xl" />
+      <div className={styles.loading}>
+        <Skeleton className="h-28 w-full rounded-2xl" />
+        <Skeleton className="h-32 w-full rounded-2xl" />
+        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-96 w-full rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="SEO audit"
-        description="Kartochkangiz qidiruvda topiladimi va qancha talab qo'ldan ketyapti"
-        actions={
-          !aiKey?.configured && (
-            <Link href={"/integrations" as Route}>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> AI kalitini ulash
-              </Button>
-            </Link>
-          )
-        }
-      />
-
-      {done.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="flex items-center gap-4 rounded-xl border p-4">
-            <ScoreRing score={average} size={64} />
-            <div className="min-w-0">
-              <div className="text-xs text-muted-foreground">O&apos;rtacha ball</div>
-              <div className="text-sm">{`${done.length} / ${rows.length} tovar tahlil qilingan`}</div>
-            </div>
-          </div>
-          <div className="rounded-xl border p-4">
-            <div className="text-xs text-muted-foreground">Qo&apos;ldan ketayotgan talab</div>
-            <div className="mt-1 text-2xl font-bold tabular-nums text-destructive">
-              {formatNumber(missed)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              ishlatilmagan kalit so&apos;zlar ortidagi savdo
-            </div>
-          </div>
-          <div className="rounded-xl border p-4">
-            <div className="text-xs text-muted-foreground">Eng past ball</div>
-            {worst && (
-              <>
-                <Link
-                  href={`/seo/${worst.productId}` as Route}
-                  className="mt-1 block truncate text-sm font-medium hover:underline"
-                >
-                  {worst.title}
-                </Link>
-                <div className="text-xs text-muted-foreground">{`${worst.score} ball`}</div>
-              </>
-            )}
-          </div>
+    <div className={styles.page}>
+      <header className={styles.hero}>
+        <div>
+          <span className={styles.eyebrow}><Sparkles aria-hidden="true" /> Kartochka optimizatsiyasi</span>
+          <h1>SEO audit</h1>
+          <p>Tovarlaringiz qidiruvda qanchalik yaxshi topilishini ko&apos;ring va eng katta imkoniyatdan boshlang.</p>
         </div>
-      )}
-
-      {running && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-primary/40 bg-primary/5 p-3 text-sm">
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
-          <span className="min-w-0 flex-1">
-            {`Tahlil ketmoqda: ${running.done + running.failed}/${running.total}`}
-            {running.failed > 0 && (
-              <span className="text-destructive">{` · ${running.failed} xato`}</span>
-            )}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Kutib turish shart emas — boshqa bo&apos;limga o&apos;tsangiz ham davom etadi.
-          </span>
-        </div>
-      )}
-
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Tovar qidirish…"
-            className="pl-8"
-          />
-        </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            setChosen(
-              chosen.size === visible.length
-                ? new Set()
-                : new Set(visible.map((r) => r.productId)),
-            )
-          }
-        >
-          {chosen.size === visible.length && visible.length > 0
-            ? "Bekor qilish"
-            : "Hammasini tanlash"}
-        </Button>
-
-        <Button
-          size="sm"
-          className="gap-1.5"
-          onClick={() => analyse([...chosen])}
-          disabled={busy || chosen.size === 0}
-        >
-          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
-          {chosen.size > 0 ? `${chosen.size} tani tahlil qilish` : "Tanlanganini tahlil qilish"}
-        </Button>
-      </div>
-
-      <div className="space-y-2">
-        {visible.map((row, i) => (
-          <motion.div
-            key={row.productId}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: Math.min(i, 12) * 0.02 }}
-            className={cn(
-              "flex flex-wrap items-center gap-3 rounded-lg border p-3 transition-colors",
-              chosen.has(row.productId) && "border-primary bg-primary/5",
-            )}
-          >
-            <button
-              type="button"
-              onClick={() => toggle(row.productId)}
-              aria-label="Tanlash"
-              className={cn(
-                "flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors",
-                chosen.has(row.productId)
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "hover:bg-accent",
-              )}
-            >
-              {chosen.has(row.productId) && <Check className="h-3.5 w-3.5" />}
-            </button>
-
-            <ScoreRing score={row.score} size={52} />
-
-            {row.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={row.image} alt="" className="h-12 w-12 shrink-0 rounded-md border object-cover" />
-            ) : (
-              <div className="h-12 w-12 shrink-0 rounded-md border bg-muted" />
-            )}
-
-            {/* `basis-40`: telefonda matnga o'z joyi qoladi va tugma
-                pastdagi qatorga o'tadi. Aks holda nom "Ayollar so…"
-                bo'lib qisqarib, izohi to'rt qatorga cho'zilardi. */}
-            <div className="min-w-0 flex-1 basis-40">
-              <Link
-                href={`/seo/${row.productId}` as Route}
-                className="line-clamp-2 text-sm font-medium hover:underline md:block md:truncate"
-              >
-                {row.title}
-              </Link>
-              <div className="mt-0.5 text-xs text-muted-foreground">
-                {queued.has(row.productId) ? (
-                  <span className="inline-flex items-center gap-1 text-primary">
-                    <Loader2 className="h-3 w-3 animate-spin" /> navbatda…
-                  </span>
-                ) : row.analyzedAt ? (
-                  <>
-                    {`${row.keywordsUsed}/${row.keywordsTotal} kalit so'z ishlatilgan`}
-                    {row.coverageMissed > 0 && (
-                      <span className="text-destructive">
-                        {` · ${formatNumber(row.coverageMissed)} qo'ldan ketyapti`}
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  "Hali tahlil qilinmagan"
-                )}
-              </div>
-            </div>
-
-            <div className="w-full sm:w-auto">
-              {row.analyzedAt ? (
-                <Link href={`/seo/${row.productId}` as Route} className="block">
-                  <Button variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto">
-                    Ochish <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                </Link>
-              ) : (
-                <Button
-                  size="sm"
-                  className="w-full gap-1.5 sm:w-auto"
-                  onClick={() => analyse([row.productId])}
-                  disabled={busy || queued.has(row.productId)}
-                >
-                  <Wand2 className="h-3.5 w-3.5" /> Tahlil qilish
-                </Button>
-              )}
-            </div>
-          </motion.div>
-        ))}
-
-        {visible.length === 0 && (
-          <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-            {rows.length === 0
-              ? "Katalogda tovar yo'q — avval Uzum bilan sinxronlang."
-              : "Bunday tovar topilmadi."}
-          </p>
+        {!aiKey?.configured ? (
+          <Button variant="outline" asChild className={styles.aiButton}>
+            <Link href={"/integrations" as Route}><Sparkles aria-hidden="true" /> AI kalitini ulash</Link>
+          </Button>
+        ) : (
+          <span className={styles.aiReady}><CircleCheckBig aria-hidden="true" /> AI yordamchi ulangan</span>
         )}
-      </div>
+      </header>
 
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        <Badge variant="secondary">Qamrov</Badge>
-        {" — so'rov ortidagi talab: shu so'rovga chiqqan tovarlarning jami buyurtma va "}
-        {"sharhlari. Sharh sotuvning izi — uni faqat sotib olgan odam qoldiradi. Tovarlar "}
-        {"SONI bunga kirmaydi, u alohida ustunda: u raqobat zichligini bildiradi. Bu "}
-        {"so'rovlar CHASTOTASI emas — uni Uzum tashqariga bermaydi."}
-      </p>
+      {done.length > 0 ? (
+        <section className={styles.summary} aria-label="SEO umumiy ko'rsatkichlari">
+          <article className={styles.averageCard}>
+            <ScoreRing score={average} size={72} />
+            <div><span>O&apos;rtacha ball</span><strong>{average ?? "—"}</strong><small>{done.length} / {rows.length} tovar tekshirilgan</small></div>
+          </article>
+          <SummaryCard label="Audit qamrovi" value={`${Math.round((done.length / Math.max(rows.length, 1)) * 100)}%`} note={`${pending.length} ta tovar navbat kutmoqda`} />
+          <SummaryCard label="E'tibor kerak" value={String(attention.length)} note="60 balldan past kartochkalar" tone="warning" />
+          <SummaryCard label="Boy berilayotgan qamrov" value={formatNumber(missed)} note="ishlatilmagan kalit so'zlar" tone="danger" />
+        </section>
+      ) : null}
+
+      {running ? (
+        <section className={styles.running} aria-live="polite">
+          <span className={styles.runningIcon}><Loader2 className="animate-spin" aria-hidden="true" /></span>
+          <div><strong>Tahlil davom etmoqda</strong><p>{running.done + running.failed} / {running.total} tovar yakunlandi{running.failed > 0 ? ` · ${running.failed} xato` : ""}</p></div>
+          <span>Fonda ishlaydi — sahifani tark etishingiz mumkin.</span>
+        </section>
+      ) : null}
+
+      <section className={styles.catalog} aria-labelledby="seo-catalog-title">
+        <div className={styles.catalogHeader}>
+          <div><h2 id="seo-catalog-title">Tovarlar</h2><p>{visible.length} ta natija</p></div>
+          <div className={styles.filterTabs} role="group" aria-label="SEO holati">
+            {FILTERS.map((item) => (
+              <button key={item.value} type="button" onClick={() => { setFilter(item.value); setChosen(new Set()); }} className={cn(filter === item.value && styles.filterActive)} aria-pressed={filter === item.value}>
+                {item.label}<span>{filterCount(item.value)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.toolbar}>
+          <div className={styles.searchField}>
+            <Search aria-hidden="true" />
+            <Input value={query} onChange={(event) => { setQuery(event.target.value); setChosen(new Set()); }} placeholder="Tovar nomi bo'yicha qidiring" />
+          </div>
+          <label className={styles.sortField}>
+            <span>Tartiblash</span>
+            <select value={sort} onChange={(event) => setSort(event.target.value as SortOrder)}>
+              <option value="opportunity">Eng katta imkoniyat</option>
+              <option value="scoreAsc">Eng past ball</option>
+              <option value="scoreDesc">Eng yuqori ball</option>
+              <option value="name">Nom bo'yicha</option>
+            </select>
+            <ChevronDown aria-hidden="true" />
+          </label>
+          <Button variant="outline" onClick={() => setChosen(allVisibleSelected ? new Set() : new Set(visible.map((row) => row.productId)))}>
+            {allVisibleSelected ? "Tanlovni bekor qilish" : "Natijalarni tanlash"}
+          </Button>
+          <Button onClick={() => analyse([...chosen])} disabled={busy || chosen.size === 0} className={styles.bulkButton}>
+            {busy ? <Loader2 className="animate-spin" /> : <Wand2 />}
+            {chosen.size > 0 ? `${chosen.size} tani tahlil qilish` : "Tahlil uchun tanlang"}
+          </Button>
+        </div>
+
+        <div className={styles.listHeader} aria-hidden="true">
+          <span>Tovar</span><span>SEO bali</span><span>Kalit so&apos;zlar</span><span>Imkoniyat</span><span>Holat</span><span />
+        </div>
+
+        <div className={styles.productList}>
+          {visible.map((row, index) => (
+            <SeoProductRow
+              key={row.productId}
+              row={row}
+              selected={chosen.has(row.productId)}
+              queued={queued.has(row.productId)}
+              busy={busy}
+              index={index}
+              onToggle={() => toggle(row.productId)}
+              onAnalyse={() => analyse([row.productId])}
+            />
+          ))}
+        </div>
+
+        {visible.length === 0 ? (
+          <div className={styles.empty}>
+            <span><Search aria-hidden="true" /></span>
+            <h3>{rows.length === 0 ? "Katalog hozircha bo'sh" : "Tovar topilmadi"}</h3>
+            <p>{rows.length === 0 ? "Avval Uzum do'koningizni sinxronlang." : "Qidiruv yoki status filtrini o'zgartirib ko'ring."}</p>
+          </div>
+        ) : null}
+      </section>
+
+      <details className={styles.explainer}>
+        <summary><Info aria-hidden="true" /> “Qamrov” qanday hisoblanadi?<ChevronDown aria-hidden="true" /></summary>
+        <p>Qamrov — so&apos;rovga chiqqan tovarlarning jami buyurtma va sharhlari asosidagi talab signali. Bu qidiruv chastotasi emas: Uzum bu ma&apos;lumotni tashqariga bermaydi.</p>
+      </details>
     </div>
   );
+}
+
+function SummaryCard({ label, value, note, tone }: { label: string; value: string; note: string; tone?: "warning" | "danger" }) {
+  return <article className={cn(styles.summaryCard, tone === "warning" && styles.warningCard, tone === "danger" && styles.dangerCard)}><span>{label}</span><strong>{value}</strong><small>{note}</small></article>;
+}
+
+function SeoProductRow({
+  row,
+  selected,
+  queued,
+  busy,
+  index,
+  onToggle,
+  onAnalyse,
+}: {
+  row: SeoAuditRow;
+  selected: boolean;
+  queued: boolean;
+  busy: boolean;
+  index: number;
+  onToggle: () => void;
+  onAnalyse: () => void;
+}) {
+  const analysed = Boolean(row.analyzedAt);
+  const keywordPercent = row.keywordsTotal > 0 ? Math.min(100, (row.keywordsUsed / row.keywordsTotal) * 100) : 0;
+  const status = queued
+    ? { label: "Navbatda", className: styles.statusQueued }
+    : !analysed
+      ? { label: "Audit qilinmagan", className: styles.statusPending }
+      : (row.score ?? 0) >= 75
+        ? { label: "Yaxshi", className: styles.statusGood }
+        : (row.score ?? 0) >= 60
+          ? { label: "Yaxshilash mumkin", className: styles.statusNeutral }
+          : { label: "E'tibor kerak", className: styles.statusWarning };
+
+  return (
+    <article className={cn(styles.productRow, selected && styles.productSelected)} style={{ animationDelay: `${Math.min(index, 10) * 24}ms` }}>
+      <div className={styles.productCell}>
+        <button type="button" onClick={onToggle} className={cn(styles.checkbox, selected && styles.checkboxSelected)} aria-label={`${row.title} tovarini tanlash`} aria-pressed={selected}>
+          {selected ? <Check aria-hidden="true" /> : null}
+        </button>
+        <div className={styles.productImage}>{row.image ? <img src={row.image} alt="" loading="lazy" /> : <Sparkles aria-hidden="true" />}</div>
+        <div className={styles.productName}><Link href={`/seo/${row.productId}` as Route}>{row.title}</Link><span>Mahsulot #{row.productId}</span></div>
+      </div>
+      <div className={styles.scoreCell}><ScoreRing score={row.score} size={48} /><span>100 dan</span></div>
+      <div className={styles.keywordCell}><div><strong>{row.keywordsUsed}/{row.keywordsTotal}</strong><span>ishlatilgan</span></div><div className={styles.keywordProgress}><span style={{ width: `${keywordPercent}%` }} /></div></div>
+      <div className={styles.opportunityCell}><span>Boy berilmoqda</span><strong>{analysed ? formatNumber(row.coverageMissed) : "—"}</strong></div>
+      <div className={styles.statusCell}><span className={status.className}>{queued ? <Loader2 className="animate-spin" /> : <span />}{status.label}</span>{row.analyzedAt ? <small>{formatAuditDate(row.analyzedAt)}</small> : null}</div>
+      <div className={styles.rowAction}>
+        {analysed ? (
+          <Button variant="outline" asChild><Link href={`/seo/${row.productId}` as Route}>Ochish <ArrowRight /></Link></Button>
+        ) : (
+          <Button onClick={onAnalyse} disabled={busy || queued}><Wand2 /> Tahlil qilish</Button>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function formatAuditDate(value: string) {
+  const date = new Date(value);
+  return new Intl.DateTimeFormat("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
 }
