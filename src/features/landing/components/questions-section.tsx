@@ -1,211 +1,157 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import * as Tabs from "@radix-ui/react-tabs";
+import { ArrowRight, Boxes, ChartNoAxesCombined, Check, Globe2, Package, Search, Sparkles } from "lucide-react";
 
-import { BrowserFrame } from "./browser-frame";
+import base from "./landing.module.css";
+import styles from "./landing-features.module.css";
 
-type Question = {
-  question: string;
+type FeatureId = "seo" | "finance" | "warehouse" | "socials";
+
+type Feature = {
+  id: FeatureId;
+  label: string;
+  icon: typeof Search;
+  eyebrow: string;
   title: string;
-  body: string;
+  description: string;
   points: string[];
-  shot: string;
-  /** Telefon uchun o'sha ekranning telefondagi ko'rinishi. */
-  mobileShot: string;
-  url: string;
-  alt: string;
+  screenshot?: { desktop: string; mobile: string; alt: string; path: string };
 };
 
-const QUESTIONS: Question[] = [
+const FEATURES: Feature[] = [
   {
-    question: "Kartochkam qidiruvda topiladimi?",
-    title: "Kartochkam qidiruvda topiladimi?",
-    body:
-      "Har bir tovaringiz uchun kalit so'zlar yadrosi yig'iladi va uning qanchasi " +
-      "nomda hamda tavsifda ishlatilgani o'lchanadi. Ball 100 dan — qaysi qism " +
-      "necha ball berayotgani ochiq ko'rinadi.",
+    id: "seo",
+    label: "SEO & AI",
+    icon: Sparkles,
+    eyebrow: "Kartochka ustida aniq ish",
+    title: "Nimani yaxshilash kerakligini ko'ring.",
+    description: "Tovar nomi, tavsifi va kalit so'zlarini tekshiring. AI tavsiyalaridan keraklisini tanlab, kartochkangizni tayyorlang.",
     points: [
-      "Nom, tavsif, kalit so'zlar va xususiyatlar — alohida ball",
-      "O'zbekcha va ruscha kartochka MUSTAQIL o'lchanadi va o'z bali bor",
-      "Har tahlil tarixda qoladi, oldingisi bilan solishtiriladi",
-      "Xulosa emas, aniq ko'rsatma: nimani qo'shish kerak",
+      "O'zbekcha va ruscha matn uchun alohida tahlil",
+      "Kalit so'zlar, qidiruvdagi o'rin va audit tarixi",
+      "AI matni — tekshirishingiz uchun qoralama",
     ],
-    shot: "/shots/seo-audit.jpg",
-    mobileShot: "/shots/m/seo-audit.png",
-    url: "estats.uz/seo",
-    alt: "SEO audit: ball, tahlillar tarixi va bo'limlar bo'yicha xulosalar",
+    screenshot: { desktop: "/shots/seo-audit.jpg", mobile: "/shots/m/seo-audit.png", alt: "eStats SEO auditi: kartochka bali, tillar bo'yicha tahlil va kalit so'zlar", path: "estats.uz/seo" },
   },
   {
-    question: "Qancha talab qo'ldan ketyapti?",
-    title: "Qancha talab qo'ldan ketyapti?",
-    body:
-      "Yadrodagi har bir ibora Uzum qidiruvida o'lchanadi: ortida qancha buyurtma " +
-      "va sharh turibdi, nechta raqobatchi chiqadi. Ishlatilmagan iboralar ortidagi " +
-      "savdo — bu qo'ldan ketayotgan pul.",
+    id: "finance",
+    label: "Foyda va moliya",
+    icon: ChartNoAxesCombined,
+    eyebrow: "Tushumdan foydagacha",
+    title: "Savdo ortidagi hisobni tushuning.",
+    description: "Tushum, tan narx, komissiya va xarajatlarni birga ko'ring. Qaysi tovar qancha foyda keltirayotganini solishtiring.",
     points: [
-      "Har ibora bo'yicha talab, raqobat va sharh soni",
-      "Til bo'yicha ajratilgan: uz va ru alohida",
-      "Nomda va tavsifda necha marta uchragani",
-      "Eng foydali ishlatilmagan iboralar — ro'yxat boshida",
+      "Kirim partiyalari bo'yicha FIFO tan narxi",
+      "Komissiya, logistika va boshqa xarajatlar",
+      "Tan narxi kiritilmagan sotuvlar alohida ko'rinadi",
     ],
-    shot: "/shots/keywords.jpg",
-    mobileShot: "/shots/m/keywords.png",
-    url: "estats.uz/seo",
-    alt: "Kalit so'zlar yadrosi: qamrov, raqobat va ishlatilishi",
+    screenshot: { desktop: "/shots/pnl.jpg", mobile: "/shots/m/pnl.png", alt: "eStats foyda va zarar hisoboti: tushum, tan narx, komissiya va foyda", path: "estats.uz/pnl" },
   },
   {
-    question: "Qo'lda qancha pul qoldi?",
-    title: "Qo'lda qancha pul qoldi?",
-    body:
-      "Tushum foyda emas. Komissiya, logistika, Uzum yechimlari, doimiy xarajatlar " +
-      "va tan narx ayrilgandan keyin qolgani — sof foyda. Tan narx FIFO bo'yicha, " +
-      "ya'ni qaysi partiyadan sotilgani hisobga olinadi.",
+    id: "warehouse",
+    label: "Ombor",
+    icon: Boxes,
+    eyebrow: "Har bir partiya hisobda",
+    title: "Qoldiq va kirimlar doim ko'z oldingizda.",
+    description: "Tovarlarni toping, yangi kelgan partiyani kiriting va uning tan narxini saqlang. Keyingi qaror uchun tartibli hisob.",
     points: [
-      "Har tovar bo'yicha: qanchadan keldi, nechtasi sotildi",
-      "FIFO tan narx — partiya narxlari aralashtirilmaydi",
-      "Tan narxi kiritilmagan donalar ochiq ko'rsatiladi",
-      "7 / 30 / 90 kunlik davrlar va CSV eksport",
+      "Tovar, SKU va qoldiq bo'yicha tez qidiruv",
+      "Har bir kirim uchun miqdor, narx va sana",
+      "Tovar sahifasida sotuv va qaytarishlar tarixi",
     ],
-    shot: "/shots/pnl.jpg",
-    mobileShot: "/shots/m/pnl.png",
-    url: "estats.uz/pnl",
-    alt: "Foyda va zarar: FIFO tan narx va sof foyda",
   },
   {
-    question: "Uzum qancha ushlab qoldi?",
-    title: "Uzum qancha ushlab qoldi?",
-    body:
-      "Komissiya, logistika, jarima va saqlash — har biri alohida qatorda. " +
-      "Yalpi savdodan qancha ushlab qolinganini va qo'lingizga qancha " +
-      "tushishini kunma-kun ko'rasiz.",
+    id: "socials",
+    label: "Tarmoqlar",
+    icon: Globe2,
+    eyebrow: "Tovardan tayyor postgacha",
+    title: "Kontentni ham bir joydan boshqaring.",
+    description: "Tovarlaringizni postlar bilan bog'lang. Rasm va matnni tekshirib, ulangan akkauntlaringizga e'lon yuboring.",
     points: [
-      "Komissiya, logistika va boshqa yechimlar ajratilgan",
-      "Buyurtma statuslari: yechishga tayyor, jarayonda, bekor",
-      "Har bir jarima — sababi va sanasi bilan",
-      "Kalkulyator: narxni o'zgartirib, foydani oldindan ko'rish",
+      "Qaysi tovar qayerda joylanganini ko'rish",
+      "Joylashdan oldin matn va rasmlarni tekshirish",
+      "E'lon holati va mavjud tarmoq statistikasi",
     ],
-    shot: "/shots/finance.jpg",
-    mobileShot: "/shots/m/finance.png",
-    url: "estats.uz/finance",
-    alt: "Moliya: komissiya, logistika va sof to'lov",
-  },
-  {
-    question: "Qaysi tovar qayerda e'lon qilingan?",
-    title: "Qaysi tovar qayerda e'lon qilingan?",
-    body:
-      "Uzumdagi tovar Instagramda va Telegramda bormi — bitta jadvalda ko'rinadi. " +
-      "Bitta tugma bilan hamma tarmoqqa joylanadi, e'lon fonda ketadi: " +
-      "sahifani yopsangiz ham to'xtamaydi.",
-    points: [
-      "Instagram, Telegram, TikTok va LinkedIn — bitta joydan",
-      "Qaysi tovar qayerda chiqqani belgilanadi",
-      "Narx bilan yoki narxsiz — o'zingiz tanlaysiz",
-      "E'lon fonda ketadi va uzilsa o'sha joyidan davom etadi",
-    ],
-    shot: "/shots/socials.jpg",
-    mobileShot: "/shots/m/socials.png",
-    url: "estats.uz/socials",
-    alt: "Ijtimoiy tarmoqlar: tovar va e'lonlar bog'lanishi",
-  },
-  {
-    question: "Qaysi tovardan boshlashim kerak?",
-    title: "Qaysi tovardan boshlashim kerak?",
-    body:
-      "Do'kondagi hamma tovar bitta ro'yxatda, ball bo'yicha saralangan. " +
-      "Eng past balli va eng ko'p talab qo'ldan ketayotgan tovar tepada — " +
-      "ish shundan boshlanadi.",
-    points: [
-      "Hamma tovar bir ekranda, ball bilan",
-      "Hammasini birdan tahlil qilish — fonda ketadi",
-      "O'rtacha ball va umumiy qo'ldan ketayotgan talab",
-      "Eng past balli tovar alohida ko'rsatiladi",
-    ],
-    shot: "/shots/seo-list.jpg",
-    mobileShot: "/shots/m/seo-list.png",
-    url: "estats.uz/seo",
-    alt: "SEO audit ro'yxati: hamma tovar ball bo'yicha",
+    screenshot: { desktop: "/shots/socials.jpg", mobile: "/shots/m/socials.png", alt: "eStats ijtimoiy tarmoqlar kabineti: tovarlar, postlar va ulangan akkauntlar", path: "estats.uz/socials" },
   },
 ];
 
-/**
- * Sotuvchi beradigan savollar — javobi mahsulotning o'z ekranida.
- *
- * "Imkoniyatlar ro'yxati" o'rniga savol tanlangan: odam funksiya
- * qidirmaydi, o'z savoliga javob qidiradi. Tanlangan savol darhol
- * o'sha ekranni ko'rsatadi.
- */
 export function QuestionsSection() {
-  const [active, setActive] = React.useState(0);
-  const current = QUESTIONS[active];
+  const [active, setActive] = React.useState<FeatureId>("seo");
+  const selected = FEATURES.find((feature) => feature.id === active) ?? FEATURES[0];
 
   return (
-    <section id="imkoniyatlar" className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
-      <div className="max-w-2xl">
-        <p className="text-xs font-medium uppercase tracking-widest text-primary">
-          Sotuvchining savollari
-        </p>
-        <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-          Har kuni beriladigan savollarga tayyor javob
-        </h2>
-        <p className="mt-4 text-muted-foreground">
-          Savolni tanlang — javobi qaysi ekranda turishini ko&apos;rasiz.
-        </p>
-      </div>
-
-      <div className="mt-8 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {QUESTIONS.map((item, index) => (
-          <button
-            key={item.question}
-            type="button"
-            onClick={() => setActive(index)}
-            aria-pressed={index === active}
-            className={cn(
-              "rounded-xl border p-4 text-left transition-all",
-              index === active
-                ? "border-transparent bg-foreground text-background shadow-lg"
-                : "bg-card hover:border-primary/30 hover:bg-muted/50"
-            )}
-          >
-            <span
-              className={cn(
-                "text-[10px] font-medium uppercase tracking-widest",
-                index === active ? "text-background/60" : "text-muted-foreground"
-              )}
-            >
-              Savol {String(index + 1).padStart(2, "0")}
-            </span>
-            <span className="mt-1 block text-sm font-medium">{item.question}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-6 overflow-hidden rounded-2xl border bg-card">
-        <div className="grid items-center gap-8 p-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:p-10">
+    <section id="imkoniyatlar" className={styles.features} aria-labelledby="features-title">
+      <div className={base.container}>
+        <div className={styles.sectionIntro}>
           <div>
-            <h3 className="text-2xl font-bold tracking-tight">{current.title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{current.body}</p>
-            <ul className="mt-6 space-y-2.5">
-              {current.points.map((point) => (
-                <li key={point} className="flex gap-2.5 text-sm">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                  <span className="text-muted-foreground">{point}</span>
-                </li>
-              ))}
-            </ul>
+            <p className={base.eyebrow}>Imkoniyatlar</p>
+            <h2 id="features-title" className={base.sectionTitle}>Har bir vazifaga<br />o'z ish quroli.</h2>
           </div>
-
-          <BrowserFrame
-            key={current.shot}
-            src={current.shot}
-            mobileSrc={current.mobileShot}
-            alt={current.alt}
-            url={current.url}
-            className="shadow-xl"
-            sizes="(max-width: 1024px) 100vw, 640px"
-          />
+          <p className={base.lead}>Tovarni topishdan foydani hisoblashgacha. Kerakli bo'limni tanlang va eStats qanday yordam berishini ko'ring.</p>
         </div>
+
+        <Tabs.Root value={active} onValueChange={(value) => setActive(value as FeatureId)} className={styles.tabs}>
+          <Tabs.List aria-label="eStats imkoniyatlari" className={styles.tabList}>
+            {FEATURES.map((feature) => {
+              const Icon = feature.icon;
+              return <Tabs.Trigger key={feature.id} value={feature.id} className={styles.tab}><Icon aria-hidden="true" /><span>{feature.label}</span></Tabs.Trigger>;
+            })}
+          </Tabs.List>
+
+          <Tabs.Content key={selected.id} value={selected.id} className={styles.featurePanel}>
+            <div className={styles.featureCopy}>
+              <p className={styles.featureEyebrow}>{selected.eyebrow}</p>
+              <h3>{selected.title}</h3>
+              <p className={styles.featureDescription}>{selected.description}</p>
+              <ul className={styles.featurePoints}>{selected.points.map((point) => <li key={point}><span><Check aria-hidden="true" /></span>{point}</li>)}</ul>
+              <Link href="/login" className={base.textLink}>Kabinetga o'tish <ArrowRight aria-hidden="true" /></Link>
+            </div>
+            <div className={styles.preview}>
+              {selected.screenshot ? <ScreenshotPreview key={selected.id} screenshot={selected.screenshot} /> : <WarehousePreview />}
+            </div>
+          </Tabs.Content>
+        </Tabs.Root>
       </div>
     </section>
+  );
+}
+
+function ScreenshotPreview({ screenshot }: { screenshot: NonNullable<Feature["screenshot"]> }) {
+  return (
+    <figure className={styles.screenshot}>
+      <div className={styles.browserBar} aria-hidden="true"><span className={styles.browserDots}><i /><i /><i /></span><span>{screenshot.path}</span><span className={styles.browserLabel}>eStats</span></div>
+      <div className={styles.screenshotWindow}>
+        <picture>
+          <source media="(max-width: 767px)" srcSet={screenshot.mobile} />
+          <img src={screenshot.desktop} alt={screenshot.alt} width={1456} height={829} loading="lazy" decoding="async" />
+        </picture>
+      </div>
+      <figcaption>Mahsulot ekranidan namuna<span className={styles.mobileCaption}> · ekranning bir qismi</span>. Raqamlar misol uchun.</figcaption>
+    </figure>
+  );
+}
+
+const SAMPLE_PRODUCTS = [
+  { name: "Termos, 450 ml", sku: "TRM-450", stock: "48 dona", cost: "30 000 so'm", empty: false },
+  { name: "Stol chirog'i", sku: "LMP-012", stock: "12 dona", cost: "55 000 so'm", empty: false },
+  { name: "Ryukzak, 20 l", sku: "BAG-020", stock: "0 dona", cost: "85 000 so'm", empty: true },
+];
+
+function WarehousePreview() {
+  return (
+    <figure className={styles.warehouse}>
+      <div className={styles.warehouseHeader}><span><Boxes aria-hidden="true" />Ombor</span><span className={styles.sampleBadge}>Namuna</span></div>
+      <div className={styles.warehouseStats}><div><span>Tovarlar</span><strong>3 <small>ta</small></strong></div><div><span>Jami qoldiq</span><strong>60 <small>dona</small></strong></div></div>
+      <div className={styles.warehouseSearch} aria-hidden="true"><Search />Tovar yoki SKU...</div>
+      <div className={styles.warehouseTable}>
+        <div className={styles.warehouseTableHead}><span>Tovar</span><span>Qoldiq / tan narxi</span></div>
+        {SAMPLE_PRODUCTS.map((product) => <div key={product.sku} className={styles.warehouseRow}><span className={styles.productIcon}><Package aria-hidden="true" /></span><div><strong>{product.name}</strong><small>{product.sku}</small></div><div className={styles.stockCell}><strong className={product.empty ? styles.emptyStock : undefined}>{product.stock}</strong><small>{product.cost}</small></div></div>)}
+      </div>
+      <figcaption>Soddalashtirilgan ko'rinish. Barcha ma'lumotlar namuna.</figcaption>
+    </figure>
   );
 }

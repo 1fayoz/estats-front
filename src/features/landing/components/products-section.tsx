@@ -1,127 +1,59 @@
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, BarChart3, Boxes, PlugZap } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import base from "./landing.module.css";
+import styles from "./landing-features.module.css";
 
-import { BrowserFrame } from "./browser-frame";
-
-const BLOCKS = [
+const STEPS = [
   {
-    eyebrow: "01 · Qidiruv",
-    title: "SEO audit",
-    lead: "Kartochkangiz qidiruvda topiladimi va qancha talab qo'ldan ketyapti.",
-    points: [
-      ["Kalit so'zlar yadrosi", "tovar, raqobatchilar, sharhlar va AI'dan"],
-      ["Har ibora o'lchanadi", "talab, raqobat, sharh soni"],
-      ["Ikki til alohida", "o'zbekcha va ruscha kartochka mustaqil"],
-      ["Tuzatish matni", "AI yozadi, nusxalab qo'yasiz"],
-    ],
-    shot: "/shots/seo-audit.jpg",
-    mobileShot: "/shots/m/seo-audit.png",
-    url: "estats.uz/seo",
-    alt: "SEO audit ekrani",
+    number: "01",
+    icon: PlugZap,
+    label: "Ulash",
+    title: "Do'koningizni ulang.",
+    description: "Uzum integratsiyasini sozlang. Tovarlar va sotuv ma'lumotlari kabinetingizga yig'iladi.",
+    detail: "Boshlanish nuqtasi — Integratsiyalar",
   },
   {
-    eyebrow: "02 · Pul",
-    title: "Foyda va moliya",
-    lead: "Tushum emas — komissiya, logistika va tan narxdan keyin qolgan pul.",
-    points: [
-      ["FIFO tan narx", "qaysi partiyadan sotilgani hisobga olinadi"],
-      ["Uzum yechimlari", "komissiya, logistika, jarima, saqlash"],
-      ["Doimiy xarajatlar", "oyma-oy taqsimlanadi"],
-      ["Ochiq hisob", "tan narxi yo'q donalar yashirilmaydi"],
-    ],
-    shot: "/shots/pnl.jpg",
-    mobileShot: "/shots/m/pnl.png",
-    url: "estats.uz/pnl",
-    alt: "Foyda va zarar ekrani",
+    number: "02",
+    icon: Boxes,
+    label: "Hisob",
+    title: "Kirim va tan narxni kiriting.",
+    description: "Har bir kelgan partiyaning miqdori, narxi va sanasini saqlang. Foyda hisobi shu ma'lumotlarga tayanadi.",
+    detail: "Har bir partiya alohida hisobda",
   },
   {
-    eyebrow: "03 · Sotuv",
-    title: "Ijtimoiy tarmoqlar",
-    lead: "Bitta tovarni hamma tarmoqqa bitta tugma bilan joylang.",
-    points: [
-      ["Bitta joyda", "Instagram, Telegram, TikTok, LinkedIn"],
-      ["Bog'lanish jadvali", "qaysi tovar qayerda chiqqan"],
-      ["Fonda ketadi", "sahifani yopsangiz ham to'xtamaydi"],
-      ["Obunachilar", "o'sish shu yerda ko'rinadi"],
-    ],
-    shot: "/shots/socials.jpg",
-    mobileShot: "/shots/m/socials.png",
-    url: "estats.uz/socials",
-    alt: "Ijtimoiy tarmoqlar ekrani",
+    number: "03",
+    icon: BarChart3,
+    label: "Kundalik ish",
+    title: "Tahlil qiling. Keyin joylang.",
+    description: "Foyda va qoldiqni kuzating, SEO tavsiyalarini tekshiring. Tayyor tovar postini ulangan tarmoqlarga yuboring.",
+    detail: "Oxirgi qaror o'zingizda",
   },
 ];
 
 export function ProductsSection() {
   return (
-    <section id="mahsulot" className="border-t bg-muted/30 py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-5">
-        <div className="max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-widest text-primary">
-            Bitta kabinet
-          </p>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-            Sotuvchining butun ish tsikli
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Kartochkani yaxshilash, foydani sanash va e&apos;lon qilish — servislar
-            orasida sakramasdan.
-          </p>
+    <section id="mahsulot" className={styles.workflow} aria-labelledby="workflow-title">
+      <div className={base.container}>
+        <div className={styles.workflowIntro}>
+          <div><p className={base.eyebrow}>Qanday boshlanadi?</p><h2 id="workflow-title" className={base.sectionTitle}>Uch qadam.<br />Tartibli kundalik ish.</h2></div>
+          <p className={base.lead}>Avval ma'lumotlarni ulang, keyin hisobni to'ldiring. eStats bilan ishlash shundan boshlanadi.</p>
         </div>
 
-        <div className="mt-14 space-y-20">
-          {BLOCKS.map((block, index) => (
-            <div
-              key={block.title}
-              className={cn(
-                "grid items-center gap-10 lg:grid-cols-2 lg:gap-14",
-                index % 2 === 1 && "lg:[&>*:first-child]:order-2"
-              )}
-            >
-              <div>
-                <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                  {block.eyebrow}
-                </span>
-                <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-                  {block.title}
-                </h3>
-                <p className="mt-3 text-muted-foreground">{block.lead}</p>
+        <ol className={styles.workflowSteps}>
+          {STEPS.map((step) => {
+            const Icon = step.icon;
+            return <li key={step.number} className={styles.step}>
+              <div className={styles.stepTop}><span className={styles.stepNumber}>{step.number}</span><span className={styles.stepIcon}><Icon aria-hidden="true" /></span></div>
+              <p className={styles.stepLabel}>{step.label}</p>
+              <h3>{step.title}</h3>
+              <p className={styles.stepDescription}>{step.description}</p>
+              <div className={styles.stepDetail}><span />{step.detail}</div>
+            </li>;
+          })}
+        </ol>
 
-                <dl className="mt-7 space-y-4">
-                  {block.points.map(([term, note]) => (
-                    <div key={term} className="flex gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <Check className="h-3 w-3 text-primary" />
-                      </span>
-                      <div>
-                        <dt className="text-sm font-medium">{term}</dt>
-                        <dd className="text-sm text-muted-foreground">{note}</dd>
-                      </div>
-                    </div>
-                  ))}
-                </dl>
-
-                <Link
-                  href="/login"
-                  className="group mt-7 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
-                >
-                  Sinab ko&apos;rish
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </div>
-
-              <BrowserFrame
-                src={block.shot}
-                mobileSrc={block.mobileShot}
-                alt={block.alt}
-                url={block.url}
-                className="shadow-xl"
-                sizes="(max-width: 1024px) 100vw, 560px"
-              />
-            </div>
-          ))}
-        </div>
+        <div className={styles.workflowFootnote}><p>O'z do'koningiz ma'lumotlari bilan boshlang.</p><Link href="/login" className={base.textLink}>Ishni boshlash <ArrowRight aria-hidden="true" /></Link></div>
       </div>
     </section>
   );

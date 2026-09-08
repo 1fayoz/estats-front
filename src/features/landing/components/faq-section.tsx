@@ -1,95 +1,56 @@
-"use client";
+import { ArrowUpRight, Plus } from "lucide-react";
 
-import * as React from "react";
-import { ChevronDown } from "lucide-react";
-
+import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
+import base from "./landing.module.css";
+import styles from "./landing-chrome.module.css";
 
 const FAQ = [
   {
-    q: "Do'konimni qanday ulayman?",
-    a:
-      "Uzum sotuvchi kabinetidagi API tokenni Integratsiyalar bo'limiga qo'yasiz — " +
-      "shu bilan tovarlar, sotuvlar va moliya tortiladi. Kalit so'zlarni o'lchash " +
-      "uchun qo'shimcha bozor tokeni kerak: uni bir marta bosiladigan yordamchi " +
-      "havola oladi. Hammasi besh daqiqa.",
+    question: "Ishni nimadan boshlayman?",
+    answer: "Hisobingizga kiring va Integratsiyalar bo‘limida Uzum do‘koningizni ulang. Sotuvchi kabinetidagi API tokeni orqali tovarlar, sotuvlar va moliya ma’lumotlari yuklanadi. Qo‘shimcha imkoniyatlar uchun kerakli ulanishlar shu bo‘limda ko‘rsatiladi.",
   },
   {
-    q: "Tan narxni qayerdan olasiz?",
-    a:
-      "Hech qayerdan — uni faqat siz bilasiz va Uzum uni hech qachon ko'rmaydi. " +
-      "Tan narx Kirimlar bo'limida partiya bo'yicha kiritiladi, foyda esa FIFO " +
-      "bo'yicha hisoblanadi: avval kelgan partiya avval sotiladi. Tan narxi " +
-      "kiritilmagan donalar hisobda yashirilmaydi, alohida ko'rsatiladi.",
+    question: "Sof foyda qanday hisoblanadi?",
+    answer: "Tovar tan narxini kirim qo‘shayotganda partiya bo‘yicha kiritasiz. Hisob FIFO usulida yuritiladi: avval kelgan partiya avval sotiladi. Tushum, tan narx, komissiya, logistika va kiritilgan doimiy xarajatlar foyda hisobida alohida ko‘rinadi.",
   },
   {
-    q: "Kartochkani o'zingiz o'zgartirasizmi?",
-    a:
-      "Yo'q. Uzum tovarni o'zgartirish huquqini API orqali bermaydi. Biz yangi " +
-      "nom va tavsifni tayyorlab beramiz, siz uni nusxalab Uzum kabinetiga " +
-      "qo'yasiz — bir necha soniya. Qaysi variantni qo'llaganingizni belgilab " +
-      "qo'yish mumkin, keyingi tahlil o'zgarishni ko'radi.",
+    question: "AI kartochkani Uzum’ga ham joylaydimi?",
+    answer: "AI avval nom, tavsif, rasmlar va boshqa ma’lumotlardan qoralama tayyorlaydi. Uni tekshirib, tahrirlab, tasdiqlaysiz. Uzum kabinetining brauzer ulanishi sozlangach, joylashni boshlashingiz mumkin. Mavjud AI kartochkalarining matni va rasmlarini Uzum’da yangilash imkoniyati ham bor.",
   },
   {
-    q: "Ruscha matn ham kerakmi?",
-    a:
-      "Ha, va bu ko'pchilik e'tibordan chetda qoldiradigan joy. Rus xaridori " +
-      "«бутылка для воды» deb qidiradi va o'zbekcha matnni topmaydi. Shuning " +
-      "uchun audit ikki tilni alohida o'lchaydi va har biriga o'z bali beriladi.",
+    question: "O‘zbekcha va ruscha matn bilan ishlaydimi?",
+    answer: "Ha. AI kartochkada nom va tavsifni o‘zbekcha va ruscha tayyorlash mumkin. SEO auditida ham ikki tildagi matn va qidiruv iboralari alohida ko‘rib chiqiladi. Tayyorlangan matnni qo‘llashdan oldin tekshirib, tahrirlashingiz mumkin.",
   },
   {
-    q: "Ma'lumot qanchalik tez yangilanadi?",
-    a:
-      "Sotuv va moliya har 4 soatda tortiladi, qidiruvdagi o'rin esa kuniga bir " +
-      "marta o'lchanadi. SEO tahlilini istalgan vaqtda o'zingiz ishga tushirishingiz " +
-      "mumkin — u fonda ketadi va sahifani yopsangiz ham to'xtamaydi.",
+    question: "Ma’lumotlar qachon yangilanadi?",
+    answer: "Yangilanish ulangan xizmat va ma’lumot turiga bog‘liq. Tegishli bo‘limlarda oxirgi sinxronlash holatini ko‘rish va yangilashni ishga tushirish mumkin. Tahlil va AI vazifalarining jarayoni ilovada ko‘rsatiladi.",
   },
   {
-    q: "Bir nechta do'kon ulash mumkinmi?",
-    a:
-      "Ha. Bitta hisobga bir necha do'kon ulanadi va ular bir-birining " +
-      "ma'lumotini ko'rmaydi. Yuqoridagi ro'yxatdan qaysi do'kon bilan " +
-      "ishlayotganingizni almashtirasiz.",
+    question: "Bir nechta do‘kon bilan ishlash mumkinmi?",
+    answer: "Ha. Bitta hisobga bir nechta do‘kon qo‘shishingiz mumkin. Ilovaning yuqori qismidan kerakli do‘konni tanlaysiz; tovarlar va hisobotlar tanlangan do‘kon bo‘yicha ko‘rsatiladi.",
   },
 ];
 
 export function FaqSection() {
-  const [open, setOpen] = React.useState<number | null>(0);
-
   return (
-    <section id="savollar" className="mx-auto max-w-3xl px-5 py-20 sm:py-28">
-      <div className="text-center">
-        <p className="text-xs font-medium uppercase tracking-widest text-primary">Savollar</p>
-        <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-          Ko&apos;p so&apos;raladigan savollar
-        </h2>
-      </div>
+    <section id="savollar" className={styles.faqSection} aria-labelledby="faq-heading">
+      <div className={cn(base.container, styles.faqGrid)}>
+        <div className={styles.faqIntro}>
+          <p className={base.eyebrow}>SAVOL-JAVOB</p>
+          <h2 id="faq-heading" className={base.sectionTitle}>Boshlashdan oldin<br />bilish kerak.</h2>
+          <p className={cn(base.lead, styles.faqLead)}>Ulanish, hisob-kitob va kundalik ish haqida ko‘p so‘raladigan savollar.</p>
+          <a href={siteConfig.botUrl} target="_blank" rel="noopener noreferrer" className={cn(base.textLink, styles.faqContact)}>Telegram botini ochish<ArrowUpRight size={17} aria-hidden="true" /><span className="sr-only"> (yangi oynada)</span></a>
+        </div>
 
-      <div className="mt-10 divide-y rounded-2xl border bg-card">
-        {FAQ.map((item, index) => {
-          const expanded = open === index;
-          return (
-            <div key={item.q}>
-              <button
-                type="button"
-                onClick={() => setOpen(expanded ? null : index)}
-                aria-expanded={expanded}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
-              >
-                <span className="text-sm font-medium">{item.q}</span>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
-                    expanded && "rotate-180"
-                  )}
-                />
-              </button>
-              {expanded ? (
-                <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
-              ) : null}
-            </div>
-          );
-        })}
+        <div className={styles.faqList}>
+          {FAQ.map((item, index) => (
+            <details key={item.question} name="landing-faq" className={styles.faqItem} open={index === 0}>
+              <summary><span>{item.question}</span><Plus size={18} className={styles.faqToggle} aria-hidden="true" /></summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   );

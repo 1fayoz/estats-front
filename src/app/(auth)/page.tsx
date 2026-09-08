@@ -1,36 +1,23 @@
-import { CompareSection } from "@/features/landing/components/compare-section";
 import { CtaSection } from "@/features/landing/components/cta-section";
 import { FaqSection } from "@/features/landing/components/faq-section";
 import { LandingFooter } from "@/features/landing/components/footer";
-import { HeroSection } from "@/features/landing/components/hero-section";
+import { HeroSection, LandingConnections } from "@/features/landing/components/hero-section";
 import { LandingHeader } from "@/features/landing/components/landing-header";
-import { MarqueeSection } from "@/features/landing/components/marquee-section";
 import { PricingSection } from "@/features/landing/components/pricing-section";
 import { ProductsSection } from "@/features/landing/components/products-section";
 import { QuestionsSection } from "@/features/landing/components/questions-section";
+import styles from "@/features/landing/components/landing.module.css";
 
-/**
- * Tanishtiruv sahifasi.
- *
- * Kirish formasi bu yerdan `/login` ga ko'chirildi: u hero'ning
- * yarmini egallab turardi va mahsulotning o'zini ko'rsatishga joy
- * qolmasdi. Endi hero to'liq kenglikda va markazida ishlab turgan
- * kabinetning haqiqiy rasmi turadi.
- *
- * Sahifa ATAYLAB yorug' (`landing-light`), kabinet esa qorong'i
- * qolaveradi — qorong'i kartochka rasmlari yorug' fonda ajralib
- * turadi va shu bilan e'tiborni o'ziga tortadi.
- */
 export default function LandingPage() {
   return (
-    <div className="landing-light min-h-svh">
+    <div className={`landing-light ${styles.page}`}>
+      <a href="#asosiy" className={styles.skip}>Asosiy mazmunga o‘tish</a>
       <LandingHeader />
-      <main>
+      <main id="asosiy">
         <HeroSection />
-        <MarqueeSection />
+        <LandingConnections />
         <QuestionsSection />
         <ProductsSection />
-        <CompareSection />
         <PricingSection />
         <FaqSection />
         <CtaSection />

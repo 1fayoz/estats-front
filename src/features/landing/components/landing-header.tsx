@@ -7,6 +7,8 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
+import base from "./landing.module.css";
+import styles from "./landing-chrome.module.css";
 
 const NAV = [
   { href: "#imkoniyatlar", label: "Imkoniyatlar" },
@@ -17,78 +19,73 @@ const NAV = [
 
 export function LandingHeader() {
   const [open, setOpen] = React.useState(false);
-  const [scrolled, setScrolled] = React.useState(false);
+  const menuId = React.useId();
+  const menuButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const mobileNavRef = React.useRef<HTMLElement | null>(null);
+  const logoRef = React.useRef<HTMLAnchorElement | null>(null);
 
-  // Sarlavha faqat sahifa surilgandan keyin chegara oladi: eng tepada
-  // u fonga qo'shilib ketsa, hero kengroq ko'rinadi.
+  const closeMenu = () => {
+    setOpen(false);
+    menuButtonRef.current?.focus({ preventScroll: true });
+  };
+
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      menuButtonRef.current?.focus();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  React.useEffect(() => {
+    const breakpoint = window.matchMedia("(min-width: 1000px)");
+    const onBreakpointChange = () => {
+      if (!breakpoint.matches) return;
+      if (mobileNavRef.current?.contains(document.activeElement) || document.activeElement === menuButtonRef.current) logoRef.current?.focus();
+      setOpen(false);
+    };
+    breakpoint.addEventListener("change", onBreakpointChange);
+    return () => breakpoint.removeEventListener("change", onBreakpointChange);
   }, []);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 transition-colors duration-200",
-        scrolled ? "border-b bg-background/80 backdrop-blur-xl" : "bg-transparent"
-      )}
-    >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
-        <Link href="/" className="flex items-center gap-2.5">
-          <LogoMark size={34} priority className="h-8 w-8" />
-          <span className="text-lg font-bold tracking-tight">{siteConfig.name}</span>
+    <header className={styles.header}>
+      <div className={cn(base.container, styles.headerInner)}>
+        <Link ref={logoRef} href="/" className={styles.logo} aria-label="eStats — bosh sahifa">
+          <LogoMark size={34} />
+          <span>{siteConfig.name}</span>
         </Link>
 
-        <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="transition-colors hover:text-foreground">
-              {item.label}
-            </Link>
-          ))}
+        <nav className={styles.desktopNav} aria-label="Asosiy navigatsiya">
+          {NAV.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href="/login"
-            className="hidden px-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:block"
-          >
-            Kirish
-          </Link>
-          <Link
-            href="/login"
-            className="group inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:shadow-md hover:shadow-primary/25"
-          >
-            Bepul boshlash
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+        <div className={styles.headerActions}>
+          <Link href="/login" className={styles.loginLink}>Kirish</Link>
+          <Link href="/login" className={cn(base.primaryButton, styles.headerCta)}>Boshlash<ArrowRight size={15} aria-hidden="true" /></Link>
           <button
+            ref={menuButtonRef}
             type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="rounded-lg p-2 text-muted-foreground md:hidden"
-            aria-label="Menyu"
+            onClick={() => setOpen((previous) => !previous)}
+            className={styles.menuButton}
+            aria-label={open ? "Menyuni yopish" : "Menyuni ochish"}
             aria-expanded={open}
+            aria-controls={menuId}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X size={21} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}
           </button>
         </div>
       </div>
 
-      {open ? (
-        <nav className="border-t bg-background px-5 py-3 md:hidden">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className="block py-2.5 text-sm text-muted-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
+      <nav ref={mobileNavRef} id={menuId} className={cn(styles.mobileNav, open && styles.mobileNavOpen)} aria-label="Mobil navigatsiya" hidden={!open}>
+        <div className={base.container}>
+          {NAV.map((item) => <Link key={item.href} href={item.href} onClick={closeMenu}>{item.label}<ArrowRight size={15} aria-hidden="true" /></Link>)}
+          <Link href="/login" onClick={closeMenu}>Hisobga kirish<ArrowRight size={15} aria-hidden="true" /></Link>
+        </div>
+      </nav>
     </header>
   );
 }

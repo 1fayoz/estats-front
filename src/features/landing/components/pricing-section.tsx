@@ -2,17 +2,13 @@ import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-
-/**
- * Tariflar.
- *
- * Narxlar va tarkib o'zgarmagan — faqat ko'rinishi landing'ning
- * qolgan qismiga moslandi.
- */
+import shared from "./landing.module.css";
+import styles from "./landing-pricing.module.css";
 const PLANS = [
   {
     name: "Demo",
     price: 0,
+    months: 0,
     unit: "bepul",
     description: "Tanishish uchun",
     features: [
@@ -27,6 +23,7 @@ const PLANS = [
   {
     name: "1 oy",
     price: 1_290_000,
+    months: 1,
     unit: "so'm / oy",
     description: "Starter",
     features: [
@@ -42,9 +39,10 @@ const PLANS = [
   {
     name: "6 oy",
     price: 900_000,
+    months: 6,
     unit: "so'm / oy",
     discount: "−30%",
-    description: "Eng yaxshi tanlov",
+    description: "Yarim yillik reja",
     features: [
       "1 oylik tarifning hammasi",
       "Boost TOP plagin to'liq",
@@ -53,12 +51,13 @@ const PLANS = [
       "Bo'lib to'lash imkoniyati",
       "Telegram bot premium",
     ],
-    cta: "Eng mashhur",
+    cta: "Tanlash",
     highlighted: true,
   },
   {
     name: "12 oy",
     price: 720_000,
+    months: 12,
     unit: "so'm / oy",
     discount: "−44%",
     description: "Maksimal tejam",
@@ -78,102 +77,63 @@ const money = new Intl.NumberFormat("ru-RU");
 
 export function PricingSection() {
   return (
-    <section id="narxlar" className="border-t bg-muted/30 py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-5">
-        <div className="max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-widest text-primary">Narxlar</p>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+    <section id="narxlar" className={styles.pricing} aria-labelledby="pricing-heading">
+      <div className={shared.container}>
+        <div className={styles.pricingHeader}>
+          <div>
+          <p className={shared.eyebrow}>Tariflar</p>
+          <h2 id="pricing-heading" className={shared.sectionTitle}>
             Sizga mos tarifni tanlang
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            Ko&apos;p oyga to&apos;lasangiz — kam to&apos;laysiz. Istalgan vaqtda
-            kengaytirish mumkin.
+          </div>
+          <p className={styles.pricingLead}>
+            Avval imkoniyatlar bilan tanishing.
+            Keyin ishingizga mos muddatni tanlang.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className={styles.plans}>
           {PLANS.map((plan) => (
-            <div
+            <article
               key={plan.name}
-              className={cn(
-                "relative flex flex-col rounded-2xl border p-6",
-                plan.highlighted
-                  ? "border-transparent bg-foreground text-background shadow-xl"
-                  : "bg-card"
-              )}
+              className={cn(styles.plan, plan.highlighted && styles.highlighted)}
+              aria-label={`${plan.name} tarifi`}
             >
-              {plan.discount ? (
-                <span
-                  className={cn(
-                    "absolute right-5 top-5 rounded-full px-2 py-0.5 text-[11px] font-semibold",
-                    plan.highlighted ? "bg-background/15" : "bg-success/12 text-success"
-                  )}
-                >
-                  {plan.discount}
-                </span>
-              ) : null}
-
-              <span className="text-sm font-semibold">{plan.name}</span>
-              <span
-                className={cn(
-                  "text-xs",
-                  plan.highlighted ? "text-background/60" : "text-muted-foreground"
-                )}
-              >
-                {plan.description}
-              </span>
-
-              <div className="mt-5 flex items-baseline gap-1.5">
-                <span className="text-3xl font-bold tabular-nums">
-                  {plan.price ? money.format(plan.price) : "0"}
-                </span>
-                <span
-                  className={cn(
-                    "text-xs",
-                    plan.highlighted ? "text-background/60" : "text-muted-foreground"
-                  )}
-                >
-                  {plan.unit}
-                </span>
+              <div className={styles.planHeading}>
+                <h3>{plan.name}</h3>
+                {plan.discount && <span className={styles.discount}>{plan.discount}</span>}
               </div>
-
-              <ul className="mt-6 flex-1 space-y-2.5">
+              <p className={styles.planDescription}>{plan.description}</p>
+              <div className={styles.price}>
+                <span>{money.format(plan.price)}</span>
+                <span>{plan.price ? plan.unit : "so'm · bepul"}</span>
+              </div>
+              <p className={styles.periodTotal}>
+                {plan.months > 1
+                  ? `${plan.months} oy hisobida ${money.format(plan.price * plan.months)} so'm`
+                  : plan.months === 1 ? "Bir oylik foydalanish" : "Namuna ma'lumotlar bilan tanishish"}
+              </p>
+              <Link href="/login" aria-label={plan.price ? `${plan.name} tarifini tanlash` : "Demo bilan bepul boshlash"} className={cn(plan.highlighted ? shared.primaryButton : shared.secondaryButton, styles.planButton)}>
+                {plan.cta}
+                <ArrowRight aria-hidden="true" />
+              </Link>
+              <div className={styles.featuresLabel}>Tarifga kiradi</div>
+              <ul className={styles.features}>
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex gap-2.5 text-sm">
-                    <Check
-                      className={cn(
-                        "mt-0.5 h-4 w-4 shrink-0",
-                        plan.highlighted ? "text-background/70" : "text-primary"
-                      )}
-                    />
-                    <span
-                      className={plan.highlighted ? "text-background/85" : "text-muted-foreground"}
-                    >
-                      {feature}
-                    </span>
+                  <li key={feature}>
+                    <Check aria-hidden="true" />
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
-
-              <Link
-                href="/login"
-                className={cn(
-                  "group mt-6 inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
-                  plan.highlighted
-                    ? "bg-background text-foreground hover:opacity-90"
-                    : "border hover:bg-muted"
-                )}
-              >
-                {plan.cta}
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </div>
+            </article>
           ))}
         </div>
 
-        <p className="mt-6 text-xs text-muted-foreground">
-          Narxlar so&apos;mda. To&apos;lov Payme, Click yoki bank o&apos;tkazmasi orqali.
-        </p>
+        <div className={styles.pricingNotes}>
+          <p>Narxlar so&apos;mda. To&apos;lov Payme, Click yoki bank o&apos;tkazmasi orqali.</p>
+          <p>Davr summasi oylik narx × oylar soni bo&apos;yicha hisoblangan. Chegirmalar 1 oylik tarifga nisbatan yaxlitlangan.</p>
+        </div>
       </div>
     </section>
   );

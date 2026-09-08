@@ -1,0 +1,40 @@
+.page {
+  --lp-ink: #181923;
+  --lp-muted: #666a78;
+  --lp-line: #e7e8ee;
+  --lp-bg: #f7f8fb;
+  --lp-purple: #6650df;
+  --lp-lime: #d7f58a;
+  --lp-container: 1180px;
+  color: var(--lp-ink);
+  background: #fff;
+  overflow-x: clip;
+  font-feature-settings: "ss01" on;
+}
+
+.container { width: min(var(--lp-container), calc(100% - 80px)); margin-inline: auto; }
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 11px; line-height: 1.5; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: var(--lp-purple); }
+.eyebrow::before { content: ""; width: 20px; height: 1px; background: currentColor; }
+.sectionTitle { max-width: 760px; font-size: clamp(30px, 3.7vw, 48px); font-weight: 600; line-height: 1.14; letter-spacing: -.045em; text-wrap: balance; }
+.lead { max-width: 570px; margin-top: 20px; color: var(--lp-muted); font-size: 16px; line-height: 1.8; }
+.primaryButton, .secondaryButton { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 50px; padding: 14px 22px; border-radius: 11px; font-size: 13px; line-height: 1.5; font-weight: 600; text-align: center; text-decoration: none; transition: background-color 160ms, transform 160ms, box-shadow 160ms; }
+.primaryButton { background: var(--lp-purple); color: #fff; border: 1px solid var(--lp-purple); box-shadow: 0 4px 8px #6650df12; }
+.primaryButton:hover { background: #5640ca; border-color: #5640ca; box-shadow: 0 6px 18px #6650df25; transform: translateY(-1px); }
+.secondaryButton { background: #fff; color: var(--lp-ink); border: 1px solid var(--lp-line); }
+.secondaryButton:hover { background: var(--lp-bg); border-color: #cbccd8; }
+.primaryButton svg, .secondaryButton svg { width: 16px; height: 16px; flex-shrink: 0; }
+.textLink { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; font-weight: 600; color: var(--lp-purple); text-underline-offset: 4px; }
+.textLink:hover { text-decoration: underline; }
+.textLink svg { width: 16px; height: 16px; }
+.page :is(a, button, summary, input):focus-visible { outline: 2px solid var(--lp-purple); outline-offset: 5px; }
+.page :is(section, main)[id] { scroll-margin-top: 100px; }
+.skip { position: fixed; top: 10px; left: 20px; z-index: 100; padding: 12px 18px; background: var(--lp-ink); color: #fff; border-radius: 9px; transform: translateY(-160%); }
+.skip:focus { transform: translateY(0); }
+@media (max-width: 768px) {
+  .container { width: calc(100% - 40px); }
+  .sectionTitle { font-size: clamp(29px, 7vw, 40px); }
+  .lead { font-size: 14px; line-height: 1.75; }
+  .eyebrow { margin-bottom: 16px; font-size: 10px; }
+}
+@media (max-width: 380px) { .container { width: calc(100% - 32px); } }
+@media (prefers-reduced-motion: reduce) { .page *, .page *::before, .page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

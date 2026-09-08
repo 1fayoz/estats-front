@@ -1,143 +1,98 @@
 import Link from "next/link";
-import { ArrowRight, Check, TrendingUp } from "lucide-react";
+import { ArrowDown, ArrowRight, BarChart3, Box, Check, ChevronDown, CircleHelp, Layers3, Search, Settings2, Sparkles, Store, Wallet } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo";
+import { NetworkIcon } from "@/components/brand/network-icons";
+import base from "./landing.module.css";
+import styles from "./landing-hero.module.css";
 
-import { BrowserFrame } from "./browser-frame";
-
-const TRUST = [
-  "Karta talab qilinmaydi",
-  "5 daqiqada ulanadi",
-  "Istalgan vaqtda bekor qilish",
-];
+const BARS = [32, 46, 39, 59, 43, 52, 71, 58, 68, 86, 74, 96];
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
-      {/* Yumshoq nur — margn'dagidek, lekin bizning binafsha-zangori. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[720px]">
-        <div className="absolute -top-40 left-1/2 h-[320px] w-[130vw] max-w-[900px] -translate-x-1/2 rounded-full bg-primary/20 blur-[120px] sm:h-[520px]" />
-        <div className="absolute right-0 top-24 h-[240px] w-[70vw] max-w-[380px] rounded-full bg-info/18 blur-[110px] sm:h-[380px]" />
-        <div className="absolute left-0 top-40 h-[200px] w-[60vw] max-w-[300px] rounded-full bg-accent/60 blur-[100px] sm:h-[300px]" />
-      </div>
-
-      <div className="mx-auto max-w-6xl px-5 pb-10 pt-12 text-center sm:pt-20">
-        <div className="inline-flex items-center gap-2 rounded-full border bg-card/70 px-3.5 py-1.5 text-xs text-muted-foreground backdrop-blur">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-70" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
-          </span>
-          Uzum Market · ma&apos;lumot har 4 soatda yangilanadi
+    <section className={styles.hero} aria-labelledby="landing-title">
+      <div className={`${base.container} ${styles.layout}`}>
+        <div className={styles.copy}>
+          <p className={styles.kicker}><span /> Uzum Market sotuvchilari uchun</p>
+          <h1 id="landing-title">Sotuvlar ko‘p.<br /><span>Foyda</span> qancha?</h1>
+          <p className={styles.description}>
+            Ombor, tan narx, SEO va ijtimoiy tarmoqlar — bitta ish maydonida.
+            Tushum ortidagi haqiqiy foydani ko‘ring va keyingi qadamingizni aniq belgilang.
+          </p>
+          <div className={styles.actions}>
+            <Link href="/login" className={base.primaryButton}>Bepul boshlash <ArrowRight /></Link>
+            <a href="#imkoniyatlar" className={base.secondaryButton}>Ichkarida nima bor? <ArrowDown /></a>
+          </div>
+          <p className={styles.reassurance}><Check /> Avval tanishing. Keyin do‘koningizni ulang.</p>
+          <div className={styles.heroTopics}>
+            <span><Layers3 /> Ombor va FIFO</span>
+            <span><Sparkles /> SEO va AI</span>
+            <span><BarChart3 /> Foyda tahlili</span>
+          </div>
         </div>
 
-        <h1 className="mx-auto mt-6 max-w-4xl text-balance text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl">
-          Kartochkangizni ko&apos;ring.
-          <br />
-          <span className="gradient-text">Foydangizni sanang.</span>
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted-foreground">
-          Uzumdagi tovaringiz qidiruvda topiladimi va qancha talab qo&apos;ldan
-          ketyapti — hamda komissiya, logistika va tan narxdan keyin qo&apos;lda
-          qancha pul qolayotgani. Bitta kabinetda.
-        </p>
-
-        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="/login"
-            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 sm:w-auto"
-          >
-            Bepul boshlash
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-          <Link
-            href="#mahsulot"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border bg-card px-6 py-3.5 text-base font-medium transition-colors hover:bg-muted sm:w-auto"
-          >
-            Qanday ishlaydi
-          </Link>
-        </div>
-
-        <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-          {TRUST.map((item) => (
-            <li key={item} className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-success" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Mahsulotning o'zi — landing'ning eng ishonarli qismi. */}
-      <div className="relative mx-auto max-w-6xl px-5 pb-16 sm:pb-24">
-        <div className="relative">
-          <BrowserFrame
-            src="/shots/seo-audit.jpg"
-            mobileSrc="/shots/m/seo-audit.png"
-            alt="eStats SEO audit: kartochka bali va tillar bo'yicha alohida o'lchov"
-            url="estats.uz/seo"
-            priority
-            sizes="(max-width: 1024px) 100vw, 1100px"
-          />
-
-          <FloatCard
-            className="-left-3 top-[26%] hidden sm:flex lg:-left-10"
-            label="SEO BALL"
-            value="81"
-            delta="+15"
-          />
-          <FloatCard
-            className="-right-3 top-[10%] hidden sm:flex lg:-right-8"
-            label="QO'LDAN KETYAPTI"
-            value="96 880"
-            tone="bad"
-          />
-          <FloatCard
-            className="-right-3 bottom-[14%] hidden md:flex lg:-right-12"
-            label="RUSCHA KARTOCHKA"
-            value="41"
-            suffix="/85"
-          />
-        </div>
+        <figure className={styles.visual} aria-label="eStats ish maydonining namuna ma’lumotlar bilan soddalashtirilgan ko‘rinishi">
+          <div className={styles.visualGrid} aria-hidden="true" />
+          <div className={styles.window}>
+            <div className={styles.windowBar}>
+              <span className={styles.windowBrand}><LogoMark size={21} /><strong>eStats</strong></span>
+              <span className={styles.demoBadge}>Interfeys namunasi</span>
+              <span className={styles.windowAvatar}>N</span>
+            </div>
+            <div className={styles.application}>
+              <div className={styles.rail} aria-hidden="true">
+                <span><BarChart3 /></span><Box /><Search /><Wallet /><Settings2 />
+                <CircleHelp className={styles.railBottom} />
+              </div>
+              <div className={styles.dashboard}>
+                <div className={styles.dashboardHeader}>
+                  <div><p>Namuna do‘kon</p><h2>Biznesingiz raqamlarda</h2></div>
+                  <span className={styles.period}>30 kun <ChevronDown /></span>
+                </div>
+                <div className={styles.balance}>
+                  <span className={styles.balanceIcon}><Wallet /></span>
+                  <div><p>Sof foyda</p><strong>18 420 000 <span>so‘m</span></strong></div>
+                  <span className={styles.balanceCheck}><Check /></span>
+                </div>
+                <div className={styles.smallMetrics}>
+                  <div><span>Yalpi savdo</span><strong>46 800 000 <small>so‘m</small></strong></div>
+                  <div><span>Jami xarajat</span><strong>28 380 000 <small>so‘m</small></strong></div>
+                </div>
+                <div className={styles.chart}>
+                  <div className={styles.chartHeading}><strong>Sotuv dinamikasi</strong><span><i /> Tushum</span></div>
+                  <div className={styles.plot} aria-hidden="true">
+                    <div className={styles.plotGrid}><span /><span /><span /></div>
+                    <div className={styles.bars}>{BARS.map((height, index) => <span key={index} style={{ height: `${height}%` }}><i /></span>)}</div>
+                  </div>
+                  <div className={styles.chartDates}><span>1-sana</span><span>15-sana</span><span>30-sana</span></div>
+                </div>
+                <div className={styles.productLine}><span><Box /></span><div><strong>Har bir tovarning o‘z hisobi</strong><p>Tan narx · qoldiq · foyda</p></div><ArrowRight /></div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.seoNote}>
+            <div className={styles.score}><span>81<small>/100</small></span></div>
+            <div><p><Sparkles /> SEO audit</p><strong>Kartochkada imkoniyat bor.</strong><span>Kalit so‘zlar va aniq tavsiyalar</span></div>
+          </div>
+          <figcaption>Namuna raqamlar. Haqiqiy hisobot do‘koningiz ma’lumotlari asosida.</figcaption>
+        </figure>
       </div>
     </section>
   );
 }
 
-function FloatCard({
-  label,
-  value,
-  delta,
-  suffix,
-  tone,
-  className,
-}: {
-  label: string;
-  value: string;
-  delta?: string;
-  suffix?: string;
-  tone?: "bad";
-  className?: string;
-}) {
+export function LandingConnections() {
   return (
-    <div
-      className={`absolute flex flex-col gap-1 rounded-xl border bg-card/95 px-4 py-3 shadow-xl shadow-foreground/5 backdrop-blur ${className}`}
-    >
-      <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-        {label}
-      </span>
-      <span className="flex items-baseline gap-1.5">
-        <span
-          className={`text-xl font-bold tabular-nums ${tone === "bad" ? "text-destructive" : ""}`}
-        >
-          {value}
-        </span>
-        {suffix ? <span className="text-xs text-muted-foreground">{suffix}</span> : null}
-        {delta ? (
-          <span className="flex items-center gap-0.5 text-xs font-medium text-success">
-            <TrendingUp className="h-3 w-3" />
-            {delta}
-          </span>
-        ) : null}
-      </span>
-    </div>
+    <section className={styles.connections} aria-label="Integratsiyalar">
+      <div className={`${base.container} ${styles.connectionsInner}`}>
+        <p>Siz ishlatadigan vositalar.<br /><strong>Endi bir-biriga bog‘langan.</strong></p>
+        <div className={styles.connectionNames}>
+          <span className={styles.market}><Store /><strong>Uzum Market</strong></span>
+          <span><NetworkIcon platform="instagram" /><strong>Instagram</strong></span>
+          <span><NetworkIcon platform="telegram" /><strong>Telegram</strong></span>
+          <span><NetworkIcon platform="tiktok" /><strong>TikTok</strong></span>
+          <span><NetworkIcon platform="linkedin" /><strong>LinkedIn</strong></span>
+        </div>
+      </div>
+    </section>
   );
 }
