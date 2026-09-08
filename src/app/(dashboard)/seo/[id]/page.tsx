@@ -7,11 +7,10 @@ import type { Route } from "next";
 import {
   Activity, AlertTriangle, ArrowLeft, Check, Copy, Download, ExternalLink,
   Image as ImageIcon, Loader2, MessageSquare, PenLine, SlidersHorizontal,
-  Sparkles, Wand2,
+  Sparkles, Wand2, SearchCheck, CalendarDays,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +35,7 @@ import { formatNumber } from "@/lib/format";
 import { useQueryNumber, useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import type { SeoAudit } from "@/lib/types";
+import styles from "./seo-detail.module.css";
 
 type Job = "analyse" | "media" | "content" | null;
 
@@ -106,10 +106,11 @@ export default function SeoDetailPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-96 w-full rounded-xl" />
+      <div className={styles.loading}>
+        <Skeleton className="h-5 w-28" />
+        <Skeleton className="h-40 w-full rounded-2xl" />
+        <Skeleton className="h-44 w-full rounded-2xl" />
+        <Skeleton className="h-96 w-full rounded-2xl" />
       </div>
     );
   }
@@ -118,70 +119,79 @@ export default function SeoDetailPage() {
   const analysed = Boolean(audit.analyzedAt);
 
   return (
-    <div className="space-y-6">
+    <div className={styles.page}>
       <Link
         href={"/seo" as Route}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className={styles.backLink}
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> SEO audit
+        <ArrowLeft aria-hidden="true" /> Barcha SEO auditlar
       </Link>
 
-      <PageHeader
-        title={audit.title}
-        description={
-          analysed
-            ? `Oxirgi tahlil: ${new Date(audit.analyzedAt!).toLocaleString("uz-UZ")}`
-            : "Hali tahlil qilinmagan"
-        }
-        actions={
-          <div className="flex flex-wrap gap-2">
+      <section className={styles.productHero} aria-labelledby="seo-product-title">
+        <div className={styles.productIdentity}>
+          <div className={styles.productImage}>
+            {audit.image ? <img src={audit.image} alt="" /> : <SearchCheck aria-hidden="true" />}
+          </div>
+          <div className={styles.productCopy}>
+            <div className={styles.heroMeta}>
+              <span className={analysed ? styles.statusReady : styles.statusPending}>
+                <span /> {analysed ? "Audit tayyor" : "Tahlil kutilmoqda"}
+              </span>
+              <span>#{audit.productId}</span>
+            </div>
+            <h1 id="seo-product-title">{audit.title}</h1>
+            <p>
+              {analysed ? <><CalendarDays aria-hidden="true" /> Oxirgi tahlil {new Date(audit.analyzedAt!).toLocaleString("uz-UZ")}</> : "Kartochkaning qidiruvdagi imkoniyatlarini tekshiring."}
+            </p>
+          </div>
+        </div>
+        <div className={styles.heroActions}>
             <Link href={`/warehouse/${audit.productId}` as Route}>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                Tovar <ExternalLink className="h-3.5 w-3.5" />
+              <Button variant="outline" className={styles.secondaryAction}>
+                Tovar kartasi <ExternalLink aria-hidden="true" />
               </Button>
             </Link>
             {analysed ? (
               <Button
                 variant="outline"
-                size="sm"
-                className="gap-1.5"
+                className={styles.iconAction}
                 onClick={exportAudit}
                 disabled={exporting}
+                aria-label="Auditni Excel formatida yuklab olish"
               >
                 {exporting ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="animate-spin" />
                 ) : (
-                  <Download className="h-3.5 w-3.5" />
+                  <Download />
                 )}
-                Excel
+                <span>Excel</span>
               </Button>
             ) : null}
-            <Button size="sm" className="gap-1.5" onClick={() => run("analyse")} disabled={job !== null}>
+            <Button className={styles.primaryAction} onClick={() => run("analyse")} disabled={job !== null}>
               {job === "analyse" ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="animate-spin" />
               ) : (
-                <Wand2 className="h-3.5 w-3.5" />
+                <Wand2 />
               )}
               {analysed ? "Qayta tahlil" : "Tahlil qilish"}
             </Button>
-          </div>
-        }
-      />
+        </div>
+      </section>
 
       {!analysed ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center gap-3 p-10 text-center">
-            <div className="rounded-full bg-primary/10 p-4">
-              <Wand2 className="h-6 w-6 text-primary" />
+        <Card className={styles.emptyState}>
+          <CardContent>
+            <div className={styles.emptyIcon}>
+              <Wand2 />
             </div>
             <div>
-              <p className="font-medium">Tahlil hali yuritilmagan</p>
-              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+              <h2>Tahlilni boshlashga tayyor</h2>
+              <p>
                 Kalit so&apos;zlar yadrosi Uzum qidiruvi orqali o&apos;lchanadi —
                 bu bir necha o&apos;n soniya oladi.
               </p>
             </div>
-            <Button className="gap-1.5" onClick={() => run("analyse")} disabled={job !== null}>
+            <Button onClick={() => run("analyse")} disabled={job !== null}>
               {job === "analyse" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
               Tahlil qilish
             </Button>
@@ -192,8 +202,9 @@ export default function SeoDetailPage() {
           <RunPicker runs={audit.runs} activeId={runId} onPick={setRunId} />
           <ScoreBlock audit={audit} />
 
-          <Tabs value={tab} onValueChange={setTab}>
-            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+          <Tabs value={tab} onValueChange={setTab} className={styles.tabs}>
+            <div className={styles.tabsScroller}>
+            <TabsList className={styles.tabsList}>
               <TabsTrigger value="audit">Xulosalar</TabsTrigger>
               <TabsTrigger value="keywords">
                 {`Kalit so'zlar (${audit.keywordsTotal})`}
@@ -230,17 +241,18 @@ export default function SeoDetailPage() {
                 <Activity className="h-3.5 w-3.5" /> O&apos;rinlar
               </TabsTrigger>
             </TabsList>
+            </div>
 
-            <TabsContent value="audit" className="mt-4 space-y-3">
+            <TabsContent value="audit" className={styles.tabContent}>
               <LanguagesBlock languages={audit.languages || []} />
               <VerdictsBlock audit={audit} />
             </TabsContent>
 
-            <TabsContent value="keywords" className="mt-4">
+            <TabsContent value="keywords" className={styles.tabContent}>
               <KeywordsBlock audit={audit} />
             </TabsContent>
 
-            <TabsContent value="attributes" className="mt-4">
+            <TabsContent value="attributes" className={styles.tabContent}>
               <AttributesBlock
                 attributes={audit.attributes}
                 editUrl={
@@ -251,19 +263,19 @@ export default function SeoDetailPage() {
               />
             </TabsContent>
 
-            <TabsContent value="reviews" className="mt-4">
+            <TabsContent value="reviews" className={styles.tabContent}>
               <ReviewsBlock reviews={audit.reviews} />
             </TabsContent>
 
-            <TabsContent value="media" className="mt-4">
+            <TabsContent value="media" className={styles.tabContent}>
               <MediaBlock audit={audit} job={job} onRun={() => run("media")} />
             </TabsContent>
 
-            <TabsContent value="content" className="mt-4">
+            <TabsContent value="content" className={styles.tabContent}>
               <ContentBlock audit={audit} job={job} onRun={() => run("content")} />
             </TabsContent>
 
-            <TabsContent value="fix" className="mt-4">
+            <TabsContent value="fix" className={styles.tabContent}>
               <FixBlock
                 audit={audit}
                 externalId={externalId}
@@ -271,7 +283,7 @@ export default function SeoDetailPage() {
               />
             </TabsContent>
 
-            <TabsContent value="positions" className="mt-4 space-y-3">
+            <TabsContent value="positions" className={styles.tabContent}>
               <PositionsBlock productId={audit.productId} />
               <RivalsBlock productId={audit.productId} />
             </TabsContent>
@@ -290,44 +302,48 @@ function ScoreBlock({ audit }: { audit: SeoAudit }) {
     { label: "Xususiyatlar", value: audit.attributeScore, max: 15 },
   ];
   return (
-    <div className="grid gap-3 lg:grid-cols-3">
-      <Card className="lg:col-span-1">
-        <CardContent className="flex items-center gap-4 p-4">
-          <ScoreRing score={audit.score} size={80} />
-          <div className="min-w-0 space-y-1">
-            {parts.map((p) => (
-              <div key={p.label} className="text-xs">
-                <span className="text-muted-foreground">{p.label}: </span>
-                <span className="font-medium tabular-nums">{`${p.value}/${p.max}`}</span>
-              </div>
-            ))}
+    <section className={styles.scoreSection} aria-label="SEO audit xulosasi">
+      <div className={styles.scoreCard}>
+        <div className={styles.scoreIntro}>
+          <ScoreRing score={audit.score} size={106} />
+          <div>
+            <span>Umumiy SEO bali</span>
+            <strong>{scoreLabel(audit.score)}</strong>
+            <p>100 balldan {audit.score} ball</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className={styles.scoreParts}>
+          {parts.map((part) => (
+            <div key={part.label} className={styles.scorePart}>
+              <div><span>{part.label}</span><strong>{part.value}<small>/{part.max}</small></strong></div>
+              <div className={styles.progress} aria-label={`${part.label}: ${part.value}/${part.max}`}><span style={{ width: `${Math.min(100, (part.value / part.max) * 100)}%` }} /></div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      <Card className="lg:col-span-2">
-        <CardContent className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-4">
-          <Mini label="Kalit so'z" value={`${audit.keywordsUsed}/${audit.keywordsTotal}`} />
-          <Mini label="Qamralgan" value={formatNumber(audit.coverageUsed)} />
-          <Mini
-            label="Qo'ldan ketyapti"
-            value={formatNumber(audit.coverageMissed)}
-            tone={audit.coverageMissed > 0 ? "bad" : undefined}
-          />
-          <Mini label="Ortiqcha so'zlar" value={`${audit.stopRatio}%`} />
-        </CardContent>
-      </Card>
-    </div>
+      <div className={styles.metricsGrid}>
+        <Mini label="Kalit so'zlar" value={`${audit.keywordsUsed}/${audit.keywordsTotal}`} note="kartochkada ishlatilgan" />
+        <Mini label="Qamralgan auditoriya" value={formatNumber(audit.coverageUsed)} note="potensial qamrov" />
+        <Mini label="Boy berilayotgan qamrov" value={formatNumber(audit.coverageMissed)} note="yaxshilash imkoniyati" tone={audit.coverageMissed > 0 ? "bad" : undefined} />
+        <Mini label="Ortiqcha so'zlar" value={`${audit.stopRatio}%`} note="matndagi ulushi" />
+      </div>
+    </section>
   );
 }
 
-function Mini({ label, value, tone }: { label: string; value: string; tone?: "bad" }) {
+function scoreLabel(score: number) {
+  if (score >= 75) return "Yaxshi holat";
+  if (score >= 50) return "Yaxshilash mumkin";
+  return "E'tibor kerak";
+}
+
+function Mini({ label, value, note, tone }: { label: string; value: string; note?: string; tone?: "bad" }) {
   return (
-    <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={cn("mt-0.5 text-lg font-bold tabular-nums", tone === "bad" && "text-destructive")}>
-        {value}
-      </div>
+    <div className={cn(styles.metric, tone === "bad" && styles.metricWarning)}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+      {note ? <small>{note}</small> : null}
     </div>
   );
 }
