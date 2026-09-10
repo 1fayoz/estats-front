@@ -729,6 +729,21 @@ function Footer({
             Tahrirlash
           </button>
         )}
+        {/* Rasm qayta yasalgan, lekin Uzum'ga ko'chirilmagan.
+            Sotuvchi shikoyati: "ba'zi rasmlar generatsiya qilingan,
+            lekin uzumga joylanmagan" — u buni faqat Uzum kabinetini
+            ochib solishtirib bilardi. Avtomatik yubormaymiz (tirik
+            kartochkani qayta moderatsiyaga tushirish — sotuvchining
+            qarori), lekin farqni AYTAMIZ. */}
+        {locked && isLiveOnUzum && draft?.imagesOutOfSync && (
+          <span
+            className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-700 dark:text-amber-500"
+            title="Rasmlar qayta yasalgan. «Tahrirlash» → «Uzumda yangilash» bilan ko'chiring."
+          >
+            <AlertTriangle className="h-3.5 w-3.5" />
+            Yangi rasmlar Uzum&apos;ga ko&apos;chirilmagan
+          </span>
+        )}
         {/* Bizning bazamizdagi holat va Uzum'ning HAQIQIY holati —
             ikki xil manba, ular ajralib qolishi mumkin (server
             qayta ishga tushishi, yoki tovar keyinroq Uzum

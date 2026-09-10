@@ -1844,6 +1844,14 @@ export interface AiDraft extends AiDraftRow {
   sourceImages: string[];
   /** To'liq AI tadqiqoti. Qoralama BILAN keladi — alohida so'rov yo'q. */
   intelligence?: AiIntelligenceResult;
+  /**
+   * Qoralamadagi rasmlar Uzum'dagidan farq qiladimi.
+   *
+   * Rasm qayta yasalgach tirik e'lon O'ZI yangilanmaydi (qayta
+   * moderatsiya — sotuvchining qarori), shuning uchun farq
+   * KO'RSATILADI.
+   */
+  imagesOutOfSync?: boolean;
   hint: string | null;
   vision: Record<string, unknown> | null;
   market: AiMarket | null;
