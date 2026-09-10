@@ -1,0 +1,2263 @@
+.page {
+  --pnl-positive: #179968;
+  --pnl-negative: #dd526b;
+  --pnl-warning: #dc9323;
+  --pnl-revenue: #6f61e8;
+  --pnl-cost: #e3a13d;
+  --pnl-profit: #18a875;
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem 2rem;
+  min-width: 0;
+  min-height: 188px;
+  padding: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(circle at 90% -28%, color-mix(in srgb, var(--primary) 25%, transparent), transparent 39%),
+    radial-gradient(circle at 14% 138%, color-mix(in srgb, var(--pnl-positive) 12%, transparent), transparent 42%),
+    linear-gradient(128deg, color-mix(in srgb, var(--primary) 7%, var(--card)), var(--card) 62%);
+  animation: pnlIn 380ms ease both;
+}
+
+.hero::before,
+.hero::after {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
+  border-radius: 999px;
+  content: "";
+  pointer-events: none;
+}
+
+.hero::before {
+  top: -66px;
+  right: 11%;
+  width: 170px;
+  height: 170px;
+}
+
+.hero::after {
+  right: 4%;
+  bottom: -82px;
+  width: 126px;
+  height: 126px;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.eyebrow,
+.sectionKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .42rem;
+  color: var(--primary);
+  font-size: .67rem;
+  line-height: 1.4;
+  font-weight: 760;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.eyebrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin-top: .48rem;
+  color: var(--foreground);
+  font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+  line-height: 1.05;
+  font-weight: 790;
+  letter-spacing: -.052em;
+}
+
+.hero p {
+  max-width: 720px;
+  margin-top: .7rem;
+  color: var(--muted-foreground);
+  font-size: .81rem;
+  line-height: 1.65;
+}
+
+.heroMark {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  align-self: start;
+  gap: .65rem;
+  padding: .62rem .8rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
+  border-radius: .85rem;
+  background: color-mix(in srgb, var(--card) 86%, transparent);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--foreground) 5%, transparent);
+  color: var(--primary);
+}
+
+.heroMark > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.heroMark span,
+.heroMark strong,
+.heroMark small {
+  display: block;
+}
+
+.heroMark strong {
+  color: var(--foreground);
+  font-size: .72rem;
+  line-height: 1.3;
+}
+
+.heroMark small {
+  margin-top: .12rem;
+  color: var(--muted-foreground);
+  font-size: .6rem;
+  line-height: 1.3;
+}
+
+.filterPanel,
+.panel,
+.reconcilePanel,
+.coverageCard,
+.tablePanel,
+.errorPanel {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 1.15rem;
+  background: var(--card);
+}
+
+.filterPanel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  animation: pnlIn 360ms 40ms ease both;
+}
+
+.filterTop,
+.filterActions,
+.filterTitle {
+  display: flex;
+  align-items: center;
+}
+
+.filterTop {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.filterTitle {
+  min-width: 0;
+  gap: .72rem;
+}
+
+.filterTitle > span,
+.tableTitle > span,
+.reconcileTitle > span {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: .75rem;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card));
+  color: var(--primary);
+}
+
+.filterTitle svg,
+.tableTitle svg,
+.reconcileTitle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.filterTitle strong,
+.filterTitle small {
+  display: block;
+}
+
+.filterTitle strong {
+  color: var(--foreground);
+  font-size: .79rem;
+}
+
+.filterTitle small {
+  margin-top: .2rem;
+  color: var(--muted-foreground);
+  font-size: .63rem;
+}
+
+.filterActions {
+  justify-content: flex-end;
+  gap: .55rem;
+}
+
+.refreshStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: .34rem;
+  color: var(--muted-foreground);
+  font-size: .63rem;
+  white-space: nowrap;
+}
+
+.refreshStatus svg {
+  width: 13px;
+  height: 13px;
+}
+
+.iconButton,
+.exportButton {
+  min-height: 42px !important;
+  border-radius: .72rem !important;
+  background: color-mix(in srgb, var(--background) 86%, transparent) !important;
+}
+
+.iconButton {
+  width: 42px !important;
+}
+
+.exportButton {
+  padding-inline: .9rem !important;
+  font-size: .69rem !important;
+}
+
+.exportButton svg,
+.iconButton svg {
+  width: 15px;
+  height: 15px;
+}
+
+.spinning {
+  animation: spin 850ms linear infinite;
+}
+
+.dateRange {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .8rem !important;
+  min-width: 0;
+  padding-top: .9rem;
+  border-top: 1px solid var(--border);
+}
+
+.dateRange > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  min-width: 0;
+}
+
+.dateRange > div:first-child button {
+  min-height: 38px;
+  padding-inline: .82rem;
+  border-radius: .68rem;
+}
+
+.dateRange > div:last-child {
+  display: grid;
+  grid-template-columns: minmax(138px, 1fr) auto minmax(138px, 1fr);
+  align-items: center;
+  gap: .45rem;
+  min-width: 0;
+}
+
+.dateRange input {
+  width: 100% !important;
+  min-width: 0;
+  height: 42px !important;
+  border-radius: .7rem;
+  background: var(--background);
+  font-size: .69rem;
+}
+
+.errorPanel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .8rem;
+  padding: 1rem;
+  border-color: color-mix(in srgb, var(--destructive) 32%, var(--border));
+  background: color-mix(in srgb, var(--destructive) 5%, var(--card));
+}
+
+.errorPanel > span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: .78rem;
+  background: color-mix(in srgb, var(--destructive) 10%, var(--card));
+  color: var(--destructive);
+}
+
+.errorPanel svg {
+  width: 18px;
+  height: 18px;
+}
+
+.errorPanel h2 {
+  color: var(--foreground);
+  font-size: .8rem;
+  font-weight: 730;
+}
+
+.errorPanel p {
+  margin-top: .18rem;
+  color: var(--muted-foreground);
+  font-size: .65rem;
+}
+
+.errorPanel button {
+  min-height: 40px;
+  border-radius: .68rem;
+  font-size: .68rem;
+}
+
+.content,
+.loading {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.content > * {
+  animation: pnlIn 360ms ease both;
+}
+
+.content > *:nth-child(2) { animation-delay: 45ms; }
+.content > *:nth-child(3) { animation-delay: 80ms; }
+.content > *:nth-child(4) { animation-delay: 115ms; }
+.content > *:nth-child(5) { animation-delay: 150ms; }
+
+.staleAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  padding: .72rem .85rem;
+  border: 1px solid color-mix(in srgb, var(--pnl-warning) 34%, var(--border));
+  border-radius: .82rem;
+  background: color-mix(in srgb, var(--pnl-warning) 7%, var(--card));
+  color: color-mix(in srgb, var(--pnl-warning) 82%, var(--foreground));
+  font-size: .68rem;
+  line-height: 1.5;
+}
+
+.staleAlert svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin-top: .1rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: minmax(310px, .92fr) minmax(0, 1.65fr);
+  gap: .8rem;
+  min-width: 0;
+}
+
+.profitCard,
+.metricCard {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 1.08rem;
+}
+
+.profitCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 254px;
+  padding: 1.05rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 91% 5%, color-mix(in srgb, var(--pnl-positive) 20%, transparent), transparent 40%),
+    linear-gradient(145deg, color-mix(in srgb, var(--pnl-positive) 6%, var(--card)), var(--card));
+}
+
+.profitCard::after {
+  position: absolute;
+  right: -46px;
+  bottom: -78px;
+  width: 190px;
+  height: 190px;
+  border: 22px solid color-mix(in srgb, var(--pnl-positive) 6%, transparent);
+  border-radius: 999px;
+  content: "";
+  pointer-events: none;
+}
+
+.profitCardNegative {
+  background:
+    radial-gradient(circle at 91% 5%, color-mix(in srgb, var(--pnl-negative) 18%, transparent), transparent 40%),
+    linear-gradient(145deg, color-mix(in srgb, var(--pnl-negative) 6%, var(--card)), var(--card));
+}
+
+.profitCardNegative::after {
+  border-color: color-mix(in srgb, var(--pnl-negative) 6%, transparent);
+}
+
+.profitTop,
+.metricHead,
+.profitFooter,
+.profitFooter > div {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+
+.profitTop {
+  justify-content: space-between;
+  gap: .8rem;
+}
+
+.profitIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: .78rem;
+  background: color-mix(in srgb, var(--pnl-positive) 13%, var(--card));
+  color: var(--pnl-positive);
+}
+
+.profitCardNegative .profitIcon {
+  background: color-mix(in srgb, var(--pnl-negative) 12%, var(--card));
+  color: var(--pnl-negative);
+}
+
+.profitIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.profitState {
+  padding: .38rem .56rem;
+  border: 1px solid color-mix(in srgb, var(--pnl-positive) 24%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pnl-positive) 7%, var(--card));
+  color: var(--pnl-positive);
+  font-size: .6rem;
+  font-weight: 720;
+}
+
+.profitCardNegative .profitState {
+  border-color: color-mix(in srgb, var(--pnl-negative) 24%, var(--border));
+  background: color-mix(in srgb, var(--pnl-negative) 7%, var(--card));
+  color: var(--pnl-negative);
+}
+
+.profitMain {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 1rem;
+}
+
+.profitMain > span {
+  color: var(--muted-foreground);
+  font-size: .72rem;
+  font-weight: 650;
+}
+
+.profitMain > strong {
+  margin-top: .25rem;
+  color: var(--pnl-positive);
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  line-height: 1.08;
+  font-weight: 790;
+  letter-spacing: -.045em;
+  overflow-wrap: anywhere;
+}
+
+.profitCardNegative .profitMain > strong {
+  color: var(--pnl-negative);
+}
+
+.profitMain > small {
+  margin-top: .4rem;
+  color: var(--muted-foreground);
+  font-size: .61rem;
+}
+
+.profitFooter {
+  align-items: stretch;
+  border-top: 1px solid var(--border);
+}
+
+.profitFooter > div {
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .15rem;
+  min-width: 0;
+  padding-top: .75rem;
+}
+
+.profitFooter > div + div {
+  margin-left: .6rem;
+  padding-left: .6rem;
+  border-left: 1px solid var(--border);
+}
+
+.profitFooter span {
+  color: var(--muted-foreground);
+  font-size: .56rem;
+  line-height: 1.3;
+}
+
+.profitFooter strong {
+  color: var(--foreground);
+  font-size: .73rem;
+  line-height: 1.35;
+  font-weight: 720;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem;
+  min-width: 0;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 122px;
+  padding: .95rem;
+  background: var(--card);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.metricHead {
+  gap: .55rem;
+}
+
+.metricHead > span {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border-radius: .62rem;
+  background: color-mix(in srgb, var(--foreground) 5%, var(--card));
+  color: var(--muted-foreground);
+}
+
+.metricCard[data-tone="primary"] .metricHead > span {
+  background: color-mix(in srgb, var(--primary) 10%, var(--card));
+  color: var(--primary);
+}
+
+.metricCard[data-tone="warning"] .metricHead > span {
+  background: color-mix(in srgb, var(--pnl-warning) 11%, var(--card));
+  color: var(--pnl-warning);
+}
+
+.metricHead svg {
+  width: 15px;
+  height: 15px;
+}
+
+.metricHead small {
+  color: var(--muted-foreground);
+  font-size: .63rem;
+  font-weight: 650;
+}
+
+.metricCard > strong {
+  margin-top: .62rem;
+  color: var(--foreground);
+  font-size: clamp(.94rem, 1.55vw, 1.18rem);
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+
+.metricCard > p {
+  margin-top: .25rem;
+  color: var(--muted-foreground);
+  font-size: .59rem;
+  line-height: 1.45;
+}
+
+.explainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(270px, .75fr);
+  align-items: stretch;
+  gap: .8rem;
+  min-width: 0;
+}
+
+.reconcilePanel,
+.coverageCard {
+  padding: 1rem;
+}
+
+.reconcileHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.reconcileTitle,
+.tableTitle {
+  display: flex;
+  align-items: flex-start;
+  gap: .72rem;
+  min-width: 0;
+}
+
+.reconcileTitle h2,
+.coverageHeading h2,
+.panelHeader h2,
+.tableTitle h2 {
+  margin-top: .15rem;
+  color: var(--foreground);
+  font-size: .88rem;
+  line-height: 1.35;
+  font-weight: 740;
+  letter-spacing: -.015em;
+}
+
+.reconcileTitle p,
+.coverageHeading p,
+.panelHeader p,
+.tableTitle p {
+  margin-top: .22rem;
+  color: var(--muted-foreground);
+  font-size: .62rem;
+  line-height: 1.5;
+}
+
+.uzumBadge {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex: 0 0 auto;
+  padding: .52rem .65rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
+  border-radius: .75rem;
+  background: color-mix(in srgb, var(--primary) 6%, var(--card));
+  color: var(--primary);
+}
+
+.uzumBadge > svg {
+  width: 17px;
+  height: 17px;
+}
+
+.uzumBadge span,
+.uzumBadge small,
+.uzumBadge strong {
+  display: block;
+}
+
+.uzumBadge small {
+  color: var(--muted-foreground);
+  font-size: .54rem;
+}
+
+.uzumBadge strong {
+  margin-top: .1rem;
+  color: var(--foreground);
+  font-size: .7rem;
+  font-weight: 720;
+}
+
+.reconcileList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .55rem;
+  margin-top: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.reconcileRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .55rem;
+  min-width: 0;
+  min-height: 88px;
+  padding: .72rem;
+  border: 1px solid var(--border);
+  border-radius: .78rem;
+  background: color-mix(in srgb, var(--background) 72%, var(--card));
+}
+
+.stepMarker {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: .52rem;
+  background: color-mix(in srgb, var(--foreground) 5%, var(--card));
+  color: var(--muted-foreground);
+  font-size: .58rem;
+  font-weight: 760;
+}
+
+.stepMarker svg {
+  width: 12px;
+  height: 12px;
+}
+
+.stepCopy {
+  min-width: 0;
+}
+
+.stepCopy strong,
+.stepCopy small {
+  display: block;
+}
+
+.stepCopy strong {
+  color: var(--foreground);
+  font-size: .65rem;
+  line-height: 1.3;
+}
+
+.stepCopy small {
+  margin-top: .15rem;
+  color: var(--muted-foreground);
+  font-size: .54rem;
+  line-height: 1.35;
+}
+
+.stepValue {
+  grid-column: 1 / -1;
+  align-self: end;
+  color: var(--foreground);
+  font-size: .76rem;
+  line-height: 1.2;
+  font-weight: 730;
+  overflow-wrap: anywhere;
+}
+
+.reconcileSubtotal {
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+  background: color-mix(in srgb, var(--primary) 5%, var(--card));
+}
+
+.reconcileSubtotal .stepMarker {
+  background: color-mix(in srgb, var(--primary) 12%, var(--card));
+  color: var(--primary);
+}
+
+.reconcileResult {
+  border-color: color-mix(in srgb, var(--pnl-positive) 26%, var(--border));
+  background: color-mix(in srgb, var(--pnl-positive) 6%, var(--card));
+}
+
+.reconcileResult .stepMarker {
+  background: color-mix(in srgb, var(--pnl-positive) 14%, var(--card));
+  color: var(--pnl-positive);
+}
+
+.reconcileResult .stepValue {
+  color: var(--pnl-positive);
+}
+
+.reconcileLoss {
+  border-color: color-mix(in srgb, var(--pnl-negative) 26%, var(--border));
+  background: color-mix(in srgb, var(--pnl-negative) 6%, var(--card));
+}
+
+.reconcileLoss .stepMarker,
+.reconcileLoss .stepValue {
+  color: var(--pnl-negative);
+}
+
+.reconcileLoss .stepMarker {
+  background: color-mix(in srgb, var(--pnl-negative) 13%, var(--card));
+}
+
+.syncNote {
+  display: flex;
+  align-items: flex-start;
+  gap: .55rem;
+  margin-top: .7rem;
+  padding: .62rem .72rem;
+  border-radius: .72rem;
+  background: color-mix(in srgb, var(--muted) 62%, transparent);
+  color: var(--muted-foreground);
+  font-size: .58rem;
+  line-height: 1.5;
+}
+
+.syncNote svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  margin-top: .08rem;
+  color: var(--primary);
+}
+
+.coverageCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--pnl-warning) 26%, var(--border));
+  background:
+    radial-gradient(circle at 104% -5%, color-mix(in srgb, var(--pnl-warning) 14%, transparent), transparent 40%),
+    var(--card);
+}
+
+.coverageComplete {
+  border-color: color-mix(in srgb, var(--pnl-positive) 24%, var(--border));
+  background:
+    radial-gradient(circle at 104% -5%, color-mix(in srgb, var(--pnl-positive) 13%, transparent), transparent 40%),
+    var(--card);
+}
+
+.coverageIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: .75rem;
+  background: color-mix(in srgb, var(--pnl-warning) 12%, var(--card));
+  color: var(--pnl-warning);
+}
+
+.coverageComplete .coverageIcon {
+  background: color-mix(in srgb, var(--pnl-positive) 12%, var(--card));
+  color: var(--pnl-positive);
+}
+
+.coverageIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.coverageHeading {
+  margin-top: .8rem;
+}
+
+.coverageValueRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: .7rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.coverageValueRow strong {
+  color: var(--foreground);
+  font-size: 1.75rem;
+  line-height: 1;
+  font-weight: 780;
+  letter-spacing: -.04em;
+}
+
+.coverageValueRow span {
+  color: var(--muted-foreground);
+  font-size: .58rem;
+  text-align: right;
+}
+
+.coverageTrack {
+  height: 7px;
+  margin-top: .55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pnl-warning) 12%, var(--muted));
+}
+
+.coverageTrack > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--pnl-warning), color-mix(in srgb, var(--pnl-warning) 68%, var(--pnl-positive)));
+  transition: width 500ms ease;
+}
+
+.coverageComplete .coverageTrack {
+  background: color-mix(in srgb, var(--pnl-positive) 12%, var(--muted));
+}
+
+.coverageComplete .coverageTrack > span {
+  background: var(--pnl-positive);
+}
+
+.coverageIssue,
+.coverageSuccess {
+  margin-top: .8rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--border);
+}
+
+.coverageIssue {
+  display: grid;
+  gap: .65rem;
+}
+
+.coverageIssue strong,
+.coverageIssue span {
+  display: block;
+}
+
+.coverageIssue strong {
+  color: var(--foreground);
+  font-size: .69rem;
+}
+
+.coverageIssue span {
+  margin-top: .15rem;
+  color: var(--muted-foreground);
+  font-size: .57rem;
+}
+
+.coverageAction {
+  width: 100%;
+  min-height: 40px;
+  border-radius: .7rem !important;
+  font-size: .67rem !important;
+}
+
+.coverageSuccess {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  color: var(--pnl-positive);
+  font-size: .64rem;
+  font-weight: 650;
+}
+
+.coverageSuccess svg {
+  width: 15px;
+  height: 15px;
+}
+
+.panel {
+  overflow: hidden;
+}
+
+.panelHeader,
+.tableHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.periodBadge,
+.resultCount {
+  flex: 0 0 auto;
+  padding: .38rem .58rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 60%, transparent);
+  color: var(--muted-foreground);
+  font-size: .6rem;
+  font-weight: 680;
+}
+
+.chartArea {
+  padding: .85rem 1rem 1rem;
+}
+
+.chartShell {
+  min-width: 0;
+}
+
+.chartLegend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem 1rem;
+  min-height: 28px;
+}
+
+.chartLegend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--muted-foreground);
+  font-size: .61rem;
+}
+
+.chartLegend i {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--pnl-revenue);
+}
+
+.chartLegend i[data-series="cogs"] {
+  background: var(--pnl-cost);
+}
+
+.chartLegend i[data-series="profit"] {
+  width: 15px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--pnl-profit);
+}
+
+.chartCanvas {
+  width: 100%;
+  height: 306px;
+  margin-top: .35rem;
+}
+
+.chartTooltip {
+  min-width: 210px;
+  padding: .75rem;
+  border: 1px solid var(--border);
+  border-radius: .82rem;
+  background: color-mix(in srgb, var(--popover) 94%, transparent);
+  box-shadow: 0 18px 45px color-mix(in srgb, var(--foreground) 15%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.tooltipDate {
+  margin-bottom: .5rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: .7rem;
+  font-weight: 720;
+}
+
+.tooltipRow,
+.tooltipResult {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: .62rem;
+}
+
+.tooltipRow + .tooltipRow {
+  margin-top: .34rem;
+}
+
+.tooltipRow span,
+.tooltipRow[data-muted="true"] strong {
+  color: var(--muted-foreground);
+}
+
+.tooltipRow strong {
+  color: var(--foreground);
+  font-weight: 650;
+}
+
+.tooltipResult {
+  margin-top: .55rem;
+  padding-top: .55rem;
+  border-top: 1px solid var(--border);
+  color: var(--foreground);
+  font-weight: 710;
+}
+
+.tooltipResult strong {
+  color: var(--pnl-negative);
+}
+
+.tooltipResult[data-positive="true"] strong {
+  color: var(--pnl-positive);
+}
+
+.profitBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .26rem;
+  color: var(--pnl-negative);
+  font-size: .7rem;
+  line-height: 1.25;
+  font-weight: 730;
+  white-space: nowrap;
+}
+
+.profitBadge[data-positive="true"] {
+  color: var(--pnl-positive);
+}
+
+.profitBadge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.marginBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  color: var(--muted-foreground);
+  font-size: .65rem;
+}
+
+.marginBadge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.tablePanel {
+  overflow: hidden;
+}
+
+.tableTitle > span {
+  margin-top: .05rem;
+}
+
+.tableToolbar {
+  display: grid;
+  grid-template-columns: minmax(250px, 1.1fr) minmax(430px, 1.8fr) auto;
+  align-items: center;
+  gap: .7rem;
+  padding: .85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--muted) 22%, var(--card));
+}
+
+.searchField {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: .72rem;
+  background: var(--background);
+  color: var(--muted-foreground);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.searchField:focus-within {
+  border-color: color-mix(in srgb, var(--primary) 54%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 11%, transparent);
+}
+
+.searchField > svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  margin-left: .75rem;
+}
+
+.searchField input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 .62rem;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-size: .68rem;
+}
+
+.searchField input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.searchField > button {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+  margin-right: .3rem;
+  border: 0;
+  border-radius: .55rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.searchField > button:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.searchField > button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.segmentBar {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  min-width: 0;
+  padding: .28rem;
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  background: color-mix(in srgb, var(--muted) 52%, transparent);
+}
+
+.segmentBar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .28rem;
+  min-height: 34px;
+  flex: 1 0 auto;
+  padding: .35rem .48rem;
+  border: 0;
+  border-radius: .56rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: .59rem;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.segmentBar button > span {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: .25rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  font-size: .52rem;
+}
+
+.segmentBar button[aria-pressed="true"] {
+  background: var(--card);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--foreground) 8%, transparent);
+  color: var(--foreground);
+}
+
+.segmentBar button[aria-pressed="true"] > span {
+  background: color-mix(in srgb, var(--primary) 12%, var(--card));
+  color: var(--primary);
+}
+
+.productToggle {
+  display: flex;
+  align-items: center;
+  gap: .48rem;
+  min-height: 42px;
+  padding: .4rem .55rem;
+  border: 1px solid var(--border);
+  border-radius: .72rem;
+  background: var(--background);
+  color: var(--foreground);
+  text-align: left;
+  cursor: pointer;
+}
+
+.switchTrack {
+  position: relative;
+  width: 32px;
+  height: 19px;
+  flex: 0 0 32px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted-foreground) 28%, var(--muted));
+  transition: background 180ms ease;
+}
+
+.switchTrack i {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--foreground) 18%, transparent);
+  transition: transform 180ms ease;
+}
+
+.switchTrack[data-checked="true"] {
+  background: var(--primary);
+}
+
+.switchTrack[data-checked="true"] i {
+  transform: translateX(13px);
+}
+
+.productToggle > span:last-child,
+.productToggle strong,
+.productToggle small {
+  display: block;
+}
+
+.productToggle strong {
+  font-size: .6rem;
+  line-height: 1.25;
+}
+
+.productToggle small {
+  margin-top: .08rem;
+  color: var(--muted-foreground);
+  font-size: .5rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.mobileSort,
+.mobileCards {
+  display: none;
+}
+
+.desktopTable {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.desktopTable table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font-size: .68rem;
+}
+
+.desktopTable thead {
+  background: color-mix(in srgb, var(--muted) 44%, var(--card));
+  color: var(--muted-foreground);
+}
+
+.desktopTable th {
+  height: 44px;
+  padding: .55rem .75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .57rem;
+  font-weight: 690;
+  letter-spacing: .015em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.desktopTable th:first-child,
+.desktopTable td:first-child {
+  padding-left: 1rem;
+}
+
+.desktopTable th:last-child,
+.desktopTable td:last-child {
+  padding-right: 1rem;
+}
+
+.desktopTable th button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .28rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.desktopTable th button:hover,
+.desktopTable th button[data-active="true"] {
+  color: var(--foreground);
+}
+
+.desktopTable th button svg {
+  width: 12px;
+  height: 12px;
+}
+
+.desktopTable td {
+  height: 66px;
+  padding: .65rem .75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  vertical-align: middle;
+}
+
+.desktopTable tbody tr {
+  transition: background 150ms ease;
+}
+
+.desktopTable tbody tr:hover {
+  background: color-mix(in srgb, var(--muted) 42%, transparent);
+}
+
+.desktopTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.desktopTable tbody tr[data-loss="true"] td:first-child {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--pnl-negative) 70%, transparent);
+}
+
+.desktopTable tbody tr[data-uncosted="true"] td:first-child {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--pnl-warning) 76%, transparent);
+}
+
+.numeric {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.numeric > strong,
+.numeric > small {
+  display: block;
+}
+
+.numeric > strong {
+  font-size: .68rem;
+  font-weight: 650;
+}
+
+.numeric > small {
+  margin-top: .15rem;
+  color: var(--muted-foreground);
+  font-size: .54rem;
+}
+
+.numeric[data-negative="true"] {
+  color: var(--pnl-negative);
+}
+
+.mutedValue {
+  color: var(--muted-foreground);
+}
+
+.warningText {
+  color: var(--pnl-warning) !important;
+}
+
+.uncostedBadge {
+  display: inline-flex;
+  padding: .28rem .4rem;
+  border: 1px solid color-mix(in srgb, var(--pnl-warning) 24%, var(--border));
+  border-radius: .48rem;
+  background: color-mix(in srgb, var(--pnl-warning) 8%, var(--card));
+  color: var(--pnl-warning);
+  font-size: .55rem;
+  font-weight: 670;
+}
+
+.productIdentity {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-width: 0;
+}
+
+.productIdentity > img,
+.productPlaceholder {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid var(--border);
+  border-radius: .7rem;
+}
+
+.productIdentity > img {
+  object-fit: cover;
+  background: var(--muted);
+}
+
+.productPlaceholder {
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--muted) 68%, var(--card));
+  color: var(--muted-foreground);
+}
+
+.productPlaceholder svg {
+  width: 17px;
+  height: 17px;
+}
+
+.productCopy {
+  display: block;
+  min-width: 0;
+}
+
+.productCopy > strong {
+  display: block;
+  max-width: 270px;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: .68rem;
+  line-height: 1.35;
+  font-weight: 680;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productCopy > small {
+  display: flex;
+  align-items: center;
+  gap: .28rem;
+  min-width: 0;
+  margin-top: .17rem;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: .53rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productCopy > small > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.productCopy > small > i {
+  font-style: normal;
+}
+
+.productCopy > em {
+  display: inline-flex;
+  align-items: center;
+  gap: .22rem;
+  margin-top: .24rem;
+  color: var(--pnl-warning);
+  font-size: .51rem;
+  line-height: 1.2;
+  font-style: normal;
+}
+
+.productCopy > em svg {
+  width: 11px;
+  height: 11px;
+}
+
+.tableEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.tableEmpty > span {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: .9rem;
+  background: color-mix(in srgb, var(--primary) 9%, var(--card));
+  color: var(--primary);
+}
+
+.tableEmpty svg {
+  width: 21px;
+  height: 21px;
+}
+
+.tableEmpty h3 {
+  margin-top: .8rem;
+  color: var(--foreground);
+  font-size: .82rem;
+  font-weight: 720;
+}
+
+.tableEmpty p {
+  max-width: 380px;
+  margin-top: .25rem;
+  color: var(--muted-foreground);
+  font-size: .64rem;
+  line-height: 1.55;
+}
+
+.tableEmpty button {
+  min-height: 40px;
+  margin-top: .8rem;
+  border-radius: .68rem;
+  font-size: .66rem;
+}
+
+.loadingSummary {
+  display: grid;
+  grid-template-columns: minmax(310px, .92fr) minmax(0, 1.65fr);
+  gap: .8rem;
+}
+
+.loadingHero {
+  height: 254px;
+  border-radius: 1.08rem;
+}
+
+.loadingMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem;
+}
+
+.loadingMetric {
+  min-height: 122px;
+  border-radius: 1.08rem;
+}
+
+.loadingPanels {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(270px, .75fr);
+  gap: .8rem;
+}
+
+.loadingPanels > * {
+  height: 320px;
+  border-radius: 1.08rem;
+}
+
+.loadingChart {
+  height: 390px;
+  border-radius: 1.08rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page :is(button, input, select, a):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+@keyframes pnlIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1180px) {
+  .tableToolbar {
+    grid-template-columns: minmax(250px, 1fr) auto;
+  }
+
+  .segmentBar {
+    grid-row: 2;
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1020px) {
+  .explainGrid,
+  .loadingPanels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .coverageCard {
+    min-height: 270px;
+  }
+}
+
+@media (max-width: 900px) {
+  .summaryGrid,
+  .loadingSummary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profitCard {
+    min-height: 224px;
+  }
+
+  .loadingHero {
+    height: 224px;
+  }
+
+  .desktopTable {
+    display: none;
+  }
+
+  .mobileCards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .7rem;
+    padding: .8rem;
+  }
+
+  .mobileSort {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: .55rem;
+    padding: .75rem .8rem 0;
+  }
+
+  .mobileSort label {
+    display: grid;
+    flex: 1;
+    gap: .3rem;
+    color: var(--muted-foreground);
+    font-size: .56rem;
+  }
+
+  .selectWrap {
+    position: relative;
+    display: block;
+  }
+
+  .selectWrap select {
+    width: 100%;
+    height: 42px;
+    padding: 0 2rem 0 .72rem;
+    appearance: none;
+    border: 1px solid var(--border);
+    border-radius: .7rem;
+    outline: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-size: .66rem;
+  }
+
+  .selectWrap svg {
+    position: absolute;
+    top: 50%;
+    right: .65rem;
+    width: 14px;
+    height: 14px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .mobileSort > button {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: .7rem;
+    background: var(--background);
+    color: var(--foreground);
+    cursor: pointer;
+  }
+
+  .mobileSort > button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .productCard {
+    min-width: 0;
+    padding: .8rem;
+    border: 1px solid var(--border);
+    border-radius: .92rem;
+    background: color-mix(in srgb, var(--background) 55%, var(--card));
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--foreground) 4%, transparent);
+  }
+
+  .productCard[data-loss="true"] {
+    border-color: color-mix(in srgb, var(--pnl-negative) 23%, var(--border));
+  }
+
+  .productCard[data-uncosted="true"] {
+    border-color: color-mix(in srgb, var(--pnl-warning) 30%, var(--border));
+  }
+
+  .productCardHead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: .7rem;
+  }
+
+  .productCard .productCopy > strong {
+    max-width: none;
+  }
+
+  .productCard .productCopy > em {
+    display: none;
+  }
+
+  .cardWarning {
+    display: flex;
+    align-items: flex-start;
+    gap: .38rem;
+    margin-top: .7rem;
+    padding: .5rem .58rem;
+    border-radius: .62rem;
+    background: color-mix(in srgb, var(--pnl-warning) 8%, var(--card));
+    color: var(--pnl-warning);
+    font-size: .56rem;
+    line-height: 1.4;
+  }
+
+  .cardWarning svg {
+    width: 13px;
+    height: 13px;
+    flex: 0 0 13px;
+    margin-top: .06rem;
+  }
+
+  .productStats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .55rem;
+    margin-top: .75rem;
+  }
+
+  .productStats > div {
+    min-width: 0;
+    min-height: 63px;
+    padding: .58rem;
+    border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+    border-radius: .65rem;
+    background: color-mix(in srgb, var(--muted) 36%, transparent);
+  }
+
+  .productStats dt,
+  .productStats dd,
+  .productStats small {
+    display: block;
+  }
+
+  .productStats dt {
+    color: var(--muted-foreground);
+    font-size: .53rem;
+  }
+
+  .productStats dd {
+    margin-top: .24rem;
+    color: var(--foreground);
+    font-size: .66rem;
+    line-height: 1.3;
+    font-weight: 680;
+    overflow-wrap: anywhere;
+  }
+
+  .productStats dd[data-negative="true"] {
+    color: var(--pnl-negative);
+  }
+
+  .productStats small {
+    margin-top: .12rem;
+    color: var(--muted-foreground);
+    font-size: .49rem;
+    line-height: 1.3;
+  }
+
+  .productCardFoot {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    margin-top: .7rem;
+    padding-top: .65rem;
+    border-top: 1px solid var(--border);
+    font-size: .58rem;
+  }
+
+  .productCardFoot > span {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    color: var(--muted-foreground);
+  }
+
+  .productCardFoot svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .productCardFoot strong {
+    margin-left: auto;
+    color: var(--foreground);
+    font-size: .65rem;
+  }
+
+  .productCardFoot small {
+    color: var(--muted-foreground);
+    font-size: .52rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .page,
+  .content,
+  .loading {
+    gap: .75rem;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding: 1rem;
+    border-radius: 1.08rem;
+  }
+
+  .hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .hero p {
+    font-size: .73rem;
+  }
+
+  .heroMark {
+    width: fit-content;
+  }
+
+  .filterPanel,
+  .reconcilePanel,
+  .coverageCard {
+    padding: .85rem;
+  }
+
+  .filterTop {
+    align-items: flex-start;
+  }
+
+  .filterActions {
+    flex-wrap: wrap;
+  }
+
+  .refreshStatus {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .dateRange {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dateRange > div:first-child {
+    flex-wrap: nowrap;
+    margin-inline: -.85rem;
+    padding-inline: .85rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .dateRange > div:first-child::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dateRange > div:first-child button {
+    min-height: 44px;
+    flex: 0 0 auto;
+  }
+
+  .dateRange input {
+    height: 44px !important;
+  }
+
+  .metricCard {
+    min-height: 116px;
+    padding: .8rem;
+  }
+
+  .reconcileHeader {
+    display: grid;
+  }
+
+  .uzumBadge {
+    width: fit-content;
+    margin-left: 3.25rem;
+  }
+
+  .reconcileList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panelHeader,
+  .tableHeader {
+    padding: .85rem;
+  }
+
+  .chartArea {
+    padding: .7rem .3rem .85rem;
+  }
+
+  .chartLegend {
+    justify-content: flex-start;
+    padding-inline: .5rem;
+  }
+
+  .chartCanvas {
+    height: 270px;
+  }
+
+  .tableToolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .65rem;
+    padding: .75rem .85rem;
+  }
+
+  .segmentBar {
+    grid-row: auto;
+    grid-column: auto;
+    margin-inline: -.85rem;
+    padding-inline: .85rem;
+    overflow-x: auto;
+    border-inline: 0;
+    border-radius: 0;
+    background: transparent;
+    scrollbar-width: none;
+  }
+
+  .segmentBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .segmentBar button {
+    min-height: 40px;
+    flex: 0 0 auto;
+    padding-inline: .68rem;
+    border: 1px solid var(--border);
+    background: var(--background);
+  }
+
+  .segmentBar button[aria-pressed="true"] {
+    border-color: color-mix(in srgb, var(--primary) 26%, var(--border));
+  }
+
+  .productToggle {
+    justify-self: stretch;
+  }
+
+  .productToggle > span:last-child {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  .productToggle small {
+    margin-top: 0;
+  }
+
+  .mobileCards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .loadingPanels > * {
+    height: 270px;
+  }
+
+  .loadingChart {
+    height: 350px;
+  }
+}
+
+@media (max-width: 500px) {
+  .hero {
+    gap: .9rem;
+  }
+
+  .heroMark {
+    display: none;
+  }
+
+  .filterTop,
+  .tableHeader {
+    display: grid;
+  }
+
+  .filterActions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    width: 100%;
+  }
+
+  .refreshStatus {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .exportButton {
+    width: 42px;
+    padding: 0 !important;
+    font-size: 0 !important;
+    gap: 0 !important;
+  }
+
+  .exportButton svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .dateRange > div:last-child {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .profitCard {
+    min-height: 236px;
+    padding: .9rem;
+  }
+
+  .profitFooter > div + div {
+    margin-left: .4rem;
+    padding-left: .4rem;
+  }
+
+  .profitFooter span {
+    font-size: .52rem;
+  }
+
+  .profitFooter strong {
+    font-size: .68rem;
+  }
+
+  .metricGrid {
+    gap: .6rem;
+  }
+
+  .metricCard {
+    min-height: 120px;
+    padding: .72rem;
+  }
+
+  .metricCard > strong {
+    font-size: .9rem;
+  }
+
+  .reconcileList {
+    gap: .45rem;
+  }
+
+  .reconcileRow {
+    min-height: 94px;
+    padding: .6rem;
+  }
+
+  .stepMarker {
+    width: 23px;
+    height: 23px;
+  }
+
+  .stepValue {
+    font-size: .69rem;
+  }
+
+  .coverageCard {
+    min-height: 292px;
+  }
+
+  .panelHeader {
+    display: grid;
+  }
+
+  .periodBadge,
+  .resultCount {
+    width: fit-content;
+  }
+
+  .chartCanvas {
+    height: 245px;
+  }
+
+  .chartLegend {
+    gap: .45rem .7rem;
+  }
+
+  .productToggle > span:last-child {
+    display: block;
+  }
+
+  .productToggle small {
+    margin-top: .08rem;
+  }
+
+  .mobileCards {
+    padding: .7rem;
+  }
+}
+
+@media (max-width: 370px) {
+  .hero h1 {
+    font-size: 1.58rem;
+  }
+
+  .filterTitle > span {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .refreshStatus {
+    font-size: .57rem;
+  }
+
+  .metricHead {
+    gap: .4rem;
+  }
+
+  .metricHead > span {
+    width: 28px;
+    height: 28px;
+  }
+
+  .metricCard > strong {
+    font-size: .82rem;
+  }
+
+  .reconcileList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reconcileRow {
+    min-height: 82px;
+  }
+
+  .productCardHead {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .productCardHead > .profitBadge {
+    margin-left: 3.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .filterPanel,
+  .content > *,
+  .spinning {
+    animation: none !important;
+  }
+
+  .page *,
+  .page *::before,
+  .page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}

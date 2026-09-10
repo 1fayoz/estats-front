@@ -12,123 +12,113 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { formatNumber, formatSum } from "@/lib/format";
-import { cn } from "@/lib/utils";
+import { formatNumber, formatPercent, formatSum } from "@/lib/format";
 import type { PnlTotals } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
-/**
- * The five numbers that answer the question directly: what came in, what went out,
- * what it cost, and whether that leaves a profit or a loss.
- */
+import styles from "./pnl.module.css";
+
 export function SummaryCards({ totals }: { totals: PnlTotals }) {
   const isProfit = totals.profit >= 0;
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-      <Tile
-        icon={PackagePlus}
-        label="Kirim (davr ichida)"
-        value={formatSum(totals.intakeCost)}
-        hint={`${formatNumber(totals.intakeQuantity)} dona keldi`}
-      />
-      <Tile
-        icon={Boxes}
-        label="Sotildi"
-        value={`${formatNumber(totals.soldQuantity)} dona`}
-        hint={
-          totals.returnedQuantity > 0
-            ? `${formatNumber(totals.returnedQuantity)} dona qaytdi — ${formatSum(totals.returnedAmount)}`
-            : "qaytarilgani yo'q"
-        }
-        warn={totals.returnedQuantity > 0}
-      />
-      <Tile
-        icon={Coins}
-        label="Uzum to'lovi"
-        value={formatSum(totals.revenue)}
-        hint={`${formatSum(totals.gross)} savdodan`}
-      />
-      <Tile
-        icon={TrendingDown}
-        label="Tan narx (FIFO)"
-        value={formatSum(totals.cogs)}
-        hint={
-          totals.uncoveredQuantity > 0
-            ? `${formatNumber(totals.uncoveredQuantity)} dona tan narxsiz`
-            : "to'liq hisoblangan"
-        }
-        warn={totals.uncoveredQuantity > 0}
-      />
-      <Tile
-        icon={isProfit ? TrendingUp : ArrowDownRight}
-        label={isProfit ? "Sof foyda" : "Zarar"}
-        value={formatSum(totals.profit)}
-        hint={`marja ${totals.margin.toFixed(1)}%`}
-        tone={isProfit ? "positive" : "negative"}
-      />
-    </div>
+    <section className={styles.summaryGrid} aria-label="Asosiy moliyaviy ko‘rsatkichlar">
+      <article
+        className={cn(styles.profitCard, !isProfit && styles.profitCardNegative)}
+      >
+        <div className={styles.profitTop}>
+          <span className={styles.profitIcon}>
+            {isProfit ? <TrendingUp aria-hidden="true" /> : <TrendingDown aria-hidden="true" />}
+          </span>
+          <span className={styles.profitState}>{isProfit ? "Ijobiy natija" : "Zarar qayd etildi"}</span>
+        </div>
+
+        <div className={styles.profitMain}>
+          <span>{isProfit ? "Sof foyda" : "Umumiy zarar"}</span>
+          <strong>{formatSum(totals.profit)}</strong>
+          <small>Uzum to‘lovi − FIFO tan narx</small>
+        </div>
+
+        <div className={styles.profitFooter}>
+          <div>
+            <span>Marja</span>
+            <strong>{formatPercent(totals.margin)}</strong>
+          </div>
+          <div>
+            <span>Foydadagi tovarlar</span>
+            <strong>{formatNumber(totals.productsInProfit)} ta</strong>
+          </div>
+          <div>
+            <span>Zarardagi tovarlar</span>
+            <strong>{formatNumber(totals.productsInLoss)} ta</strong>
+          </div>
+        </div>
+      </article>
+
+      <div className={styles.metricGrid}>
+        <Metric
+          icon={Coins}
+          label="Uzum to‘lovi"
+          value={formatSum(totals.revenue)}
+          hint={`${formatSum(totals.gross)} savdo aylanmasidan`}
+          tone="primary"
+        />
+        <Metric
+          icon={TrendingDown}
+          label="Tan narx (FIFO)"
+          value={formatSum(totals.cogs)}
+          hint="Sotilgan donalarning ombor qiymati"
+        />
+        <Metric
+          icon={Boxes}
+          label="Sotildi"
+          value={`${formatNumber(totals.soldQuantity)} dona`}
+          hint={
+            totals.returnedQuantity > 0
+              ? `${formatNumber(totals.returnedQuantity)} dona qaytdi · ${formatSum(totals.returnedAmount)}`
+              : "Qaytarilgan mahsulot yo‘q"
+          }
+          tone={totals.returnedQuantity > 0 ? "warning" : undefined}
+        />
+        <Metric
+          icon={PackagePlus}
+          label="Davrdagi kirim"
+          value={formatSum(totals.intakeCost)}
+          hint={`${formatNumber(totals.intakeQuantity)} dona qabul qilindi`}
+        />
+      </div>
+    </section>
   );
 }
 
-interface TileProps {
+interface MetricProps {
   icon: LucideIcon;
   label: string;
   value: string;
-  hint?: string;
-  tone?: "positive" | "negative";
-  warn?: boolean;
+  hint: string;
+  tone?: "primary" | "warning";
 }
 
-function Tile({ icon: Icon, label, value, hint, tone, warn }: TileProps) {
+function Metric({ icon: Icon, label, value, hint, tone }: MetricProps) {
   return (
-    <Card
-      className={cn(
-        tone === "positive" && "border-emerald-500/40 bg-emerald-500/5",
-        tone === "negative" && "border-destructive/40 bg-destructive/5"
-      )}
-    >
-      <CardContent className="flex flex-col gap-1 p-4">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Icon className="h-3.5 w-3.5" />
-          {label}
-        </div>
-        <div
-          className={cn(
-            "text-lg font-semibold tabular-nums",
-            tone === "positive" && "text-emerald-600 dark:text-emerald-400",
-            tone === "negative" && "text-destructive"
-          )}
-        >
-          {value}
-        </div>
-        {hint && (
-          <div
-            className={cn(
-              "text-xs text-muted-foreground",
-              warn && "text-amber-600 dark:text-amber-500"
-            )}
-          >
-            {hint}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <article className={styles.metricCard} data-tone={tone}>
+      <div className={styles.metricHead}>
+        <span><Icon aria-hidden="true" /></span>
+        <small>{label}</small>
+      </div>
+      <strong>{value}</strong>
+      <p>{hint}</p>
+    </article>
   );
 }
 
-/** Small inline profit/loss badge used in table rows. */
 export function ProfitBadge({ value }: { value: number }) {
   const positive = value >= 0;
   const Icon = positive ? ArrowUpRight : ArrowDownRight;
+
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 font-semibold tabular-nums",
-        positive ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" />
+    <span className={styles.profitBadge} data-positive={positive}>
+      <Icon aria-hidden="true" />
       {formatSum(value)}
     </span>
   );
@@ -136,9 +126,9 @@ export function ProfitBadge({ value }: { value: number }) {
 
 export function MarginBadge({ value }: { value: number }) {
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
-      <Percent className="h-3 w-3" />
-      {value.toFixed(1)}
+    <span className={styles.marginBadge}>
+      <Percent aria-hidden="true" />
+      {formatPercent(value)}
     </span>
   );
 }
