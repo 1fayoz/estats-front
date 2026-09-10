@@ -550,6 +550,8 @@ export interface ProductDetail {
   marketplace: MarketplaceFacts;
   moderationErrors: ModerationError[];
   changeLogs: ProductChangeLog[];
+  /** Uzum voronkasi. `null` — hali olinmagan. */
+  funnel?: Funnel | null;
   /** Qoralama matni oxirgi marta Uzum'ga qachon yuborilgani — undan keyingi
    *  `changeLogs` yozuvlari hali tirik e'londa emas ("joriy, tasdiqlanmagan"). */
   draftTextPushedAt: string | null;
@@ -2209,4 +2211,55 @@ export interface AiIntelligenceResult {
   generated_images?: AiGeneratedImage[];
   characteristics?: AiCharacteristic[];
   compliance?: AiCompliance;
+}
+
+/** Voronkaning bitta kuni — grafik uchun. */
+export interface FunnelDay {
+  date: string;
+  impressions: number;
+  views: number;
+  cart: number;
+  orders: number;
+  completed: number;
+  gmv: number;
+}
+
+/**
+ * Uzum «Voronka» analitikasi — bitta tovar bo'yicha.
+ *
+ * Manba: sotuvchi kabinetidagi `analytics/funnel` sahifasi
+ * ishlatadigan Cube.js xizmati. Sonlar Uzum bergan holda —
+ * QAYTA HISOBLANMAYDI, chunki sotuvchi ularni kabinetdagi
+ * sonlar bilan solishtiradi.
+ */
+export interface Funnel {
+  periodFrom: string;
+  periodTo: string;
+
+  /** Qidiruv va katalogda necha marta ko'rsatildi. */
+  impressions: number;
+  /** Kartochka necha marta ochildi. */
+  views: number;
+  addToCart: number;
+  orders: number;
+  completed: number;
+  canceled: number;
+  returned: number;
+
+  /** Konversiyalar, foizda. */
+  convImpressionToView: number;
+  convViewToCart: number;
+  convCartToOrder: number;
+  /** Sotib olish foizi: yetkazilgan / buyurtma. */
+  redemption: number;
+
+  gmvGenerated: number;
+  gmvCompleted: number;
+  gmvReturnedCanceled: number;
+  avgOrderPrice: number;
+  avgOrdersPerDay: number;
+
+  daily: FunnelDay[];
+  /** Uzumdan oxirgi marta qachon olingani. */
+  syncedAt: string | null;
 }

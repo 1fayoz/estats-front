@@ -27,6 +27,7 @@ import { ProductStats } from "@/features/warehouse/components/product-stats";
 import { UzumFactsCard } from "@/features/warehouse/components/uzum-facts-card";
 import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { SeoAuditCard } from "@/features/seo/components/seo-audit-card";
+import { FunnelCard } from "@/features/warehouse/components/funnel-card";
 import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
@@ -247,6 +248,10 @@ function ProductDetailPage({ id }: { id: number }) {
           <ReturnsCard returns={data.returns} summary={data.returnsSummary} />
         </>}
         {section === "bozor" && <>
+          {/* Voronka SEO auditidan OLDIN: u "nega sotilmayapti"
+              degan savolga birinchi javob beradi — tovar umuman
+              ko'rinyaptimi. SEO audit esa matnni o'lchaydi. */}
+          <FunnelCard productId={id} funnel={data?.funnel} />
           <SeoAuditCard productId={id} />
           <PositionsBlock productId={id} />
           <MarketCard productId={id} />

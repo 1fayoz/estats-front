@@ -6,6 +6,7 @@
 
 import { AUTH_STORAGE_KEY } from "./auth";
 import type {
+  Funnel,
   AdPlan,
   AdVerdict,
   AdResult,
@@ -1071,3 +1072,13 @@ export const editAiDraftUzum = (id: number, replaceImages: boolean) =>
  */
 export const verifyAiDraftUzum = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/verify-uzum`, { method: "POST" });
+
+/**
+ * Voronkani Uzumdan DARHOL yangilaydi.
+ *
+ * Jadval buni har ~3 soatda o'zi qiladi; bu chaqiruv sotuvchi
+ * hozir ko'rmoqchi bo'lganda. Brauzer ochilgani uchun sekin
+ * (~30 soniya).
+ */
+export const syncProductFunnel = (productId: number) =>
+  request<Funnel>(`/warehouse/products/${productId}/funnel/sync`, { method: "POST" });
