@@ -15,6 +15,7 @@ import {
 interface DateRangePickerProps {
   value: DateRange;
   onChange: (range: DateRange) => void;
+  className?: string;
 }
 
 /** Which preset (if any) matches the current value — for the active pill state. */
@@ -26,7 +27,7 @@ function activePreset(value: DateRange): PresetKey | null {
   return null;
 }
 
-export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
+export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
   const active = activePreset(value);
   const max = todayUz();
 
@@ -36,13 +37,14 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
     onChange({ from: to < value.from ? to : value.from, to });
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center", className)}>
       <div className="flex flex-wrap items-center gap-1.5">
         {PRESETS.map(({ key, label }) => (
           <button
             key={key}
             type="button"
             onClick={() => onChange(presetRange(key))}
+            aria-pressed={active === key}
             className={cn(
               "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               active === key

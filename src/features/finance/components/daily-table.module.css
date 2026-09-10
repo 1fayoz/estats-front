@@ -1,0 +1,367 @@
+.root {
+  container-type: inline-size;
+  width: 100%;
+}
+
+.cardsView {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+
+.dayCard {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--card) 96%, var(--muted));
+  box-shadow: 0 1px 2px rgb(15 23 42 / 3%);
+}
+
+.dayCard > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.dayCard > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dayCard > summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -3px;
+}
+
+.dayCard:not([open]) > summary {
+  border-bottom: 0;
+}
+
+.summaryCard {
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 46%),
+    var(--card);
+}
+
+.cardHeader {
+  display: flex;
+  min-height: 88px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+}
+
+.cardHeader h3 {
+  margin-top: 3px;
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+}
+
+.cardEyebrow {
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.weekday {
+  margin-top: 3px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.payoutBlock {
+  display: grid;
+  flex-shrink: 0;
+  justify-items: end;
+  gap: 5px;
+  text-align: right;
+}
+
+.cardChevron {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  align-self: center;
+  color: var(--muted-foreground);
+  transition: transform 160ms ease;
+}
+
+.dayCard[open] .cardChevron {
+  transform: rotate(180deg);
+}
+
+.payoutBlock span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.payoutBlock strong {
+  font-size: 15px;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric {
+  min-width: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+}
+
+.metric:nth-child(odd) {
+  border-right: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+}
+
+.metric:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.metric dt {
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metric dd {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 5px;
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 640;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.deductionMetric dd,
+.deductionCell {
+  color: color-mix(in srgb, #e11d48 82%, var(--foreground));
+}
+
+.creditMetric dd,
+.creditCell {
+  color: color-mix(in srgb, #059669 88%, var(--foreground));
+}
+
+.returnMetric dd,
+.negative {
+  color: color-mix(in srgb, #e11d48 84%, var(--foreground));
+}
+
+.positive {
+  color: color-mix(in srgb, #059669 88%, var(--foreground));
+}
+
+.rate {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #e11d48 9%, transparent);
+  color: inherit;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mutedValue {
+  color: var(--muted-foreground) !important;
+  font-weight: 500 !important;
+}
+
+.tableView {
+  display: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--foreground);
+  font-size: 12px;
+}
+
+.table th,
+.table td {
+  height: 58px;
+  padding: 10px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table thead th {
+  height: 44px;
+  background: color-mix(in srgb, var(--muted) 70%, transparent);
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 680;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.table thead th:first-child,
+.table tbody th,
+.table tfoot th {
+  text-align: left;
+}
+
+.table tbody tr {
+  transition: background-color 160ms ease;
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--muted) 40%, transparent);
+}
+
+.table tbody tr:last-child th,
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.dateCell {
+  color: var(--foreground);
+  font-weight: 640;
+}
+
+.dateCell span,
+.dateCell small,
+.deductionCell small,
+.creditCell small {
+  display: block;
+}
+
+.dateCell small,
+.deductionCell small {
+  margin-top: 3px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.dateCell small {
+  text-transform: capitalize;
+}
+
+.netCell {
+  font-weight: 720;
+}
+
+.table tfoot th,
+.table tfoot td {
+  height: 64px;
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 14%, var(--border));
+  border-bottom: 0;
+  background: color-mix(in srgb, var(--muted) 58%, transparent);
+  font-weight: 680;
+}
+
+.alignRight {
+  text-align: right !important;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@container (max-width: 419px) {
+  .metricsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metric,
+  .metric:nth-child(odd),
+  .metric:nth-last-child(-n + 2) {
+    border-right: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  }
+
+  .metric:last-child {
+    border-bottom: 0;
+  }
+
+  .metric dt {
+    white-space: normal;
+  }
+
+  .metric dd {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@container (min-width: 580px) {
+  .cardsView {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 16px;
+  }
+
+  .summaryCard {
+    grid-column: 1 / -1;
+  }
+
+  .summaryCard .metricsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .summaryCard .metric {
+    border-right: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  }
+
+  .summaryCard .metric:nth-child(4n) {
+    border-right: 0;
+  }
+
+  .summaryCard .metric:nth-last-child(-n + 4) {
+    border-bottom: 0;
+  }
+}
+
+@container (min-width: 1120px) {
+  .cardsView {
+    display: none;
+  }
+
+  .tableView {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table tbody tr,
+  .cardChevron {
+    transition: none;
+  }
+}

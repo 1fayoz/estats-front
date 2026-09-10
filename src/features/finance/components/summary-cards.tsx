@@ -1,96 +1,20 @@
 "use client";
 
-import * as React from "react";
 import {
-  Wallet,
   ArrowDownRight,
-  Truck,
-  Receipt,
-  PiggyBank,
+  CircleDollarSign,
   Percent,
+  ReceiptText,
+  ShoppingBag,
+  Truck,
   type LucideIcon,
 } from "lucide-react";
 
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatPercent, formatSumShort } from "@/lib/format";
+import { formatNumber, formatPercent, formatSum, formatSumShort } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { FinanceTotals } from "../types";
-
-interface Metric {
-  key: string;
-  label: string;
-  icon: LucideIcon;
-  value: (t: FinanceTotals) => string;
-  hint?: (t: FinanceTotals) => string;
-  tone?: "positive" | "negative" | "neutral";
-  sign?: "minus";
-  emphasis?: boolean;
-}
-
-const METRICS: Metric[] = [
-  {
-    key: "gross",
-    label: "Yalpi savdo",
-    icon: Wallet,
-    value: (t) => formatSumShort(t.gross),
-    hint: (t) => `${t.orders} buyurtma · ${t.units} dona`,
-    tone: "neutral",
-  },
-  {
-    key: "commission",
-    label: "Uzum komissiyasi",
-    icon: ArrowDownRight,
-    value: (t) => formatSumShort(t.commission),
-    hint: (t) => `o'rtacha ${formatPercent(t.commissionRate)}`,
-    tone: "negative",
-    sign: "minus",
-  },
-  {
-    key: "logistics",
-    label: "Logistika",
-    icon: Truck,
-    value: (t) => formatSumShort(t.logistics),
-    hint: (t) => `${t.units} dona yetkazish`,
-    tone: "negative",
-    sign: "minus",
-  },
-  {
-    key: "expenses",
-    label: "Boshqa yechimlar",
-    icon: Receipt,
-    value: (t) => formatSumShort(t.expenses),
-    hint: () => "jarima, saqlash, reklama",
-    tone: "negative",
-    sign: "minus",
-  },
-  {
-    key: "net",
-    label: "Sof to'lov (payout)",
-    icon: PiggyBank,
-    value: (t) => formatSumShort(t.net),
-    hint: (t) => (t.gross > 0 ? `marja ${formatPercent((t.net / t.gross) * 100)}` : "—"),
-    tone: "positive",
-    emphasis: true,
-  },
-  {
-    key: "rate",
-    label: "Ushlab qolindi",
-    icon: Percent,
-    value: (t) =>
-      t.gross > 0
-        ? formatPercent(((t.gross - t.net) / t.gross) * 100)
-        : "—",
-    hint: () => "komissiya + logistika + yechim",
-    tone: "neutral",
-  },
-];
-
-const toneText: Record<NonNullable<Metric["tone"]>, string> = {
-  positive: "text-emerald-600 dark:text-emerald-400",
-  negative: "text-rose-600 dark:text-rose-400",
-  neutral: "text-foreground",
-};
+import styles from "./finance.module.css";
 
 export function SummaryCards({
   totals,
@@ -99,45 +23,156 @@ export function SummaryCards({
   totals?: FinanceTotals;
   loading?: boolean;
 }) {
+  if (loading || !totals) return <SummarySkeleton />;
+
+  const withheldRate = totals.gross > 0
+    ? ((totals.gross - totals.net) / totals.gross) * 100
+    : 0;
+  const payoutRate = totals.gross > 0 ? (totals.net / totals.gross) * 100 : 0;
+
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-      {METRICS.map((m) => (
-        <Card
-          key={m.key}
-          className={cn(
-            "p-4",
-            m.emphasis && "bg-gradient-to-br from-emerald-500/10 via-card to-primary/5"
-          )}
-        >
-          <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-            <m.icon className="h-3.5 w-3.5" />
-            <span className="truncate">{m.label}</span>
+    <section className={styles.summaryGrid} aria-label="Davr bo'yicha moliyaviy ko'rsatkichlar">
+      <article className={styles.payoutCard}>
+        <div className={styles.metricHeading}>
+          <span className={styles.metricIcon}><CircleDollarSign aria-hidden="true" /></span>
+          <div>
+            <span>Uzum o&apos;tkazmasi</span>
+            <small>Tannarx hisobga olinmagan</small>
           </div>
-          {loading || !totals ? (
-            <>
-              <Skeleton className="mt-2.5 h-6 w-24" />
-              <Skeleton className="mt-1.5 h-3 w-16" />
-            </>
-          ) : (
-            <>
-              <div
-                className={cn(
-                  "mt-2 text-xl font-bold tabular-nums",
-                  toneText[m.tone ?? "neutral"]
-                )}
-              >
-                {m.sign === "minus" && totals.gross > 0 ? "−" : ""}
-                {m.value(totals)}
-              </div>
-              {m.hint && (
-                <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                  {m.hint(totals)}
-                </div>
-              )}
-            </>
-          )}
-        </Card>
-      ))}
+        </div>
+
+        <strong
+          className={cn(styles.payoutValue, totals.net < 0 ? styles.valueNegative : styles.valuePositive)}
+          title={formatSum(totals.net)}
+        >
+          {formatSumShort(totals.net)}
+        </strong>
+
+        <div className={styles.payoutFooter}>
+          <span>
+            <small>Yalpi savdodan</small>
+            <b>{formatPercent(payoutRate)}</b>
+          </span>
+          <span>
+            <small>Buyurtma / dona</small>
+            <b>{formatNumber(totals.orders)} / {formatNumber(totals.units)}</b>
+          </span>
+        </div>
+      </article>
+
+      <article className={styles.breakdownCard}>
+        <header className={styles.breakdownHeader}>
+          <div>
+            <span className={styles.sectionKicker}>Hisob-kitob tarkibi</span>
+            <h2>Savdo va ushlanmalar</h2>
+          </div>
+          <span className={styles.withheldRate}>
+            <Percent aria-hidden="true" />
+            {formatPercent(withheldRate)} ushlangan
+          </span>
+        </header>
+
+        <div className={styles.breakdownGrid}>
+          <BreakdownMetric
+            icon={ShoppingBag}
+            label="Yalpi savdo"
+            value={formatSumShort(totals.gross)}
+            exact={formatSum(totals.gross)}
+            hint={formatNumber(totals.orders) + " ta buyurtma"}
+          />
+          <BreakdownMetric
+            icon={ArrowDownRight}
+            label="Komissiya"
+            value={deduction(totals.commission)}
+            exact={deduction(totals.commission, false)}
+            hint={"o'rtacha " + formatPercent(totals.commissionRate)}
+            tone={deductionTone(totals.commission)}
+          />
+          <BreakdownMetric
+            icon={Truck}
+            label="Logistika"
+            value={deduction(totals.logistics)}
+            exact={deduction(totals.logistics, false)}
+            hint={formatNumber(totals.units) + " dona yetkazish"}
+            tone={deductionTone(totals.logistics)}
+          />
+          <BreakdownMetric
+            icon={ReceiptText}
+            label="Boshqa yechimlar"
+            value={deduction(totals.expenses)}
+            exact={deduction(totals.expenses, false)}
+            hint="jarima, saqlash va boshqalar"
+            tone={deductionTone(totals.expenses)}
+          />
+        </div>
+      </article>
+    </section>
+  );
+}
+
+function BreakdownMetric({
+  icon: Icon,
+  label,
+  value,
+  exact,
+  hint,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  exact: string;
+  hint: string;
+  tone?: "negative" | "positive";
+}) {
+  return (
+    <div className={styles.breakdownMetric}>
+      <span className={styles.breakdownIcon}><Icon aria-hidden="true" /></span>
+      <div>
+        <span>{label}</span>
+        <strong
+          className={cn(tone === "negative" && styles.valueNegative, tone === "positive" && styles.valuePositive)}
+          title={exact}
+        >
+          {value}
+        </strong>
+        <small>{hint}</small>
+      </div>
     </div>
+  );
+}
+
+function deduction(value: number, short = true) {
+  if (value === 0) return short ? formatSumShort(0) : formatSum(0);
+  const formatted = short ? formatSumShort(Math.abs(value)) : formatSum(Math.abs(value));
+  return (value > 0 ? "−" : "+") + formatted;
+}
+
+function deductionTone(value: number) {
+  if (value > 0) return "negative" as const;
+  if (value < 0) return "positive" as const;
+  return undefined;
+}
+
+function SummarySkeleton() {
+  return (
+    <section className={styles.summaryGrid} aria-label="Moliyaviy ko'rsatkichlar yuklanmoqda">
+      <article className={styles.payoutCard}>
+        <Skeleton className="h-10 w-40 rounded-xl" />
+        <Skeleton className="mt-8 h-10 w-48 max-w-full" />
+        <div className={styles.payoutFooter}>
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-28" />
+        </div>
+      </article>
+      <article className={styles.breakdownCard}>
+        <Skeleton className="h-10 w-52 max-w-full" />
+        <div className={styles.breakdownGrid}>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-20 w-full rounded-xl" />
+          ))}
+        </div>
+      </article>
+    </section>
   );
 }

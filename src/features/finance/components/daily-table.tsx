@@ -1,24 +1,163 @@
 "use client";
 
 import * as React from "react";
+import { ChevronDown } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
+import { formatDayLabel, formatWeekday } from "@/lib/date-range";
 import { formatNumber, formatPercent, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { formatDayLabel, formatWeekday } from "@/lib/date-range";
 import type { DailyFinance, FinanceTotals } from "../types";
 
-const COLS = [
+import styles from "./daily-table.module.css";
+
+const COLUMNS = [
   { key: "date", label: "Sana", align: "left" },
   { key: "orders", label: "Buyurtma", align: "right" },
   { key: "units", label: "Dona", align: "right" },
+  { key: "returns", label: "Qaytgan", align: "right" },
   { key: "gross", label: "Yalpi savdo", align: "right" },
   { key: "commission", label: "Komissiya", align: "right" },
   { key: "logistics", label: "Logistika", align: "right" },
   { key: "expenses", label: "Boshqa yechim", align: "right" },
+  { key: "sellerProfit", label: "Bazaviy to'lov", align: "right" },
   { key: "net", label: "Sof to'lov", align: "right" },
 ] as const;
+
+type FinanceMetrics = Pick<
+  DailyFinance,
+  | "orders"
+  | "units"
+  | "returns"
+  | "gross"
+  | "commission"
+  | "commissionRate"
+  | "logistics"
+  | "expenses"
+  | "sellerProfit"
+  | "net"
+>;
+
+function hasActivity(metrics: FinanceMetrics) {
+  return (
+    metrics.orders !== 0 ||
+    metrics.units !== 0 ||
+    metrics.returns !== 0 ||
+    metrics.gross !== 0 ||
+    metrics.commission !== 0 ||
+    metrics.logistics !== 0 ||
+    metrics.expenses !== 0 ||
+    metrics.sellerProfit !== 0 ||
+    metrics.net !== 0
+  );
+}
+
+function payoutTone(value: number) {
+  return value < 0 ? styles.negative : styles.positive;
+}
+
+function MoneyValue({ value, muted = false }: { value: number; muted?: boolean }) {
+  if (value === 0 && muted) {
+    return <span className={styles.mutedValue}>—</span>;
+  }
+
+  return <>{formatSum(value)}</>;
+}
+
+function MetricsGrid({ metrics }: { metrics: FinanceMetrics }) {
+  const active = hasActivity(metrics);
+
+  return (
+    <dl className={styles.metricsGrid}>
+      <div className={styles.metric}>
+        <dt>Buyurtmalar</dt>
+        <dd>{formatNumber(metrics.orders)}</dd>
+      </div>
+      <div className={styles.metric}>
+        <dt>Sotilgan dona</dt>
+        <dd>{formatNumber(metrics.units)}</dd>
+      </div>
+      <div className={cn(styles.metric, metrics.returns > 0 && styles.returnMetric)}>
+        <dt>Qaytgan dona</dt>
+        <dd>{formatNumber(metrics.returns)}</dd>
+      </div>
+      <div className={styles.metric}>
+        <dt>Yalpi savdo</dt>
+        <dd>
+          <MoneyValue value={metrics.gross} muted={!active} />
+        </dd>
+      </div>
+      <div className={cn(styles.metric, metrics.commission < 0 ? styles.creditMetric : styles.deductionMetric)}>
+        <dt>Komissiya</dt>
+        <dd>
+          <MoneyValue value={metrics.commission} muted={!active} />
+          {metrics.commission !== 0 ? (
+            <span className={styles.rate}>{formatPercent(metrics.commissionRate)}</span>
+          ) : null}
+        </dd>
+      </div>
+      <div className={cn(styles.metric, metrics.logistics < 0 ? styles.creditMetric : styles.deductionMetric)}>
+        <dt>Logistika</dt>
+        <dd>
+          <MoneyValue value={metrics.logistics} muted={!active} />
+        </dd>
+      </div>
+      <div className={cn(styles.metric, metrics.expenses < 0 ? styles.creditMetric : styles.deductionMetric)}>
+        <dt>Boshqa yechimlar</dt>
+        <dd>
+          <MoneyValue value={metrics.expenses} muted={!active} />
+        </dd>
+      </div>
+      <div className={styles.metric}>
+        <dt>Bazaviy to&apos;lov</dt>
+        <dd>
+          <MoneyValue value={metrics.sellerProfit} muted={!active} />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+function SummaryCard({ totals }: { totals: FinanceTotals }) {
+  return (
+    <article className={cn(styles.dayCard, styles.summaryCard)}>
+      <header className={styles.cardHeader}>
+        <div>
+          <p className={styles.cardEyebrow}>Tanlangan davr</p>
+          <h3>Jami natija</h3>
+        </div>
+        <div className={styles.payoutBlock}>
+          <span>Sof to'lov</span>
+          <strong className={payoutTone(totals.net)}>{formatSum(totals.net)}</strong>
+        </div>
+      </header>
+      <MetricsGrid metrics={totals} />
+    </article>
+  );
+}
+
+function DayCard({ day, initiallyOpen = false }: { day: DailyFinance; initiallyOpen?: boolean }) {
+  const active = hasActivity(day);
+
+  return (
+    <details className={styles.dayCard} open={initiallyOpen}>
+      <summary className={styles.cardHeader}>
+        <div>
+          <p className={styles.cardEyebrow}>Kunlik natija</p>
+          <h3>{formatDayLabel(day.date)}</h3>
+          <p className={styles.weekday}>{formatWeekday(day.date)}</p>
+        </div>
+        <div className={styles.payoutBlock}>
+          <span>Sof to'lov</span>
+          <strong className={active ? payoutTone(day.net) : styles.mutedValue}>
+            {active ? formatSum(day.net) : "—"}
+          </strong>
+          <ChevronDown className={styles.cardChevron} aria-hidden="true" />
+        </div>
+      </summary>
+      <MetricsGrid metrics={day} />
+    </details>
+  );
+}
 
 export function DailyTable({
   daily,
@@ -27,178 +166,105 @@ export function DailyTable({
   daily: DailyFinance[];
   totals: FinanceTotals;
 }) {
-  // Newest day first.
   const rows = React.useMemo(
-    () => [...daily].sort((a, b) => b.date.localeCompare(a.date)),
+    () => [...daily].sort((first, second) => second.date.localeCompare(first.date)),
     [daily]
   );
 
   return (
-    <>
-      {/* Telefonda: har kun — alohida kartochka, jami esa tepada. */}
-      <CardList className="px-4 pb-4">
-        <DataCard className="border-primary/30 bg-primary/5">
-          <CardHead title="Jami" note={`${formatNumber(totals.orders)} buyurtma · ${formatNumber(totals.units)} dona`} />
-          <CardStats
-            items={[
-              { label: "Yalpi savdo", value: formatSum(totals.gross) },
-              { label: "Sof to'lov", value: formatSum(totals.net), tone: "good" },
-              {
-                label: "Komissiya",
-                value: `${formatSum(totals.commission)} · ${formatPercent(totals.commissionRate)}`,
-                tone: "bad",
-              },
-              { label: "Logistika", value: formatSum(totals.logistics), tone: "bad" },
-            ]}
-          />
-        </DataCard>
-
-        {rows.map((d) => (
-          <DataCard key={d.date}>
-            <CardHead
-              title={formatDayLabel(d.date)}
-              note={<span className="capitalize">{formatWeekday(d.date)}</span>}
-              right={
-                <span
-                  className={cn(
-                    "text-sm font-semibold tabular-nums",
-                    d.net >= 0
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-rose-600 dark:text-rose-400"
-                  )}
-                >
-                  {d.gross || d.expenses ? formatSum(d.net) : "—"}
-                </span>
-              }
-            />
-            <CardStats
-              items={[
-                {
-                  label: "Buyurtma / dona",
-                  value: (
-                    <>
-                      {d.orders || 0} / {d.units || 0}
-                      {d.returns > 0 && (
-                        <span className="ml-1 text-[11px] text-rose-500">↩{d.returns}</span>
-                      )}
-                    </>
-                  ),
-                },
-                { label: "Yalpi savdo", value: d.gross ? formatSum(d.gross) : "—" },
-                {
-                  label: "Komissiya",
-                  value: d.commission
-                    ? `${formatSum(d.commission)} · ${formatPercent(d.commissionRate)}`
-                    : "—",
-                  tone: d.commission ? "bad" : "muted",
-                },
-                {
-                  label: "Logistika",
-                  value: d.logistics ? formatSum(d.logistics) : "—",
-                  tone: d.logistics ? "bad" : "muted",
-                },
-              ]}
-            />
-          </DataCard>
+    <section className={styles.root} aria-label="Kunlik moliyaviy natijalar">
+      <div className={styles.cardsView}>
+        <SummaryCard totals={totals} />
+        {rows.map((day, index) => (
+          <DayCard key={day.date} day={day} initiallyOpen={index === 0} />
         ))}
-      </CardList>
+      </div>
 
-      <div className="hidden overflow-x-auto md:block">
-      <table className="w-full min-w-[720px] text-sm">
-        <thead>
-          <tr className="border-y bg-muted/30 text-xs uppercase tracking-wider text-muted-foreground">
-            {COLS.map((c) => (
-              <th
-                key={c.key}
-                className={cn(
-                  "px-4 py-2.5 font-medium",
-                  c.align === "right" ? "text-right" : "text-left"
-                )}
-              >
-                {c.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((d) => (
-            <tr key={d.date} className="border-b last:border-0 hover:bg-accent/30">
-              <td className="whitespace-nowrap px-4 py-2.5">
-                <div className="font-medium">{formatDayLabel(d.date)}</div>
-                <div className="text-[11px] capitalize text-muted-foreground">
-                  {formatWeekday(d.date)}
-                </div>
+      <div className={styles.tableView}>
+        <table className={styles.table}>
+          <caption className={styles.srOnly}>
+            Kunlar kesimida buyurtmalar, savdo, yechimlar va sof to'lovlar
+          </caption>
+          <thead>
+            <tr>
+              {COLUMNS.map((column) => (
+                <th
+                  key={column.key}
+                  scope="col"
+                  className={column.align === "right" ? styles.alignRight : undefined}
+                >
+                  {column.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((day) => {
+              const active = hasActivity(day);
+
+              return (
+                <tr key={day.date}>
+                  <th scope="row" className={styles.dateCell}>
+                    <span>{formatDayLabel(day.date)}</span>
+                    <small>{formatWeekday(day.date)}</small>
+                  </th>
+                  <td>{formatNumber(day.orders)}</td>
+                  <td>{formatNumber(day.units)}</td>
+                  <td className={day.returns > 0 ? styles.negative : undefined}>
+                    {formatNumber(day.returns)}
+                  </td>
+                  <td>
+                    <MoneyValue value={day.gross} muted={!active} />
+                  </td>
+                  <td className={day.commission < 0 ? styles.creditCell : styles.deductionCell}>
+                    <MoneyValue value={day.commission} muted={!active} />
+                    {day.commission !== 0 ? (
+                      <small>{formatPercent(day.commissionRate)}</small>
+                    ) : null}
+                  </td>
+                  <td className={day.logistics < 0 ? styles.creditCell : styles.deductionCell}>
+                    <MoneyValue value={day.logistics} muted={!active} />
+                  </td>
+                  <td className={day.expenses < 0 ? styles.creditCell : styles.deductionCell}>
+                    <MoneyValue value={day.expenses} muted={!active} />
+                  </td>
+                  <td>
+                    <MoneyValue value={day.sellerProfit} muted={!active} />
+                  </td>
+                  <td className={cn(styles.netCell, active ? payoutTone(day.net) : styles.mutedValue)}>
+                    {active ? formatSum(day.net) : "—"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Jami</th>
+              <td>{formatNumber(totals.orders)}</td>
+              <td>{formatNumber(totals.units)}</td>
+              <td className={totals.returns > 0 ? styles.negative : undefined}>
+                {formatNumber(totals.returns)}
               </td>
-              <td className="px-4 py-2.5 text-right tabular-nums">
-                {d.orders || <span className="text-muted-foreground">—</span>}
+              <td>{formatSum(totals.gross)}</td>
+              <td className={totals.commission < 0 ? styles.creditCell : styles.deductionCell}>
+                {formatSum(totals.commission)}
+                <small>{formatPercent(totals.commissionRate)}</small>
               </td>
-              <td className="px-4 py-2.5 text-right tabular-nums">
-                {d.units || <span className="text-muted-foreground">—</span>}
-                {d.returns > 0 && (
-                  <span className="ml-1 text-[11px] text-rose-500">↩{d.returns}</span>
-                )}
+              <td className={totals.logistics < 0 ? styles.creditCell : styles.deductionCell}>
+                {formatSum(totals.logistics)}
               </td>
-              <td className="px-4 py-2.5 text-right font-medium tabular-nums">
-                {d.gross ? formatSum(d.gross) : <span className="text-muted-foreground">—</span>}
+              <td className={totals.expenses < 0 ? styles.creditCell : styles.deductionCell}>
+                {formatSum(totals.expenses)}
               </td>
-              <td className="px-4 py-2.5 text-right tabular-nums text-rose-600 dark:text-rose-400">
-                {d.commission ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    {formatSum(d.commission)}
-                    <Badge variant="destructive" className="px-1 py-0 font-mono text-[10px]">
-                      {formatPercent(d.commissionRate)}
-                    </Badge>
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-              </td>
-              <td className="px-4 py-2.5 text-right tabular-nums text-amber-600 dark:text-amber-400">
-                {d.logistics ? formatSum(d.logistics) : <span className="text-muted-foreground">—</span>}
-              </td>
-              <td className="px-4 py-2.5 text-right tabular-nums text-muted-foreground">
-                {d.expenses ? formatSum(d.expenses) : "—"}
-              </td>
-              <td
-                className={cn(
-                  "px-4 py-2.5 text-right font-semibold tabular-nums",
-                  d.net >= 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-rose-600 dark:text-rose-400"
-                )}
-              >
-                {d.gross || d.expenses ? formatSum(d.net) : <span className="font-normal text-muted-foreground">—</span>}
+              <td>{formatSum(totals.sellerProfit)}</td>
+              <td className={cn(styles.netCell, payoutTone(totals.net))}>
+                {formatSum(totals.net)}
               </td>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr className="border-t-2 bg-muted/40 font-semibold">
-            <td className="px-4 py-3">Jami</td>
-            <td className="px-4 py-3 text-right tabular-nums">{formatNumber(totals.orders)}</td>
-            <td className="px-4 py-3 text-right tabular-nums">{formatNumber(totals.units)}</td>
-            <td className="px-4 py-3 text-right tabular-nums">{formatSum(totals.gross)}</td>
-            <td className="px-4 py-3 text-right tabular-nums text-rose-600 dark:text-rose-400">
-              <span className="inline-flex items-center gap-1.5">
-                {formatSum(totals.commission)}
-                <Badge variant="destructive" className="px-1 py-0 font-mono text-[10px]">
-                  {formatPercent(totals.commissionRate)}
-                </Badge>
-              </span>
-            </td>
-            <td className="px-4 py-3 text-right tabular-nums text-amber-600 dark:text-amber-400">
-              {formatSum(totals.logistics)}
-            </td>
-            <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-              {formatSum(totals.expenses)}
-            </td>
-            <td className="px-4 py-3 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
-              {formatSum(totals.net)}
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+          </tfoot>
+        </table>
       </div>
-    </>
+    </section>
   );
 }
