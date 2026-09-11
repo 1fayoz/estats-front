@@ -2224,6 +2224,36 @@ export interface FunnelDay {
   gmv: number;
 }
 
+/** Tashxisni asoslovchi bitta topilma. */
+export interface FunnelFinding {
+  text: string;
+  /** "measured" — shu tovar uchun o'lchangan aniq raqam; "uzum_guide" — Uzum'ning umumiy tavsiyasi. */
+  source: "measured" | "uzum_guide";
+}
+
+/**
+ * Eng zaif bosqich va uni kuchaytirish uchun amaliy yordam.
+ *
+ * Manba ikki qatlamli: Uzum'ning O'Z rasmiy qo'llanmasi
+ * (sotuvchi kabinetidan so'zma-so'z ko'chirilgan) + shu tovar
+ * uchun bizda bor o'lchangan ma'lumot (SEO audit, bozor
+ * mediani, qoldiq, blok holati) bo'lsa — umumiy tavsiyani aniq
+ * raqamga bog'laydi.
+ */
+export interface FunnelDiagnosis {
+  stage: string;
+  stageTitle: string;
+  /** "yetarli" — namuna hukm chiqarish uchun yetarli; "kam_malumot" — hali kam, ehtiyot bilan o'qing. */
+  confidence: "yetarli" | "kam_malumot";
+  metric: number | null;
+  benchmarkMin: number | null;
+  benchmarkMax: number | null;
+  why: string;
+  note: string;
+  findings: FunnelFinding[];
+  actions: string[];
+}
+
 /**
  * Uzum «Voronka» analitikasi — bitta tovar bo'yicha.
  *
@@ -2262,4 +2292,6 @@ export interface Funnel {
   daily: FunnelDay[];
   /** Uzumdan oxirgi marta qachon olingani. */
   syncedAt: string | null;
+  /** Eng zaif bosqich va uni kuchaytirish uchun amaliy yordam. */
+  diagnosis: FunnelDiagnosis | null;
 }

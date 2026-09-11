@@ -1,13 +1,21 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Loader2, RefreshCw, TrendingDown } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  Target,
+  TrendingDown,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { ApiError, syncProductFunnel } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { Funnel } from "@/lib/types";
+import type { Funnel, FunnelDiagnosis } from "@/lib/types";
 
 /**
  * Uzum «Voronka» — sotuvchi kabinetidagi analitikaning O'ZI.
@@ -150,15 +158,7 @@ export function FunnelCard({
         />
       </div>
 
-      {funnel.impressions === 0 && (
-        <p className="mt-3 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs text-[color:var(--air-label)]">
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
-          <span>
-            Bu davrda tovar qidiruvda umuman <b>ko&apos;rsatilmagan</b> — muammo
-            matn yoki sotuvda emas, ko&apos;rinishda.
-          </span>
-        </p>
-      )}
+      {funnel.diagnosis && <DiagnosisBlock diagnosis={funnel.diagnosis} />}
 
       {funnel.daily.length > 0 && <Sparks daily={funnel.daily} />}
 
@@ -206,6 +206,94 @@ function Step({
         </div>
       )}
       {hint && <div className="text-[11px] text-[color:var(--air-label)]">{hint}</div>}
+    </div>
+  );
+}
+
+/**
+ * Eng zaif bosqich va uni kuchaytirish uchun amaliy yordam.
+ *
+ * Ikki qatlamli: Uzum'ning O'Z rasmiy qo'llanmasi (`why`,
+ * `actions`, `note` — sotuvchi kabinetidan so'zma-so'z) + shu
+ * tovar uchun BIZDA bor o'lchangan topilmalar (`findings`) —
+ * ular bo'lsa, umumiy tavsiyani aniq raqamga bog'laydi.
+ *
+ * "O'lchandi" va "Uzum tavsiyasi" ATAYLAB ajratiladi — bittasi
+ * shu tovar haqida aniq fakt, ikkinchisi umumiy yo'l-yo'riq.
+ * Ularni aralashtirish taxminni faktdek ko'rsatardi (§9.9 dagi
+ * "Aniqlangan" / "Taxmin" qoidasi bilan bir xil).
+ */
+function DiagnosisBlock({ diagnosis }: { diagnosis: FunnelDiagnosis }) {
+  const [open, setOpen] = React.useState(true);
+  const hasBenchmark = diagnosis.metric !== null && diagnosis.benchmarkMin !== null;
+
+  return (
+    <div className="mt-3 rounded-xl border border-[color:var(--primary)]/25 bg-[color:var(--primary)]/[.05] p-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 text-left"
+      >
+        <span className="flex items-center gap-2 text-sm font-medium">
+          <Target className="h-4 w-4 shrink-0 text-[color:var(--primary)]" />
+          Eng zaif bosqich: {diagnosis.stageTitle}
+          {diagnosis.confidence === "kam_malumot" && (
+            <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-normal text-amber-700 dark:text-amber-400">
+              kam ma&apos;lumot
+            </span>
+          )}
+        </span>
+        <ChevronDown
+          className={cn("h-4 w-4 shrink-0 text-[color:var(--air-label)] transition-transform", open && "rotate-180")}
+        />
+      </button>
+
+      {hasBenchmark && (
+        <p className="mt-1 text-[11px] tabular-nums text-[color:var(--air-label)]">
+          Sizda {diagnosis.metric}% — odatiy oraliq {diagnosis.benchmarkMin}
+          –{diagnosis.benchmarkMax}%
+        </p>
+      )}
+
+      {open && (
+        <>
+          <p className="mt-2 text-xs leading-relaxed text-[color:var(--air-head)]">
+            {diagnosis.why}
+          </p>
+
+          {diagnosis.findings.length > 0 && (
+            <ul className="mt-2.5 space-y-1.5">
+              {diagnosis.findings.map((f, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-xs leading-relaxed">
+                  <span className="mt-0.5 shrink-0 rounded bg-[color:var(--ok)]/15 px-1 py-px text-[9px] font-medium uppercase tracking-wide text-[color:var(--ok)]">
+                    O&apos;lchandi
+                  </span>
+                  <span className="text-[color:var(--air-head)]">{f.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-3 border-t border-[color:var(--air-line)] pt-2.5">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-[color:var(--air-head)]">
+              <Sparkles className="h-3.5 w-3.5" />
+              Nima qilish kerak?
+            </div>
+            <ul className="mt-1.5 space-y-1">
+              {diagnosis.actions.map((action, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-xs leading-relaxed">
+                  <Check className="mt-0.5 h-3 w-3 shrink-0 text-[color:var(--ok)]" />
+                  <span className="text-[color:var(--air-head)]">{action}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="mt-2.5 text-[11px] italic leading-relaxed text-[color:var(--air-label)]">
+            {diagnosis.note}
+          </p>
+        </>
+      )}
     </div>
   );
 }
