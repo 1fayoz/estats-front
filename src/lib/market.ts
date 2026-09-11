@@ -116,6 +116,57 @@ export type MarketShop = {
   url: string | null;
 };
 
+/** `src/mining/sellers.py`dagi `LEGAL_FORM_LABELS` bilan bir xil turishi shart. */
+export const LEGAL_FORM_LABELS: Record<string, string> = {
+  yatt: "YaTT (ИП)",
+  mchj: "MChJ",
+  aj: "Aksiyadorlik jamiyati",
+  self_employed: "O'zini-o'zi band qilgan shaxs",
+  individual: "Jismoniy shaxs",
+};
+
+export type MarketSeller = {
+  seller_id: number;
+  title: string;
+  tin: string | null;
+  legal_form: string | null;
+  first_seen: string;
+  shops: number;
+  orders_total: number;
+  avatar: string | null;
+  banner: string | null;
+  flagship_shop: string | null;
+  revenue: number;
+  units: number;
+  joined_at: string | null;
+  /** `true` — hali sinxronlanmagan, kuzatuv boshlangan kun bilan almashtirilgan taxmin. */
+  joined_is_estimate: boolean;
+};
+
+export type MarketSellerShop = {
+  shop_id: number;
+  title: string;
+  slug: string | null;
+  avatar: string | null;
+  banner: string | null;
+  description: string | null;
+  official: boolean | null;
+  rating: number | null;
+  reviews: number;
+  orders_total: number;
+  registered_at: string | null;
+  revenue: number;
+  units: number;
+  url: string | null;
+};
+
+export type MarketSellerDetail = {
+  seller: { seller_id: number; title: string; tin: string | null; legal_form: string | null; first_seen: string };
+  totals: { shops: number; orders_total: number; revenue: number; units: number; joined_at: string | null };
+  shops: MarketSellerShop[];
+  period: { start: string; end: string };
+};
+
 export type MarketKeyword = {
   keyword_id: number;
   text: string;
@@ -187,14 +238,25 @@ export const market = {
     get<MarketPage<MarketNiche>>("/niches", { limit: 200, ...params }),
   nicheDynamics: (id: number, days = 90) => get<MarketPoint[]>(`/niches/${id}/dynamics`, { days }),
 
-  products: (params: { days: number; q?: string; root?: number; limit?: number }) =>
+  products: (params: { days: number; q?: string; root?: number; shop?: number; limit?: number }) =>
     get<MarketPage<MarketProduct>>("/products", { limit: 200, ...params }),
 
   shops: (params: { days: number; q?: string; limit?: number }) =>
     get<MarketPage<MarketShop>>("/shops", { limit: 200, ...params }),
 
-  sellers: (params: { days: number; limit?: number }) =>
-    get<MarketPage<Record<string, unknown>>>("/sellers", { limit: 200, ...params }),
+  sellers: (params: {
+    days: number;
+    q?: string;
+    min_shops?: number;
+    joined_after?: string;
+    joined_before?: string;
+    legal_form?: string;
+    order?: "revenue" | "shops" | "orders" | "joined";
+    limit?: number;
+    offset?: number;
+  }) => get<MarketPage<MarketSeller>>("/sellers", { limit: 60, ...params }),
+
+  sellerDetail: (id: number, days: number) => get<MarketSellerDetail>(`/sellers/${id}`, { days }),
 
   keywords: (params: { q?: string; limit?: number }) =>
     get<MarketPage<MarketKeyword>>("/seo/keywords", { limit: 200, ...params }),
