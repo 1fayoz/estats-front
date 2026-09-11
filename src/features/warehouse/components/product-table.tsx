@@ -4,8 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  AlertTriangle, CheckCircle2, ChevronRight, Clock3,
-  PackagePlus, PackageX, Sparkles, Truck, XCircle,
+  AlertTriangle, CheckCircle2, ChevronRight, Clock3, Loader2,
+  PackagePlus, PackageX, Pencil, Truck, XCircle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,12 +23,16 @@ interface ProductTableProps {
   onIntake: (product: WarehouseProduct) => void;
   /**
    * Uzum tovar ID'si → joylangan AI qoralamasi ID'si. Bo'lsa,
-   * tegishli tovar qatorida "AI kartochka" tugmasi chiqadi —
-   * joylangan qoralamani ("Tahrirlash", "Uzumda tekshirish")
-   * qayta ochishning yagona yo'li.
+   * "Tahrirlash" tugmasi mavjud qoralamani ochadi. HAR BIR qator
+   * baribir shu tugmani ko'rsatadi (foydalanuvchi so'rovi: "har
+   * bir kartda edit degan buton bolsin") — qoralama yo'q bo'lsa
+   * `onEditProduct` chaqiriladi va u tovarning Uzum'dagi
+   * ma'lumotidan (rasm, kategoriya, MXIK) YANGI qoralama yaratib,
+   * darhol to'liq AI quvurini ishga tushiradi.
    */
   aiDraftByProduct?: Map<string, number>;
   onOpenAiDraft?: (draftId: number) => void;
+  onEditProduct?: (item: WarehouseProduct) => void | Promise<void>;
 }
 
 // ── Kartochka bo'yicha guruhlash (Uzum kabinetidagi kabi) ──────
@@ -97,6 +101,7 @@ export function ProductTable({
   onIntake,
   aiDraftByProduct,
   onOpenAiDraft,
+  onEditProduct,
 }: ProductTableProps) {
   const router = useRouter();
   const groups = React.useMemo(() => groupByCard(items), [items]);
@@ -111,6 +116,29 @@ export function ProductTable({
 
   const aiDraftId = (item: WarehouseProduct): number | null =>
     (item.externalProductId && aiDraftByProduct?.get(item.externalProductId)) || null;
+
+  // Qoralama hali yo'q tovarda "Tahrirlash" bosilganda — yangi
+  // qoralama fonda yaratiladi (bir necha soniya). Shu orada
+  // tugma o'zining "band" holatini ko'rsatishi uchun.
+  const [editingIds, setEditingIds] = React.useState<Set<number>>(new Set());
+  const handleEdit = async (item: WarehouseProduct) => {
+    const existing = aiDraftId(item);
+    if (existing != null) {
+      onOpenAiDraft?.(existing);
+      return;
+    }
+    if (!onEditProduct || editingIds.has(item.id)) return;
+    setEditingIds((prev) => new Set(prev).add(item.id));
+    try {
+      await onEditProduct(item);
+    } finally {
+      setEditingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(item.id);
+        return next;
+      });
+    }
+  };
 
   const statusBadge = (item: WarehouseProduct) => {
     const summary = item.uzumValidation?.summary;
@@ -161,7 +189,6 @@ export function ProductTable({
         {groups.map((g) => {
           const item = g.card;
           const hasCost = costOf(item) != null;
-          const draftId = aiDraftId(item);
           const range = priceRange(g.variants);
           const open = expanded.has(g.key);
           const statusItem = groupStatusItem(g);
@@ -271,17 +298,21 @@ export function ProductTable({
                     Batafsil <ChevronRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                {draftId != null && onOpenAiDraft && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11 w-full rounded-xl"
-                    aria-label={`${item.title}: AI kartochkani ochish`}
-                    onClick={() => onOpenAiDraft(draftId)}
-                  >
-                    <Sparkles className="h-3.5 w-3.5" /> AI kartochka
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full rounded-xl"
+                  aria-label={`${item.title}: tahrirlash`}
+                  disabled={editingIds.has(item.id)}
+                  onClick={() => handleEdit(item)}
+                >
+                  {editingIds.has(item.id) ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Pencil className="h-3.5 w-3.5" />
+                  )}
+                  Tahrirlash
+                </Button>
               </div>
               {g.isGroup && (
                 <div id={variantsId} hidden={!open} className="mt-4 space-y-3 border-t pt-4">
@@ -382,8 +413,8 @@ export function ProductTable({
                   statusBadge={statusBadge}
                   groupStatusItem={groupStatusItem}
                   onIntake={onIntake}
-                  aiDraftId={aiDraftId}
-                  onOpenAiDraft={onOpenAiDraft}
+                  onEdit={handleEdit}
+                  editBusy={editingIds.has(g.card.id)}
                 />
                 {/* ── Variantlar (ochilganda) ── */}
                 {g.isGroup && open &&
@@ -498,16 +529,15 @@ function ProductRow(props: {
   statusBadge: (i: WarehouseProduct) => React.ReactNode;
   groupStatusItem: (g: Group) => WarehouseProduct;
   onIntake: (p: WarehouseProduct) => void;
-  aiDraftId: (i: WarehouseProduct) => number | null;
-  onOpenAiDraft?: (id: number) => void;
+  onEdit: (item: WarehouseProduct) => void;
+  editBusy: boolean;
 }) {
   const {
     item, group: g, open, onToggleOpen, router, statusBadge, groupStatusItem,
-    onIntake, aiDraftId, onOpenAiDraft,
+    onIntake, onEdit, editBusy,
   } = props;
 
   const hasCost = costOf(item) != null;
-  const draftId = aiDraftId(item);
   const range = priceRange(g.variants);
   const q = (pick: (v: WarehouseProduct) => number) => sum(g.variants, pick);
 
@@ -676,21 +706,25 @@ function ProductRow(props: {
       </td>
       <td className="px-4 py-3 text-right">
         <div className="flex items-center justify-end gap-2">
-          {draftId != null && onOpenAiDraft && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-primary"
-              aria-label={`${item.title}: AI kartochkani ochish`}
-              title="AI kartochkasini ochish — Uzum'da tahrirlash yoki tekshirish"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenAiDraft(draftId);
-              }}
-            >
-              <Sparkles className="h-3.5 w-3.5" /> AI
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-primary"
+            aria-label={`${item.title}: tahrirlash`}
+            title="AI bilan tahrirlash — mavjud bo'lsa qoralamani ochadi, bo'lmasa to'liq qayta generatsiya qiladi"
+            disabled={editBusy}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(item);
+            }}
+          >
+            {editBusy ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Pencil className="h-3.5 w-3.5" />
+            )}
+            Tahrirlash
+          </Button>
           {!g.isGroup && (
             <Button
               size="sm"

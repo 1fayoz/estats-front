@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   AlertCircle, ArrowDownToLine, ArrowLeft, ArrowUpRight, Boxes, Check, Copy,
-  History, LayoutGrid, Megaphone, Package, PackagePlus, Radar, RefreshCw,
+  History, LayoutGrid, Loader2, Megaphone, Package, PackagePlus, Radar, RefreshCw,
   ShoppingCart, Sparkles, TrendingUp, Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -34,7 +34,7 @@ import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
 import { ProductAiModal } from "@/features/products-ai/components/product-modal";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
-import { fetchProductDetail } from "@/lib/api";
+import { ApiError, fetchProductDetail, regenerateProductUzum } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
@@ -81,10 +81,26 @@ function ProductDetailPage({ id }: { id: number }) {
   const period = ["daily", "monthly", "yearly"].includes(rawPeriod) ? rawPeriod : "daily";
   const canSeeAi = useCan("products_ai.view");
   const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
+
+  // "AI kartochka" — qoralama hali yo'q bo'lsa (§9.13): yangi
+  // qoralama tovarning Uzum'dagi ma'lumotidan backfill qilib
+  // fonda yaratiladi va to'liq AI quvuri darhol ishga tushadi.
+  const handleEditAi = async (productId: number) => {
+    setEditingAi(true);
+    try {
+      const { draftId } = await regenerateProductUzum(productId);
+      openAi(draftId);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Tahrirlashni boshlab bo'lmadi.");
+    } finally {
+      setEditingAi(false);
+    }
+  };
   const [data, setData] = React.useState<ProductDetail | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
+  const [editingAi, setEditingAi] = React.useState(false);
   const [complaintFor, setComplaintFor] = React.useState<number | null>(null);
   const requestVersion = React.useRef(0);
   const navigationRef = React.useRef<HTMLElement>(null);
@@ -209,7 +225,20 @@ function ProductDetailPage({ id }: { id: number }) {
           </div>
           <div className="mt-auto flex flex-wrap gap-2 pt-6">
             <Button className="min-h-11 flex-1 rounded-xl px-5 sm:flex-none" onClick={() => setIntakeFor(product)}><PackagePlus /> Kirim qo‘shish</Button>
-            {canSeeAi && data.aiDraftId != null && <Button variant="outline" className="min-h-11 flex-1 rounded-xl sm:flex-none" onClick={() => openAi(data.aiDraftId)}><Sparkles /> AI kartochka</Button>}
+            {canSeeAi && (
+              data.aiDraftId != null ? (
+                <Button variant="outline" className="min-h-11 flex-1 rounded-xl sm:flex-none" onClick={() => openAi(data.aiDraftId)}><Sparkles /> AI kartochka</Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="min-h-11 flex-1 rounded-xl sm:flex-none"
+                  disabled={editingAi}
+                  onClick={() => handleEditAi(product.id)}
+                >
+                  {editingAi ? <Loader2 className="animate-spin" /> : <Sparkles />} Tahrirlash
+                </Button>
+              )
+            )}
           </div>
         </div>
       </section>

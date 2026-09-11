@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, ArrowRight, Check, CheckCircle2, Copy, ImagePlus, Lightbulb, Loader2, LockKeyhole, Pencil, Search, ShieldCheck, Sparkles, Square, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, CheckCircle2, Copy, ImagePlus, Lightbulb, Loader2, LockKeyhole, Pencil, Search, ShieldCheck, Sparkles, Square, Trash2, Upload, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { ProductDialog } from "@/features/products-ai/components/product-dialog";
@@ -27,6 +27,7 @@ import {
   fetchAiPackage,
   patchAiDraft,
   publishAiDraftUzum,
+  regenerateAiDraft,
   retryAiDraft,
   stopAiDraftUzum,
   verifyAiDraftUzum,
@@ -350,6 +351,15 @@ export function ProductAiModal({
               );
             })
           }
+          onRegenerate={() =>
+            act("regenerate", async () => {
+              if (!draft) return;
+              apply(await regenerateAiDraft(draft.id));
+              toast.success(
+                "To'liq qayta generatsiya boshlandi — tayyor bo'lgach Uzum'ga o'zgargan qismi avtomatik ko'chadi.",
+              );
+            })
+          }
           onVerify={() =>
             act("verify", async () => {
               if (!draft) return;
@@ -542,6 +552,7 @@ function Footer({
   onStopPublish,
   onToggleEdit,
   onEditUzum,
+  onRegenerate,
   onVerify,
   onDelete,
   onClose,
@@ -564,6 +575,7 @@ function Footer({
   onStopPublish: () => void;
   onToggleEdit: () => void;
   onEditUzum: (replaceImages: boolean) => void;
+  onRegenerate: () => void;
   onVerify: () => void;
   onDelete: () => void;
   onClose: () => void;
@@ -759,6 +771,29 @@ function Footer({
           >
             {spin("verify") ?? <Search className="mr-1.5 inline h-3.5 w-3.5" />}
             Uzumda tekshirish
+          </button>
+        )}
+        {/* Foydalanuvchi so'rovi: "createdagi kabi to'liq AI bilan
+            hamma narsani qayta generate qilsin, keyin Uzum'ga
+            o'zgargan joylarini avtomatik olib borsin". Ko'rish →
+            bozor → matn → xususiyatlar → rasm — HAMMASI qaytadan
+            (natija fonda tayyor bo'ladi, xuddi «Yaratish»dagidek —
+            `apply()` `progress`ni pasaytiradi, yuqoridagi polling
+            o'zi ishga tushadi). Bloklansa yoki hech narsa
+            o'zgarmasa Uzum'ga AVTOMATIK yubormaydi (`_run_pipeline_
+            and_push_if_live` — backend), qoralama tuzatilgan
+            holda qoladi, sotuvchi «Tahrirlash» → «Uzum'da
+            yangilash» bilan qo'lda ko'chiradi. */}
+        {locked && isLiveOnUzum && (
+          <button
+            type="button"
+            className="air-btn-flat"
+            onClick={onRegenerate}
+            disabled={busy === "regenerate"}
+            title="Ko'rish, bozor, matn, xususiyatlar va rasmni AI bilan qaytadan yaratadi — xuddi yangi tovar yaratilayotgandek."
+          >
+            {spin("regenerate") ?? <Wand2 className="mr-1.5 inline h-3.5 w-3.5" />}
+            AI bilan to&apos;liq qayta yaratish
           </button>
         )}
         {draft.uzumPublish?.verified !== null && draft.uzumPublish?.verified !== undefined && (

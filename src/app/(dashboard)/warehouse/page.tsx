@@ -19,7 +19,9 @@ import { useWarehouseProducts } from "@/features/warehouse/store";
 import { useActiveShop, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
-import { bulkAutoFixProductsUzum, bulkCheckProductsUzum, fetchProducts } from "@/lib/api";
+import {
+  ApiError, bulkAutoFixProductsUzum, bulkCheckProductsUzum, fetchProducts, regenerateProductUzum,
+} from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { WarehouseProduct } from "@/lib/types";
 
@@ -202,6 +204,23 @@ function WarehouseContent() {
   // `useDraftParam()`da, `/warehouse/[id]` sahifasi bilan BIR XIL
   // (izoh o'sha faylda: nega URL'da, nega Next router emas).
   const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
+
+  // "Tahrirlash" tugmasi — qoralama hali yo'q tovarda. Yangi
+  // qoralama tovarning Uzum'dagi ma'lumotidan (rasm, kategoriya,
+  // MXIK) BACKFILL qilib fonda yaratiladi va to'liq AI quvuri
+  // darhol ishga tushadi — sotuvchi buni panelda create'dagi kabi
+  // kuzatadi (§9.13).
+  const handleEditProduct = React.useCallback(
+    async (item: WarehouseProduct) => {
+      try {
+        const { draftId } = await regenerateProductUzum(item.id);
+        openAi(draftId);
+      } catch (err) {
+        toast.error(err instanceof ApiError ? err.message : "Tahrirlashni boshlab bo'lmadi.");
+      }
+    },
+    [openAi],
+  );
 
   // Tab sonlari — FAOL ro'yxatdan (arxiv alohida). Uzum ham
   // shunday: har tab yonida son, ustma-ust bo'lishi mumkin
@@ -493,6 +512,7 @@ function WarehouseContent() {
           // qayta ochishning boshqa yo'li yo'q edi.
           aiDraftByProduct={canSeeAi ? drafts.draftByProduct : undefined}
           onOpenAiDraft={openAi}
+          onEditProduct={canSeeAi ? handleEditProduct : undefined}
         />
       )}
 

@@ -53,6 +53,7 @@ import type {
   ChangeImpact,
   ProductMarket,
   ProductFixResult,
+  ProductRegenerateResult,
   PublishPreview,
   RecurringExpense,
   Shop,
@@ -243,6 +244,15 @@ export const aiFixProductUzum = (id: number, field?: "title" | "description") =>
 
 export const autoFixProductUzum = (id: number) =>
   request<ProductFixResult>(`/warehouse/products/${id}/auto-fix`, { method: "POST" });
+
+/**
+ * CREATE'dagi kabi TO'LIQ AI bilan qayta yaratadi — qoralama
+ * hali yo'q bo'lsa shu yerda tug'iladi (tovarning Uzum'dagi
+ * rasmi/kategoriyasi/MXIK'i bilan backfill qilib). Natija esa
+ * (tovar Uzum'da tirik bo'lsa) AVTOMATIK Uzum'ga ko'chadi.
+ */
+export const regenerateProductUzum = (id: number) =>
+  request<ProductRegenerateResult>(`/warehouse/products/${id}/regenerate`, { method: "POST" });
 
 export const bulkAutoFixProductsUzum = (productIds: number[]) =>
   request<BulkValidationResult>("/warehouse/products/auto-fix", {
@@ -956,6 +966,15 @@ export function createAiDraft(files: File[], hint: string) {
 
 export const retryAiDraft = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/retry`, { method: "POST" });
+
+/**
+ * CREATE'dagi kabi TO'LIQ AI bilan qaytadan yaratadi — `/retry`dan
+ * farqli, TASDIQLANGAN/tirik qoralamada ham ishlaydi. Natija
+ * (agar tovar Uzum'da tirik bo'lsa) AVTOMATIK Uzum'ga — faqat
+ * o'zgargan qismi — ko'chadi. Fonda ketadi, javob DARHOL qaytadi.
+ */
+export const regenerateAiDraft = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/regenerate`, { method: "POST" });
 
 export const patchAiDraft = (id: number, patch: AiDraftPatch) =>
   request<AiDraft>(`/product-ai/drafts/${id}`, {

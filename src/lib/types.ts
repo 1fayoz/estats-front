@@ -619,6 +619,15 @@ export interface ModerationManualBlock {
   ruleUrl: string | null;
 }
 
+/**
+ * `/products/{id}/regenerate` javobi — faqat qoralama ID'si,
+ * natija hali TAYYOR EMAS (fonda ishlaydi). Modal shu ID bilan
+ * ochiladi va o'z holatini create'dagi kabi kuzatib turadi.
+ */
+export interface ProductRegenerateResult {
+  draftId: number;
+}
+
 export interface ProductFixResult {
   draftId: number;
   validation: ProductValidation;
