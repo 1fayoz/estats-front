@@ -27,8 +27,9 @@ interface ProductTableProps {
    * baribir shu tugmani ko'rsatadi (foydalanuvchi so'rovi: "har
    * bir kartda edit degan buton bolsin") — qoralama yo'q bo'lsa
    * `onEditProduct` chaqiriladi va u tovarning Uzum'dagi
-   * ma'lumotidan (rasm, kategoriya, MXIK) YANGI qoralama yaratib,
-   * darhol to'liq AI quvurini ishga tushiradi.
+   * ma'lumotidan (rasm, kategoriya, MXIK) YANGI qoralama yaratib
+   * modalni ochadi. To'liq AI bilan qayta yaratish AVTOMATIK
+   * boshlanmaydi (§9.15) — modal ichidagi tugma bilan alohida.
    */
   aiDraftByProduct?: Map<string, number>;
   /**
@@ -784,7 +785,7 @@ function ProductRow(props: {
             title={
               regenerating
                 ? `AI qayta yaratmoqda — ${regenerating.stageLabel} (${regenerating.progress}%)`
-                : "AI bilan tahrirlash — mavjud bo'lsa qoralamani ochadi, bo'lmasa to'liq qayta generatsiya qiladi"
+                : "AI bilan tahrirlash — mavjud bo'lsa qoralamani ochadi, bo'lmasa yangi qoralama ochadi (to'liq qayta yaratish modal ichida, alohida)"
             }
             disabled={editBusy}
             onClick={(e) => {

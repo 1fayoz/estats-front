@@ -207,18 +207,21 @@ function WarehouseContent() {
 
   // "Tahrirlash" tugmasi — qoralama hali yo'q tovarda. Yangi
   // qoralama tovarning Uzum'dagi ma'lumotidan (rasm, kategoriya,
-  // MXIK) BACKFILL qilib fonda yaratiladi va to'liq AI quvuri
-  // darhol ishga tushadi — sotuvchi buni panelda create'dagi kabi
-  // kuzatadi (§9.13).
+  // MXIK) BACKFILL qilib (AI'siz, pulsiz) yaratiladi va modal
+  // ochiladi. To'liq AI bilan qayta yaratish ENDI AVTOMATIK
+  // boshlanmaydi — sotuvchi buni modal ICHIDAGI "AI bilan to'liq
+  // qayta yaratish" tugmasi bilan O'ZI bosadi (§9.15: foydalanuvchi
+  // "tahrirlashni bosgandan qayta generate boshlab yubirilmasin"
+  // deb aniq rad etdi — ilgari bu yerning O'ZI darhol pulli
+  // regeneratsiyani ishga tushirardi).
   const handleEditProduct = React.useCallback(
     async (item: WarehouseProduct) => {
       try {
         const { draftId } = await regenerateProductUzum(item.id);
         openAi(draftId);
-        // Ro'yxatni darhol yangilaymiz — aks holda yangi qoralama
-        // modalning O'Z birinchi so'ragan pollashigacha (bir necha
-        // soniya) burchakdagi panelda va tovar qatorida ko'rinmay
-        // turardi.
+        // Ro'yxatni yangilaymiz — endi shu tovar uchun qoralama
+        // borligini `draftByProduct` darhol bilsin (qayta bosilsa
+        // yangisini yaratmasdan mavjudini ochsin).
         drafts.reload();
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : "Tahrirlashni boshlab bo'lmadi.");

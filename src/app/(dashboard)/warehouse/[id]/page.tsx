@@ -89,17 +89,18 @@ function ProductDetailPage({ id }: { id: number }) {
   // qoralama holati sahifalar orasida qayta hisoblanmaydi.
   const drafts = useAiDrafts(canSeeAi);
 
-  // "AI kartochka" — qoralama hali yo'q bo'lsa (§9.13): yangi
-  // qoralama tovarning Uzum'dagi ma'lumotidan backfill qilib
-  // fonda yaratiladi va to'liq AI quvuri darhol ishga tushadi.
+  // "Tahrirlash" — qoralama hali yo'q bo'lsa: yangi qoralama
+  // tovarning Uzum'dagi ma'lumotidan backfill qilib (AI'siz)
+  // yaratiladi va modal ochiladi. To'liq AI bilan qayta yaratish
+  // ENDI AVTOMATIK boshlanmaydi — sotuvchi modal ICHIDAGI "AI
+  // bilan to'liq qayta yaratish" tugmasini O'ZI bosadi (§9.15).
   const handleEditAi = async (productId: number) => {
     setEditingAi(true);
     try {
       const { draftId } = await regenerateProductUzum(productId);
       openAi(draftId);
-      // Ro'yxatni darhol yangilaymiz — aks holda yangi qoralama
-      // modalning O'Z birinchi so'ragan pollashigacha (bir necha
-      // soniya) burchakdagi panelda ko'rinmay turardi.
+      // Ro'yxatni yangilaymiz — shu tovar uchun qoralama
+      // borligini `runningByProduct`/`draftByProduct` darhol bilsin.
       void drafts.reload();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Tahrirlashni boshlab bo'lmadi.");
