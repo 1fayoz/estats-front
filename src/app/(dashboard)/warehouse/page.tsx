@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProductTable } from "@/features/warehouse/components/product-table";
 import { SupportRequestDialog } from "@/features/warehouse/components/support-request-dialog";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
-import { DraftStrip } from "@/features/products-ai/components/draft-strip";
+import { AiGenerationTray } from "@/features/products-ai/components/generation-tray";
 import { ProductAiModal } from "@/features/products-ai/components/product-modal";
 import { useAiDrafts } from "@/features/products-ai/use-drafts";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
@@ -215,11 +215,16 @@ function WarehouseContent() {
       try {
         const { draftId } = await regenerateProductUzum(item.id);
         openAi(draftId);
+        // Ro'yxatni darhol yangilaymiz — aks holda yangi qoralama
+        // modalning O'Z birinchi so'ragan pollashigacha (bir necha
+        // soniya) burchakdagi panelda va tovar qatorida ko'rinmay
+        // turardi.
+        drafts.reload();
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : "Tahrirlashni boshlab bo'lmadi.");
       }
     },
-    [openAi],
+    [openAi, drafts.reload],
   );
 
   // Tab sonlari — FAOL ro'yxatdan (arxiv alohida). Uzum ham
@@ -315,8 +320,6 @@ function WarehouseContent() {
           }
         />
       </div>
-
-      {canSeeAi && <DraftStrip rows={drafts.rows} onOpen={(id) => openAi(id)} />}
 
       {/* Uzum sotuvchi kabinetidagi kabi holat-tablari. */}
       <section aria-label="Tovarlarni qidirish va filtrlash" className="min-w-0 space-y-4 rounded-2xl border bg-card p-3.5 sm:p-4">
@@ -511,6 +514,7 @@ function WarehouseContent() {
           // joylangach u "AI qoralamalari" qatoridan chiqadi va
           // qayta ochishning boshqa yo'li yo'q edi.
           aiDraftByProduct={canSeeAi ? drafts.draftByProduct : undefined}
+          regeneratingByProduct={canSeeAi ? drafts.runningByProduct : undefined}
           onOpenAiDraft={openAi}
           onEditProduct={canSeeAi ? handleEditProduct : undefined}
         />
@@ -529,6 +533,11 @@ function WarehouseContent() {
         onDraft={drafts.upsert}
         onDeleted={drafts.remove}
       />
+
+      {/* Burchakdagi suzuvchi panel — hammadan keyin, DOM tartibi
+          `fixed` uchun ahamiyatsiz, lekin oynadan (z-50) pastda
+          qolishi kerak: ikkalasi ochiq bo'lganda panel ko'rinmasin. */}
+      {canSeeAi && <AiGenerationTray rows={drafts.rows} onOpen={(id) => openAi(id)} />}
     </div>
   );
 }

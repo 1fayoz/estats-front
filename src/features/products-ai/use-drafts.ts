@@ -76,5 +76,21 @@ export function useAiDrafts(enabled: boolean) {
     return map;
   }, [rows]);
 
-  return { rows: visibleRows, draftByProduct, loading, reload, upsert, remove };
+  // Uzum tovar ID'si → fonda ishlayotgan (tugallanmagan, xatosiz)
+  // qoralama qatori. Ombor jadvali va tovar sahifasi shu bilan
+  // AYNAN o'sha tovarning qatorini/kartasini boshqacha ko'rsatadi
+  // (foydalanuvchi so'rovi: "generatsiya qilinayotgan productni
+  // dizayni boshqacharoq bo'lsin") — burchakdagi panel (`AiGenerationTray`)
+  // BILAN BIR XIL "ishlayapti" mezonidan foydalanadi.
+  const runningByProduct = React.useMemo(() => {
+    const map = new Map<string, AiDraftRow>();
+    for (const row of rows) {
+      if (row.productId && row.progress < 100 && !row.error) {
+        map.set(String(row.productId), row);
+      }
+    }
+    return map;
+  }, [rows]);
+
+  return { rows: visibleRows, draftByProduct, runningByProduct, loading, reload, upsert, remove };
 }

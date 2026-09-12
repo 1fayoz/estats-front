@@ -16,7 +16,7 @@ import {
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { WarehouseProduct } from "@/lib/types";
+import type { AiDraftRow, WarehouseProduct } from "@/lib/types";
 
 interface ProductTableProps {
   items: WarehouseProduct[];
@@ -31,6 +31,14 @@ interface ProductTableProps {
    * darhol to'liq AI quvurini ishga tushiradi.
    */
   aiDraftByProduct?: Map<string, number>;
+  /**
+   * Uzum tovar ID'si → fonda ishlayotgan (tugallanmagan) AI
+   * qoralamasi. Bo'lsa — shu kartaning/qatorning dizayni jarayonga
+   * mos o'zgaradi (progress chizig'i, "AI yangilamoqda" belgisi):
+   * foydalanuvchi so'rovi — qaysi tovar qayta generatsiya
+   * qilinayotgani ko'rinib tursin, hattoki oyna yopiq bo'lsa ham.
+   */
+  regeneratingByProduct?: Map<string, AiDraftRow>;
   onOpenAiDraft?: (draftId: number) => void;
   onEditProduct?: (item: WarehouseProduct) => void | Promise<void>;
 }
@@ -100,6 +108,7 @@ export function ProductTable({
   items,
   onIntake,
   aiDraftByProduct,
+  regeneratingByProduct,
   onOpenAiDraft,
   onEditProduct,
 }: ProductTableProps) {
@@ -116,6 +125,9 @@ export function ProductTable({
 
   const aiDraftId = (item: WarehouseProduct): number | null =>
     (item.externalProductId && aiDraftByProduct?.get(item.externalProductId)) || null;
+
+  const regenerating = (item: WarehouseProduct): AiDraftRow | undefined =>
+    (item.externalProductId && regeneratingByProduct?.get(item.externalProductId)) || undefined;
 
   // Qoralama hali yo'q tovarda "Tahrirlash" bosilganda — yangi
   // qoralama fonda yaratiladi (bir necha soniya). Shu orada
@@ -193,8 +205,15 @@ export function ProductTable({
           const open = expanded.has(g.key);
           const statusItem = groupStatusItem(g);
           const variantsId = `product-variants-${item.id}`;
+          const gRegen = regenerating(item);
           return (
-            <DataCard key={g.key} className="min-w-0 self-start rounded-2xl border-border/70 p-4 shadow-sm">
+            <DataCard
+              key={g.key}
+              className={cn(
+                "min-w-0 self-start rounded-2xl border-border/70 p-4 shadow-sm transition-colors",
+                gRegen && "border-primary/30 bg-primary/[0.03] ring-1 ring-primary/20",
+              )}
+            >
               <Link
                 href={`/warehouse/${item.id}`}
                 className="block min-h-11 min-w-0 rounded-lg transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -222,6 +241,25 @@ export function ProductTable({
                 <p className="mt-2 break-words text-xs leading-relaxed text-destructive">
                   {statusItem.uzumBlockingReason}
                 </p>
+              )}
+              {/* AI fonda qayta generatsiya qilyapti — createdagi kabi
+                  bosqich nomi + progress, kartaning o'zida (oyna
+                  yopiq bo'lsa ham ko'rinadi). */}
+              {gRegen && (
+                <div className="mt-3 space-y-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-2">
+                  <div className="flex items-center justify-between gap-2 text-xs font-medium text-primary">
+                    <span className="flex min-w-0 items-center gap-1.5 truncate">
+                      <Loader2 className="h-3 w-3 shrink-0 animate-spin" /> AI yangilamoqda — {gRegen.stageLabel}
+                    </span>
+                    <span className="shrink-0 tabular-nums">{gRegen.progress}%</span>
+                  </div>
+                  <div className="h-1 w-full overflow-hidden rounded-full bg-primary/15">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary/70 via-primary to-primary/70 bg-[length:200%_100%] animate-shimmer"
+                      style={{ width: `${gRegen.progress}%` }}
+                    />
+                  </div>
+                </div>
               )}
               <CardStats
                 className="mt-4 gap-y-3 rounded-xl bg-muted/40 p-3 [&_dd]:whitespace-normal [&_dd]:break-words [&_dd]:leading-relaxed"
@@ -301,17 +339,20 @@ export function ProductTable({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-11 w-full rounded-xl"
+                  className={cn(
+                    "h-11 w-full rounded-xl",
+                    gRegen && "border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary",
+                  )}
                   aria-label={`${item.title}: tahrirlash`}
                   disabled={editingIds.has(item.id)}
                   onClick={() => handleEdit(item)}
                 >
-                  {editingIds.has(item.id) ? (
+                  {editingIds.has(item.id) || gRegen ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     <Pencil className="h-3.5 w-3.5" />
                   )}
-                  Tahrirlash
+                  {gRegen ? `AI yangilamoqda · ${gRegen.progress}%` : "Tahrirlash"}
                 </Button>
               </div>
               {g.isGroup && (
@@ -415,6 +456,7 @@ export function ProductTable({
                   onIntake={onIntake}
                   onEdit={handleEdit}
                   editBusy={editingIds.has(g.card.id)}
+                  regenerating={regenerating(g.card)}
                 />
                 {/* ── Variantlar (ochilganda) ── */}
                 {g.isGroup && open &&
@@ -531,10 +573,11 @@ function ProductRow(props: {
   onIntake: (p: WarehouseProduct) => void;
   onEdit: (item: WarehouseProduct) => void;
   editBusy: boolean;
+  regenerating?: AiDraftRow;
 }) {
   const {
     item, group: g, open, onToggleOpen, router, statusBadge, groupStatusItem,
-    onIntake, onEdit, editBusy,
+    onIntake, onEdit, editBusy, regenerating,
   } = props;
 
   const hasCost = costOf(item) != null;
@@ -558,9 +601,15 @@ function ProductRow(props: {
           onRowClick();
         }
       }}
+      // AI fonda qayta yaratayotgan qator — chap chetdagi urg'u
+      // rangi (`boxShadow`) va yengil tint bilan ajratiladi.
+      // Foydalanuvchi so'rovi: qaysi tovar hozir qayta
+      // generatsiya qilinayotgani jadvalning o'zida ko'rinsin.
+      style={regenerating ? { boxShadow: "inset 3px 0 0 0 var(--primary)" } : undefined}
       className={cn(
         "cursor-pointer transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none",
         g.isGroup && open && "bg-muted/30",
+        regenerating && "bg-primary/[0.035] hover:bg-primary/[0.06]",
       )}
     >
       <td className="px-1 py-3 text-center">
@@ -580,11 +629,19 @@ function ProductRow(props: {
             <img
               src={item.image}
               alt=""
-              className="h-10 w-10 shrink-0 rounded-md border object-cover"
+              className={cn(
+                "h-10 w-10 shrink-0 rounded-md border object-cover",
+                regenerating && "ring-2 ring-primary/50",
+              )}
               loading="lazy"
             />
           ) : (
-            <div className="h-10 w-10 shrink-0 rounded-md border bg-muted" />
+            <div
+              className={cn(
+                "h-10 w-10 shrink-0 rounded-md border bg-muted",
+                regenerating && "ring-2 ring-primary/50",
+              )}
+            />
           )}
           <div className="min-w-0">
             <div className="truncate font-medium">{item.title}</div>
@@ -600,6 +657,19 @@ function ProductRow(props: {
                 [item.variantName, item.skuCode].filter(Boolean).join(" · ") || "—"
               )}
             </div>
+            {regenerating && (
+              <div className="mt-1 flex items-center gap-1.5">
+                <div className="h-1 w-16 shrink-0 overflow-hidden rounded-full bg-primary/15">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary/70 via-primary to-primary/70 bg-[length:200%_100%] animate-shimmer"
+                    style={{ width: `${regenerating.progress}%` }}
+                  />
+                </div>
+                <span className="shrink-0 text-[10px] font-medium tabular-nums text-primary">
+                  AI · {regenerating.progress}%
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </td>
@@ -709,21 +779,25 @@ function ProductRow(props: {
           <Button
             size="sm"
             variant="ghost"
-            className="text-primary"
+            className={cn("text-primary", regenerating && "bg-primary/10 hover:bg-primary/15")}
             aria-label={`${item.title}: tahrirlash`}
-            title="AI bilan tahrirlash — mavjud bo'lsa qoralamani ochadi, bo'lmasa to'liq qayta generatsiya qiladi"
+            title={
+              regenerating
+                ? `AI qayta yaratmoqda — ${regenerating.stageLabel} (${regenerating.progress}%)`
+                : "AI bilan tahrirlash — mavjud bo'lsa qoralamani ochadi, bo'lmasa to'liq qayta generatsiya qiladi"
+            }
             disabled={editBusy}
             onClick={(e) => {
               e.stopPropagation();
               onEdit(item);
             }}
           >
-            {editBusy ? (
+            {editBusy || regenerating ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <Pencil className="h-3.5 w-3.5" />
             )}
-            Tahrirlash
+            {regenerating ? `${regenerating.progress}%` : "Tahrirlash"}
           </Button>
           {!g.isGroup && (
             <Button

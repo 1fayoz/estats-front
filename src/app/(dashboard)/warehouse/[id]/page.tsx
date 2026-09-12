@@ -31,7 +31,9 @@ import { FunnelCard } from "@/features/warehouse/components/funnel-card";
 import { ProductInstagramCard } from "@/features/instagram/components/product-instagram-card";
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
+import { AiGenerationTray } from "@/features/products-ai/components/generation-tray";
 import { ProductAiModal } from "@/features/products-ai/components/product-modal";
+import { useAiDrafts } from "@/features/products-ai/use-drafts";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { ApiError, fetchProductDetail, regenerateProductUzum } from "@/lib/api";
@@ -81,6 +83,11 @@ function ProductDetailPage({ id }: { id: number }) {
   const period = ["daily", "monthly", "yearly"].includes(rawPeriod) ? rawPeriod : "daily";
   const canSeeAi = useCan("products_ai.view");
   const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
+  // Burchakdagi panel (`AiGenerationTray`) va bu sahifaning O'Z
+  // tovari uchun fonda ishlayotgan qoralama — bir xil manba
+  // (ombor jadvalidagi bilan BIR XIL hook), shuning uchun
+  // qoralama holati sahifalar orasida qayta hisoblanmaydi.
+  const drafts = useAiDrafts(canSeeAi);
 
   // "AI kartochka" — qoralama hali yo'q bo'lsa (§9.13): yangi
   // qoralama tovarning Uzum'dagi ma'lumotidan backfill qilib
@@ -90,6 +97,10 @@ function ProductDetailPage({ id }: { id: number }) {
     try {
       const { draftId } = await regenerateProductUzum(productId);
       openAi(draftId);
+      // Ro'yxatni darhol yangilaymiz — aks holda yangi qoralama
+      // modalning O'Z birinchi so'ragan pollashigacha (bir necha
+      // soniya) burchakdagi panelda ko'rinmay turardi.
+      void drafts.reload();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Tahrirlashni boshlab bo'lmadi.");
     } finally {
@@ -225,10 +236,34 @@ function ProductDetailPage({ id }: { id: number }) {
           </div>
           <div className="mt-auto flex flex-wrap gap-2 pt-6">
             <Button className="min-h-11 flex-1 rounded-xl px-5 sm:flex-none" onClick={() => setIntakeFor(product)}><PackagePlus /> Kirim qo‘shish</Button>
-            {canSeeAi && (
-              data.aiDraftId != null ? (
-                <Button variant="outline" className="min-h-11 flex-1 rounded-xl sm:flex-none" onClick={() => openAi(data.aiDraftId)}><Sparkles /> AI kartochka</Button>
-              ) : (
+            {canSeeAi && (() => {
+              // Shu tovar uchun fonda ishlayotgan qoralama bo'lsa —
+              // tugma jarayonga mos, progress bilan ko'rinadi
+              // (foydalanuvchi so'rovi: qayta generatsiya
+              // qilinayotgan tovar "boshqacharoq" ko'rinsin, oyna
+              // yopiq bo'lsa ham). `aiDraftId` (holat yuklangandagi
+              // bir martalik qiymat) dan USTUN — u ishlayotgan
+              // quvurni bilmaydi.
+              const productRegen = product.externalProductId
+                ? drafts.runningByProduct.get(product.externalProductId)
+                : undefined;
+              if (productRegen) {
+                return (
+                  <Button
+                    variant="outline"
+                    className="min-h-11 flex-1 gap-2 rounded-xl border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary sm:flex-none"
+                    onClick={() => openAi(productRegen.id)}
+                  >
+                    <Loader2 className="animate-spin" /> AI yangilamoqda · {productRegen.progress}%
+                  </Button>
+                );
+              }
+              if (data.aiDraftId != null) {
+                return (
+                  <Button variant="outline" className="min-h-11 flex-1 rounded-xl sm:flex-none" onClick={() => openAi(data.aiDraftId)}><Sparkles /> AI kartochka</Button>
+                );
+              }
+              return (
                 <Button
                   variant="outline"
                   className="min-h-11 flex-1 rounded-xl sm:flex-none"
@@ -237,8 +272,8 @@ function ProductDetailPage({ id }: { id: number }) {
                 >
                   {editingAi ? <Loader2 className="animate-spin" /> : <Sparkles />} Tahrirlash
                 </Button>
-              )
-            )}
+              );
+            })()}
           </div>
         </div>
       </section>
@@ -301,7 +336,16 @@ function ProductDetailPage({ id }: { id: number }) {
 
       <ComplaintDialog productId={complaintFor} onOpenChange={(open) => { if (!open) setComplaintFor(null); }} />
       <IntakeDialog product={intakeFor} onOpenChange={(open) => { if (!open) setIntakeFor(null); }} onSaved={load} />
-      {canSeeAi && <ProductAiModal open={aiOpen} draftId={aiDraftId} onClose={() => setDraftParam(null)} onDraft={() => void load()} onDeleted={() => { setDraftParam(null); void load(); }} />}
+      {canSeeAi && (
+        <ProductAiModal
+          open={aiOpen}
+          draftId={aiDraftId}
+          onClose={() => setDraftParam(null)}
+          onDraft={(fresh) => { drafts.upsert(fresh); void load(); }}
+          onDeleted={() => { drafts.reload(); setDraftParam(null); void load(); }}
+        />
+      )}
+      {canSeeAi && <AiGenerationTray rows={drafts.rows} onOpen={(draftId) => openAi(draftId)} />}
     </div>
   );
 }
