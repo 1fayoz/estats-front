@@ -121,6 +121,10 @@ export const LEGAL_FORM_LABELS: Record<string, string> = {
   yatt: "YaTT (ИП)",
   mchj: "MChJ",
   aj: "Aksiyadorlik jamiyati",
+  xk: "Xususiy korxona",
+  ok: "Oilaviy korxona",
+  uk: "Unitar korxona",
+  qk: "Qo'shma korxona",
   self_employed: "O'zini-o'zi band qilgan shaxs",
   individual: "Jismoniy shaxs",
 };
@@ -192,6 +196,15 @@ export type MarketSellerRegistry = {
   director?: string;
   founders?: { name: string; share: string | null }[];
   trademarks?: string[];
+  /** Tahlil versiyasi (ichki) — eski yozuv o'zi qayta o'qiladi. */
+  _v?: string;
+  /**
+   * Reyestr yozuvi QANDAY topilgan: `tin` — STIR aynan mos kelgan
+   * (ishonchli), `name` — firma NOMI bo'yicha qat'iy moslik (STIR
+   * Uzumda yo'q edi). Ikkinchisi kuchsizroq dalil, shuning uchun
+   * interfeysda ochiq aytiladi.
+   */
+  _match?: "tin" | "name" | null;
 };
 
 export type MarketSellerDetail = {

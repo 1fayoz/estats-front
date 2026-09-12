@@ -65,7 +65,14 @@ function RegistryCard({ seller }: { seller: MarketSellerDetail["seller"] }) {
   return (
     <section className="space-y-2.5">
       <div className="flex items-center justify-between gap-2">
-        <div className="font-semibold">Yuridik shaxs ma&apos;lumoti</div>
+        <div className="flex items-center gap-2">
+          <div className="font-semibold">Yuridik shaxs ma&apos;lumoti</div>
+          {reg._match === "name" && (
+            // STIR Uzumda yo'q edi — yozuv firma NOMI bo'yicha
+            // topilgan. Bu kuchsizroq dalil va yashirilmaydi.
+            <Badge variant="warning">nom bo&apos;yicha topilgan</Badge>
+          )}
+        </div>
         {seller.status && (
           <Badge variant={/mavjud|yuritmoqda|ko'rsatmoqda/i.test(seller.status) ? "success" : "warning"}>
             {seller.status}
