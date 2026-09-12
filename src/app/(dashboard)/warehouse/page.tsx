@@ -537,7 +537,7 @@ function WarehouseContent() {
       {/* Burchakdagi suzuvchi panel — hammadan keyin, DOM tartibi
           `fixed` uchun ahamiyatsiz, lekin oynadan (z-50) pastda
           qolishi kerak: ikkalasi ochiq bo'lganda panel ko'rinmasin. */}
-      {canSeeAi && <AiGenerationTray rows={drafts.rows} onOpen={(id) => openAi(id)} />}
+      {canSeeAi && <AiGenerationTray rows={drafts.trayRows} onOpen={(id) => openAi(id)} />}
     </div>
   );
 }

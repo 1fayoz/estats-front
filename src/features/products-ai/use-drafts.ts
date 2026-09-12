@@ -92,5 +92,17 @@ export function useAiDrafts(enabled: boolean) {
     return map;
   }, [rows]);
 
-  return { rows: visibleRows, draftByProduct, runningByProduct, loading, reload, upsert, remove };
+  // Burchakdagi panelda (`AiGenerationTray`) ko'rsatiladigan
+  // qatorlar — `visibleRows`dan KENGROQ: ishlab turgan qoralama
+  // (`runningByProduct`dagi bilan BIR XIL mezon) nashr etilgan
+  // tovarga tegishli bo'lsa ham ko'rinishi kerak — aynan "Tahrirlash"
+  // bilan ALLAQACHON Uzum'da turgan tovarni qayta generatsiya qilish
+  // shu yerning O'ZI. Nashr etilgan-u ISHLAMAYOTGAN qator esa hamon
+  // yashiriladi (tugagan ish — ko'rib chiqish shart emas).
+  const trayRows = React.useMemo(
+    () => rows.filter((row) => (row.progress < 100 && !row.error) || !row.uzumPublished),
+    [rows],
+  );
+
+  return { rows: visibleRows, draftByProduct, runningByProduct, trayRows, loading, reload, upsert, remove };
 }

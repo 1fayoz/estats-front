@@ -345,7 +345,7 @@ function ProductDetailPage({ id }: { id: number }) {
           onDeleted={() => { drafts.reload(); setDraftParam(null); void load(); }}
         />
       )}
-      {canSeeAi && <AiGenerationTray rows={drafts.rows} onOpen={(draftId) => openAi(draftId)} />}
+      {canSeeAi && <AiGenerationTray rows={drafts.trayRows} onOpen={(draftId) => openAi(draftId)} />}
     </div>
   );
 }
