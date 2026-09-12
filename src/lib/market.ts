@@ -160,8 +160,57 @@ export type MarketSellerShop = {
   url: string | null;
 };
 
+/**
+ * Ochiq davlat reyestridan olingan maydonlar (`orginfo.uz`).
+ *
+ * Hammasi IXTIYORIY: reyestrda topilmagan maydon umuman
+ * kelmaydi — "topilmadi" va "bo'sh" ajratilishi kerak, shuning
+ * uchun `undefined` qoldiriladi, nol yoki tire yozilmaydi.
+ *
+ * Maydonlar `mk_sellers.registry` JSONB ichida keladi: reyestr
+ * sahifasi o'zgarsa yangi maydon uchun API/tur o'zgartirish
+ * kerak bo'lmasin (`registry.py` dagi izohga q.).
+ */
+export type MarketSellerRegistry = {
+  official_name?: string;
+  short_name?: string;
+  status?: string;
+  registered_on?: string;
+  registrar?: string;
+  tin?: string;
+  legal_form_registry?: string;
+  activity?: string;
+  activity_code?: string;
+  activity_name?: string;
+  charter_capital?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  region?: string;
+  stability?: string;
+  large_taxpayer?: string;
+  director?: string;
+  founders?: { name: string; share: string | null }[];
+  trademarks?: string[];
+};
+
 export type MarketSellerDetail = {
-  seller: { seller_id: number; title: string; tin: string | null; legal_form: string | null; first_seen: string };
+  seller: {
+    seller_id: number;
+    title: string;
+    tin: string | null;
+    ogrnip?: string | null;
+    legal_form: string | null;
+    first_seen: string;
+    registered_on?: string | null;
+    status?: string | null;
+    director?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    registry_url?: string | null;
+    registry_synced_at?: string | null;
+    registry?: MarketSellerRegistry | null;
+  };
   totals: { shops: number; orders_total: number; revenue: number; units: number; joined_at: string | null };
   shops: MarketSellerShop[];
   period: { start: string; end: string };

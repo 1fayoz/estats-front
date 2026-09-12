@@ -10,12 +10,136 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Failed, Loading, NoData, PeriodPicker, usePeriod } from "@/features/market/shared";
 import { formatCompact, formatDate, formatNumber } from "@/lib/format";
-import { LEGAL_FORM_LABELS, market, type MarketSellerDetail } from "@/lib/market";
+import {
+  LEGAL_FORM_LABELS,
+  market,
+  type MarketSellerDetail,
+  type MarketSellerRegistry,
+} from "@/lib/market";
 
 function formatJoinDate(value: string | null): string {
   if (!value) return "—";
   const d = new Date(value);
   return `${formatDate(d)} ${d.getFullYear()}`;
+}
+
+
+/**
+ * Ochiq reyestrdan olingan ma'lumot.
+ *
+ * NEGA ALOHIDA KARTA. Uzum sotuvchi haqida faqat nomini va STIRini
+ * beradi; qolgani (kim egasi, nima bilan shug'ullanadi, qachondan
+ * beri, faolmi) ochiq davlat reyestrida. Ikkisi ARALASHTIRILMAYDI:
+ * manba boshqa, shuning uchun pastda havola va yangilangan sana
+ * turadi — raqam qayerdan kelganini ko'rish mumkin bo'lsin.
+ *
+ * Reyestrda topilmagan maydon KO'RSATILMAYDI (tire ham qo'yilmaydi):
+ * "ma'lumot yo'q" va "qiymat bo'sh" ikki xil narsa.
+ */
+function RegistryCard({ seller }: { seller: MarketSellerDetail["seller"] }) {
+  const reg: MarketSellerRegistry = seller.registry ?? {};
+  const rows: [string, React.ReactNode][] = [];
+  const add = (label: string, value?: string | null) => {
+    if (value) rows.push([label, value]);
+  };
+
+  add("Rasmiy nomi", reg.official_name);
+  add("Qisqa nomi", reg.short_name);
+  add("STIR", seller.tin ?? reg.tin);
+  add("Reyestrdagi shakli", reg.legal_form_registry);
+  add("Ro'yxatdan o'tgan", reg.registered_on ?? (seller.registered_on ?? undefined));
+  add("Ro'yxatga oluvchi", reg.registrar);
+  add("Faoliyat turi", reg.activity_name ? `${reg.activity_name}${reg.activity_code ? ` (IFUT ${reg.activity_code})` : ""}` : reg.activity);
+  add("Ustav fondi", reg.charter_capital);
+  add("Manzili", reg.address ?? (seller.address ?? undefined));
+  add("Telefon", reg.phone ?? (seller.phone ?? undefined));
+  add("Elektron pochta", reg.email);
+  add("Rahbar", reg.director ?? (seller.director ?? undefined));
+  add("Barqarorlik reytingi", reg.stability);
+  add("Yirik soliq to'lovchi", reg.large_taxpayer);
+
+  const founders = reg.founders ?? [];
+  const marks = reg.trademarks ?? [];
+  const empty = rows.length === 0 && founders.length === 0 && marks.length === 0;
+
+  return (
+    <section className="space-y-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="font-semibold">Yuridik shaxs ma&apos;lumoti</div>
+        {seller.status && (
+          <Badge variant={/mavjud|yuritmoqda|ko'rsatmoqda/i.test(seller.status) ? "success" : "warning"}>
+            {seller.status}
+          </Badge>
+        )}
+      </div>
+
+      {empty ? (
+        <NoData>
+          {seller.legal_form === "yatt" || seller.legal_form === "self_employed"
+            ? "Bu sotuvchi jismoniy shaxs (YaTT / o'zini-o'zi band qilgan) — ochiq reyestrdan shaxsiy ma'lumot yig'ilmaydi."
+            : seller.tin
+              ? "Reyestrda hali topilmadi — navbatda turibdi yoki STIR yuridik shaxslar reyestrida yo'q."
+              : "STIR aniqlanmagan, shuning uchun reyestrdan qidirib bo'lmaydi."}
+        </NoData>
+      ) : (
+        <div className="rounded-xl border bg-card p-3.5">
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+            {rows.map(([label, value]) => (
+              <div key={label} className="flex justify-between gap-3 border-b border-dashed py-1 last:border-0">
+                <dt className="shrink-0 text-muted-foreground">{label}</dt>
+                <dd className="text-right">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {founders.length > 0 && (
+            <div className="mt-3 border-t pt-3">
+              <div className="mb-1.5 text-xs text-muted-foreground">Ta&apos;sischilar</div>
+              <ul className="space-y-1 text-sm">
+                {founders.map((f) => (
+                  <li key={f.name} className="flex justify-between gap-3">
+                    <span>{f.name}</span>
+                    {f.share && <span className="air-num text-muted-foreground">{f.share}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {marks.length > 0 && (
+            <div className="mt-3 border-t pt-3">
+              <div className="mb-1.5 text-xs text-muted-foreground">Savdo belgilari</div>
+              <div className="flex flex-wrap gap-1.5">
+                {marks.map((m) => (
+                  <Badge key={m} variant="secondary">{m}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2.5 text-[11px] text-muted-foreground">
+            <span>
+              Manba: ochiq davlat reyestri
+              {seller.registry_synced_at ? ` · ${seller.registry_synced_at} holatiga` : ""}
+              {seller.ogrnip && seller.tin && seller.ogrnip !== seller.tin
+                ? ` · Uzumdagi raqam: ${seller.ogrnip}`
+                : ""}
+            </span>
+            {seller.registry_url && (
+              <a
+                href={seller.registry_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" /> Reyestrda ko&apos;rish
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </section>
+  );
 }
 
 export default function MarketSellerPage({ params }: { params: Promise<{ id: string }> }) {
@@ -64,6 +188,8 @@ export default function MarketSellerPage({ params }: { params: Promise<{ id: str
           </div>
         ))}
       </div>
+
+      <RegistryCard seller={detail.seller} />
 
       <section className="space-y-2.5">
         <div className="font-semibold">Do&apos;konlari</div>
