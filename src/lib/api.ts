@@ -66,6 +66,7 @@ import type {
   AiDraftRow,
   AiImageRedo,
   AiPackage,
+  AiUzumShops,
   OpenAiKeyState,
   SeoAudit,
   SeoAuditRow,
@@ -961,12 +962,27 @@ export const fetchAiDrafts = () => request<AiDraftRow[]>("/product-ai/drafts");
 export const fetchAiDraft = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}`);
 
-export function createAiDraft(files: File[], hint: string) {
+/**
+ * `uzumShopId` — qaysi Uzum do'koniga joylanadi. Berilmasa (yoki joriy
+ * do'kon bo'lsa) — qoralamaning o'z do'koni.
+ */
+export function createAiDraft(files: File[], hint: string, uzumShopId?: number | null) {
   const form = new FormData();
   for (const file of files) form.append("files", file);
   form.append("hint", hint);
+  if (uzumShopId) form.append("uzum_shop_id", String(uzumShopId));
   return request<AiDraft>("/product-ai/drafts", { method: "POST", body: form });
 }
+
+/** Qoralamani joylash mumkin bo'lgan do'konlar — brauzer ochilmaydi, tez. */
+export const fetchAiUzumShops = () => request<AiUzumShops>("/product-ai/uzum-shops");
+
+/**
+ * Uzum kabinetidagi do'konlar ro'yxatini qayta oladi. Serverda brauzer
+ * ochiladi — ~30 soniya.
+ */
+export const syncAiUzumShops = () =>
+  request<AiUzumShops>("/product-ai/uzum-shops/sync", { method: "POST" });
 
 export const retryAiDraft = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/retry`, { method: "POST" });
@@ -1046,9 +1062,9 @@ export const fetchAiPackage = (id: number) =>
  * `draft.uzumPublish` ga yoziladi, front shuni so'rab turadi
  * (`fetchAiDraft`, xuddi rasm/matn qadamlari kabi).
  *
- * Qoralama har doim O'Z do'koniga joylanadi (`X-Shop-Id` — faol
- * do'kon) — u yaratilgan paytdayoq bitta do'konga bog'langan, boshqa
- * do'konga ko'chirib bo'lmaydi.
+ * Qoralama tanlangan Uzum do'koniga joylanadi (`draft.uzumShop`;
+ * tanlanmagan bo'lsa — joriy do'kon). Brauzer kabinetni aynan shu
+ * do'konda ochadi va boshqa do'konga yozuvni bloklaydi.
  */
 /**
  * `categoryManualPath` — avtomatika `category_unresolved` bilan

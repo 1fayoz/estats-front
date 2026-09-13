@@ -17,6 +17,7 @@ import {
 import { DraftSide } from "@/features/products-ai/components/draft-side";
 import { PUBLISH_PHASES, publishPhaseState } from "@/features/products-ai/publish-stages";
 import { StageStrip } from "@/features/products-ai/components/stage-strip";
+import { UzumShopPicker } from "@/features/products-ai/components/uzum-shop-picker";
 import {
   ApiError,
   approveAiDraft,
@@ -33,6 +34,7 @@ import {
   verifyAiDraftUzum,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useActiveShop } from "@/stores/user-store";
 import type { AiDraft } from "@/lib/types";
 
 /** Quvur ishlayotganda holat shuncha vaqtda bir so'raladi. */
@@ -108,6 +110,8 @@ export function ProductAiModal({
   const [loading, setLoading] = React.useState(false);
   const [files, setFiles] = React.useState<File[]>([]);
   const [hint, setHint] = React.useState("");
+  // Yangi qoralama qaysi Uzum do'koniga joylanadi. `null` — joriy do'kon.
+  const [newShopId, setNewShopId] = React.useState<number | null>(null);
   const [tab, setTabState] = React.useState<DraftTabKey>(
     () => readTabFromUrl() ?? "general",
   );
@@ -132,6 +136,7 @@ export function ProductAiModal({
     if (!open) return;
     setFiles([]);
     setHint("");
+    setNewShopId(null);
     setBusy("");
     setConfirmDelete(false);
     setEditMode(false);
@@ -285,7 +290,7 @@ export function ProductAiModal({
           onToggleEdit={() => setEditMode((v) => !v)}
           onStart={() =>
             act("start", async () => {
-              const fresh = await createAiDraft(files, hint.trim());
+              const fresh = await createAiDraft(files, hint.trim(), newShopId);
               setFiles([]);
               setHint("");
               apply(fresh);
@@ -412,13 +417,22 @@ export function ProductAiModal({
                 <Skeleton className="h-40 w-full" />
               </div>
             ) : draft === null ? (
-              <DropZone
-                files={files}
-                onFiles={setFiles}
-                hint={hint}
-                onHint={setHint}
-                disabled={busy === "start"}
-              />
+              <div className="space-y-6">
+                <DropZone
+                  files={files}
+                  onFiles={setFiles}
+                  hint={hint}
+                  onHint={setHint}
+                  disabled={busy === "start"}
+                />
+                <div className="border-t border-[color:var(--air-line)] pt-5">
+                  <UzumShopPicker
+                    value={newShopId}
+                    onChange={(id) => setNewShopId(id)}
+                    disabled={busy === "start"}
+                  />
+                </div>
+              </div>
             ) : form ? (
               <DraftFields
                 draft={draft}
@@ -436,6 +450,26 @@ export function ProductAiModal({
           <NewProductGuide />
         ) : (
           <aside className="min-w-0 rounded-2xl border border-[color:var(--air-line)] bg-[color:var(--air-card)] p-4 shadow-sm sm:p-5">
+            {/* Do'kon tanlovi joylashdan OLDIN ko'rinib turishi kerak:
+                tasdiqlangan qoralamada ham, joylash tugmasi bosilgunga
+                qadar o'zgartiriladi. Tovar Uzum'da paydo bo'lgach —
+                qulf (u o'z do'konida qoladi). */}
+            <div className="mb-4 border-b border-[color:var(--air-line)] pb-4">
+              <UzumShopPicker
+                value={draftShop(draft).id}
+                valueTitle={draftShop(draft).title}
+                lockReason={shopLockReason(draft)}
+                disabled={busy === "shop"}
+                onChange={(id, shop) =>
+                  act("shop", async () => {
+                    apply(await patchAiDraft(draft.id, { uzumShopId: id }));
+                    toast.success(
+                      shop ? `Endi «${shop.title}» do'koniga joylanadi.` : "Do'kon o'zgartirildi.",
+                    );
+                  })
+                }
+              />
+            </div>
             <div className="mb-4 flex items-center gap-2 border-b border-[color:var(--air-line)] pb-4 text-sm font-semibold">
               <Sparkles className="size-4 text-[color:var(--ok)]" /> Tayyorlanish jarayoni
             </div>
@@ -495,8 +529,49 @@ function NewProductGuide() {
   );
 }
 
+/**
+ * Do'kon tanlovini o'zgartirib bo'lmasa — sababi (backenddagi
+ * `uzum_shops.lock_reason` bilan bir xil qoida, server baribir
+ * tekshiradi).
+ */
+function shopLockReason(draft: AiDraft): string | null {
+  const publish = draft.uzumPublish;
+  if (publish?.productId) {
+    return `Tovar Uzum'da allaqachon bor (ID ${publish.productId}) — boshqa do'konga ko'chirib bo'lmaydi.`;
+  }
+  if (publish && ["queued", "running", "stopped"].includes(publish.status)) {
+    return "Joylash jarayoni ochiq — do'konni o'zgartirishdan oldin uni yakunlang.";
+  }
+  return null;
+}
+
+/**
+ * Qoralama hozir QAYSI do'konga bog'langan (`id: null` — joriy do'kon).
+ *
+ * Tovar Uzum'da bo'lsa yoki joylash ochiq bo'lsa — joylash YOZGAN
+ * do'kon (tovar o'sha yerda). Aks holda — sotuvchining tanlovi. Ikkinchi
+ * holatda eski joylash urinishining do'koni ATAYLAB e'tiborga olinmaydi:
+ * masalan `shop_unavailable` bilan to'xtagach sotuvchi boshqa do'konni
+ * tanlaydi va oynada eskisi qaytib chiqmasligi kerak (brauzerda sinashda
+ * aynan shu xato ushlandi).
+ */
+function draftShop(draft: AiDraft): { id: number | null; title: string | null } {
+  const publish = draft.uzumPublish;
+  if (shopLockReason(draft) && publish?.uzumShopId) {
+    return { id: publish.uzumShopId, title: publish.uzumShopTitle ?? null };
+  }
+  return { id: draft.uzumShop?.id ?? null, title: draft.uzumShop?.title ?? null };
+}
+
 /** Sotuvchi harakat qilishi kerak bo'lgan holatlar — nusxa "xato" emas, "keyingi qadam". */
-const FAILED_PUBLISH = new Set(["error", "category_unresolved"]);
+const FAILED_PUBLISH = new Set(["error", "category_unresolved", "shop_unavailable", "shop_mismatch"]);
+
+/**
+ * Do'kon bilan bog'liq to'xtashlarda umumiy yorliq emas, `estats-publish`
+ * bergan ANIQ xabar ko'rsatiladi — unda kabinet hisobidagi do'konlar
+ * ro'yxati bor, sotuvchi shundan to'g'risini tanlaydi.
+ */
+const SHOP_PUBLISH_STOPS = new Set(["shop_unavailable", "shop_mismatch"]);
 
 const PUBLISH_STATUS_LABEL: Record<string, string> = {
   published: "Uzum'ga joylandi ✓",
@@ -505,6 +580,8 @@ const PUBLISH_STATUS_LABEL: Record<string, string> = {
   category_unresolved: "Kategoriya avtomatik topilmadi — qo'lda joylash kerak",
   needs_manual_step: "Bir bosqichda to'xtadi — qo'lda tekshirish kerak",
   stopped: "To'xtatildi — davom ettirish mumkin",
+  shop_unavailable: "Tanlangan do'kon kabinet hisobida yo'q — boshqa do'kon tanlang",
+  shop_mismatch: "Kabinet boshqa do'konga yozmoqchi bo'ldi — joylash to'xtatildi",
   error: "Joylanmadi",
 };
 
@@ -581,6 +658,10 @@ function Footer({
   onClose: () => void;
 }) {
   const [pushImages, setPushImages] = React.useState(false);
+  const activeShop = useActiveShop();
+  // Joylash qaysi do'konga ketishi tugmaning O'ZIDA ko'rinsin — bir
+  // nechta do'kon bo'lganda sotuvchi buni bosishdan oldin bilishi kerak.
+  const targetShopTitle = (draft && draftShop(draft).title) ?? activeShop?.name ?? null;
   const blocked = draft?.audit?.blocking ?? 0;
   const publishStatus = draft?.uzumPublish?.status || null;
   const categoryLevels = draft?.uzumPublish?.categoryLevels || [];
@@ -685,7 +766,10 @@ function Footer({
             )}
             onClick={() => onPublish()}
             disabled={publishing || busy === "publish"}
-            title={draft.uzumPublish?.message || undefined}
+            title={
+              draft.uzumPublish?.message ||
+              (targetShopTitle ? `«${targetShopTitle}» do'koniga joylaydi` : undefined)
+            }
           >
             {publishing || busy === "publish" ? (
               <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" />
@@ -697,6 +781,14 @@ function Footer({
               : publishStatus === "stopped"
                 ? "Davom ettirish"
                 : "Uzumga joylash"}
+            {!publishing && publishStatus !== "stopped" && targetShopTitle && (
+              // Bo'shliq `ml-1` bilan, `{" "}` bilan EMAS: tugma flex, va
+              // flex elementining boshidagi bo'sh joy yeyiladi
+              // («joylash→ Evora» bo'lib chiqdi — brauzerda ko'rib topildi).
+              <span className="ml-1 hidden font-normal text-[color:var(--air-label)] sm:inline">
+                → {targetShopTitle}
+              </span>
+            )}
           </button>
         )}
         {locked && !isLiveOnUzum && publishing && (
@@ -1058,7 +1150,11 @@ function PublishProgress({
                     : "air-warn",
               )}
             >
-              {PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
+              {publishStatus === "published" && draft.uzumPublish?.uzumShopTitle
+                ? `«${draft.uzumPublish.uzumShopTitle}» do'koniga joylandi ✓`
+                : SHOP_PUBLISH_STOPS.has(publishStatus) && draft.uzumPublish?.message
+                  ? draft.uzumPublish.message
+                  : PUBLISH_STATUS_LABEL[publishStatus] ?? draft.uzumPublish?.message}
               {publishStatus === "published" && draft.uzumPublish?.timings && (
                 <span className="ml-1 text-[color:var(--air-label)]">
                   (jami{" "}

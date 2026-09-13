@@ -1876,10 +1876,43 @@ export interface AiUzumPublish {
   categoryLevels: AiCategoryLevel[];
   /** `status === "published"` bo'lgach Uzum'ning o'z tovar ID'si — keyingi tahrirlash shunga tayanadi. */
   productId: string | null;
+  /**
+   * Tovar QAYSI Uzum do'koniga joylangan (joylanmoqda). Tahrirlash shu
+   * raqamga boradi. Eski yozuvlarda yo'q — ular qoralamaning o'z do'konida.
+   */
+  uzumShopId?: number | null;
+  uzumShopTitle?: string | null;
   /** Oxirgi "Uzumda tekshirish" natijasi. `null` — hali tekshirilmagan. */
   verified: boolean | null;
   verifiedAt: string | null;
   verifyMessage: string | null;
+}
+
+/** Qoralamani joylash mumkin bo'lgan bitta Uzum do'koni. */
+export interface AiUzumShop {
+  /** Uzum'ning O'Z do'kon raqami. */
+  id: number;
+  title: string;
+  /** Uzum SKU'lar oldiga qo'yadigan prefiks ("LUNAHUB"). */
+  skuPrefix: string | null;
+  /**
+   * Kabinetga kirilgan Uzum hisobida bormi. `null` — kabinet ro'yxati
+   * hali olinmagan; `false` — yo'q, bu sessiya u yerga joylay olmaydi.
+   */
+  inCabinet: boolean | null;
+  /** eStats'da ish maydoni sifatida qo'shilganmi. */
+  inEstats: boolean;
+  /** Hozir ochiq eStats do'koni — sukut bo'yicha joylash shu yerga. */
+  isCurrent: boolean;
+}
+
+export interface AiUzumShops {
+  shops: AiUzumShop[];
+  /** Sukut bo'yicha nishon — joriy eStats do'konining Uzum raqami. */
+  currentId: number;
+  /** Kabinetdagi ro'yxat olinganmi (`false` — faqat eStats'dagi do'konlar). */
+  cabinetKnown: boolean;
+  syncedAt: string | null;
 }
 
 export interface AiCategoryNode {
@@ -1948,6 +1981,8 @@ export interface AiDraft extends AiDraftRow {
   uzumPublish: AiUzumPublish | null;
   /** Uzum turkumi — endi qoralamaning O'Z maydoni, joylash paytida topiladigan narsa emas. */
   category: AiCategoryPick | null;
+  /** Qaysi Uzum do'koniga joylanadi. `null` — qoralamaning o'z (joriy) do'koni. */
+  uzumShop?: { id: number; title: string } | null;
   /** Sotuvchi kiritgan xom qiymatlar — «Tan narx» maydonlarini oldindan to'ldirish uchun. */
   pricing: {
     unitCost?: number | null;
@@ -1969,6 +2004,8 @@ export interface AiDraftPatch {
   mxik?: string;
   mxikName?: string;
   suggestedPrice?: number;
+  /** Qaysi Uzum do'koniga joylanadi. `null` — qoralamaning o'z do'koniga qaytaradi. */
+  uzumShopId?: number | null;
   /**
    * Rasm tahlilining (`vision`) sotuvchi tuzatishi mumkin bo'lgan
    * qismi. RANGLAR alohida muhim — ular rasm rejasini belgilaydi
