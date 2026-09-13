@@ -25,48 +25,95 @@ function formatJoinDate(value: string | null): string {
 
 
 /**
- * Ochiq reyestrdan olingan ma'lumot.
+ * Sotuvchi haqidagi ma'lumot: bizdagi O'LCHOV + ochiq reyestr.
  *
- * NEGA ALOHIDA KARTA. Uzum sotuvchi haqida faqat nomini va STIRini
- * beradi; qolgani (kim egasi, nima bilan shug'ullanadi, qachondan
- * beri, faolmi) ochiq davlat reyestrida. Ikkisi ARALASHTIRILMAYDI:
- * manba boshqa, shuning uchun pastda havola va yangilangan sana
- * turadi — raqam qayerdan kelganini ko'rish mumkin bo'lsin.
+ * ⚠️ ILGARI BU KARTA KO'PCHILIK UCHUN BO'SH EDI. Faqat reyestr
+ * maydonlarini ko'rsatardi, bozordagi sotuvchilarning ~81% i esa
+ * YaTT — ular YURIDIK SHAXSLAR reyestrida umuman yo'q (o'lchandi:
+ * 8 ta YaTT STIRi qidirilib, 6 tasida 0 natija). Natijada 6
+ * do'konli, 186 mln tushumli sotuvchida ham katta bo'sh quti
+ * turardi va "hech nima chiqmayapti" bo'lib ko'rinardi.
  *
- * Reyestrda topilmagan maydon KO'RSATILMAYDI (tire ham qo'yilmaydi):
- * "ma'lumot yo'q" va "qiymat bo'sh" ikki xil narsa.
+ * Endi karta HAR DOIM bizda bor narsani ko'rsatadi (Uzumning
+ * o'zidan o'lchangan: qachondan beri, nechta do'kon, jami
+ * buyurtma, reyting), reyestr maydonlari esa bo'lsa QO'SHILADI.
+ * Manba har qatorda ajratilgan — ikkisi aralashtirilmaydi.
  */
-function RegistryCard({ seller }: { seller: MarketSellerDetail["seller"] }) {
+function SellerInfoCard({
+  seller,
+  totals,
+  shops,
+}: {
+  seller: MarketSellerDetail["seller"];
+  totals: MarketSellerDetail["totals"];
+  shops: MarketSellerDetail["shops"];
+}) {
   const reg: MarketSellerRegistry = seller.registry ?? {};
-  const rows: [string, React.ReactNode][] = [];
-  const add = (label: string, value?: string | null) => {
-    if (value) rows.push([label, value]);
+  const isPerson =
+    seller.legal_form === "yatt" ||
+    seller.legal_form === "self_employed" ||
+    seller.legal_form === "individual";
+
+  // Reyting — sharhlar soni bo'yicha OG'IRLANGAN o'rtacha: 5.0
+  // qo'ygan 2 sharhli do'kon 4.7 li 8 000 sharhli do'konni
+  // ko'tarib yubormasligi kerak.
+  const reviews = shops.reduce((sum, s) => sum + (s.reviews || 0), 0);
+  const weighted = shops.reduce((sum, s) => sum + (s.rating || 0) * (s.reviews || 0), 0);
+  const rating = reviews > 0 ? weighted / reviews : null;
+
+  const uzum: [string, React.ReactNode][] = [];
+  const add = (rows: [string, React.ReactNode][], label: string, value?: React.ReactNode) => {
+    if (value !== null && value !== undefined && value !== "") rows.push([label, value]);
   };
 
-  add("Rasmiy nomi", reg.official_name);
-  add("Qisqa nomi", reg.short_name);
-  add("STIR", seller.tin ?? reg.tin);
-  add("Reyestrdagi shakli", reg.legal_form_registry);
-  add("Ro'yxatdan o'tgan", reg.registered_on ?? (seller.registered_on ?? undefined));
-  add("Ro'yxatga oluvchi", reg.registrar);
-  add("Faoliyat turi", reg.activity_name ? `${reg.activity_name}${reg.activity_code ? ` (IFUT ${reg.activity_code})` : ""}` : reg.activity);
-  add("Ustav fondi", reg.charter_capital);
-  add("Manzili", reg.address ?? (seller.address ?? undefined));
-  add("Telefon", reg.phone ?? (seller.phone ?? undefined));
-  add("Elektron pochta", reg.email);
-  add("Rahbar", reg.director ?? (seller.director ?? undefined));
-  add("Barqarorlik reytingi", reg.stability);
-  add("Yirik soliq to'lovchi", reg.large_taxpayer);
+  add(uzum, "Yuridik shakli", seller.legal_form
+    ? LEGAL_FORM_LABELS[seller.legal_form] ?? seller.legal_form
+    : "aniqlanmagan");
+  add(uzum, "STIR", seller.tin);
+  add(uzum, "Uzumda", totals.joined_at ? `${formatJoinDate(totals.joined_at)}dan beri` : null);
+  add(uzum, "Do'konlari", formatNumber(totals.shops));
+  add(uzum, "Jami buyurtma", totals.orders_total ? formatNumber(totals.orders_total) : null);
+  add(uzum, "Reyting", rating
+    ? `${rating.toFixed(2)} · ${formatNumber(reviews)} sharh`
+    : null);
+
+  const registry: [string, React.ReactNode][] = [];
+  add(registry, "Rasmiy nomi", reg.official_name);
+  add(registry, "Qisqa nomi", reg.short_name);
+  add(registry, "Reyestrdagi shakli", reg.legal_form_registry);
+  add(registry, "Ro'yxatdan o'tgan", reg.registered_on ?? seller.registered_on);
+  add(registry, "Ro'yxatga oluvchi", reg.registrar);
+  add(registry, "Faoliyat turi", reg.activity_name
+    ? `${reg.activity_name}${reg.activity_code ? ` (IFUT ${reg.activity_code})` : ""}`
+    : reg.activity);
+  add(registry, "Ustav fondi", reg.charter_capital);
+  add(registry, "Manzili", reg.address ?? seller.address);
+  add(registry, "Telefon", reg.phone ?? seller.phone);
+  add(registry, "Elektron pochta", reg.email);
+  add(registry, "Rahbar", reg.director ?? seller.director);
+  add(registry, "Barqarorlik reytingi", reg.stability);
+  add(registry, "Yirik soliq to'lovchi", reg.large_taxpayer);
 
   const founders = reg.founders ?? [];
   const marks = reg.trademarks ?? [];
-  const empty = rows.length === 0 && founders.length === 0 && marks.length === 0;
+  const hasRegistry = registry.length > 0 || founders.length > 0 || marks.length > 0;
+
+  const rowList = (rows: [string, React.ReactNode][]) => (
+    <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex justify-between gap-3 border-b border-dashed py-1">
+          <dt className="shrink-0 text-muted-foreground">{label}</dt>
+          <dd className="text-right">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
 
   return (
     <section className="space-y-2.5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="font-semibold">Yuridik shaxs ma&apos;lumoti</div>
+          <div className="font-semibold">Sotuvchi ma&apos;lumoti</div>
           {reg._match === "name" && (
             // STIR Uzumda yo'q edi — yozuv firma NOMI bo'yicha
             // topilgan. Bu kuchsizroq dalil va yashirilmaydi.
@@ -80,71 +127,68 @@ function RegistryCard({ seller }: { seller: MarketSellerDetail["seller"] }) {
         )}
       </div>
 
-      {empty ? (
-        <NoData>
-          {seller.legal_form === "yatt" || seller.legal_form === "self_employed"
-            ? "Bu sotuvchi jismoniy shaxs (YaTT / o'zini-o'zi band qilgan) — ochiq reyestrdan shaxsiy ma'lumot yig'ilmaydi."
-            : seller.tin
-              ? "Reyestrda hali topilmadi — navbatda turibdi yoki STIR yuridik shaxslar reyestrida yo'q."
-              : "STIR aniqlanmagan, shuning uchun reyestrdan qidirib bo'lmaydi."}
-        </NoData>
-      ) : (
-        <div className="rounded-xl border bg-card p-3.5">
-          <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-            {rows.map(([label, value]) => (
-              <div key={label} className="flex justify-between gap-3 border-b border-dashed py-1 last:border-0">
-                <dt className="shrink-0 text-muted-foreground">{label}</dt>
-                <dd className="text-right">{value}</dd>
+      <div className="rounded-xl border bg-card p-3.5">
+        {rowList(uzum)}
+
+        {hasRegistry ? (
+          <div className="mt-3 border-t pt-3">
+            <div className="mb-1.5 text-xs text-muted-foreground">Davlat reyestridan</div>
+            {rowList(registry)}
+
+            {founders.length > 0 && (
+              <div className="mt-3">
+                <div className="mb-1.5 text-xs text-muted-foreground">Ta&apos;sischilar</div>
+                <ul className="space-y-1 text-sm">
+                  {founders.map((f) => (
+                    <li key={f.name} className="flex justify-between gap-3">
+                      <span>{f.name}</span>
+                      {f.share && <span className="air-num text-muted-foreground">{f.share}</span>}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
-          </dl>
-
-          {founders.length > 0 && (
-            <div className="mt-3 border-t pt-3">
-              <div className="mb-1.5 text-xs text-muted-foreground">Ta&apos;sischilar</div>
-              <ul className="space-y-1 text-sm">
-                {founders.map((f) => (
-                  <li key={f.name} className="flex justify-between gap-3">
-                    <span>{f.name}</span>
-                    {f.share && <span className="air-num text-muted-foreground">{f.share}</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {marks.length > 0 && (
-            <div className="mt-3 border-t pt-3">
-              <div className="mb-1.5 text-xs text-muted-foreground">Savdo belgilari</div>
-              <div className="flex flex-wrap gap-1.5">
-                {marks.map((m) => (
-                  <Badge key={m} variant="secondary">{m}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2.5 text-[11px] text-muted-foreground">
-            <span>
-              Manba: ochiq davlat reyestri
-              {seller.registry_synced_at ? ` · ${seller.registry_synced_at} holatiga` : ""}
-              {seller.ogrnip && seller.tin && seller.ogrnip !== seller.tin
-                ? ` · Uzumdagi raqam: ${seller.ogrnip}`
-                : ""}
-            </span>
-            {seller.registry_url && (
-              <a
-                href={seller.registry_url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:underline"
-              >
-                <ExternalLink className="h-3 w-3" /> Reyestrda ko&apos;rish
-              </a>
             )}
+
+            {marks.length > 0 && (
+              <div className="mt-3">
+                <div className="mb-1.5 text-xs text-muted-foreground">Savdo belgilari</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {marks.map((m) => (
+                    <Badge key={m} variant="secondary">{m}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2.5 text-[11px] text-muted-foreground">
+              <span>
+                Manba: ochiq davlat reyestri
+                {seller.registry_synced_at ? ` · ${seller.registry_synced_at} holatiga` : ""}
+              </span>
+              {seller.registry_url && (
+                <a
+                  href={seller.registry_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" /> Reyestrda ko&apos;rish
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          // Sabab HALOL aytiladi. YaTT holatida bu cheklov emas,
+          // FAKT: ular yuridik shaxslar reyestrida yo'q (o'lchangan).
+          <div className="mt-3 border-t pt-3 text-xs text-muted-foreground">
+            {isPerson
+              ? "Yakka tartibdagi tadbirkor yuridik shaxslar reyestrida bo'lmaydi — qo'shimcha ochiq ma'lumot yo'q."
+              : seller.tin
+                ? "Davlat reyestridan hali o'qilmadi — navbatda turibdi."
+                : "STIR aniqlanmagan, shuning uchun reyestrdan qidirib bo'lmaydi."}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
@@ -196,7 +240,7 @@ export default function MarketSellerPage({ params }: { params: Promise<{ id: str
         ))}
       </div>
 
-      <RegistryCard seller={detail.seller} />
+      <SellerInfoCard seller={detail.seller} totals={detail.totals} shops={detail.shops} />
 
       <section className="space-y-2.5">
         <div className="font-semibold">Do&apos;konlari</div>
