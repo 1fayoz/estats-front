@@ -20,6 +20,7 @@ import type {
   InstagramPost,
   Intake,
   IntakeInput,
+  IntakeMoney,
   IntakeRow,
   LoginResponse,
   Me,
@@ -304,6 +305,9 @@ export const syncEverything = (days = 30) =>
 
 export const fetchIntakes = (warehouseProductId?: number) =>
   request<IntakeRow[]>(`/warehouse/intakes${qs({ warehouse_product_id: warehouseProductId })}`);
+
+/** Sarflangan va sotilgan pul — `pnl.view` talab qiladi (ruxsat bo'lmasa 403). */
+export const fetchIntakeMoney = () => request<IntakeMoney>("/warehouse/intakes/pnl");
 
 export const createIntake = (payload: IntakeInput) =>
   request<Intake>("/warehouse/intakes", { method: "POST", body: JSON.stringify(payload) });

@@ -3,8 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  AlertCircle, ArrowDownToLine, ArrowUpRight, Boxes, CalendarDays,
-  Check, Info, Loader2, Package, PackagePlus, Search, Trash2, Wallet, X,
+  AlertCircle, ArrowDownToLine, ArrowUpRight, Banknote, Boxes, CalendarDays,
+  Check, Info, Loader2, Package, PackagePlus, Search, ShoppingBag, Trash2, TrendingUp, Wallet, X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,10 +14,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { IntakeProducts } from "@/features/warehouse/components/intake-products";
 import { InventoryHeader, InventoryStat } from "@/features/warehouse/components/inventory-workspace";
-import { ApiError, deleteIntake, fetchIntakes } from "@/lib/api";
+import { ApiError, deleteIntake, fetchIntakeMoney, fetchIntakes } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
-import type { IntakeRow } from "@/lib/types";
+import type { IntakeBatchMoney, IntakeMoney, IntakeRow } from "@/lib/types";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,10 @@ function intakeDate(value: string) {
 
 export default function IntakesPage() {
   const [rows, setRows] = React.useState<IntakeRow[]>([]);
+  // Sotuv summasi va foyda — alohida so'rov, `pnl.view` ruxsati bilan.
+  // `null` — ruxsat yo'q (403) yoki eski backend (404): pul bloklari
+  // jimgina yashiriladi, kirimlar ro'yxati esa odatdagidek ishlaydi.
+  const [money, setMoney] = React.useState<IntakeMoney | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [removing, setRemoving] = React.useState(false);
@@ -47,9 +52,19 @@ export default function IntakesPage() {
     const version = ++requestVersion.current;
     setLoading(true);
     try {
-      const nextRows = await fetchIntakes();
+      const [nextRows, nextMoney] = await Promise.all([
+        fetchIntakes(),
+        fetchIntakeMoney().catch((err) =>
+          // Vaqtinchalik xatoda eski raqamlar qoladi (`undefined`); faqat
+          // ruxsat yo'qligi yoki eski backend bloklarni yopadi. Eski backend
+          // 404 emas, 405 beradi: yo'l `/intakes/{batch_id}` (PATCH/DELETE)
+          // ga mos keladi — lokal sinovda shunday chiqdi.
+          err instanceof ApiError && [403, 404, 405].includes(err.status) ? null : undefined
+        ),
+      ]);
       if (version !== requestVersion.current) return;
       setRows(nextRows);
+      if (nextMoney !== undefined) setMoney(nextMoney);
       setError(null);
     } catch (err) {
       if (version === requestVersion.current) {
@@ -82,6 +97,8 @@ export default function IntakesPage() {
       deleting.current = false;
       setRemoving(false);
     }
+    // Kirim o'chsa FIFO qayta hisoblanadi — sotilgan summa va foyda ham o'zgaradi.
+    void load();
   };
 
   const totals = React.useMemo(
@@ -93,6 +110,11 @@ export default function IntakesPage() {
     }),
     [rows]
   );
+  const batchMoney = React.useMemo(
+    () => new Map((money?.batches ?? []).map((batch) => [batch.id, batch])),
+    [money]
+  );
+  const moneyTotals = money?.totals;
 
   const filteredRows = React.useMemo(() => {
     const search = query.trim().toLocaleLowerCase();
@@ -127,12 +149,23 @@ export default function IntakesPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <InventoryStat icon={Boxes} label="Partiyalar" value={unavailable ? "—" : `${formatNumber(totals.count)} ta`} hint="Barcha kirimlar" loading={initialLoading} />
-        <InventoryStat icon={ArrowDownToLine} label="Jami kelgan" value={unavailable ? "—" : formatNumber(totals.quantity)} hint="dona mahsulot" loading={initialLoading} />
-        <InventoryStat icon={Wallet} label="Jami sarflangan" value={unavailable ? "—" : formatSum(totals.cost)} hint="Kirimlar qiymati" loading={initialLoading} />
-        <InventoryStat icon={Package} label="Sotilmagan qoldiq" value={unavailable ? "—" : formatNumber(totals.remaining)} hint="dona mahsulot" loading={initialLoading} />
-      </div>
+      {moneyTotals && !unavailable ? (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <InventoryStat icon={ArrowDownToLine} label="Jami keldi" value={`${formatNumber(moneyTotals.intakeQuantity)} dona`} hint={`${formatNumber(moneyTotals.batches)} ta partiya · ${formatNumber(moneyTotals.products)} ta tovar`} />
+          <InventoryStat icon={ShoppingBag} label="Jami sotildi" value={`${formatNumber(moneyTotals.soldQuantity)} dona`} hint={soldHint(moneyTotals.inTransitQuantity, moneyTotals.uncoveredQuantity)} />
+          <InventoryStat icon={Package} label="Qoldi" value={`${formatNumber(moneyTotals.onHand)} dona`} hint={`Tan narx bo'yicha qiymati ${formatSum(moneyTotals.stockValue)}`} />
+          <InventoryStat icon={Wallet} label="Jami sarflangan" value={formatSum(moneyTotals.intakeCost)} hint={`Sotilganlarining tan narxi ${formatSum(moneyTotals.cogs)}`} />
+          <InventoryStat icon={Banknote} label="Sotilgan summa" value={formatSum(moneyTotals.gross)} hint={`Uzum to'lovi ${formatSum(moneyTotals.revenue)}`} />
+          <InventoryStat icon={TrendingUp} label="Sof foyda" value={formatSum(moneyTotals.profit)} hint={moneyTotals.uncoveredQuantity ? `Kirimsiz ${formatNumber(moneyTotals.uncoveredQuantity)} dona hisobga olinmagan` : "Uzum to'lovi − tan narx"} tone={moneyTotals.uncoveredQuantity ? "warning" : "default"} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <InventoryStat icon={Boxes} label="Partiyalar" value={unavailable ? "—" : `${formatNumber(totals.count)} ta`} hint="Barcha kirimlar" loading={initialLoading} />
+          <InventoryStat icon={ArrowDownToLine} label="Jami kelgan" value={unavailable ? "—" : formatNumber(totals.quantity)} hint="dona mahsulot" loading={initialLoading} />
+          <InventoryStat icon={Wallet} label="Jami sarflangan" value={unavailable ? "—" : formatSum(totals.cost)} hint="Kirimlar qiymati" loading={initialLoading} />
+          <InventoryStat icon={Package} label="Sotilmagan qoldiq" value={unavailable ? "—" : formatNumber(totals.remaining)} hint="dona mahsulot" loading={initialLoading} />
+        </div>
+      )}
 
       {error && (
         <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -145,6 +178,8 @@ export default function IntakesPage() {
           </Button>
         </div>
       )}
+
+      {money && money.products.length > 0 && <IntakeProducts products={money.products} />}
 
       <section className="overflow-hidden rounded-2xl border bg-card shadow-sm" aria-labelledby="intake-list-title" aria-busy={loading}>
         <div className="border-b p-4 sm:p-5">
@@ -223,9 +258,10 @@ export default function IntakesPage() {
                     <IntakeDetail label="Qoldi" value={`${formatNumber(row.remainingQuantity)} dona`} />
                   </dl>
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-muted/50 px-3 py-3">
-                    <span className="text-xs text-muted-foreground">Jami summa</span>
+                    <span className="text-xs text-muted-foreground">Sarflangan</span>
                     <span className="text-sm font-semibold tabular-nums [overflow-wrap:anywhere]">{formatSum(row.totalCost)}</span>
                   </div>
+                  {batchMoney.has(row.id) && <BatchMoneyDetails money={batchMoney.get(row.id)!} />}
                   <dl className="mt-4 space-y-2 text-xs">
                     <div className="flex justify-between gap-4"><dt className="shrink-0 text-muted-foreground">Yetkazib beruvchi</dt><dd className="text-right [overflow-wrap:anywhere]">{row.supplier || "—"}</dd></div>
                     <div className="flex justify-between gap-4"><dt className="shrink-0 text-muted-foreground">Hujjat</dt><dd className="text-right [overflow-wrap:anywhere]">{row.reference || "—"}</dd></div>
@@ -238,15 +274,16 @@ export default function IntakesPage() {
             </div>
 
             <div className="hidden overflow-x-auto xl:block">
-              <table className="w-full min-w-[900px] text-sm">
+              <table className={cn("w-full text-sm", money ? "min-w-[1040px]" : "min-w-[900px]")}>
                 <caption className="sr-only">Tovar kirimlari, narxlari va qoldiqlari</caption>
                 <thead className="border-b bg-muted/30 text-xs text-muted-foreground">
                   <tr>
                     <th scope="col" className="px-5 py-3.5 text-left font-medium">Tovar / sana</th>
                     <th scope="col" className="px-3 py-3.5 text-right font-medium">Keldi</th>
                     <th scope="col" className="px-3 py-3.5 text-right font-medium">Tan narxi</th>
-                    <th scope="col" className="px-3 py-3.5 text-right font-medium">Jami summa</th>
+                    <th scope="col" className="px-3 py-3.5 text-right font-medium">Sarflangan</th>
                     <th scope="col" className="px-3 py-3.5 text-left font-medium">Sotildi / qoldi</th>
+                    {money && <th scope="col" className="px-3 py-3.5 text-right font-medium">Sotilgan summa</th>}
                     <th scope="col" className="px-3 py-3.5 text-left font-medium">Yetkazib beruvchi</th>
                     <th scope="col" className="px-3 py-3.5"><span className="sr-only">Amallar</span></th>
                   </tr>
@@ -259,6 +296,7 @@ export default function IntakesPage() {
                       <td className="whitespace-nowrap px-3 py-4 text-right tabular-nums">{formatSum(row.costPrice)}</td>
                       <td className="whitespace-nowrap px-3 py-4 text-right font-semibold tabular-nums">{formatSum(row.totalCost)}</td>
                       <td className="px-3 py-4"><div className="mb-2 whitespace-nowrap tabular-nums">{formatNumber(row.soldQuantity)} <span className="text-muted-foreground">/</span> {formatNumber(row.remainingQuantity)}</div><IntakeStatus row={row} /></td>
+                      {money && <td className="whitespace-nowrap px-3 py-4 text-right tabular-nums"><BatchMoneyCell money={batchMoney.get(row.id)} /></td>}
                       <td className="max-w-[180px] px-3 py-4"><div className="break-words">{row.supplier || "—"}</div><div className="mt-1 break-words text-xs text-muted-foreground">{row.reference || "Hujjat kiritilmagan"}</div></td>
                       <td className="px-3 py-4"><Button variant="ghost" size="icon" className="size-11 rounded-xl text-muted-foreground hover:bg-destructive/5 hover:text-destructive" disabled={removing} onClick={() => setDeleteTarget(row)} aria-label={`${row.title} kirimini o'chirish`}><Trash2 /></Button></td>
                     </tr>
@@ -305,6 +343,37 @@ function ProductIdentity({ row }: { row: IntakeRow }) {
 function IntakeStatus({ row }: { row: IntakeRow }) {
   const exhausted = row.remainingQuantity === 0;
   return <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-1 text-[11px] font-medium", exhausted ? "bg-muted text-muted-foreground" : "bg-emerald-500/10 text-foreground")}>{exhausted ? <Check className="size-3" /> : <span className="size-1.5 rounded-full bg-[color:var(--ok)]" />}{exhausted ? "Tugagan" : "Qoldig'i bor"}</span>;
+}
+
+function soldHint(inTransit: number, uncovered: number) {
+  const parts = [];
+  if (inTransit) parts.push(`${formatNumber(inTransit)} tasi yetkazilmoqda`);
+  if (uncovered) parts.push(`${formatNumber(uncovered)} tasiga kirim kiritilmagan`);
+  return parts.length ? `Shundan ${parts.join(", ")}` : "Butun davr bo'yicha";
+}
+
+function ProfitText({ value }: { value: number }) {
+  return <span className={cn("tabular-nums", value > 0 && "text-[color:var(--ok)]", value < 0 && "text-[color:var(--bad)]")}>{formatSum(value)}</span>;
+}
+
+function BatchMoneyCell({ money }: { money?: IntakeBatchMoney }) {
+  if (!money || money.soldQuantity === 0) return <span className="text-muted-foreground">—</span>;
+  return (
+    <>
+      <div className="font-semibold">{formatSum(money.gross)}</div>
+      <div className="mt-1 text-xs text-muted-foreground">foyda <ProfitText value={money.profit} /></div>
+    </>
+  );
+}
+
+function BatchMoneyDetails({ money }: { money: IntakeBatchMoney }) {
+  if (money.soldQuantity === 0) return null;
+  return (
+    <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border px-3 py-3">
+      <IntakeDetail label="Sotilgan summa" value={formatSum(money.gross)} />
+      <div className="min-w-0"><dt className="text-xs text-muted-foreground">Sof foyda</dt><dd className="mt-1 text-sm font-medium"><ProfitText value={money.profit} /></dd></div>
+    </dl>
+  );
 }
 
 function IntakeDetail({ label, value }: { label: string; value: string }) {

@@ -267,6 +267,60 @@ export interface IntakeRow extends Intake {
   skuCode: string | null;
 }
 
+/** Bitta partiyadan sotilgan donalar va ular necha pulga sotilgani (FIFO). */
+export interface IntakeBatchMoney {
+  id: number;
+  soldQuantity: number;
+  gross: number;
+  revenue: number;
+  cogs: number;
+  profit: number;
+}
+
+/** Bitta tovar butun davr bo'yicha: nechta keldi, nechta sotildi, qancha pul. */
+export interface IntakeProductMoney {
+  warehouseProductId: number | null;
+  title: string;
+  image: string | null;
+  skuCode: string | null;
+  batches: number;
+  intakeQuantity: number;
+  intakeCost: number;
+  soldQuantity: number;
+  inTransitQuantity: number;
+  onHand: number;
+  stockValue: number;
+  gross: number;
+  revenue: number;
+  cogs: number;
+  /** Kirim kiritilmagan tovarda `null` — foyda noma'lum, nol emas. */
+  profit: number | null;
+  uncoveredQuantity: number;
+}
+
+export interface IntakeMoneyTotals {
+  products: number;
+  soldProducts: number;
+  batches: number;
+  intakeQuantity: number;
+  intakeCost: number;
+  soldQuantity: number;
+  inTransitQuantity: number;
+  onHand: number;
+  stockValue: number;
+  gross: number;
+  revenue: number;
+  cogs: number;
+  profit: number;
+  uncoveredQuantity: number;
+}
+
+export interface IntakeMoney {
+  batches: IntakeBatchMoney[];
+  products: IntakeProductMoney[];
+  totals: IntakeMoneyTotals;
+}
+
 export interface IntakeInput {
   warehouseProductId: number;
   quantity: number;
