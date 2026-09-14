@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -154,6 +155,7 @@ export function Grid<T>({
   rowKey,
   empty,
   visible,
+  pageParam,
 }: {
   columns: Column<T>[];
   rows: T[];
@@ -161,7 +163,18 @@ export function Grid<T>({
   empty?: React.ReactNode;
   /** Ko'rinadigan ustunlar. Berilmasa — hammasi. */
   visible?: Set<string>;
+  /**
+   * Berilsa — jadval o'zi 15 tadan sahifalaydi (manzilda shu nom bilan).
+   * Ro'yxat sahifalari (`/market/products` va h.k.) buni BERMAYDI: ular
+   * serverdan allaqachon bitta sahifani oladi. Detal sahifalardagi
+   * to'liq yuklangan jadvallar (kunlik tarix, SKU'lar) uchun.
+   */
+  pageParam?: string;
 }) {
+  // Hook shartsiz chaqiriladi (qoida); `pageParam` bo'lmasa natijasi
+  // ishlatilmaydi va manzilga hech narsa yozilmaydi.
+  const paged = usePagination(rows, { param: pageParam ?? "grid_page" });
+  const shownRows = pageParam ? paged.pageItems : rows;
   // Filtrlash RENDERDAN oldin: yashirilgan ustun umuman
   // chizilmaydi. `display: none` bilan yashirish 500 qatorli
   // jadvalda ham DOM tugunini yaratib turardi.
@@ -183,7 +196,7 @@ export function Grid<T>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => (
+          {shownRows.map((row, index) => (
             <tr key={rowKey(row, index)}>
               {shown.map((c) => (
                 <td key={c.key} style={{ textAlign: c.align ?? "right" }}>
@@ -194,6 +207,11 @@ export function Grid<T>({
           ))}
         </tbody>
       </table>
+      {pageParam && (
+        <div className="px-3 pb-2">
+          <Pagination page={paged.page} total={rows.length} onPage={paged.setPage} />
+        </div>
+      )}
     </div>
   );
 }

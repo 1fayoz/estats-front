@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, useServerPage } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
@@ -29,7 +30,6 @@ const ORDER_LABELS: Record<string, string> = {
   joined: "Qo'shilgan sana bo'yicha",
 };
 
-const PAGE_SIZE = 24;
 
 export default function MarketSellersPage() {
   const days = usePeriod();
@@ -37,7 +37,9 @@ export default function MarketSellersPage() {
   const [legalForm, setLegalForm] = React.useState<string>("all");
   const [minShops, setMinShops] = React.useState<string>("");
   const [order, setOrder] = React.useState<"revenue" | "shops" | "orders" | "joined">("revenue");
-  const [limit, setLimit] = React.useState(PAGE_SIZE);
+  const { page, setPage, offset, limit } = useServerPage({
+    resetKey: [days, q, legalForm, minShops, order],
+  });
   const [data, setData] = React.useState<MarketPage<MarketSeller> | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -52,12 +54,13 @@ export default function MarketSellersPage() {
           min_shops: minShops ? Number(minShops) : undefined,
           order,
           limit,
+          offset,
         })
         .then(setData)
         .catch((e) => setError(e.message));
     }, 350);
     return () => clearTimeout(timer);
-  }, [days, q, legalForm, minShops, order, limit]);
+  }, [days, q, legalForm, minShops, order, limit, offset]);
 
   return (
     <div className="space-y-4">
@@ -169,13 +172,7 @@ export default function MarketSellersPage() {
             ))}
           </div>
 
-          {data.items.length < data.total && (
-            <div className="flex justify-center pt-1">
-              <Button variant="outline" size="sm" onClick={() => setLimit((l) => l + PAGE_SIZE)}>
-                Yana ko&apos;rsatish
-              </Button>
-            </div>
-          )}
+          <Pagination page={page} total={data.total} onPage={setPage} label="Sotuvchilar sahifalari" />
         </>
       )}
     </div>

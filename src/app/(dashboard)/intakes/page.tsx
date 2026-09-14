@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
@@ -128,6 +129,9 @@ export default function IntakesPage() {
       return order === "newest" ? difference || second.id - first.id : -difference || first.id - second.id;
     });
   }, [rows, query, stock, order]);
+  const { page, setPage, pageItems: pageRows } = usePagination(filteredRows, {
+    resetKey: [query, stock, order],
+  });
 
   const initialLoading = loading && rows.length === 0;
   const unavailable = Boolean(error) && rows.length === 0;
@@ -244,7 +248,7 @@ export default function IntakesPage() {
         ) : (
           <>
             <div className="grid gap-3 bg-muted/20 p-3 md:grid-cols-2 xl:hidden">
-              {filteredRows.map((row) => (
+              {pageRows.map((row) => (
                 <article key={row.id} className="min-w-0 rounded-2xl border bg-card p-4">
                   <ProductIdentity row={row} />
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
@@ -289,7 +293,7 @@ export default function IntakesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {filteredRows.map((row) => (
+                  {pageRows.map((row) => (
                     <tr key={row.id} className="transition-colors hover:bg-muted/25">
                       <td className="max-w-[320px] px-5 py-4"><ProductIdentity row={row} /><div className="mt-1.5 pl-[60px] text-xs text-muted-foreground">{intakeDate(row.receivedAt)}</div></td>
                       <td className="px-3 py-4 text-right tabular-nums">{formatNumber(row.quantity)}</td>
@@ -304,6 +308,7 @@ export default function IntakesPage() {
                 </tbody>
               </table>
             </div>
+            <div className="px-4 pb-3"><Pagination page={page} total={filteredRows.length} onPage={setPage} label="Kirimlar sahifalari" /></div>
           </>
         )}
       </section>

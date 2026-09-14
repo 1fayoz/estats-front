@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, useServerPage } from "@/components/ui/pagination";
 
 import * as React from "react";
 import { use } from "react";
@@ -31,7 +32,9 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
   const [detail, setDetail] = React.useState<Detail | null>(null);
   const [series, setSeries] = React.useState<MarketPoint[]>([]);
   const [products, setProducts] = React.useState<MarketProduct[] | null>(null);
+  const [productTotal, setProductTotal] = React.useState(0);
   const [error, setError] = React.useState<string | null>(null);
+  const productPage = useServerPage({ resetKey: [id, days], param: "products_page" });
 
   React.useEffect(() => {
     setError(null);
@@ -40,11 +43,20 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
         r.ok ? r.json() : Promise.reject(new Error(`Topilmadi (${r.status})`))),
       fetch(`${MARKET_BASE}/shops/${id}/timeline?days=${Math.max(days, 30)}`).then((r) =>
         r.ok ? r.json() : []),
-      market.products({ days, shop: Number(id), limit: 100 }).catch(() => null),
     ])
-      .then(([d, t, p]) => { setDetail(d); setSeries(t); setProducts(p?.items ?? []); })
+      .then(([d, t]) => { setDetail(d); setSeries(t); })
       .catch((e) => setError(e.message));
   }, [id, days]);
+
+  // Mahsulotlar ALOHIDA so'rov bilan va 15 tadan: ilgari do'konning
+  // birinchi 100 tasi bir yo'la olinib, 101-chisi hech qayerda
+  // ko'rinmasdi. Sahifa almashganda do'kon ma'lumoti qayta so'ralmaydi.
+  React.useEffect(() => {
+    market
+      .products({ days, shop: Number(id), limit: productPage.limit, offset: productPage.offset })
+      .then((p) => { setProducts(p.items); setProductTotal(p.total); })
+      .catch(() => { setProducts([]); setProductTotal(0); });
+  }, [id, days, productPage.limit, productPage.offset]);
 
   if (error) return <Failed message={error} />;
   if (!detail) return <Loading />;
@@ -117,6 +129,7 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
           ]}
           rows={detail.categories}
           rowKey={(c) => c.category_id}
+          pageParam="categories_page"
           empty="Bu do'kon uchun turkum kesimi yig'ilmagan."
         />
       </section>
@@ -152,6 +165,7 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
           rowKey={(r) => r.product_id}
           empty="Bu do'kon uchun mahsulot kesimi yig'ilmagan."
         />
+        <Pagination page={productPage.page} total={productTotal} onPage={productPage.setPage} label="Mahsulotlar sahifalari" />
       </section>
     </div>
   );

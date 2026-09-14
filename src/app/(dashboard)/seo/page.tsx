@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
@@ -130,6 +131,9 @@ export default function SeoPage() {
       return right.coverageMissed - left.coverageMissed;
     });
   }, [filter, query, rows, sort]);
+  const { page, setPage, pageItems: pageRows } = usePagination(visible, {
+    resetKey: [filter, query, sort],
+  });
 
   const allVisibleSelected = visible.length > 0 && visible.every((row) => chosen.has(row.productId));
   const filterCount = (value: StatusFilter) => {
@@ -228,7 +232,7 @@ export default function SeoPage() {
         </div>
 
         <div className={styles.productList}>
-          {visible.map((row, index) => (
+          {pageRows.map((row, index) => (
             <SeoProductRow
               key={row.productId}
               row={row}
@@ -241,6 +245,7 @@ export default function SeoPage() {
             />
           ))}
         </div>
+        <Pagination page={page} total={visible.length} onPage={setPage} label="SEO sahifalari" />
 
         {visible.length === 0 ? (
           <div className={styles.empty}>

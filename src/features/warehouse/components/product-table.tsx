@@ -14,12 +14,19 @@ import {
   CardHead, CardList, CardStats, DataCard, TableWrap,
 } from "@/components/dashboard/data-cards";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AiDraftRow, WarehouseProduct } from "@/lib/types";
 
 interface ProductTableProps {
   items: WarehouseProduct[];
+  /**
+   * Filtr/tab/qidiruv holati — o'zgarsa 1-sahifaga qaytiladi. Ro'yxatning
+   * O'ZI emas: u har avto-yangilanishda yangi massiv bo'ladi va sotuvchi
+   * 3-sahifada turganda uni jimgina boshiga uloqtirardi.
+   */
+  pageResetKey?: unknown;
   onIntake: (product: WarehouseProduct) => void;
   /**
    * Uzum tovar ID'si → joylangan AI qoralamasi ID'si. Bo'lsa,
@@ -107,6 +114,7 @@ function resubmitHint(item: WarehouseProduct): string | null {
 
 export function ProductTable({
   items,
+  pageResetKey,
   onIntake,
   aiDraftByProduct,
   regeneratingByProduct,
@@ -115,6 +123,12 @@ export function ProductTable({
 }: ProductTableProps) {
   const router = useRouter();
   const groups = React.useMemo(() => groupByCard(items), [items]);
+  // 15 tadan — KARTOCHKA bo'yicha, SKU bo'yicha emas: bitta kartochkaning
+  // variantlari sahifalar orasida bo'linib ketmasin (jadval ularni bitta
+  // ochiladigan guruh qilib ko'rsatadi, Uzum kabinetidagi kabi).
+  const { page, setPage, pageItems: pageGroups, total: groupTotal } = usePagination(groups, {
+    resetKey: pageResetKey,
+  });
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
   const toggle = (key: string) =>
     setExpanded((prev) => {
@@ -199,7 +213,7 @@ export function ProductTable({
     <>
       {/* ── Mobil: guruh — bitta karta, variantlar chip bilan ── */}
       <CardList className="grid min-w-0 gap-4 space-y-0 sm:grid-cols-2 md:grid xl:hidden">
-        {groups.map((g) => {
+        {pageGroups.map((g) => {
           const item = g.card;
           const hasCost = costOf(item) != null;
           const range = priceRange(g.variants);
@@ -441,7 +455,7 @@ export function ProductTable({
           </tr>
         </thead>
         <tbody className="divide-y">
-          {groups.map((g) => {
+          {pageGroups.map((g) => {
             const open = expanded.has(g.key);
             return (
               <React.Fragment key={g.key}>
@@ -558,6 +572,8 @@ export function ProductTable({
         </tbody>
       </table>
       </TableWrap>
+
+      <Pagination page={page} total={groupTotal} onPage={setPage} label="Tovarlar sahifalari" />
     </>
   );
 }

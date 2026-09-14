@@ -512,6 +512,7 @@ function WarehouseContent() {
       ) : visibleError && items.length === 0 ? null : (
         <ProductTable
           items={filtered}
+          pageResetKey={[tab, query, onlyNoCost]}
           onIntake={setIntakeFor}
           // Joylangan AI qoralamasi tovarning o'zidan ochiladi:
           // joylangach u "AI qoralamalari" qatoridan chiqadi va

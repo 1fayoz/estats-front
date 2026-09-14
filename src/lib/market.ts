@@ -12,6 +12,7 @@
  */
 
 import { API_BASE, ApiError } from "./api";
+import { PAGE_SIZE } from "./pagination";
 
 export const MARKET_BASE =
   process.env.NEXT_PUBLIC_MARKET_API?.replace(/\/$/, "") ||
@@ -297,14 +298,15 @@ export const market = {
     get<MarketCategorySlice[]>("/overview/categories", { days, level, limit }),
 
   niches: (params: { days: number; q?: string; root?: number; limit?: number; offset?: number }) =>
-    get<MarketPage<MarketNiche>>("/niches", { limit: 200, ...params }),
+    get<MarketPage<MarketNiche>>("/niches", { limit: PAGE_SIZE, ...params }),
   nicheDynamics: (id: number, days = 90) => get<MarketPoint[]>(`/niches/${id}/dynamics`, { days }),
 
-  products: (params: { days: number; q?: string; root?: number; shop?: number; limit?: number }) =>
-    get<MarketPage<MarketProduct>>("/products", { limit: 200, ...params }),
+  products: (params: {
+    days: number; q?: string; root?: number; shop?: number; limit?: number; offset?: number;
+  }) => get<MarketPage<MarketProduct>>("/products", { limit: PAGE_SIZE, ...params }),
 
-  shops: (params: { days: number; q?: string; limit?: number }) =>
-    get<MarketPage<MarketShop>>("/shops", { limit: 200, ...params }),
+  shops: (params: { days: number; q?: string; limit?: number; offset?: number }) =>
+    get<MarketPage<MarketShop>>("/shops", { limit: PAGE_SIZE, ...params }),
 
   sellers: (params: {
     days: number;
@@ -316,12 +318,12 @@ export const market = {
     order?: "revenue" | "shops" | "orders" | "joined";
     limit?: number;
     offset?: number;
-  }) => get<MarketPage<MarketSeller>>("/sellers", { limit: 60, ...params }),
+  }) => get<MarketPage<MarketSeller>>("/sellers", { limit: PAGE_SIZE, ...params }),
 
   sellerDetail: (id: number, days: number) => get<MarketSellerDetail>(`/sellers/${id}`, { days }),
 
-  keywords: (params: { q?: string; limit?: number }) =>
-    get<MarketPage<MarketKeyword>>("/seo/keywords", { limit: 200, ...params }),
+  keywords: (params: { q?: string; limit?: number; offset?: number }) =>
+    get<MarketPage<MarketKeyword>>("/seo/keywords", { limit: PAGE_SIZE, ...params }),
 
   state: () => get<MarketState>("/ops/state"),
   gaps: () => get<{ missing: string[]; count: number; first: string | null }>("/ops/gaps"),

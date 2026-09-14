@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import {
@@ -79,6 +80,9 @@ export function PnlTable({ rows, allProducts, onAllProductsChange }: PnlTablePro
           : second[sortKey] - first[sortKey]
       );
   }, [ascending, query, rows, segment, sortKey]);
+  const { page, setPage, pageItems: pageRows } = usePagination(visibleRows, {
+    resetKey: [ascending, query, segment, sortKey],
+  });
 
   const segmentOptions: { key: Segment; label: string; count: number }[] = [
     { key: "all", label: "Barchasi", count: counts.all },
@@ -192,7 +196,7 @@ export function PnlTable({ rows, allProducts, onAllProductsChange }: PnlTablePro
       {visibleRows.length ? (
         <>
           <div className={styles.mobileCards}>
-            {visibleRows.map((row, index) => (
+            {pageRows.map((row, index) => (
               <ProductCard key={rowKey(row, index)} row={row} />
             ))}
           </div>
@@ -231,7 +235,7 @@ export function PnlTable({ rows, allProducts, onAllProductsChange }: PnlTablePro
                 </tr>
               </thead>
               <tbody>
-                {visibleRows.map((row, index) => (
+                {pageRows.map((row, index) => (
                   <tr
                     key={rowKey(row, index)}
                     data-loss={row.profit < 0}
@@ -282,6 +286,7 @@ export function PnlTable({ rows, allProducts, onAllProductsChange }: PnlTablePro
               </tbody>
             </table>
           </div>
+          <Pagination page={page} total={visibleRows.length} onPage={setPage} label="Mahsulotlar sahifalari" />
         </>
       ) : (
         <div className={styles.tableEmpty}>

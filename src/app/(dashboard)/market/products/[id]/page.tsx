@@ -160,7 +160,7 @@ export default function MarketProductPage({ params }: { params: Promise<{ id: st
           oshdimi?</i> Katakdagi <b>·</b> «o&apos;lchandi, lekin top-100 da yo&apos;q»,
           bo&apos;sh katak esa «o&apos;sha kuni o&apos;lchov bo&apos;lmagan» degani.
         </p>
-        <Grid columns={columns} rows={timeline} rowKey={(r) => r.day}
+        <Grid columns={columns} rows={timeline} rowKey={(r) => r.day} pageParam="days_page"
               empty="Bu kartochka hali kuzatilmagan." />
       </section>
 
@@ -177,6 +177,7 @@ export default function MarketProductPage({ params }: { params: Promise<{ id: st
             ]}
             rows={detail.skus}
             rowKey={(s) => s.sku_id}
+            pageParam="skus_page"
           />
         </section>
       )}

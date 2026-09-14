@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
@@ -46,6 +47,10 @@ export function IntakeProducts({ products }: { products: IntakeProductMoney[] })
       })
       .sort((first, second) => pick(second) - pick(first) || second.intakeCost - first.intakeCost);
   }, [products, query, filter, sort]);
+  const { page, setPage, pageItems: pageRows } = usePagination(rows, {
+    resetKey: [query, filter, sort],
+    param: "products_page",
+  });
 
   const sum = React.useMemo(() => rows.reduce(
     (acc, row) => ({
@@ -121,7 +126,7 @@ export function IntakeProducts({ products }: { products: IntakeProductMoney[] })
       ) : (
         <>
           <div className="grid gap-3 bg-muted/20 p-3 md:grid-cols-2 xl:hidden">
-            {rows.map((row) => (
+            {pageRows.map((row) => (
               <article key={row.warehouseProductId ?? "orphan"} className="min-w-0 rounded-2xl border bg-card p-4">
                 <Identity row={row} />
                 <dl className="my-4 grid grid-cols-3 gap-x-3 gap-y-3 border-y py-3">
@@ -156,7 +161,7 @@ export function IntakeProducts({ products }: { products: IntakeProductMoney[] })
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {rows.map((row) => (
+                {pageRows.map((row) => (
                   <tr key={row.warehouseProductId ?? "orphan"} className="transition-colors hover:bg-muted/25">
                     <td className="max-w-[340px] px-5 py-4"><Identity row={row} /></td>
                     <td className="px-3 py-4 text-right tabular-nums">{formatNumber(row.intakeQuantity)}</td>
@@ -190,6 +195,7 @@ export function IntakeProducts({ products }: { products: IntakeProductMoney[] })
               </tfoot>
             </table>
           </div>
+          <div className="px-4 pb-3"><Pagination page={page} total={rows.length} onPage={setPage} label="Tovarlar sahifalari" /></div>
 
           <div className="border-t bg-muted/30 p-4 xl:hidden">
             <p className="mb-3 text-sm font-semibold">Jami <span className="font-normal text-muted-foreground">· {formatNumber(rows.length)} ta tovar</span></p>

@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, useServerPage } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
@@ -17,16 +18,17 @@ import { market, type MarketPage, type MarketProduct } from "@/lib/market";
 export default function MarketProductsPage() {
   const days = usePeriod();
   const [q, setQ] = React.useState("");
+  const { page, setPage, offset, limit } = useServerPage({ resetKey: [days, q] });
   const [data, setData] = React.useState<MarketPage<MarketProduct> | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setError(null);
     const timer = setTimeout(() => {
-      market.products({ days, q: q || undefined }).then(setData).catch((e) => setError(e.message));
+      market.products({ days, q: q || undefined, offset, limit }).then(setData).catch((e) => setError(e.message));
     }, 350);
     return () => clearTimeout(timer);
-  }, [days, q]);
+  }, [days, q, offset, limit]);
 
   const columns: Column<MarketProduct>[] = [
     {
@@ -107,6 +109,7 @@ export default function MarketProductsPage() {
         <Grid columns={columns} visible={visible} rows={data.items} rowKey={(r) => r.product_id}
               empty="Tovarlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
       )}
+      {data && !error && <Pagination page={page} total={data.total} onPage={setPage} label="Tovarlar sahifalari" />}
     </div>
   );
 }

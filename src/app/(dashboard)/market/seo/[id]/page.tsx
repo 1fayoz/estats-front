@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import { use } from "react";
@@ -45,6 +46,7 @@ export default function KeywordPositionsPage({ params }: { params: Promise<{ id:
   const [detail, setDetail] = React.useState<Detail | null>(null);
   const [rows, setRows] = React.useState<Row[]>([]);
   const [error, setError] = React.useState<string | null>(null);
+  const { page, setPage, pageItems: pageRows } = usePagination(rows, { resetKey: id });
 
   React.useEffect(() => {
     setError(null);
@@ -120,7 +122,7 @@ export default function KeywordPositionsPage({ params }: { params: Promise<{ id:
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {pageRows.map((row) => {
                 const byDay = new Map(row.cells.map((c) => [c.day, c]));
                 return (
                   <tr key={row.product_id}>
@@ -147,6 +149,9 @@ export default function KeywordPositionsPage({ params }: { params: Promise<{ id:
               })}
             </tbody>
           </table>
+          <div className="px-3 pb-2">
+            <Pagination page={page} total={rows.length} onPage={setPage} label="Kartochkalar sahifalari" />
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import {
@@ -52,6 +53,7 @@ export function PositionsBlock({ productId }: { productId: number }) {
   const [tips, setTips] = React.useState<string[]>([]);
   /** "Nega pastdaman?" oynasi qaysi so'z uchun ochilgan. */
   const [why, setWhy] = React.useState<string | null>(null);
+  const { page, setPage, pageItems: pageRows } = usePagination(rows, { param: "positions_page" });
 
   React.useEffect(() => {
     fetchSeoPositions(productId)
@@ -218,7 +220,7 @@ export function PositionsBlock({ productId }: { productId: number }) {
             oxirgi bir necha kunlik qator, chunki 30 ta ustun 390px ga
             hech qanday holda sig'maydi. */}
         <CardList>
-          {rows.map((row) => {
+          {pageRows.map((row) => {
             const byDay = new Map(row.points.map((p) => [p.day, p.position]));
             const recent = days.slice(-7);
             return (
@@ -311,7 +313,7 @@ export function PositionsBlock({ productId }: { productId: number }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {pageRows.map((row) => {
                 const byDay = new Map(row.points.map((p) => [p.day, p.position]));
                 return (
                   <tr key={row.phrase} className="group border-b last:border-0">
@@ -385,6 +387,7 @@ export function PositionsBlock({ productId }: { productId: number }) {
             </tbody>
           </table>
         </div>
+        <Pagination page={page} total={rows.length} onPage={setPage} label="Kalit so'zlar sahifalari" />
         <p className="text-xs text-muted-foreground">
           {"Bo'sh katak — o'sha kuni birinchi 100 ta natija ichida topilmadi. "}
           {"Kichikroq raqam — yuqoriroq o'rin. Kun-ba-kun to'liq kesim, "}

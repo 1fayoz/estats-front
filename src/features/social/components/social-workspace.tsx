@@ -1,4 +1,5 @@
 "use client";
+import { PAGE_SIZE as SHARED_PAGE_SIZE, Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
@@ -29,7 +30,7 @@ import styles from "./social-workspace.module.css";
 type Coverage = Map<number, Map<SocialPlatform, SocialPost[]>>;
 const loadPosts = () => fetchSocialPosts();
 const loadAccounts = () => fetchSocialAccounts();
-const PAGE_SIZE = 24;
+const PAGE_SIZE = SHARED_PAGE_SIZE;
 
 export function SocialWorkspace() {
   const [rawTab, setTab] = useQueryState("tab", "coverage");
@@ -239,22 +240,22 @@ function ProductPage({ query, page, onPage, coverage, connected, postsReady, can
         <Button variant="outline" className={styles.publishButton} onClick={() => onPublish(product)} disabled={!canPublish} title={canPublish ? undefined : "Joylash uchun Integratsiyalarda faol akkaunt ulang"} aria-label={`${product.title} — joylash`}><Send /> Joylash</Button>
       </article>;
     })}</div>
-    <div className={styles.pagination}><span>{`${formatNumber((page - 1) * PAGE_SIZE + 1)}–${formatNumber(Math.min(page * PAGE_SIZE, count))} / ${formatNumber(count)} ta tovar`}</span><div><Button variant="outline" size="icon" onClick={() => onPage(page - 1)} disabled={page <= 1} aria-label="Oldingi sahifa"><ChevronLeft /></Button><span>{page} / {Math.max(1, pages)}</span><Button variant="outline" size="icon" onClick={() => onPage(page + 1)} disabled={page >= pages} aria-label="Keyingi sahifa"><ChevronRight /></Button></div></div>
+    <Pagination page={page} total={count} onPage={onPage} label="Tovarlar sahifalari" />
   </section>;
 }
 
 function NetworkFeed({ platform, posts, onLink, onUnlink, onPublish }: { platform: SocialPlatform; posts: SocialPost[]; onLink: (post: SocialPost) => void; onUnlink: (post: SocialPost, productId: number) => void; onPublish: () => void }) {
   const [query, setQuery] = React.useState("");
   const [filter, setFilter] = React.useState("all");
-  const [limit, setLimit] = React.useState(PAGE_SIZE);
   const filtered = React.useMemo(() => posts.filter((post) => (filter === "all" || (filter === "linked" ? post.products.length > 0 : post.products.length === 0)) && `${post.caption ?? ""} ${post.products.map((product) => product.title).join(" ")}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())), [posts, query, filter]);
+  const { page: postPage, setPage: setPostPage, pageItems: pagePosts } = usePagination(filtered, { resetKey: [query, filter], param: "posts_page" });
   return <div className={styles.feed}>
     <div className={styles.sectionHeading}><div><h1>E’lonlar</h1><p>Kontent, natija va bog‘langan tovar — bitta kartada.</p></div><Button className={styles.primaryAction} onClick={onPublish}><Send /> Tovar joylash</Button></div>
     {posts.length > 0 && <div className={styles.toolbar}>
-      <div className={styles.search}><Search /><Input aria-label="E’lon qidirish" placeholder="Matn yoki tovar bo‘yicha qidirish" value={query} onChange={(event) => { setQuery(event.target.value); setLimit(PAGE_SIZE); }} />{query && <button type="button" aria-label="E’lon qidiruvini tozalash" onClick={() => setQuery("")}><X /></button>}</div>
-      <div className={styles.filters} role="group" aria-label="E’lon bog‘lanishi">{[["all", "Barchasi"], ["linked", "Bog‘langan"], ["unlinked", "Bog‘lanmagan"]].map(([value, label]) => <button type="button" key={value} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(PAGE_SIZE); }}>{label}</button>)}</div>
+      <div className={styles.search}><Search /><Input aria-label="E’lon qidirish" placeholder="Matn yoki tovar bo‘yicha qidirish" value={query} onChange={(event) => { setQuery(event.target.value); }} />{query && <button type="button" aria-label="E’lon qidiruvini tozalash" onClick={() => setQuery("")}><X /></button>}</div>
+      <div className={styles.filters} role="group" aria-label="E’lon bog‘lanishi">{[["all", "Barchasi"], ["linked", "Bog‘langan"], ["unlinked", "Bog‘lanmagan"]].map(([value, label]) => <button type="button" key={value} aria-pressed={filter === value} onClick={() => { setFilter(value); }}>{label}</button>)}</div>
     </div>}
-    {filtered.length === 0 ? <Empty title={posts.length ? "Mos e’lon topilmadi" : "Birinchi e’loningizni joylang"} description={posts.length ? "Qidiruv yoki filtrni o‘zgartirib ko‘ring." : platform === "telegram" ? "Ochiq kanaldagi eski e’lonlar ham olinadi. Yopiq kanalda faqat bot qo‘shilgandan keyingi e’lonlar ko‘rinadi." : "Ombordan tovar tanlang va ulangan akkauntingizga joylang."} action={posts.length ? <Button variant="outline" onClick={() => { setQuery(""); setFilter("all"); }}>Filtrlarni tozalash</Button> : undefined} /> : <><div className={styles.postGrid}>{filtered.slice(0, limit).map((post) => <PostTile key={post.id} post={post} onLink={onLink} onUnlink={onUnlink} />)}</div><div className={styles.feedFooter}><span>{Math.min(limit, filtered.length)} / {filtered.length} ta e’lon ko‘rsatilmoqda</span>{limit < filtered.length && <Button variant="outline" onClick={() => setLimit((current) => current + PAGE_SIZE)}>Yana {Math.min(PAGE_SIZE, filtered.length - limit)} ta ko‘rsatish</Button>}</div></>}
+    {filtered.length === 0 ? <Empty title={posts.length ? "Mos e’lon topilmadi" : "Birinchi e’loningizni joylang"} description={posts.length ? "Qidiruv yoki filtrni o‘zgartirib ko‘ring." : platform === "telegram" ? "Ochiq kanaldagi eski e’lonlar ham olinadi. Yopiq kanalda faqat bot qo‘shilgandan keyingi e’lonlar ko‘rinadi." : "Ombordan tovar tanlang va ulangan akkauntingizga joylang."} action={posts.length ? <Button variant="outline" onClick={() => { setQuery(""); setFilter("all"); }}>Filtrlarni tozalash</Button> : undefined} /> : <><div className={styles.postGrid}>{pagePosts.map((post) => <PostTile key={post.id} post={post} onLink={onLink} onUnlink={onUnlink} />)}</div><Pagination page={postPage} total={filtered.length} onPage={setPostPage} label="E’lonlar sahifalari" /></>}
   </div>;
 }
 

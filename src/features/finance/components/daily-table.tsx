@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
@@ -170,12 +171,17 @@ export function DailyTable({
     () => [...daily].sort((first, second) => second.date.localeCompare(first.date)),
     [daily]
   );
+  // Davr o'zgarsa (boshqa sanalar) boshiga qaytiladi.
+  const { page, setPage, pageItems: pageRows } = usePagination(rows, {
+    resetKey: [rows.length, rows[0]?.date],
+    param: "days_page",
+  });
 
   return (
     <section className={styles.root} aria-label="Kunlik moliyaviy natijalar">
       <div className={styles.cardsView}>
         <SummaryCard totals={totals} />
-        {rows.map((day, index) => (
+        {pageRows.map((day, index) => (
           <DayCard key={day.date} day={day} initiallyOpen={index === 0} />
         ))}
       </div>
@@ -199,7 +205,7 @@ export function DailyTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((day) => {
+            {pageRows.map((day) => {
               const active = hasActivity(day);
 
               return (
@@ -265,6 +271,7 @@ export function DailyTable({
           </tfoot>
         </table>
       </div>
+      <Pagination page={page} total={rows.length} onPage={setPage} label="Kunlar sahifalari" />
     </section>
   );
 }

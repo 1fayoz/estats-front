@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { NameCard } from "@/features/settings/name-card";
 import { PhoneCard } from "@/features/settings/phone-card";
 
+import { Pagination, usePagination } from "@/components/ui/pagination";
 import { PermissionPicker } from "./permission-picker";
 
 export function TeamPage() {
@@ -46,6 +47,7 @@ export function TeamPage() {
   const [loading, setLoading] = React.useState(true);
   const [editing, setEditing] = React.useState<TeamMember | null>(null);
   const [adding, setAdding] = React.useState(false);
+  const { page, setPage, pageItems: pageMembers } = usePagination(members);
 
   const load = React.useCallback(async () => {
     try {
@@ -108,7 +110,7 @@ export function TeamPage() {
       ) : (
         <>
           <CardList>
-            {members.map((member) => (
+            {pageMembers.map((member) => (
               <DataCard key={member.id} onClick={() => setEditing(member)}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -138,7 +140,7 @@ export function TeamPage() {
                 </tr>
               </thead>
               <tbody>
-                {members.map((member) => (
+                {pageMembers.map((member) => (
                   <tr key={member.id} className="border-t">
                     <td className="px-4 py-3">
                       <div className="font-medium">{member.name || "—"}</div>
@@ -177,6 +179,7 @@ export function TeamPage() {
               </tbody>
             </table>
           </TableWrap>
+          <Pagination page={page} total={members.length} onPage={setPage} label="Jamoa sahifalari" />
         </>
       )}
 

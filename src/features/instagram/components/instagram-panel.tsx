@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
@@ -114,8 +115,6 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
   const [productQuery, setProductQuery] = React.useState("");
   const [linking, setLinking] = React.useState<InstagramPost | null>(null);
   const [unlinking, setUnlinking] = React.useState<{ post: InstagramPost; productId: number } | null>(null);
-  const [postLimit, setPostLimit] = React.useState(24);
-  const [productLimit, setProductLimit] = React.useState(24);
   const [advertising, setAdvertising] = React.useState<InstagramPost | null>(null);
   const [publishing, setPublishing] = React.useState<CoverageItem | null>(null);
   const [confirmation, setConfirmation] = React.useState<AdAction | null>(null);
@@ -223,6 +222,21 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
     }
   };
 
+  // Ro'yxatlar va ularning sahifalanishi erta `return` lardan OLDIN:
+  // hooklar har renderda bir xil tartibda chaqirilishi shart.
+  const postList = React.useMemo(() => posts.data ?? [], [posts.data]);
+  const missingItems = React.useMemo(() => coverage.data?.items ?? [], [coverage.data]);
+  const matchingPosts = React.useMemo(() => {
+    const needle = postQuery.trim().toLocaleLowerCase();
+    return postList.filter((post) => !needle || [post.caption, ...post.products.map((product) => product.title)].some((value) => value?.toLocaleLowerCase().includes(needle)));
+  }, [postList, postQuery]);
+  const matchingProducts = React.useMemo(() => {
+    const needle = productQuery.trim().toLocaleLowerCase();
+    return missingItems.filter((item) => item.title.toLocaleLowerCase().includes(needle));
+  }, [missingItems, productQuery]);
+  const postPages = usePagination(matchingPosts, { resetKey: postQuery, param: "posts_page" });
+  const productPages = usePagination(matchingProducts, { resetKey: productQuery, param: "products_page" });
+
   if (!account.data) {
     return account.error ? <LoadError message={account.error} retry={() => void account.load()} /> : <LoadingCards />;
   }
@@ -239,11 +253,7 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
   }
 
   const connectedAccount = account.data;
-  const postList = posts.data ?? [];
-  const missingItems = coverage.data?.items ?? [];
   const adList = ads.data ?? [];
-  const matchingPosts = postList.filter((post) => [post.caption, ...post.products.map((product) => product.title)].some((value) => value?.toLocaleLowerCase().includes(postQuery.trim().toLocaleLowerCase())) || !postQuery.trim());
-  const matchingProducts = missingItems.filter((item) => item.title.toLocaleLowerCase().includes(productQuery.trim().toLocaleLowerCase()));
   const activeAds = adList.filter((ad) => ad.status === "active").length;
   const totalSpend = adList.reduce((sum, ad) => sum + ad.spend, 0);
   const initialLoading = activeResource.data === null && !activeResource.error;
@@ -275,10 +285,10 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
           {initialLoading ? <LoadingCards /> : posts.data !== null && <>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div><h3 className="text-sm font-semibold">Instagram postlari</h3><p role="status" className="mt-1 text-xs text-muted-foreground">{formatNumber(matchingPosts.length)} ta post{postQuery.trim() ? " topildi" : ""}</p></div>
-              <SearchField value={postQuery} onChange={(value) => { setPostQuery(value); setPostLimit(24); }} label="Postlar yoki bog'langan tovarlarni qidirish" placeholder="Post yoki tovarni qidirish" />
+              <SearchField value={postQuery} onChange={(value) => { setPostQuery(value); }} label="Postlar yoki bog'langan tovarlarni qidirish" placeholder="Post yoki tovarni qidirish" />
             </div>
-            {matchingPosts.length === 0 ? <Empty icon={ImagePlus} title={postQuery.trim() ? "Post topilmadi" : "Hali postlar yo'q"} text={postQuery.trim() ? "Boshqa so'z bilan qidiring yoki qidiruvni tozalang." : "Instagram'da post joylang yoki «Joylanmagan» bo'limidan tovar tanlang."} action={postQuery.trim() ? () => setPostQuery("") : () => setTab("missing")} actionLabel={postQuery.trim() ? "Qidiruvni tozalash" : "Tovarlarni ko'rish"} /> : <div className={workspaceStyles.postGrid}>{matchingPosts.slice(0, postLimit).map((post) => <PostCard key={post.id} post={post} onLink={setLinking} onUnlink={(item, productId) => setUnlinking({ post: item, productId })} onAdvertise={setAdvertising} canAdvertise={connectedAccount.canAdvertise && !busy} />)}</div>}
-            {matchingPosts.length > postLimit && <Button variant="outline" className="h-11 rounded-xl" onClick={() => setPostLimit((value) => value + 24)}>Yana {Math.min(24, matchingPosts.length - postLimit)} ta ko‘rsatish</Button>}
+            {matchingPosts.length === 0 ? <Empty icon={ImagePlus} title={postQuery.trim() ? "Post topilmadi" : "Hali postlar yo'q"} text={postQuery.trim() ? "Boshqa so'z bilan qidiring yoki qidiruvni tozalang." : "Instagram'da post joylang yoki «Joylanmagan» bo'limidan tovar tanlang."} action={postQuery.trim() ? () => setPostQuery("") : () => setTab("missing")} actionLabel={postQuery.trim() ? "Qidiruvni tozalash" : "Tovarlarni ko'rish"} /> : <div className={workspaceStyles.postGrid}>{postPages.pageItems.map((post) => <PostCard key={post.id} post={post} onLink={setLinking} onUnlink={(item, productId) => setUnlinking({ post: item, productId })} onAdvertise={setAdvertising} canAdvertise={connectedAccount.canAdvertise && !busy} />)}</div>}
+            <Pagination page={postPages.page} total={matchingPosts.length} onPage={postPages.setPage} label="Postlar sahifalari" />
           </>}
         </TabsContent>
 
@@ -290,11 +300,11 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div><h3 className="text-sm font-semibold">Joylash uchun tovarlar</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">Eng ko'p sotilganlari yuqorida. Joylashdan oldin postni tekshirasiz.</p></div>
-              <SearchField value={productQuery} onChange={(value) => { setProductQuery(value); setProductLimit(24); }} label="Joylanmagan tovarlarni qidirish" placeholder="Tovarni qidirish" />
+              <SearchField value={productQuery} onChange={(value) => { setProductQuery(value); }} label="Joylanmagan tovarlarni qidirish" placeholder="Tovarni qidirish" />
             </div>
             {matchingProducts.length === 0 ? <Empty icon={productQuery.trim() ? Search : CheckCircle2} title={productQuery.trim() ? "Tovar topilmadi" : "Barcha tovarlar joylangan"} text={productQuery.trim() ? "Boshqa nom bilan qidiring." : "Yangi tovarlar qo'shilganda shu yerda ko'rinadi."} action={productQuery.trim() ? () => setProductQuery("") : undefined} actionLabel="Qidiruvni tozalash" /> : <div className="overflow-hidden rounded-2xl border bg-card">
               <p role="status" className="border-b px-4 py-3 text-xs text-muted-foreground">{formatNumber(matchingProducts.length)} ta tovar</p>
-              <div className="divide-y">{matchingProducts.slice(0, productLimit).map((item) => (
+              <div className="divide-y">{productPages.pageItems.map((item) => (
                 <article key={item.productId} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
                   {item.image ? <img src={item.image} alt="" loading="lazy" className="size-14 shrink-0 rounded-xl border bg-background object-contain" /> : <div className="grid size-14 shrink-0 place-items-center rounded-xl border bg-muted/40"><Package className="size-5 text-muted-foreground" /></div>}
                   <div className="min-w-0 flex-1">
@@ -305,7 +315,7 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
                   <Button variant="outline" className="h-11 w-full shrink-0 rounded-xl sm:w-auto" onClick={() => setPublishing(item)} disabled={!item.canPublish || !connectedAccount.canPublish || Boolean(busy)}><ImagePlus /> Post tayyorlash</Button>
                 </article>
               ))}</div>
-              {matchingProducts.length > productLimit && <div className="border-t p-4"><Button variant="outline" className="h-11 rounded-xl" onClick={() => setProductLimit((value) => value + 24)}>Yana {Math.min(24, matchingProducts.length - productLimit)} ta ko‘rsatish</Button></div>}
+              <div className="border-t px-4 pb-3"><Pagination page={productPages.page} total={matchingProducts.length} onPage={productPages.setPage} label="Tovarlar sahifalari" /></div>
             </div>}
           </>}
         </TabsContent>

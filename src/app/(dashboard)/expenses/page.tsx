@@ -1,4 +1,5 @@
 "use client";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import { motion } from "framer-motion";
@@ -57,6 +58,10 @@ function shiftPeriod(key: string, months: number): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
+//: O'zgarmas bo'sh ro'yxat — har renderda yangi `[]` sahifalash
+//: memo'sini behuda qayta hisoblatmasin.
+const NO_ITEMS: never[] = [];
+
 export default function ExpensesPage() {
   const [period, setPeriod] = React.useState(currentPeriod);
   const [month, setMonth] = React.useState<ExpenseMonth | null>(null);
@@ -68,6 +73,9 @@ export default function ExpensesPage() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   // Bosilayotgan qatorni belgilab turadi: ikki marta bosilsa ikkinchisi o'tmaydi.
   const [busy, setBusy] = React.useState<number | null>(null);
+  // Hooklar erta `return` lardan OLDIN turishi shart.
+  const monthList = usePagination(month?.items ?? NO_ITEMS, { resetKey: period, param: "month_page" });
+  const expenseList = usePagination(expenses, { param: "expenses_page" });
 
   const load = React.useCallback(async () => {
     try {
@@ -324,7 +332,7 @@ export default function ExpensesPage() {
               Bu oyda to&apos;lanadigan doimiy xarajat yo&apos;q.
             </p>
           ) : (
-            month.items.map((item, index) => {
+            monthList.pageItems.map((item, index) => {
               const cat = categoryLabel(item.category);
               return (
                 <motion.div
@@ -388,6 +396,7 @@ export default function ExpensesPage() {
               );
             })
           )}
+          <Pagination page={monthList.page} total={month.items.length} onPage={monthList.setPage} label="To'lovlar sahifalari" />
         </CardContent>
       </Card>
 
@@ -420,7 +429,7 @@ export default function ExpensesPage() {
               </Button>
             </div>
           ) : (
-            expenses.map((expense) => {
+            expenseList.pageItems.map((expense) => {
               const cat = categoryLabel(expense.category);
               return (
                 <div
@@ -464,6 +473,7 @@ export default function ExpensesPage() {
               );
             })
           )}
+          <Pagination page={expenseList.page} total={expenses.length} onPage={expenseList.setPage} label="Xarajatlar sahifalari" />
         </CardContent>
       </Card>
 

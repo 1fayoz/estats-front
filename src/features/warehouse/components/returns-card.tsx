@@ -3,6 +3,7 @@
 import { AlertTriangle, CheckCircle2, PackageX, Truck, XCircle } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pagination, usePagination } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
 import { formatNumber } from "@/lib/format";
@@ -31,6 +32,7 @@ export function ReturnsCard({
   returns: ProductReturnRow[];
   summary: ReturnsSummary;
 }) {
+  const { page, setPage, pageItems } = usePagination(returns, { param: "returns_page" });
   if (!returns.length) {
     return (
       <Card>
@@ -107,7 +109,7 @@ export function ReturnsCard({
         )}
 
         <CardList>
-          {returns.map((row) => (
+          {pageItems.map((row) => (
             <DataCard key={row.id}>
               <CardHead
                 title={row.returnedAt.slice(0, 10)}
@@ -167,7 +169,7 @@ export function ReturnsCard({
               </tr>
             </thead>
             <tbody className="divide-y">
-              {returns.map((row) => (
+              {pageItems.map((row) => (
                 <tr key={row.id} className="transition-colors hover:bg-muted/30">
                   <td className="whitespace-nowrap px-3 py-2 tabular-nums">
                     {row.returnedAt.slice(0, 10)}
@@ -214,6 +216,7 @@ export function ReturnsCard({
             </tbody>
           </table>
         </div>
+        <Pagination page={page} total={returns.length} onPage={setPage} label="Qaytarishlar sahifalari" />
       </CardContent>
     </Card>
   );
