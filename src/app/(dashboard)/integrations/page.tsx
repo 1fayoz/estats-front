@@ -8,7 +8,7 @@ import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
-import { AiBalanceStrip } from "@/features/integrations/components/ai-balance-strip";
+import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
 import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import styles from "@/features/integrations/components/integrations.module.css";
@@ -157,9 +157,11 @@ function IntegrationsWorkspace() {
   const attentionCount = accounts.filter((account) => account.tokenExpired || account.tokenExpiresSoon || account.error || account.warning).length;
   const aiStates = [aiKey, openAiKey].filter((state) => state !== null);
   const aiConfigured = aiStates.filter((state) => state.configured).length;
+  // Kiritilgan-u ishlamayotgan kalit (mablag' yo'q / yaroqsiz) — "ulangan" belgisi yolg'on bo'lmasin.
+  const aiBroken = aiStates.filter((state) => state.account?.status === "no_credit" || state.account?.status === "invalid").length;
   const services = [
     { value: "uzum", label: "Uzum Market", icon: <ShoppingBag />, detail: hasShop ? `${shops.length} ta do‘kon` : "Birinchi do‘konni ulang", connected: hasShop },
-    { value: "ai", label: "AI yordamchilar", icon: <Sparkles />, detail: aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: aiConfigured > 0 },
+    { value: "ai", label: "AI yordamchilar", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: aiConfigured > aiBroken },
     ...PLATFORM_ORDER.map((platform) => {
       const mine = accounts.filter((account) => account.platform === platform);
       const row = platforms.find((item) => item.platform === platform);
@@ -184,12 +186,12 @@ function IntegrationsWorkspace() {
         {[
           { label: "Do‘konlar", value: shops.length, detail: "Uzum Market", icon: ShoppingBag },
           { label: "Akkauntlar", value: accountsKnown ? accounts.length : "—", detail: attentionCount ? `${attentionCount} ta e’tibor talab qiladi` : "Ijtimoiy tarmoqlar", icon: Link2 },
-          { label: "AI kalitlari", value: aiStates.length ? `${aiConfigured}/${aiStates.length}` : "—", detail: "Matn va rasmlar", icon: Sparkles },
+          { label: "AI kalitlari", value: aiStates.length ? `${aiConfigured}/${aiStates.length}` : "—", detail: aiBroken ? `${aiBroken} ta e’tibor talab qiladi` : "Matn va rasmlar", icon: Sparkles },
         ].map((item) => (
           <div key={item.label} className="min-w-0 rounded-2xl border bg-card/80 p-3 sm:p-4">
             <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground sm:text-sm"><span>{item.label}</span><item.icon className="hidden size-4 text-primary sm:block" /></div>
             <div className="mt-2 text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl">{loading && item.label !== "Do‘konlar" ? <Skeleton className="h-9 w-12" /> : item.value}</div>
-            <p className={cn("mt-1 hidden text-xs sm:block", item.label === "Akkauntlar" && attentionCount ? "text-[var(--warn)]" : "text-muted-foreground")}>{item.detail}</p>
+            <p className={cn("mt-1 hidden text-xs sm:block", (item.label === "Akkauntlar" && attentionCount) || (item.label === "AI kalitlari" && aiBroken) ? "text-[var(--warn)]" : "text-muted-foreground")}>{item.detail}</p>
           </div>
         ))}
       </div>
@@ -221,8 +223,7 @@ function IntegrationsWorkspace() {
           </div>}
 
           {selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
-            <AiBalanceStrip gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
-            <div className="rounded-2xl border bg-card p-5 sm:p-6"><div className="flex items-center gap-3"><span className="rounded-xl bg-primary/10 p-3 text-primary"><Sparkles className="size-5" /></span><div><h2 className="text-lg font-semibold">AI yordamchilar</h2><p className="mt-1 text-sm text-muted-foreground">Tovar kartochkalarini tezroq tayyorlang.</p></div></div><p className="mt-4 text-sm leading-relaxed text-muted-foreground">Gemini matn va xususiyatlar bilan, OpenAI esa tovar rasmlari bilan yordam beradi. Har bir xizmat alohida API kaliti orqali ulanadi.</p></div>
+            <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
             <div className="grid min-w-0 gap-4 2xl:grid-cols-2">{aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}{openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}</div>
             {!aiKey && !openAiKey && <div className="rounded-2xl border border-dashed p-6 text-center"><ShieldCheck className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{restricted.some((label) => label === "Gemini" || label === "OpenAI") ? "AI kalitlarini boshqarish uchun hisob egasidan ruxsat so‘rang." : "AI xizmatlari holati yuklanmadi. Qayta urinib ko‘ring."}</p></div>}
           </div> : selectedPlatform && accountsKnown ? <div key={selected} className={styles.panel}>

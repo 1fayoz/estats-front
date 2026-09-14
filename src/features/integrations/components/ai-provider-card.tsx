@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ExternalLink, ImageIcon, KeyRound, Loader2, Pencil, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
+import { AlertCircle, Check, ExternalLink, ImageIcon, KeyRound, Loader2, Pencil, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,7 @@ export function AiProviderCard({ provider, state, onSaved }: Props) {
 
   return (
     <article className="min-w-0 rounded-2xl border bg-card p-5 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3"><span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span><span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${!state.configured ? "bg-muted text-muted-foreground" : bad ? "bg-[var(--bad)]/10 text-[var(--bad)]" : "bg-[var(--ok)]/10 text-[var(--ok)]"}`}>{state.configured && !bad ? <Check className="size-3.5" /> : <KeyRound className="size-3.5" />}{badge}</span></div>
+      <div className="flex flex-wrap items-center justify-between gap-3"><span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span><span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${!state.configured ? "bg-muted text-muted-foreground" : bad ? "bg-[var(--bad)]/10 text-[var(--bad)]" : "bg-[var(--ok)]/10 text-[var(--ok)]"}`}>{!state.configured ? <KeyRound className="size-3.5" /> : bad ? <AlertCircle className="size-3.5" /> : <Check className="size-3.5" />}{badge}</span></div>
       <h3 className="mt-4 text-base font-semibold">{name}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{provider === "gemini" ? "Tovar matnlari va SEO yordamchisi" : "Tovar rasmlarini yaratish"}</p>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{provider === "gemini" ? "Nomi, tavsifi va xususiyatlarini AI yordamida tayyorlang." : "Tovar uchun yangi vizuallar yarating. Bu kalitsiz ham matn va xususiyatlar bilan ishlash mumkin."}</p>
