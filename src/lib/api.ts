@@ -864,7 +864,20 @@ export const runSeoMedia = (productId: number) =>
 export const runSeoContent = (productId: number) =>
   request<SeoAudit>(`/seo/${productId}/content`, { method: "POST" });
 
-export const fetchAiKey = () => request<AiKeyState>("/seo/ai-key");
+/** `account` — holat, sarf, qoldiq ham; `refresh` — kalitni hozir qayta tekshirish. */
+const aiAccountQuery = (options?: { account?: boolean; refresh?: boolean }) => {
+  const params = new URLSearchParams();
+  if (options?.account) params.set("account", "1");
+  if (options?.refresh) params.set("refresh", "1");
+  const query = params.toString();
+  return query ? `?${query}` : "";
+};
+
+export const fetchAiKey = (options?: { account?: boolean; refresh?: boolean }) =>
+  request<AiKeyState>(`/seo/ai-key${aiAccountQuery(options)}`);
+
+export const saveAiBalance = (usd: number | null) =>
+  request<AiKeyState>("/seo/ai-key/balance", { method: "PUT", body: JSON.stringify({ usd }) });
 
 export const saveAiKey = (apiKey: string) =>
   request<AiKeyState>("/seo/ai-key", { method: "PUT", body: JSON.stringify({ apiKey }) });
@@ -950,7 +963,11 @@ export function mediaUrl(path: string | null | undefined): string {
   return `${API_BASE.replace(/\/api\/v1$/, "")}${path}`;
 }
 
-export const fetchOpenAiKey = () => request<OpenAiKeyState>("/product-ai/key");
+export const fetchOpenAiKey = (options?: { account?: boolean; refresh?: boolean }) =>
+  request<OpenAiKeyState>(`/product-ai/key${aiAccountQuery(options)}`);
+
+export const saveOpenAiBalance = (usd: number | null) =>
+  request<OpenAiKeyState>("/product-ai/key/balance", { method: "PUT", body: JSON.stringify({ usd }) });
 
 export const saveOpenAiKey = (apiKey: string) =>
   request<OpenAiKeyState>("/product-ai/key", {

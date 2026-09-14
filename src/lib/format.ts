@@ -32,6 +32,12 @@ function uz(value: number, digits = 0): string {
   return sign + body;
 }
 
+/** Dollar. AI chaqiruvi sentdan ham arzon bo'ladi — kichik summada ko'proq xona. */
+export function formatUsd(value: number): string {
+  const abs = Math.abs(value);
+  return `$${uz(value, abs > 0 && abs < 0.01 ? 4 : 2)}`;
+}
+
 // Xuddi shu Chrome/uz-UZ muammosi sanaga ham tegadi: `resolvedOptions().locale`
 // "uz-UZ" deb tursa ham, `month: "short"` "sen" o'rniga xom ICU token'ini
 // ("M09") qaytaradi. Shuning uchun oy nomi ham QO'LDA — Intl faqat kun/yil

@@ -1829,9 +1829,29 @@ export interface SeoAuditRow {
   queued: boolean;
 }
 
+/**
+ * AI kaliti holati va sarf. Haqiqiy balansni provayderlar oddiy kalitga
+ * bermaydi: `remainingUsd` — sotuvchi kiritgan balans minus eStats sarfi
+ * (taxminiy), `status === "no_credit"` bo'lsa esa o'lchangan nol.
+ */
+export interface AiAccountState {
+  status: "active" | "rate_limited" | "no_credit" | "invalid" | "error" | "missing";
+  statusMessage: string | null;
+  checkedAt: string | null;
+  billingUrl: string;
+  spentTodayUsd: number;
+  spentMonthUsd: number;
+  spentTotalUsd: number;
+  balanceUsd: number | null;
+  balanceSetAt: string | null;
+  remainingUsd: number | null;
+}
+
 export interface AiKeyState {
   configured: boolean;
   studioUrl: string;
+  /** Faqat `account: true` bilan so'ralganda. */
+  account?: AiAccountState | null;
 }
 
 // ── AI bilan mahsulot tayyorlash ────────────────────────────────
@@ -1841,6 +1861,8 @@ export interface OpenAiKeyState {
   platformUrl: string;
   /** Bitta rasm taxminan qancha turadi. */
   imagePriceUsd: number;
+  /** Faqat `account: true` bilan so'ralganda. */
+  account?: AiAccountState | null;
 }
 
 export interface AiDraftRow {

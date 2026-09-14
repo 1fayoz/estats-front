@@ -8,6 +8,7 @@ import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
+import { AiBalanceStrip } from "@/features/integrations/components/ai-balance-strip";
 import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import styles from "@/features/integrations/components/integrations.module.css";
@@ -65,7 +66,8 @@ function IntegrationsWorkspace() {
     const version = ++requestVersion.current;
     setRefreshing(true);
     const results = await Promise.allSettled([
-      fetchSocialPlatforms(), fetchSocialAccounts(), fetchSocialApps(), fetchAiKey(), fetchOpenAiKey(),
+      fetchSocialPlatforms(), fetchSocialAccounts(), fetchSocialApps(),
+      fetchAiKey({ account: true }), fetchOpenAiKey({ account: true }),
     ]);
     if (version !== requestVersion.current) return;
     const [networks, connections, apps, gemini, openai] = results;
@@ -92,6 +94,16 @@ function IntegrationsWorkspace() {
     setRefreshing(false);
     setLoading(false);
   }, [hasShop]);
+
+  // Kalitlarni keshni chetlab HOZIR tekshiradi (backend kichik haqiqiy so'rov yuboradi).
+  const recheckAi = React.useCallback(async () => {
+    const [gemini, openai] = await Promise.allSettled([
+      fetchAiKey({ account: true, refresh: true }), fetchOpenAiKey({ account: true, refresh: true }),
+    ]);
+    if (gemini.status === "fulfilled") setAiKey(gemini.value);
+    if (openai.status === "fulfilled") setOpenAiKey(openai.value);
+    if (gemini.status === "rejected" && openai.status === "rejected") toast.error("AI kalitlarini tekshirib bo‘lmadi.");
+  }, []);
 
   React.useEffect(() => {
     void load();
@@ -209,6 +221,7 @@ function IntegrationsWorkspace() {
           </div>}
 
           {selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
+            <AiBalanceStrip gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
             <div className="rounded-2xl border bg-card p-5 sm:p-6"><div className="flex items-center gap-3"><span className="rounded-xl bg-primary/10 p-3 text-primary"><Sparkles className="size-5" /></span><div><h2 className="text-lg font-semibold">AI yordamchilar</h2><p className="mt-1 text-sm text-muted-foreground">Tovar kartochkalarini tezroq tayyorlang.</p></div></div><p className="mt-4 text-sm leading-relaxed text-muted-foreground">Gemini matn va xususiyatlar bilan, OpenAI esa tovar rasmlari bilan yordam beradi. Har bir xizmat alohida API kaliti orqali ulanadi.</p></div>
             <div className="grid min-w-0 gap-4 2xl:grid-cols-2">{aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}{openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}</div>
             {!aiKey && !openAiKey && <div className="rounded-2xl border border-dashed p-6 text-center"><ShieldCheck className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{restricted.some((label) => label === "Gemini" || label === "OpenAI") ? "AI kalitlarini boshqarish uchun hisob egasidan ruxsat so‘rang." : "AI xizmatlari holati yuklanmadi. Qayta urinib ko‘ring."}</p></div>}
