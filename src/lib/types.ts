@@ -2390,6 +2390,16 @@ export interface AiIntelligenceResult {
   generated_images?: AiGeneratedImage[];
   characteristics?: AiCharacteristic[];
   compliance?: AiCompliance;
+  /**
+   * Qisman yurish natijasi («Matnlarni qayta yozish»). Yiqilsa
+   * qoralama `failed` ga tushmaydi — sabab shu yerda.
+   */
+  partial?: {
+    only: string[];
+    status: "done" | "failed";
+    error: string;
+    at: string;
+  };
 }
 
 /** Voronkaning bitta kuni — grafik uchun. */

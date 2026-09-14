@@ -589,16 +589,28 @@ function RewriteTextsButton({ draft, onChange }: { draft: AiDraft; onChange: (dr
     setBusy(true);
     try {
       const started = await rewriteAiTexts(draft.id);
+      // `failed` qoralama shu so'rovda `ready` ga qaytgan bo'lishi mumkin.
+      onChange(started);
       toast.success("AI matnlarni yozmoqda — bir daqiqacha.");
+      // Tugaganini `updatedAt` emas, `partial.at` bildiradi: natija va
+      // uning holati BITTA yozuvda saqlanadi, ya'ni "yangilandi" deb
+      // AI band bo'lgan urinishni ko'rsatib qo'ymaymiz.
+      const previous = started.intelligence?.partial?.at;
       for (let i = 0; i < 45 && alive.current; i += 1) {
         await new Promise((resolve) => window.setTimeout(resolve, 4000));
         const fresh = await fetchAiDraft(draft.id).catch(() => null);
-        if (fresh && fresh.updatedAt !== started.updatedAt) {
+        const partial = fresh?.intelligence?.partial;
+        if (fresh && partial && partial.at !== previous) {
           if (alive.current) onChange(fresh);
-          toast.success("Matnlar yangilandi.");
+          if (partial.status === "failed") {
+            toast.error(`Matn yozilmadi: ${partial.error || "AI javob bermadi"}. Kartochka o'zgarmadi — birozdan keyin qayta urining.`);
+          } else {
+            toast.success("Matnlar yangilandi.");
+          }
           return;
         }
       }
+      if (alive.current) toast.message("AI hali yozmoqda — birozdan keyin oynani yangilang.");
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
     } finally {
