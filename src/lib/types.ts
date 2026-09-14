@@ -1724,82 +1724,21 @@ export interface SeoJob {
   items: SeoJobItem[];
 }
 
-/**
- * «Qidiruvdagi o'rin» jadvalining bitta katagi.
- *
- * Katakning YO'QLIGI — o'sha kuni o'lchov bo'lmagan; `position: null` —
- * o'lchandi, TOP-100 da yo'q. Ikkalasi boshqa narsa va boshqacha chiziladi.
- */
-export interface SeoPositionCell {
+export interface SeoPositionPoint {
   day: string;
+  /** `null` — belgilangan chuqurlikda topilmadi. Nol EMAS. */
   position: number | null;
-  /** Reklamasiz (organik) o'rin. */
-  organic: number | null;
-  /** Birinchi chiqish reklama (Boost) edi. */
-  ad: boolean;
-  /** Oldingi O'LCHOVGA nisbatan (oldingi kunga emas). */
-  move: "up" | "down" | "new" | "lost" | null;
 }
 
-export type SeoPhraseSource = "manual" | "audit" | "suggest" | "rival" | "market" | "seed" | "sibling";
-
-export interface SeoPositionTableRow {
+export interface SeoPositionRow {
   phrase: string;
-  source: SeoPhraseSource;
-  manual: boolean;
-  /** `visible` — davrda TOP-100 da ko'ringan; `hidden` — o'lchandi, chiqmadi; `pending` — hali o'lchanmagan. */
-  status: "visible" | "hidden" | "pending";
-  /** Birinchi 20 natijaning buyurtma + sharhi. `null` — hali o'lchanmagan. */
-  demand: number | null;
-  /** Uzum shu so'rovga nechta tovar qaytaradi. */
-  products: number | null;
-  avgPosition: number | null;
-  bestPosition: number | null;
+  coverage: number;
   current: number | null;
-  currentDay: string | null;
   /** Manfiy — yuqoriga chiqdi. */
   change: number | null;
-  foundDays: number;
-  measuredDays: number;
-  adDays: number;
-  lastCheckedOn: string | null;
-  lastFoundOn: string | null;
-  bestEver: number | null;
-  cells: SeoPositionCell[];
-}
-
-export interface SeoPositionsSummary {
-  visible: number;
-  top10: number;
-  top30: number;
-  top100: number;
-  avgPosition: number | null;
-  improved: number;
-  worsened: number;
-  adDays: number;
-  candidates: number;
-  pending: number;
-  hidden: number;
-  lastCheckedAt: string | null;
-}
-
-export interface SeoPositionsJob {
-  running: boolean;
-  stage: "discover" | "measure" | "done" | "error" | null;
-  done: number;
-  total: number;
-  error: string | null;
-  finishedAt: string | null;
-}
-
-export interface SeoPositionsTable {
-  days: number;
-  today: string;
-  /** Davr kunlari — eng yangisi birinchi. */
-  calendar: string[];
-  summary: SeoPositionsSummary;
-  job: SeoPositionsJob;
-  rows: SeoPositionTableRow[];
+  /** `false` — endi qo'shildi, hali bir marta ham o'lchanmagan. */
+  measured: boolean;
+  points: SeoPositionPoint[];
 }
 
 /** Tarixdagi bitta tahlil. */
