@@ -66,7 +66,11 @@ export function ImagePanel({
 
   // Ranglar 3 tagacha rasm to'plamiga aylanadi (backend `plan_for`).
   const plannedColorCount = Math.min(visionColors.length, 3);
+  // AI tahlili bor qoralamada kadrlar rang bo'yicha emas, rasm
+  // strategiyasi bo'yicha yasaladi — "rang × 4" solishtiruvi ma'nosiz.
+  const intelligencePlan = Boolean(draft.intelligence?.image_plan);
   const colorsOutOfSync =
+    !intelligencePlan &&
     draft.images.length > 0 &&
     plannedColorCount > 0 &&
     draft.images.length !== plannedColorCount * 4;
@@ -327,6 +331,11 @@ export function ImagePanel({
       )}
 
       {/* ── Qayta yasash ────────────────────────────────────── */}
+      {/* Tavsif va bo'limlar uchun ALOHIDA kadrlar — galereya
+          rasmlari u yerga qo'yilmaydi (sotuvchi talabi). Sifatini
+          joylashdan oldin shu yerda ko'rish kerak. */}
+      {intelligencePlan && <ContentImages draft={draft} />}
+
       {!locked && (
         <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
           <div className="flex items-center gap-1.5 text-xs font-medium">
@@ -398,6 +407,47 @@ export function ImagePanel({
  * o'chirish, pastdagi maydondan qo'shish. Har o'zgarishda `onSave`
  * to'liq ro'yxatni yuboradi (backend `patch_draft` merge qiladi).
  */
+const CONTENT_PLACES: { key: "description" | "size" | "composition" | "usage"; label: string; need: number }[] = [
+  { key: "description", label: "Tavsif uchun", need: 4 },
+  { key: "size", label: "Oʻlchamli setka", need: 1 },
+  { key: "composition", label: "Tarkib", need: 1 },
+  { key: "usage", label: "Foydalanish yoʻriqnomasi", need: 1 },
+];
+
+function ContentImages({ draft }: { draft: AiDraft }) {
+  const placed = draft.sectionImages ?? {};
+  return (
+    <div className="space-y-2 rounded-lg border p-3">
+      <p className="text-xs font-medium">Tavsif va bo&apos;limlar uchun alohida rasmlar</p>
+      {CONTENT_PLACES.map((place) => {
+        const urls = placed[place.key] ?? [];
+        const short = urls.length < place.need;
+        return (
+          <div key={place.key}>
+            <p className={cn("mb-1 text-[11px]", short ? "air-warn" : "text-muted-foreground")}>
+              {place.label}: {urls.length}/{place.need}
+              {short && " — «Hammasini qayta yasash» bilan yasang"}
+            </p>
+            {urls.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {urls.map((url) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={url}
+                    src={mediaUrl(url)}
+                    alt={place.label}
+                    className="h-28 w-[84px] rounded-md border object-cover"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ColorsEditor({
   colors,
   disabled,
