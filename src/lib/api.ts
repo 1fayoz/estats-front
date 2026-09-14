@@ -71,7 +71,7 @@ import type {
   SeoAudit,
   SeoAuditRow,
   SeoJob,
-  SeoPositionRow,
+  SeoPositionsTable,
   SeoRival,
   SocialAccount,
   SocialApp,
@@ -890,22 +890,26 @@ export const saveSeoDraft = (
   },
 ) => request<SeoAudit>(`/seo/${productId}/draft`, { method: "PUT", body: JSON.stringify(payload) });
 
-export const fetchSeoPositions = (productId: number) =>
-  request<SeoPositionRow[]>(`/seo/${productId}/positions`);
+/** «Qidiruvdagi o'rin» jadvali — bazadan, Uzum'ga bormaydi. */
+export const fetchSeoPositionTable = (productId: number, days = 30) =>
+  request<SeoPositionsTable>(`/seo/${productId}/positions/table?days=${days}`);
 
-export const trackSeoPositions = (productId: number) =>
-  request<SeoPositionRow[]>(`/seo/${productId}/positions`, { method: "POST" });
+/** "Hozir o'lchash" — fonda boshlanadi, progress `job` da. */
+export const measureSeoPositions = (productId: number, days = 30) =>
+  request<SeoPositionsTable>(`/seo/${productId}/positions/table/measure?days=${days}`, {
+    method: "POST",
+  });
 
 /** Kalit so'zni kuzatuvga qo'shadi va darhol o'lchaydi. */
-export const addSeoPhrase = (productId: number, phrase: string) =>
-  request<SeoPositionRow[]>(`/seo/${productId}/positions/phrases`, {
+export const addSeoPhrase = (productId: number, phrase: string, days = 30) =>
+  request<SeoPositionsTable>(`/seo/${productId}/positions/table/phrases?days=${days}`, {
     method: "POST",
     body: JSON.stringify({ phrase }),
   });
 
-export const dropSeoPhrase = (productId: number, phrase: string) =>
-  request<SeoPositionRow[]>(
-    `/seo/${productId}/positions/phrases?phrase=${encodeURIComponent(phrase)}`,
+export const dropSeoPhrase = (productId: number, phrase: string, days = 30) =>
+  request<SeoPositionsTable>(
+    `/seo/${productId}/positions/table/phrases?phrase=${encodeURIComponent(phrase)}&days=${days}`,
     { method: "DELETE" },
   );
 
@@ -995,6 +999,14 @@ export const retryAiDraft = (id: number) =>
  */
 export const regenerateAiDraft = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/regenerate`, { method: "POST" });
+
+/**
+ * FAQAT matnlarni qayta yozadi — nom, qisqacha tavsif, tavsif,
+ * o'lchamli setka, tarkib, yo'riqnoma. Rasm yasalmaydi (arzon).
+ * Fonda ketadi, javob DARHOL qaytadi.
+ */
+export const rewriteAiTexts = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/texts/rewrite`, { method: "POST" });
 
 export const patchAiDraft = (id: number, patch: AiDraftPatch) =>
   request<AiDraft>(`/product-ai/drafts/${id}`, {

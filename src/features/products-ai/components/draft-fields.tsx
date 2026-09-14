@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ExternalLink } from "lucide-react";
+import { AlertTriangle, ExternalLink, Loader2, Wand2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { AuditPanel } from "@/features/products-ai/components/audit-panel";
@@ -20,23 +21,43 @@ import { CategoryPicker } from "@/features/products-ai/components/category-picke
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
 import { MarketPanel } from "@/features/products-ai/components/market-panel";
 import { PricePanel } from "@/features/products-ai/components/price-panel";
+import { ApiError, fetchAiDraft, mediaUrl, rewriteAiTexts } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import type { AiDraft } from "@/lib/types";
+import type { AiContentKey, AiDraft, AiDraftPatch } from "@/lib/types";
+
+/** Uzum nom maydonining chegarasi — undan keyingi harf yozilmaydi. */
+const TITLE_MAX = 90;
+/** «Tovar qisqacha tavsifi» chegarasi — oshsa Uzum formani to'xtatadi. */
+const SHORT_MAX = 390;
+/** Sotuvchi talabi: tavsifda kamida to'rtta rasm. */
+const MIN_DESCRIPTION_IMAGES = 4;
+
+const CONTENT_KEYS: AiContentKey[] = [
+  "short_uz", "short_ru",
+  "size_uz", "size_ru",
+  "composition_uz", "composition_ru",
+  "usage_uz", "usage_ru",
+];
 
 /**
  * Tahrirlanadigan maydonlar. Modal ushlab turadi, chunki
  * "Saqlash" tugmasi oynaning ost qismida — Bitrix naqshi.
+ *
+ * Bo'lim matnlari (`short_uz` …) TEKIS kalit: modal "o'zgarish bor"
+ * ni har kalitni `!==` bilan solishtirib topadi, ichma-ich obyekt
+ * esa har renderda yangi bo'lib, forma doim "saqlanmagan" ko'rinardi.
  */
-export interface DraftForm {
+export type DraftForm = {
   titleUz: string;
   titleRu: string;
   descriptionUz: string;
   descriptionRu: string;
   mxik: string;
   suggestedPrice: number;
-}
+} & Record<AiContentKey, string>;
 
 export function initialForm(draft: AiDraft): DraftForm {
+  const content = draft.content ?? {};
   return {
     titleUz: draft.titleUz ?? "",
     titleRu: draft.titleRu ?? "",
@@ -44,6 +65,21 @@ export function initialForm(draft: AiDraft): DraftForm {
     descriptionRu: draft.descriptionRu ?? "",
     mxik: draft.mxik ?? "",
     suggestedPrice: draft.suggestedPrice ?? 0,
+    ...(Object.fromEntries(CONTENT_KEYS.map((key) => [key, content[key] ?? ""])) as Record<AiContentKey, string>),
+  };
+}
+
+/** Forma → PATCH yuklamasi: bo'limlar `content` ichida ketadi. */
+export function formPatch(form: DraftForm): AiDraftPatch {
+  const content = Object.fromEntries(CONTENT_KEYS.map((key) => [key, form[key]]));
+  return {
+    titleUz: form.titleUz,
+    titleRu: form.titleRu,
+    descriptionUz: form.descriptionUz,
+    descriptionRu: form.descriptionRu,
+    mxik: form.mxik,
+    suggestedPrice: form.suggestedPrice,
+    content,
   };
 }
 
@@ -282,6 +318,10 @@ export function DraftFields({
   }
 
   const uz = tab === "general";
+  const lang = uz ? "uz" : "ru";
+  const set = (key: keyof DraftForm, value: string) => onForm((f) => ({ ...f, [key]: value }));
+  const placed = draft.sectionImages ?? {};
+  const descriptionImages = placed.description ?? [];
   return (
     <div className="space-y-4">
       {/* Tovar tahlili va rang — matndan OLDIN: ular matnning
@@ -296,32 +336,70 @@ export function DraftFields({
         ko'rishi kerak, oxirida emas.
       */}
       {uz && <CategoryPicker draft={draft} locked={locked} onDraft={onChange} />}
+
+      {/* Maydonlar Uzum formasi TARTIBIDA: nom → qisqacha tavsif →
+          tavsif → o'lchamli setka → tarkib → yo'riqnoma. Sotuvchi
+          shu yerda ko'rgani Uzum'da aynan shu joylarga tushadi. */}
+      <CountedField
+        label={`Tovar nomi ${uz ? "(o'zbekcha)" : "(ruscha)"}`}
+        hint="Tovar turi + brend + model + muhim tavsif"
+        value={uz ? form.titleUz : form.titleRu}
+        max={TITLE_MAX}
+        disabled={locked}
+        onChange={(value) => set(uz ? "titleUz" : "titleRu", value)}
+      />
+      <CountedField
+        label={`Tovar qisqacha tavsifi ${uz ? "(o'zbekcha)" : "(ruscha)"}`}
+        hint="Qiziqtiruvchi jumla + raqobatchilardan olingan kalit so'zlar"
+        value={form[`short_${lang}`]}
+        max={SHORT_MAX}
+        rows={4}
+        disabled={locked}
+        onChange={(value) => set(`short_${lang}`, value)}
+      />
       <div>
-        <label className="air-label">Nom {uz ? "(o'zbekcha)" : "(ruscha)"}</label>
-        <input
-          className="air-input"
-          value={uz ? form.titleUz : form.titleRu}
-          disabled={locked}
-          onChange={(e) =>
-            onForm((f) => ({ ...f, [uz ? "titleUz" : "titleRu"]: e.target.value }))
-          }
-        />
-      </div>
-      <div>
-        <label className="air-label">Tavsif {uz ? "(o'zbekcha)" : "(ruscha)"}</label>
+        <label className="air-label">Tovar tavsifi {uz ? "(o'zbekcha)" : "(ruscha)"}</label>
         <textarea
           className="air-input"
           value={uz ? form.descriptionUz : form.descriptionRu}
           disabled={locked}
-          onChange={(e) =>
-            onForm((f) => ({
-              ...f,
-              [uz ? "descriptionUz" : "descriptionRu"]: e.target.value,
-            }))
-          }
-          rows={9}
+          onChange={(e) => set(uz ? "descriptionUz" : "descriptionRu", e.target.value)}
+          rows={12}
+        />
+        <SectionThumbs
+          label="Tavsifga qo'yiladigan rasmlar"
+          images={descriptionImages}
+          min={MIN_DESCRIPTION_IMAGES}
         />
       </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[color:var(--air-line)] pt-4">
+        <p className="text-xs text-[color:var(--air-label)]">
+          Uzum formasining qo&apos;shimcha bo&apos;limlari — har birida matn va rasm.
+        </p>
+        {!locked && <RewriteTextsButton draft={draft} onChange={onChange} />}
+      </div>
+      <SectionField
+        label={`Oʻlchamli setka ${uz ? "(o'zbekcha)" : "(ruscha)"}`}
+        value={form[`size_${lang}`]}
+        images={placed.size ?? []}
+        disabled={locked}
+        onChange={(value) => set(`size_${lang}`, value)}
+      />
+      <SectionField
+        label={`Tarkib ${uz ? "(o'zbekcha)" : "(ruscha)"}`}
+        value={form[`composition_${lang}`]}
+        images={placed.composition ?? []}
+        disabled={locked}
+        onChange={(value) => set(`composition_${lang}`, value)}
+      />
+      <SectionField
+        label={`Foydalanish boʻyicha yoʻriqnoma ${uz ? "(o'zbekcha)" : "(ruscha)"}`}
+        value={form[`usage_${lang}`]}
+        images={placed.usage ?? []}
+        disabled={locked}
+        onChange={(value) => set(`usage_${lang}`, value)}
+      />
 
       {uz && (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -367,9 +445,182 @@ export function DraftFields({
               </a>
             )}
           </div>
+          {/* SKU nomdan yasaladi va qoralama raqami bilan noyob —
+              `estats-publish` joylangan tovarni ro'yxatdan aynan
+              shu kod bo'yicha topadi, shuning uchun qo'lda
+              o'zgartirilmaydi. */}
+          {draft.sku && (
+            <div className="sm:col-span-2">
+              <label className="air-label">SKU (Uzum 2-bosqichi, nomdan)</label>
+              <p className="air-input flex items-center font-mono text-sm">{draft.sku}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+/** Belgi hisoblagichli maydon — Uzum chegarasidan oshirib bo'lmaydi. */
+function CountedField({
+  label,
+  hint,
+  value,
+  max,
+  rows,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  max: number;
+  rows?: number;
+  disabled: boolean;
+  onChange: (value: string) => void;
+}) {
+  const over = value.length > max;
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <label className="air-label">{label}</label>
+        <span className={cn("text-xs tabular-nums", over ? "air-bad" : "text-[color:var(--air-label)]")}>
+          {value.length}/{max}
+        </span>
+      </div>
+      {rows ? (
+        <textarea
+          className="air-input"
+          value={value}
+          maxLength={max}
+          rows={rows}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : (
+        <input
+          className="air-input"
+          value={value}
+          maxLength={max}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
+      {hint && <p className="mt-1 text-xs text-[color:var(--air-label)]">{hint}</p>}
+    </div>
+  );
+}
+
+function SectionField({
+  label,
+  value,
+  images,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  images: string[];
+  disabled: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <label className="air-label">{label}</label>
+      <textarea
+        className="air-input"
+        value={value}
+        rows={6}
+        disabled={disabled}
+        placeholder="Bo'sh — «Matnlarni AI bilan qayta yozish» bosing"
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <SectionThumbs label="Bo'limga qo'yiladigan rasm" images={images} min={1} />
+    </div>
+  );
+}
+
+/**
+ * Bo'limga ketadigan rasmlar — joylashdan OLDIN ko'rinsin.
+ * Kam bo'lsa ogohlantiriladi: sotuvchi talabi bo'yicha rasm majburiy.
+ */
+function SectionThumbs({ label, images, min }: { label: string; images: string[]; min: number }) {
+  const short = images.length < min;
+  return (
+    <div className="mt-2">
+      <p className={cn("mb-1.5 flex items-center gap-1 text-xs", short ? "air-warn" : "text-[color:var(--air-label)]")}>
+        {short && <AlertTriangle className="h-3.5 w-3.5" />}
+        {label}: {images.length}
+        {short && ` — kamida ${min} ta kerak («Rasmlar» tabida qayta yasang)`}
+      </p>
+      {images.length > 0 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          {images.map((url, index) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={`${url}-${index}`}
+              src={mediaUrl(url)}
+              alt=""
+              className="h-16 w-12 shrink-0 rounded-md border border-[color:var(--air-line)] object-cover"
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Faqat matnlarni AI bilan qayta yozadi (rasm yasalmaydi — arzon).
+ *
+ * Bo'limlar qo'shilishidan OLDINGI qoralamalarda o'lchamli setka,
+ * tarkib va yo'riqnoma bo'sh — joylash ularni talab qiladi. Tasdiqlangan
+ * qoralamada bosqich o'zgarmaydi va modalning o'z so'rab turishi ishga
+ * tushmaydi, shuning uchun natija shu yerda kutiladi.
+ */
+function RewriteTextsButton({ draft, onChange }: { draft: AiDraft; onChange: (draft: AiDraft) => void }) {
+  const [busy, setBusy] = React.useState(false);
+  const alive = React.useRef(true);
+  React.useEffect(() => () => {
+    alive.current = false;
+  }, []);
+
+  const run = async () => {
+    setBusy(true);
+    try {
+      const started = await rewriteAiTexts(draft.id);
+      toast.success("AI matnlarni yozmoqda — bir daqiqacha.");
+      for (let i = 0; i < 45 && alive.current; i += 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, 4000));
+        const fresh = await fetchAiDraft(draft.id).catch(() => null);
+        if (fresh && fresh.updatedAt !== started.updatedAt) {
+          if (alive.current) onChange(fresh);
+          toast.success("Matnlar yangilandi.");
+          return;
+        }
+      }
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
+    } finally {
+      if (alive.current) setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className="air-btn-flat"
+      onClick={run}
+      disabled={busy}
+      title="Nom, qisqacha tavsif, tavsif, o'lchamli setka, tarkib va yo'riqnomani kalit so'zlar bilan qayta yozadi. Rasm yasalmaydi."
+    >
+      {busy ? (
+        <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <Wand2 className="mr-1.5 inline h-3.5 w-3.5" />
+      )}
+      Matnlarni AI bilan qayta yozish
+    </button>
   );
 }
 

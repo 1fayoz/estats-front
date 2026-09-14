@@ -10,6 +10,7 @@ import { DropZone } from "@/features/products-ai/components/dropzone";
 import {
   DraftFields,
   DraftTabs,
+  formPatch,
   initialForm,
   type DraftForm,
   type DraftTabKey,
@@ -300,7 +301,7 @@ export function ProductAiModal({
           onSave={() =>
             act("save", async () => {
               if (!draft || !form) return;
-              apply(await patchAiDraft(draft.id, form));
+              apply(await patchAiDraft(draft.id, formPatch(form)));
               toast.success("Saqlandi.");
             })
           }

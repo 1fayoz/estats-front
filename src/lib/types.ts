@@ -1724,21 +1724,82 @@ export interface SeoJob {
   items: SeoJobItem[];
 }
 
-export interface SeoPositionPoint {
+/**
+ * «Qidiruvdagi o'rin» jadvalining bitta katagi.
+ *
+ * Katakning YO'QLIGI — o'sha kuni o'lchov bo'lmagan; `position: null` —
+ * o'lchandi, TOP-100 da yo'q. Ikkalasi boshqa narsa va boshqacha chiziladi.
+ */
+export interface SeoPositionCell {
   day: string;
-  /** `null` — belgilangan chuqurlikda topilmadi. Nol EMAS. */
   position: number | null;
+  /** Reklamasiz (organik) o'rin. */
+  organic: number | null;
+  /** Birinchi chiqish reklama (Boost) edi. */
+  ad: boolean;
+  /** Oldingi O'LCHOVGA nisbatan (oldingi kunga emas). */
+  move: "up" | "down" | "new" | "lost" | null;
 }
 
-export interface SeoPositionRow {
+export type SeoPhraseSource = "manual" | "audit" | "suggest" | "rival" | "market" | "seed" | "sibling";
+
+export interface SeoPositionTableRow {
   phrase: string;
-  coverage: number;
+  source: SeoPhraseSource;
+  manual: boolean;
+  /** `visible` — davrda TOP-100 da ko'ringan; `hidden` — o'lchandi, chiqmadi; `pending` — hali o'lchanmagan. */
+  status: "visible" | "hidden" | "pending";
+  /** Birinchi 20 natijaning buyurtma + sharhi. `null` — hali o'lchanmagan. */
+  demand: number | null;
+  /** Uzum shu so'rovga nechta tovar qaytaradi. */
+  products: number | null;
+  avgPosition: number | null;
+  bestPosition: number | null;
   current: number | null;
+  currentDay: string | null;
   /** Manfiy — yuqoriga chiqdi. */
   change: number | null;
-  /** `false` — endi qo'shildi, hali bir marta ham o'lchanmagan. */
-  measured: boolean;
-  points: SeoPositionPoint[];
+  foundDays: number;
+  measuredDays: number;
+  adDays: number;
+  lastCheckedOn: string | null;
+  lastFoundOn: string | null;
+  bestEver: number | null;
+  cells: SeoPositionCell[];
+}
+
+export interface SeoPositionsSummary {
+  visible: number;
+  top10: number;
+  top30: number;
+  top100: number;
+  avgPosition: number | null;
+  improved: number;
+  worsened: number;
+  adDays: number;
+  candidates: number;
+  pending: number;
+  hidden: number;
+  lastCheckedAt: string | null;
+}
+
+export interface SeoPositionsJob {
+  running: boolean;
+  stage: "discover" | "measure" | "done" | "error" | null;
+  done: number;
+  total: number;
+  error: string | null;
+  finishedAt: string | null;
+}
+
+export interface SeoPositionsTable {
+  days: number;
+  today: string;
+  /** Davr kunlari — eng yangisi birinchi. */
+  calendar: string[];
+  summary: SeoPositionsSummary;
+  job: SeoPositionsJob;
+  rows: SeoPositionTableRow[];
 }
 
 /** Tarixdagi bitta tahlil. */
@@ -1991,10 +2052,28 @@ export interface AiDraft extends AiDraftRow {
   };
   /** Tan narx bo'yicha «beziyon nuqta» va narx-foyda jadvali. Tan narx yo'q bo'lsa `hasCost=false`. */
   economics: UnitEconomics | null;
+  /**
+   * Uzum formasining qolgan bo'limlari — qisqacha tavsif (390),
+   * o'lchamli setka, tarkib, yo'riqnoma. Snake_case ATAYLAB:
+   * backenddagi `card_content.CONTENT_FIELDS` bilan bir xil kalit.
+   */
+  content?: Partial<Record<AiContentKey, string>>;
+  /** Qaysi rasm qaysi bo'limga qo'yiladi (tavsif, o'lcham, tarkib, yo'riqnoma). */
+  sectionImages?: Partial<Record<"description" | "size" | "composition" | "usage", string[]>>;
+  /** Uzum 2-bosqichidagi «SKU» — tovar nomidan. */
+  sku?: string;
   updatedAt: string;
 }
 
+export type AiContentKey =
+  | "short_uz" | "short_ru"
+  | "size_uz" | "size_ru"
+  | "composition_uz" | "composition_ru"
+  | "usage_uz" | "usage_ru";
+
 export interface AiDraftPatch {
+  /** Uzum formasining bo'limlari — berilgan kalitlar birlashtiriladi. */
+  content?: Partial<Record<AiContentKey, string>>;
   titleUz?: string;
   titleRu?: string;
   descriptionUz?: string;
