@@ -48,7 +48,7 @@ export function ImagePanel({
   locked: boolean;
 }) {
   const [extra, setExtra] = React.useState(draft.imagePromptExtra ?? "");
-  const [busy, setBusy] = React.useState<number | "all" | `c:${string}` | null>(null);
+  const [busy, setBusy] = React.useState<number | "all" | `c:${string}` | `s:${string}` | null>(null);
   const [zoomIndex, setZoomIndex] = React.useState<number | null>(null);
   const [savingColors, setSavingColors] = React.useState(false);
 
@@ -76,26 +76,34 @@ export function ImagePanel({
     plannedColorCount > 0 &&
     draft.images.length !== plannedColorCount * 4;
 
-  const redo = async (target: { index?: number | null; color?: string }) => {
-    const token: number | "all" | `c:${string}` = target.color
-      ? `c:${target.color}`
-      : target.index == null
-        ? "all"
-        : target.index;
+  const redo = async (target: { index?: number | null; color?: string; slot?: string }) => {
+    const token: number | "all" | `c:${string}` | `s:${string}` = target.slot
+      ? `s:${target.slot}`
+      : target.color
+        ? `c:${target.color}`
+        : target.index == null
+          ? "all"
+          : target.index;
     setBusy(token);
     try {
       onChange(
         await redoAiImages(draft.id, {
           prompt: extra.trim(),
-          ...(target.color ? { color: target.color } : { index: target.index ?? null }),
+          ...(target.slot
+            ? { slot: target.slot }
+            : target.color
+              ? { color: target.color }
+              : { index: target.index ?? null }),
         })
       );
       toast.success(
-        target.color
-          ? `«${target.color}» rangi qayta yasalmoqda…`
-          : target.index == null
-            ? "Hamma rasm qayta yasalmoqda…"
-            : "Rasm qayta yasalmoqda…"
+        target.slot
+          ? "Bo'lim kadri qayta yasalmoqda…"
+          : target.color
+            ? `«${target.color}» rangi qayta yasalmoqda…`
+            : target.index == null
+              ? "Hamma rasm qayta yasalmoqda…"
+              : "Rasm qayta yasalmoqda…"
       );
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
@@ -335,7 +343,15 @@ export function ImagePanel({
       {/* Tavsif va bo'limlar uchun ALOHIDA kadrlar — galereya
           rasmlari u yerga qo'yilmaydi (sotuvchi talabi). Sifatini
           joylashdan oldin shu yerda ko'rish kerak. */}
-      {intelligencePlan && <ContentImages draft={draft} />}
+      {intelligencePlan && (
+        <ContentImages
+          draft={draft}
+          canRedo={!locked}
+          disabled={busy !== null || working}
+          busySlot={typeof busy === "string" && busy.startsWith("s:") ? busy.slice(2) : null}
+          onRedo={(slot) => void redo({ slot })}
+        />
+      )}
 
       {!locked && (
         <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
@@ -415,8 +431,30 @@ const CONTENT_PLACES: { key: "description" | "size" | "composition" | "usage"; l
   { key: "usage", label: "Foydalanish yoʻriqnomasi", need: 1 },
 ];
 
-function ContentImages({ draft }: { draft: AiDraft }) {
+/** Joy → shu joy kadrlarining slot nomlari (backend `card_content.IMAGE_SLOTS` tartibida). */
+const PLACE_SLOTS: Record<string, string[]> = {
+  description: ["tavsif_sifat", "tavsif_xususiyat", "tavsif_foyda", "tavsif_afzallik"],
+  size: ["bolim_setka"],
+  composition: ["bolim_tarkib"],
+  usage: ["bolim_yoriqnoma"],
+};
+
+function ContentImages({
+  draft,
+  canRedo,
+  disabled,
+  busySlot,
+  onRedo,
+}: {
+  draft: AiDraft;
+  canRedo: boolean;
+  disabled: boolean;
+  busySlot: string | null;
+  onRedo: (slot: string) => void;
+}) {
   const placed = draft.sectionImages ?? {};
+  // Qaysi fayl qaysi slotniki — nomidan (`aic-{slot}-…`).
+  const slotOf = (url: string) => url.match(/\/aic-([a-z_]+)-[0-9a-f]+\.jpe?g$/i)?.[1] ?? null;
   const [zoom, setZoom] = React.useState<number | null>(null);
   // Hamma joyning kadrlari BITTA ro'yxatda — kattalashtirilganda
   // ‹ › bilan tavsif kadrlaridan bo'lim kadrlariga o'tib ko'riladi.
@@ -438,31 +476,63 @@ function ContentImages({ draft }: { draft: AiDraft }) {
         offset += urls.length;
         return (
           <div key={place.key}>
-            <p className={cn("mb-1 text-[11px]", short ? "air-warn" : "text-muted-foreground")}>
-              {place.label}: {urls.length}/{place.need}
-              {short && " — «Hammasini qayta yasash» bilan yasang"}
+            <p className={cn("mb-1 flex flex-wrap items-center gap-x-2 text-[11px]", short ? "air-warn" : "text-muted-foreground")}>
+              <span>
+                {place.label}: {urls.length}/{place.need}
+              </span>
+              {canRedo &&
+                (PLACE_SLOTS[place.key] ?? [])
+                  .filter((slot) => !urls.some((url) => slotOf(url) === slot))
+                  .map((slot) => (
+                    <button
+                      key={slot}
+                      type="button"
+                      onClick={() => onRedo(slot)}
+                      disabled={disabled}
+                      className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] hover:bg-muted disabled:opacity-50"
+                    >
+                      {busySlot === slot ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                      {PLACE_SLOTS[place.key].length > 1 ? `yetishmaganini yasash` : "yasash"}
+                    </button>
+                  ))}
             </p>
             {urls.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {urls.map((url, i) => (
-                  <button
-                    key={url}
-                    type="button"
-                    onClick={() => setZoom(start + i)}
-                    className="group relative cursor-zoom-in rounded-md"
-                    title="Kattalashtirib ko'rish"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={mediaUrl(url)}
-                      alt={place.label}
-                      className="h-28 w-[84px] rounded-md border object-cover"
-                    />
-                    <span className="absolute right-1 top-1 rounded-md bg-black/60 p-1 text-white opacity-0 transition group-hover:opacity-100">
-                      <ZoomIn className="h-3.5 w-3.5" />
-                    </span>
-                  </button>
-                ))}
+                {urls.map((url, i) => {
+                  const slot = slotOf(url);
+                  return (
+                    <div key={url} className="group relative">
+                      <button
+                        type="button"
+                        onClick={() => setZoom(start + i)}
+                        className="block cursor-zoom-in rounded-md"
+                        title="Kattalashtirib ko'rish"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={mediaUrl(url)}
+                          alt={place.label}
+                          className="h-28 w-[84px] rounded-md border object-cover"
+                        />
+                        <span className="absolute right-1 top-1 rounded-md bg-black/60 p-1 text-white opacity-0 transition group-hover:opacity-100">
+                          <ZoomIn className="h-3.5 w-3.5" />
+                        </span>
+                      </button>
+                      {canRedo && slot && (
+                        <button
+                          type="button"
+                          onClick={() => onRedo(slot)}
+                          disabled={disabled}
+                          className="absolute inset-x-1 bottom-1 flex items-center justify-center gap-1 rounded-md bg-black/60 py-0.5 text-[10px] text-white opacity-0 transition group-hover:opacity-100 disabled:opacity-100"
+                          title="Faqat shu kadrni qayta yasash"
+                        >
+                          {busySlot === slot ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                          Qayta
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

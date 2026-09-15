@@ -2143,6 +2143,8 @@ export interface AiImageRedo {
   index?: number | null;
   /** Faqat shu rangning 4 kadrini qayta yasaydi. `index` bilan birga berilmaydi. */
   color?: string;
+  /** Faqat shu tavsif/bo'lim kadrini qayta yasaydi (`bolim_tarkib` …) — galereyaga tegmaydi. */
+  slot?: string;
 }
 
 export interface AiPackage {
