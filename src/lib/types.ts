@@ -1950,6 +1950,13 @@ export interface AiUzumPublish {
   status: string;
   message: string;
   log: string[];
+  /**
+   * "edit" — tirik tovarni tahrirlash («Uzumda yangilash»), yo'q/"publish" — yaratish.
+   * Tahrirlash bosqichlari: opening / names / descriptions / sections / gallery / saving / attributes / finishing.
+   */
+  kind?: string | null;
+  /** Tahrirlashda rasmlar ham almashtirilyaptimi. */
+  replaceImages?: boolean | null;
   /** starting / category / content / images / review — hozir qaysi bosqichda. */
   stage: string | null;
   progress: number;

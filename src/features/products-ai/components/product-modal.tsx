@@ -16,7 +16,13 @@ import {
   type DraftTabKey,
 } from "@/features/products-ai/components/draft-fields";
 import { DraftSide } from "@/features/products-ai/components/draft-side";
-import { PUBLISH_PHASES, publishPhaseState } from "@/features/products-ai/publish-stages";
+import {
+  EDIT_STAGE_LABEL,
+  PUBLISH_PHASES,
+  editPhaseState,
+  editPhases,
+  publishPhaseState,
+} from "@/features/products-ai/publish-stages";
 import { StageStrip } from "@/features/products-ai/components/stage-strip";
 import { UzumShopPicker } from "@/features/products-ai/components/uzum-shop-picker";
 import {
@@ -352,8 +358,8 @@ export function ProductAiModal({
               setEditMode(false);
               toast.success(
                 replaceImages
-                  ? "Uzum'da yangilanmoqda — nom, tavsif va rasmlar."
-                  : "Uzum'da yangilanmoqda — nom va tavsif.",
+                  ? "Uzum'da yangilash boshlandi — matn, bo'limlar va rasmlar. Jarayon shu oynada ko'rinadi."
+                  : "Uzum'da yangilash boshlandi — matn va bo'limlar. Jarayon shu oynada ko'rinadi.",
               );
             })
           }
@@ -573,6 +579,14 @@ const FAILED_PUBLISH = new Set(["error", "category_unresolved", "shop_unavailabl
  * ro'yxati bor, sotuvchi shundan to'g'risini tanlaydi.
  */
 const SHOP_PUBLISH_STOPS = new Set(["shop_unavailable", "shop_mismatch"]);
+
+/** Tahrirlash natijasi — yaratishdan boshqa so'z bilan ("joylandi" emas). */
+const EDIT_STATUS_LABEL: Record<string, string> = {
+  published: "Uzum'dagi tovar yangilandi ✓",
+  error: "Yangilanmadi",
+  needs_manual_step: "Yangilash bir bosqichda to'xtadi — qo'lda tekshirish kerak",
+  unknown_final_state: "Yangilash holati noma'lum — qayta bosing",
+};
 
 const PUBLISH_STATUS_LABEL: Record<string, string> = {
   published: "Uzum'ga joylandi ✓",
@@ -923,7 +937,7 @@ function Footer({
               type="button"
               className="air-btn-save"
               onClick={() => onEditUzum(pushImages)}
-              disabled={busy === "editUzum"}
+              disabled={busy === "editUzum" || publishing}
               title="Nom, tavsif va (belgilansa) rasmlarni Uzum'dagi tovarga ko'chiradi."
             >
               {spin("editUzum")}Uzum&apos;da yangilash
@@ -1107,12 +1121,23 @@ function PublishProgress({
   // kelmaganini ko'radi. Chiziq NATIJADAN keyin ham qoladi —
   // muvaffaqiyatsiz urinish qaysi fazada to'xtaganini keyin
   // qaytib ochganda ham ko'rsatib turadi.
+  const publish = draft.uzumPublish;
+  const editing = publish?.kind === "edit";
+  const phases = editing ? editPhases(publish?.replaceImages) : PUBLISH_PHASES;
+  const stageLabel = (stage: string) =>
+    (editing ? EDIT_STAGE_LABEL[stage] : PUBLISH_STAGE_LABEL[stage]) ?? stage;
+  // Fonda aynan nima bo'layotgani — estats-publish yozgan oxirgi qator
+  // ("tavsifga 2/4 rasm qo'shildi" kabi). Bosqich nomining o'zi uzun
+  // bosqichda bir necha daqiqa o'zgarmay turadi.
+  const lastLog = publish?.log?.length ? publish.log[publish.log.length - 1] : "";
   return (
     <>
         <div className="w-full space-y-1.5">
           <div className="air-stages" role="list">
-            {PUBLISH_PHASES.map((phase) => {
-              const state = publishPhaseState(phase, draft.uzumPublish, publishing);
+            {phases.map((phase) => {
+              const state = editing
+                ? editPhaseState(phase, publish, publishing)
+                : publishPhaseState(phase, publish, publishing);
               return (
                 <div
                   key={phase.key}
@@ -1127,14 +1152,25 @@ function PublishProgress({
               );
             })}
           </div>
-          {publishing && publishStage ? (
+          {publishing && publishStage && editing ? (
+            <div className="space-y-0.5 text-center text-xs" aria-live="polite">
+              <p className="font-medium">
+                {stageLabel(publishStage)}… <span className="text-[color:var(--air-label)]">{publish?.progress ?? 0}%</span>
+              </p>
+              {lastLog && lastLog !== stageLabel(publishStage) && (
+                <p className="truncate text-[color:var(--air-label)]" title={lastLog}>
+                  hozir: {lastLog}
+                </p>
+              )}
+            </div>
+          ) : publishing && publishStage ? (
             <p className="text-center text-xs text-[color:var(--air-label)]">
-              {PUBLISH_STAGE_LABEL[publishStage] ?? publishStage}…
-              {Object.keys(draft.uzumPublish?.timings || {}).length > 0 && (
+              {stageLabel(publishStage)}…
+              {Object.keys(publish?.timings || {}).length > 0 && (
                 <span className="ml-1">
                   (
-                  {Object.entries(draft.uzumPublish!.timings)
-                    .map(([stage, ms]) => `${PUBLISH_STAGE_LABEL[stage] ?? stage}: ${(ms / 1000).toFixed(1)}s`)
+                  {Object.entries(publish!.timings)
+                    .map(([stage, ms]) => `${stageLabel(stage)}: ${(ms / 1000).toFixed(1)}s`)
                     .join(", ")}
                   )
                 </span>
@@ -1151,7 +1187,9 @@ function PublishProgress({
                     : "air-warn",
               )}
             >
-              {publishStatus === "published" && draft.uzumPublish?.uzumShopTitle
+              {editing && EDIT_STATUS_LABEL[publishStatus]
+                ? `${EDIT_STATUS_LABEL[publishStatus]}${publishStatus !== "published" && publish?.message ? ` — ${publish.message}` : ""}`
+                : publishStatus === "published" && draft.uzumPublish?.uzumShopTitle
                 ? `«${draft.uzumPublish.uzumShopTitle}» do'koniga joylandi ✓`
                 : SHOP_PUBLISH_STOPS.has(publishStatus) && draft.uzumPublish?.message
                   ? draft.uzumPublish.message

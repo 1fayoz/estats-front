@@ -48,3 +48,57 @@ export function publishPhaseState(
   }
   return "next";
 }
+
+/**
+ * «Uzumda yangilash» — tirik tovarni TAHRIRLASH bosqichlari.
+ *
+ * Backend (`estats-publish/edit-stages.js`) tartibi bilan BIR XIL.
+ * Galereya bosqichi faqat rasmlar ham almashtirilganda bor —
+ * rasmsiz yangilashda u chiziqda umuman ko'rsatilmaydi.
+ */
+export const EDIT_STAGE_ORDER = [
+  "opening", "names", "descriptions", "sections", "gallery", "saving", "attributes", "finishing",
+] as const;
+
+export const EDIT_STAGE_LABEL: Record<string, string> = {
+  opening: "Uzum kabineti ochilmoqda",
+  names: "Nom yangilanmoqda",
+  descriptions: "Qisqacha tavsif va tavsif (rasmlari bilan) yozilmoqda",
+  sections: "Oʻlchamli setka, tarkib va yoʻriqnoma yozilmoqda",
+  gallery: "Galereya rasmlari almashtirilmoqda",
+  saving: "Oʻzgarishlar saqlanmoqda",
+  attributes: "Xususiyatlar jadvali toʻldirilmoqda",
+  finishing: "Yakunlanmoqda",
+};
+
+const EDIT_PHASES_ALL: PublishPhase[] = [
+  { key: "open", short: "Ochish", label: "Uzum kabinetida tovar ochildi", parts: ["opening"] },
+  { key: "text", short: "Matn va bo'limlar", label: "Nom, tavsif, setka, tarkib, yo'riqnoma", parts: ["names", "descriptions", "sections"] },
+  { key: "gallery", short: "Rasmlar", label: "Galereya rasmlari almashtirildi", parts: ["gallery"] },
+  { key: "save", short: "Saqlash", label: "Saqlandi, xususiyatlar to'ldirildi", parts: ["saving", "attributes", "finishing"] },
+];
+
+export function editPhases(replaceImages: boolean | null | undefined): PublishPhase[] {
+  return replaceImages ? EDIT_PHASES_ALL : EDIT_PHASES_ALL.filter((p) => p.key !== "gallery");
+}
+
+/**
+ * Tahrirlashda `timings`ga tayanib bo'lmaydi: o'tkazib yuborilgan
+ * bosqich (masalan rasmsiz yangilashda galereya) hech qachon vaqt
+ * yozmaydi. Shuning uchun holat bosqichlar TARTIBIDAN chiqariladi.
+ */
+export function editPhaseState(
+  phase: PublishPhase,
+  publish: Pick<AiUzumPublish, "stage" | "status"> | null | undefined,
+  publishing: boolean,
+): PublishPhaseState {
+  if (!publish) return "next";
+  if (publish.status === "published") return "done";
+  const order = EDIT_STAGE_ORDER as readonly string[];
+  const current = publish.stage ? order.indexOf(publish.stage) : -1;
+  const first = Math.min(...phase.parts.map((p) => order.indexOf(p)));
+  const last = Math.max(...phase.parts.map((p) => order.indexOf(p)));
+  if (current > last) return "done";
+  if (current >= first) return publishing ? "active" : "failed";
+  return "next";
+}
