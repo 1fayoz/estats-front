@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
+import { AiCostCard } from "@/features/integrations/components/ai-cost-card";
 import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import styles from "@/features/integrations/components/integrations.module.css";
@@ -224,6 +225,7 @@ function IntegrationsWorkspace() {
 
           {selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
             <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
+            <AiCostCard />
             <div className="grid min-w-0 gap-4 2xl:grid-cols-2">{aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}{openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}</div>
             {!aiKey && !openAiKey && <div className="rounded-2xl border border-dashed p-6 text-center"><ShieldCheck className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{restricted.some((label) => label === "Gemini" || label === "OpenAI") ? "AI kalitlarini boshqarish uchun hisob egasidan ruxsat so‘rang." : "AI xizmatlari holati yuklanmadi. Qayta urinib ko‘ring."}</p></div>}
           </div> : selectedPlatform && accountsKnown ? <div key={selected} className={styles.panel}>

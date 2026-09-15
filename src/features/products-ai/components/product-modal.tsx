@@ -897,10 +897,10 @@ function Footer({
             className="air-btn-flat"
             onClick={onRegenerate}
             disabled={busy === "regenerate"}
-            title="Ko'rish, bozor, matn, xususiyatlar va rasmni AI bilan qaytadan yaratadi — xuddi yangi tovar yaratilayotgandek."
+            title="Ko'rish, bozor, matn va xususiyatlarni AI bilan qaytadan yaratadi. Mavjud rasmlar saqlanadi — kerakli kadrni «Rasmlar» tabida bittalab qayta yasang."
           >
             {spin("regenerate") ?? <Wand2 className="mr-1.5 inline h-3.5 w-3.5" />}
-            AI bilan to&apos;liq qayta yaratish
+            AI bilan matnlarni qayta yaratish
           </button>
         )}
         {draft.uzumPublish?.verified !== null && draft.uzumPublish?.verified !== undefined && (

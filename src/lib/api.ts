@@ -61,6 +61,8 @@ import type {
   ShopCreateResult,
   AiKeyState,
   AiDraft,
+  AiCost,
+  AiCostList,
   AiCategoryNode,
   AiDraftPatch,
   AiDraftRow,
@@ -1078,6 +1080,20 @@ export const redoAiImages = (id: number, body: AiImageRedo) =>
     method: "POST",
     body: JSON.stringify(body),
   });
+
+/** Rasmni Uzum'ga yuboriladiganlardan olib tashlaydi (`removed=false` — tiklaydi). Pulsiz, darhol. */
+export const excludeAiImage = (id: number, url: string, removed: boolean) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/images/exclude`, {
+    method: "POST",
+    body: JSON.stringify({ url, removed }),
+  });
+
+/** Shu kartochka uchun AI'ga ketgan pul — jami, Gemini/OpenAI va ish bo'yicha. */
+export const fetchAiDraftCost = (id: number) => request<AiCost>(`/product-ai/drafts/${id}/ai-cost`);
+
+/** Do'konning kartochkalar bo'yicha AI sarfi — eng qimmatidan, sahifalab. */
+export const fetchAiCosts = (offset = 0, limit = 15) =>
+  request<AiCostList>(`/product-ai/ai-cost?offset=${offset}&limit=${limit}`);
 
 /** Shu kadrni oxirgi "qayta yasash"dan oldingi holatiga qaytaradi — pulsiz, darhol. */
 export const revertAiImage = (id: number, index: number) =>

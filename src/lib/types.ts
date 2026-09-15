@@ -2118,9 +2118,53 @@ export interface AiDraft extends AiDraftRow {
   content?: Partial<Record<AiContentKey, string>>;
   /** Qaysi rasm qaysi bo'limga qo'yiladi (tavsif, o'lcham, tarkib, yo'riqnoma). */
   sectionImages?: Partial<Record<"description" | "size" | "composition" | "usage", string[]>>;
+  /** Sotuvchi «Olib tashlash» bosgan rasmlar — chizilgan holda turadi, Uzum'ga ketmaydi. */
+  removedImages?: string[];
   /** Uzum 2-bosqichidagi «SKU» — tovar nomidan. */
   sku?: string;
   updatedAt: string;
+}
+
+/** AI sarfining bir bo'lagi — xizmat (Gemini/OpenAI) yoki ish guruhi. */
+export interface AiCostPart {
+  key: string;
+  label: string;
+  usd: number;
+  calls: number;
+  images: number;
+}
+
+/** Bitta kartochka uchun AI sarfi. */
+export interface AiCost {
+  totalUsd: number;
+  calls: number;
+  images: number;
+  services: AiCostPart[];
+  tasks: AiCostPart[];
+}
+
+export interface AiCostDraftRow {
+  draftId: number;
+  title: string;
+  cover: string | null;
+  stage: string;
+  productId: string | null;
+  totalUsd: number;
+  geminiUsd: number;
+  openaiUsd: number;
+  calls: number;
+  images: number;
+  lastAt: string | null;
+}
+
+/** Do'konning kartochkalar bo'yicha AI sarfi (eng qimmatidan). */
+export interface AiCostList {
+  totalUsd: number;
+  services: AiCostPart[];
+  /** Kartochkaga bog'lanmagan chaqiruvlar (kalit tekshiruvi, SEO auditi…). */
+  unassignedUsd: number;
+  total: number;
+  drafts: AiCostDraftRow[];
 }
 
 export type AiContentKey =
@@ -2168,10 +2212,8 @@ export interface AiDraftPatch {
 export interface AiImageRedo {
   /** Sotuvchining o'z ko'rsatmasi. Bo'sh bo'lsa faktlar bo'yicha. */
   prompt?: string;
-  /** Qaysi rasm. Berilmasa — hammasi (yoki `color` berilsa, shu rang). */
+  /** Galereyadagi qaysi rasm (faqat shu bittasi qayta yasaladi). */
   index?: number | null;
-  /** Faqat shu rangning 4 kadrini qayta yasaydi. `index` bilan birga berilmaydi. */
-  color?: string;
   /** Faqat shu tavsif/bo'lim kadrini qayta yasaydi (`bolim_tarkib` …) — galereyaga tegmaydi. */
   slot?: string;
 }
@@ -2414,6 +2456,10 @@ export interface AiGeneratedImage {
 export interface AiPlannedImage {
   position: number;
   type: string;
+  /** Kadrning vazifasi (backend `PlannedImage.goal`). */
+  goal?: string;
+  concept?: string;
+  text_on_image?: string;
   purpose: string;
   composition: string;
   background: string;
@@ -2430,6 +2476,8 @@ export interface AiImagePlan {
   avoid: string[];
   recommended_image_count: number;
   images: AiPlannedImage[];
+  /** Tavsif va bo'limlar uchun alohida kadrlar (`position` 100+). */
+  content_images?: AiPlannedImage[];
   provider: string;
   model: string;
 }

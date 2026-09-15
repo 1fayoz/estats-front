@@ -321,7 +321,11 @@ export function DraftFields({
   const uz = tab === "general";
   const lang = uz ? "uz" : "ru";
   const set = (key: keyof DraftForm, value: string) => onForm((f) => ({ ...f, [key]: value }));
-  const placed = draft.sectionImages ?? {};
+  // Faqat Uzum'ga ketadiganlar — «Rasmlar» tabida olib tashlanganlar bu yerda sanalmaydi.
+  const removedImages = new Set(draft.removedImages ?? []);
+  const placed = Object.fromEntries(
+    Object.entries(draft.sectionImages ?? {}).map(([key, urls]) => [key, (urls ?? []).filter((url) => !removedImages.has(url))]),
+  ) as NonNullable<AiDraft["sectionImages"]>;
   const descriptionImages = placed.description ?? [];
   return (
     <div className="space-y-4">
