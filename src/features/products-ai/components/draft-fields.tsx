@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { AuditPanel } from "@/features/products-ai/components/audit-panel";
+import { ImageLightbox } from "@/features/products-ai/components/image-lightbox";
 import {
   CharacteristicsSection,
   ColorsSection,
@@ -546,6 +547,7 @@ function SectionField({
  */
 function SectionThumbs({ label, images, min }: { label: string; images: string[]; min: number }) {
   const short = images.length < min;
+  const [zoom, setZoom] = React.useState<number | null>(null);
   return (
     <div className="mt-2">
       <p className={cn("mb-1.5 flex items-center gap-1 text-xs", short ? "air-warn" : "text-[color:var(--air-label)]")}>
@@ -556,16 +558,28 @@ function SectionThumbs({ label, images, min }: { label: string; images: string[]
       {images.length > 0 && (
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {images.map((url, index) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <button
               key={`${url}-${index}`}
-              src={mediaUrl(url)}
-              alt=""
-              className="h-16 w-12 shrink-0 rounded-md border border-[color:var(--air-line)] object-cover"
-            />
+              type="button"
+              onClick={() => setZoom(index)}
+              className="shrink-0 cursor-zoom-in rounded-md"
+              title="Kattalashtirib ko'rish"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mediaUrl(url)}
+                alt=""
+                className="h-16 w-12 rounded-md border border-[color:var(--air-line)] object-cover"
+              />
+            </button>
           ))}
         </div>
       )}
+      <ImageLightbox
+        items={images.map((url, i) => ({ url, caption: images.length > 1 ? `${label} · ${i + 1}/${images.length}` : label }))}
+        index={zoom}
+        onIndex={setZoom}
+      />
     </div>
   );
 }

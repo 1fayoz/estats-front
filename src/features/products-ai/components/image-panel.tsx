@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ImageLightbox, type LightboxItem } from "@/features/products-ai/components/image-lightbox";
 import { ApiError, mediaUrl, patchAiDraft, redoAiImages, revertAiImage } from "@/lib/api";
 import type { AiDraft } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -416,12 +417,25 @@ const CONTENT_PLACES: { key: "description" | "size" | "composition" | "usage"; l
 
 function ContentImages({ draft }: { draft: AiDraft }) {
   const placed = draft.sectionImages ?? {};
+  const [zoom, setZoom] = React.useState<number | null>(null);
+  // Hamma joyning kadrlari BITTA ro'yxatda — kattalashtirilganda
+  // ‹ › bilan tavsif kadrlaridan bo'lim kadrlariga o'tib ko'riladi.
+  const items: LightboxItem[] = CONTENT_PLACES.flatMap((place) => {
+    const urls = placed[place.key] ?? [];
+    return urls.map((url, i) => ({
+      url,
+      caption: urls.length > 1 ? `${place.label} · ${i + 1}/${urls.length}` : place.label,
+    }));
+  });
+  let offset = 0;
   return (
     <div className="space-y-2 rounded-lg border p-3">
       <p className="text-xs font-medium">Tavsif va bo&apos;limlar uchun alohida rasmlar</p>
       {CONTENT_PLACES.map((place) => {
         const urls = placed[place.key] ?? [];
         const short = urls.length < place.need;
+        const start = offset;
+        offset += urls.length;
         return (
           <div key={place.key}>
             <p className={cn("mb-1 text-[11px]", short ? "air-warn" : "text-muted-foreground")}>
@@ -430,20 +444,31 @@ function ContentImages({ draft }: { draft: AiDraft }) {
             </p>
             {urls.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {urls.map((url) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                {urls.map((url, i) => (
+                  <button
                     key={url}
-                    src={mediaUrl(url)}
-                    alt={place.label}
-                    className="h-28 w-[84px] rounded-md border object-cover"
-                  />
+                    type="button"
+                    onClick={() => setZoom(start + i)}
+                    className="group relative cursor-zoom-in rounded-md"
+                    title="Kattalashtirib ko'rish"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={mediaUrl(url)}
+                      alt={place.label}
+                      className="h-28 w-[84px] rounded-md border object-cover"
+                    />
+                    <span className="absolute right-1 top-1 rounded-md bg-black/60 p-1 text-white opacity-0 transition group-hover:opacity-100">
+                      <ZoomIn className="h-3.5 w-3.5" />
+                    </span>
+                  </button>
                 ))}
               </div>
             )}
           </div>
         );
       })}
+      <ImageLightbox items={items} index={zoom} onIndex={setZoom} />
     </div>
   );
 }
