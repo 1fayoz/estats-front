@@ -57,7 +57,7 @@ export function publishPhaseState(
  * rasmsiz yangilashda u chiziqda umuman ko'rsatilmaydi.
  */
 export const EDIT_STAGE_ORDER = [
-  "opening", "names", "descriptions", "sections", "gallery", "saving", "attributes", "finishing",
+  "opening", "gallery", "names", "descriptions", "sections", "saving", "attributes", "finishing",
 ] as const;
 
 export const EDIT_STAGE_LABEL: Record<string, string> = {
@@ -71,10 +71,11 @@ export const EDIT_STAGE_LABEL: Record<string, string> = {
   finishing: "Yakunlanmoqda",
 };
 
+// Galereya matndan OLDIN (estats-publish: keyin bo'lsa bo'limlar saqlanmaydi).
 const EDIT_PHASES_ALL: PublishPhase[] = [
   { key: "open", short: "Ochish", label: "Uzum kabinetida tovar ochildi", parts: ["opening"] },
-  { key: "text", short: "Matn va bo'limlar", label: "Nom, tavsif, setka, tarkib, yo'riqnoma", parts: ["names", "descriptions", "sections"] },
   { key: "gallery", short: "Rasmlar", label: "Galereya rasmlari almashtirildi", parts: ["gallery"] },
+  { key: "text", short: "Matn va bo'limlar", label: "Nom, tavsif, setka, tarkib, yo'riqnoma", parts: ["names", "descriptions", "sections"] },
   { key: "save", short: "Saqlash", label: "Saqlandi, xususiyatlar to'ldirildi", parts: ["saving", "attributes", "finishing"] },
 ];
 
