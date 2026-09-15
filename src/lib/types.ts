@@ -611,6 +611,35 @@ export interface ProductDetail {
   draftTextPushedAt: string | null;
   /** Shu tovarga bog'langan AI qoralamasi (bo'lsa) — "AI kartochka" tugmasi shuni ochadi. */
   aiDraftId: number | null;
+  /** Uzum'ga eStats orqali yuborilgan va saqlangan kartochka. `null` — yuborilmagan. */
+  uzumCard?: UzumCard | null;
+}
+
+/** Uzum saqlashni tasdiqlagan paytdagi kartochka nusxasi (`uzum_publish.publishedCard`). */
+export interface UzumCard {
+  titleUz: string;
+  titleRu: string;
+  shortUz: string;
+  shortRu: string;
+  descriptionUz: string;
+  descriptionRu: string;
+  sizeUz: string;
+  sizeRu: string;
+  compositionUz: string;
+  compositionRu: string;
+  usageUz: string;
+  usageRu: string;
+  descriptionImages: string[];
+  sectionImages: Partial<Record<"description" | "size" | "composition" | "usage", string[]>>;
+  images: string[];
+  sku: string;
+  categoryPath?: string[];
+  /** Xususiyatlar: nom → qiymat. */
+  attributes?: Record<string, string>;
+  mxik?: string;
+  mxikName?: string;
+  price?: number | null;
+  at: string;
 }
 
 export interface ModerationError {

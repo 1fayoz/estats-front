@@ -25,6 +25,7 @@ import { DetailIntakes, DetailSales } from "@/features/warehouse/components/deta
 import { SiblingsCard } from "@/features/warehouse/components/siblings-card";
 import { ProductStats } from "@/features/warehouse/components/product-stats";
 import { UzumFactsCard } from "@/features/warehouse/components/uzum-facts-card";
+import { UzumCardContent } from "@/features/warehouse/components/uzum-card-content";
 import { PositionsBlock } from "@/features/seo/components/positions-block";
 import { SeoAuditCard } from "@/features/seo/components/seo-audit-card";
 import { FunnelCard } from "@/features/warehouse/components/funnel-card";
@@ -36,7 +37,7 @@ import { ProductAiModal } from "@/features/products-ai/components/product-modal"
 import { useAiDrafts } from "@/features/products-ai/use-drafts";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
-import { ApiError, fetchProductDetail, regenerateProductUzum } from "@/lib/api";
+import { ApiError, fetchProductDetail, mediaUrl, regenerateProductUzum } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
@@ -206,7 +207,13 @@ function ProductDetailPage({ id }: { id: number }) {
   }
 
   const product = data.product;
-  const images = product.images?.length ? product.images : product.image ? [product.image] : [];
+  // eStats orqali Uzum'ga yuborilgan galereya ustun — katalogdagi nusxa
+  // tahrirdan keyin eskirib qolardi (sotuvchi: «edit qilingandan keyin
+  // rasmlari yangisiga o'zgarishi kerak»).
+  const cardImages = (data.uzumCard?.images ?? []).map(mediaUrl).filter(Boolean);
+  const images = cardImages.length
+    ? cardImages
+    : (product.images?.length ? product.images : product.image ? [product.image] : []).map(mediaUrl);
   const profitPositive = data.totalProfit >= 0;
   const salesRows = period === "monthly" ? data.monthly : period === "yearly" ? data.yearly : data.daily;
 
@@ -304,6 +311,7 @@ function ProductDetailPage({ id }: { id: number }) {
       <section id="product-detail-content" key={section} aria-label={SECTIONS.find((item) => item.value === section)?.label} className={cn(styles.content, "min-w-0 space-y-5")}>
         {section === "umumiy" && <>
           <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} />
+          {data.uzumCard && <UzumCardContent card={data.uzumCard} />}
           <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
           <DetailIntakes intakes={data.intakes} onAdd={() => setIntakeFor(product)} />
         </>}
