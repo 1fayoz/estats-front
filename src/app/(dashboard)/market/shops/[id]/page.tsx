@@ -1,5 +1,4 @@
 "use client";
-import { Pagination, useServerPage } from "@/components/ui/pagination";
 
 import * as React from "react";
 import { use } from "react";
@@ -9,10 +8,10 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
-import { Failed, Grid, Loading, PeriodPicker, usePeriod, type Column } from "@/features/market/shared";
+import { Failed, Grid, Loading, PeriodPicker, usePeriod } from "@/features/market/shared";
 import { ScopeAnalytics } from "@/features/market/scope-analytics";
 import { formatCompact, formatNumber } from "@/lib/format";
-import { market, MARKET_BASE, type MarketPoint, type MarketProduct } from "@/lib/market";
+import { MARKET_BASE, type MarketPoint } from "@/lib/market";
 
 type Detail = {
   shop: { id: number; title: string; seller: string | null; rating: number | null;
@@ -32,10 +31,7 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
   const days = usePeriod();
   const [detail, setDetail] = React.useState<Detail | null>(null);
   const [series, setSeries] = React.useState<MarketPoint[]>([]);
-  const [products, setProducts] = React.useState<MarketProduct[] | null>(null);
-  const [productTotal, setProductTotal] = React.useState(0);
   const [error, setError] = React.useState<string | null>(null);
-  const productPage = useServerPage({ resetKey: [id, days], param: "products_page" });
 
   React.useEffect(() => {
     setError(null);
@@ -48,16 +44,6 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
       .then(([d, t]) => { setDetail(d); setSeries(t); })
       .catch((e) => setError(e.message));
   }, [id, days]);
-
-  // Mahsulotlar ALOHIDA so'rov bilan va 15 tadan: ilgari do'konning
-  // birinchi 100 tasi bir yo'la olinib, 101-chisi hech qayerda
-  // ko'rinmasdi. Sahifa almashganda do'kon ma'lumoti qayta so'ralmaydi.
-  React.useEffect(() => {
-    market
-      .products({ days, shop: Number(id), limit: productPage.limit, offset: productPage.offset })
-      .then((p) => { setProducts(p.items); setProductTotal(p.total); })
-      .catch(() => { setProducts([]); setProductTotal(0); });
-  }, [id, days, productPage.limit, productPage.offset]);
 
   if (error) return <Failed message={error} />;
   if (!detail) return <Loading />;
@@ -133,40 +119,6 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
           pageParam="categories_page"
           empty="Bu do'kon uchun turkum kesimi yig'ilmagan."
         />
-      </section>
-
-      <section className="space-y-2.5">
-        <div className="font-semibold">Mahsulotlar — qaysi biri qancha tushum keltirgan</div>
-        <Grid
-          columns={
-            [
-              {
-                key: "title", label: "Kartochka", align: "left",
-                render: (r) => (
-                  <div className="flex items-center gap-2.5">
-                    {r.photo && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.photo} alt="" width={28} height={28}
-                           className="h-7 w-7 shrink-0 rounded object-cover" />
-                    )}
-                    <Link href={`/market/products/${r.product_id}`}
-                          className="max-w-[320px] whitespace-normal text-primary hover:underline">
-                      {r.title}
-                    </Link>
-                  </div>
-                ),
-              },
-              { key: "revenue", label: "Tushum", render: (r) => <span className="air-num">{formatCompact(r.revenue)}</span> },
-              { key: "units", label: "Sotuv, dona", render: (r) => <span className="air-num">{formatNumber(r.units)}</span> },
-              { key: "price", label: "O'rtacha narx", render: (r) => <span className="air-num">{r.avg_price ? formatCompact(r.avg_price) : "—"}</span> },
-              { key: "stock", label: "Qoldiq", render: (r) => <span className="air-num">{r.stock != null ? formatNumber(r.stock) : "—"}</span> },
-            ] satisfies Column<MarketProduct>[]
-          }
-          rows={products ?? []}
-          rowKey={(r) => r.product_id}
-          empty="Bu do'kon uchun mahsulot kesimi yig'ilmagan."
-        />
-        <Pagination page={productPage.page} total={productTotal} onPage={productPage.setPage} label="Mahsulotlar sahifalari" />
       </section>
     </div>
   );

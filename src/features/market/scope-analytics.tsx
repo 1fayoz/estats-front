@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { Grid, Growth, NoData, type Column } from "@/features/market/shared";
+import { Pagination, useServerPage } from "@/components/ui/pagination";
+import { Grid, NoData, type Column } from "@/features/market/shared";
 import { formatCompact, formatDate, formatNumber } from "@/lib/format";
 import { MARKET_BASE } from "@/lib/market";
 
@@ -86,26 +87,27 @@ export function ScopeAnalytics({
   const [summary, setSummary] = React.useState<Summary | null>(null);
   const [monthly, setMonthly] = React.useState<MonthRow[]>([]);
   const [top, setTop] = React.useState<Mover[]>([]);
+  const [topTotal, setTopTotal] = React.useState(0);
   const [down, setDown] = React.useState<Mover[]>([]);
   const [failed, setFailed] = React.useState(false);
+  // "Nima olib boryapti" — do'konning HAMMA kartochkasi, serverdan 15
+  // tadan. Ilgari do'kon sahifasida bu yerdan tashqari davr keshidan
+  // o'qiladigan alohida ro'yxat ham turardi va «Hozir yangilash» dan
+  // keyin ikkalasi bir kartochkaga ikki xil tushum ko'rsatardi
+  // (prodda: 2,8 mln va 4,2 mln). Endi ro'yxat BITTA.
+  const topPage = useServerPage({ resetKey: [kind, id, days], param: "movers_page" });
 
   React.useEffect(() => {
     let alive = true;
     const base = `${MARKET_BASE}/${kind}/${id}`;
-    const json = (path: string) =>
-      fetch(`${base}${path}`, { cache: "no-store" }).then((r) =>
-        r.ok ? r.json() : Promise.reject(new Error(String(r.status))),
-      );
     Promise.all([
-      json(`/summary?days=${days}&months=12`),
-      json(`/movers?days=${days}&order=revenue&limit=10`),
-      json(`/movers?days=${days}&order=down&limit=10`),
+      getJson(`${base}/summary?days=${days}&months=12`),
+      getJson(`${base}/movers?days=${days}&order=down&limit=10`),
     ])
-      .then(([s, t, d]) => {
+      .then(([s, d]) => {
         if (!alive) return;
         setSummary(s.summary ?? null);
         setMonthly(s.monthly ?? []);
-        setTop(t.items ?? []);
         setDown((d.items ?? []).filter((row: Mover) => (row.delta ?? 0) < 0));
         setFailed(false);
       })
@@ -114,6 +116,23 @@ export function ScopeAnalytics({
       alive = false;
     };
   }, [kind, id, days]);
+
+  React.useEffect(() => {
+    let alive = true;
+    getJson(
+      `${MARKET_BASE}/${kind}/${id}/movers?days=${days}&order=revenue` +
+        `&limit=${topPage.limit}&offset=${topPage.offset}`,
+    )
+      .then((t) => {
+        if (!alive) return;
+        setTop(t.items ?? []);
+        setTopTotal(t.total ?? 0);
+      })
+      .catch(() => alive && setTop([]));
+    return () => {
+      alive = false;
+    };
+  }, [kind, id, days, topPage.limit, topPage.offset]);
 
   // Eski backendda bu yo'llar yo'q — blok jimgina yashiriladi,
   // sahifaning qolgani ishlayveradi.
@@ -194,7 +213,7 @@ export function ScopeAnalytics({
         </span>
       ),
     },
-    { key: "growth", label: "O'sish", render: (row) => <Growth value={row.growth} /> },
+    { key: "growth", label: "O'sish", render: (row) => <GrowthCell row={row} /> },
     {
       key: "stock",
       label: "Qoldiq",
@@ -284,12 +303,18 @@ export function ScopeAnalytics({
 
       <section className="space-y-2.5">
         <div className="font-semibold">Nima olib boryapti</div>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Hamma kartochkalar — davrdagi tushum bo&apos;yicha. «Ulush» — davrdagi jami
+          tushumdagi hissasi, «O&apos;zgarish» — oldingi xuddi shunday uzunlikdagi
+          davrga nisbatan.
+        </p>
         <Grid
           columns={columns("top")}
           rows={top}
           rowKey={(r) => r.product_id}
           empty="Davrda sotuvi o'lchangan kartochka yo'q."
         />
+        <Pagination page={topPage.page} total={topTotal} onPage={topPage.setPage} label="Kartochkalar sahifalari" />
       </section>
 
       <section className="space-y-2.5">
@@ -307,6 +332,47 @@ export function ScopeAnalytics({
         />
       </section>
     </div>
+  );
+}
+
+function getJson(url: string) {
+  return fetch(url, { cache: "no-store" }).then((r) =>
+    r.ok ? r.json() : Promise.reject(new Error(String(r.status))),
+  );
+}
+
+/**
+ * O'sish katagi — uch holat, uch ko'rinish.
+ *
+ * `null` foiz ikki xil sababdan chiqadi va ularni "yangi" deb bitta
+ * yorliq bilan ko'rsatish yolg'on edi: bozor 11-sentabrdan yig'iladi,
+ * ya'ni ko'p kartochkaning oldingi davri shunchaki O'LCHANMAGAN.
+ */
+function GrowthCell({ row }: { row: Mover }) {
+  if (row.prev_revenue == null) {
+    return (
+      <span className="text-muted-foreground" title="Oldingi davr o'lchanmagan">
+        —
+      </span>
+    );
+  }
+  if (row.growth == null) {
+    return (row.revenue ?? 0) > 0 ? (
+      <span className="text-[color:var(--ok)]" title="Oldingi davrda sotuv 0 edi">
+        noldan
+      </span>
+    ) : (
+      <span className="text-muted-foreground">0</span>
+    );
+  }
+  return (
+    <span
+      className="air-num"
+      style={{ color: row.growth < 0 ? "var(--bad)" : row.growth > 0 ? "var(--ok)" : undefined }}
+    >
+      {row.growth > 0 ? "+" : ""}
+      {formatNumber(row.growth)}%
+    </span>
   );
 }
 
