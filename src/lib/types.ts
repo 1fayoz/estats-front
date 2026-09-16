@@ -2001,6 +2001,12 @@ export interface AiUzumPublish {
    */
   uzumShopId?: number | null;
   uzumShopTitle?: string | null;
+  /**
+   * Sotuvchi qoralamani MAVJUD tovarga o'zi bog'lagan (`status: "linked"`) —
+   * yangi e'lon yaratilmagan. Bog'lanishni faqat shu holatda bekor qilish mumkin.
+   */
+  linkedManually?: boolean | null;
+  linkedAt?: string | null;
   /** Oxirgi "Uzumda tekshirish" natijasi. `null` — hali tekshirilmagan. */
   verified: boolean | null;
   verifiedAt: string | null;

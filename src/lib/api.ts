@@ -1081,6 +1081,22 @@ export const redoAiImages = (id: number, body: AiImageRedo) =>
     body: JSON.stringify(body),
   });
 
+/**
+ * Qoralamani MAVJUD Uzum tovariga bog'laydi — yangi e'lon yaratilmaydi.
+ *
+ * `product` — tovar ID'si yoki uzum.uz havolasi. Shundan keyin «Uzumda
+ * yangilash» shu qoralama matni va rasmlarini o'sha tovarga ko'chiradi.
+ */
+export const linkAiDraftProduct = (id: number, product: string) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/link-product`, {
+    method: "POST",
+    body: JSON.stringify({ product }),
+  });
+
+/** Qo'lda qo'yilgan bog'lanishni bekor qiladi (yuborilgandan keyin mumkin emas). */
+export const unlinkAiDraftProduct = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/link-product`, { method: "DELETE" });
+
 /** Rasmni Uzum'ga yuboriladiganlardan olib tashlaydi (`removed=false` — tiklaydi). Pulsiz, darhol. */
 export const excludeAiImage = (id: number, url: string, removed: boolean) =>
   request<AiDraft>(`/product-ai/drafts/${id}/images/exclude`, {

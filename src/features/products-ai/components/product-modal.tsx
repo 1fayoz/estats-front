@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, ArrowRight, Check, CheckCircle2, Copy, ImagePlus, Lightbulb, Loader2, LockKeyhole, Pencil, Search, ShieldCheck, Sparkles, Square, Trash2, Upload, Wand2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, CheckCircle2, Copy, ImagePlus, Lightbulb, Link2, Loader2, LockKeyhole, Pencil, Search, ShieldCheck, Sparkles, Square, Trash2, Upload, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { ProductDialog } from "@/features/products-ai/components/product-dialog";
@@ -16,6 +16,7 @@ import {
   type DraftTabKey,
 } from "@/features/products-ai/components/draft-fields";
 import { DraftSide } from "@/features/products-ai/components/draft-side";
+import { LinkProductDialog } from "@/features/products-ai/components/link-product-dialog";
 import {
   EDIT_STAGE_LABEL,
   PUBLISH_PHASES,
@@ -38,6 +39,7 @@ import {
   regenerateAiDraft,
   retryAiDraft,
   stopAiDraftUzum,
+  unlinkAiDraftProduct,
   verifyAiDraftUzum,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -268,7 +270,7 @@ export function ProductAiModal({
             va qaysi biri navigatsiya, qaysi biri holat ekani
             bilinmasdi.
           */}
-          {draftPublishStatus ? (
+          {draftPublishStatus && draftPublishStatus !== "linked" ? (
             <PublishProgress
               draft={draft!}
               publishing={draftPublishing}
@@ -370,6 +372,14 @@ export function ProductAiModal({
               toast.success(
                 "To'liq qayta generatsiya boshlandi — tayyor bo'lgach Uzum'ga o'zgargan qismi avtomatik ko'chadi.",
               );
+            })
+          }
+          onLinked={apply}
+          onUnlink={() =>
+            act("unlink", async () => {
+              if (!draft) return;
+              apply(await unlinkAiDraftProduct(draft.id));
+              toast.success("Bog'lanish bekor qilindi — qoralama yana yangi tovar sifatida joylanadi.");
             })
           }
           onVerify={() =>
@@ -642,6 +652,8 @@ function Footer({
   onApprove,
   onPublish,
   onStopPublish,
+  onLinked,
+  onUnlink,
   onToggleEdit,
   onEditUzum,
   onRegenerate,
@@ -665,6 +677,8 @@ function Footer({
   onApprove: () => void;
   onPublish: (categoryManualPath?: string[]) => void;
   onStopPublish: () => void;
+  onLinked: (draft: AiDraft) => void;
+  onUnlink: () => void;
   onToggleEdit: () => void;
   onEditUzum: (replaceImages: boolean) => void;
   onRegenerate: () => void;
@@ -673,6 +687,14 @@ function Footer({
   onClose: () => void;
 }) {
   const [pushImages, setPushImages] = React.useState(false);
+  const [linkOpen, setLinkOpen] = React.useState(false);
+  // Mavjud tovarga bog'langanda rasmlar ham ketishi kutiladi: qoralamada
+  // yangi AI kadrlari turadi, tovarda esa eskisi. Yaratish oqimida esa
+  // sukut o'zgarmaydi (rasm almashtirish — sotuvchining ongli qarori).
+  const linkedStatus = draft?.uzumPublish?.linkedManually && draft?.uzumPublish?.status === "linked";
+  React.useEffect(() => {
+    if (linkedStatus) setPushImages(true);
+  }, [linkedStatus]);
   const activeShop = useActiveShop();
   // Joylash qaysi do'konga ketishi tugmaning O'ZIDA ko'rinsin — bir
   // nechta do'kon bo'lganda sotuvchi buni bosishdan oldin bilishi kerak.
@@ -954,6 +976,7 @@ function Footer({
             Tahrirlashni yakunlash
           </button>
         )}
+        <LinkProductDialog draft={draft} open={linkOpen} onOpenChange={setLinkOpen} onLinked={onLinked} />
         {/*
           Pastda alohida "Yopish" tugmasi YO'Q ENDI: panelning
           burchagida (AirSlider) doim ko'rinadigan × xuddi shu
