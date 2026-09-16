@@ -260,7 +260,7 @@ export default function MarketSellerPage({ params }: { params: Promise<{ id: str
                 key={shop.shop_id}
                 className="group overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-md"
               >
-                <Link href={`/market/shops/${shop.shop_id}`}>
+                <Link href={`/market/shop?shop_id=${shop.shop_id}`}>
                   <div
                     className="h-16 w-full bg-muted bg-cover bg-center"
                     style={shop.banner ? { backgroundImage: `url(${shop.banner})` } : undefined}

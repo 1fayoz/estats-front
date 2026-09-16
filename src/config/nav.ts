@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { Boxes, Building2, PackagePlus, Wallet, Calculator, Compass, Globe2, Megaphone, Plug, Radar, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, Boxes, Building2, FileText, Info, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -17,6 +17,11 @@ export interface NavItem {
    * lekin API 403 beradigan sahifa — eng bezovta qiladigan holat.
    */
   action?: string;
+  /**
+   * Ichma-ich bo'limlar — «Bozor» menyusi ZoomSelling hisobotidagi
+   * tuzilishda: guruh bosilganda ochiladi/yopiladi, o'zi sahifa emas.
+   */
+  children?: NavItem[];
 }
 
 export interface NavGroup {
@@ -110,68 +115,69 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "Bozor",
     items: [
       {
-        label: "Bozor holati",
+        label: "Ko'rib Uzum",
         action: "market.view",
         href: "/market" as Route,
-        icon: Globe2,
+        icon: Store,
         description: "Butun Uzum bozori bir qarashda",
-        badge: "Yangi",
       },
       {
-        label: "Kategoriyalar",
+        label: "Kategoriya va qatlamlari",
         action: "market.view",
         href: "/market/categories" as Route,
-        icon: Boxes,
-        description: "Toifalar hajmi va yetakchi do'konlar",
+        icon: LayoutDashboard,
+        children: [
+          { label: "Kategoriyalar", action: "market.view", href: "/market/categories" as Route, icon: Boxes },
+          { label: "Dinamikasi", action: "market.view", href: "/market/dynamics" as Route, icon: Boxes },
+          { label: "Qatlamlari", action: "market.view", href: "/market/niches" as Route, icon: Boxes },
+          { label: "Narx asosida tahlil", action: "market.view", href: "/market/prices" as Route, icon: Boxes },
+          { label: "Raqobat / assortiment", action: "market.view", href: "/market/competition" as Route, icon: Boxes },
+        ],
       },
       {
-        label: "Dinamikasi",
-        action: "market.view",
-        href: "/market/dynamics" as Route,
-        icon: Target,
-        description: "Tanlangan toifaning kunlik o'zgarishi",
-      },
-      {
-        label: "Qatlamlari",
-        action: "market.view",
-        href: "/market/niches" as Route,
-        icon: Compass,
-        description: "Nisha va ichki qatlamlarni solishtirish",
-      },
-      {
-        label: "Narx asosida tahlil",
-        action: "market.view",
-        href: "/market/prices" as Route,
-        icon: Calculator,
-        description: "Talab va raqobatning narx segmentlari",
-      },
-      {
-        label: "Bozordagi tovarlar",
+        label: "Maxsulot tanlash",
         action: "market.view",
         href: "/market/products" as Route,
-        icon: Radar,
-        description: "Raqobatchilarning kartochkalari",
+        icon: BarChart3,
+        children: [
+          { label: "kartochka asosida", action: "market.view", href: "/market/products" as Route, icon: Boxes },
+          { label: "SKU asosida", action: "market.view", href: "/market/skus" as Route, icon: Boxes },
+          { label: "Maxsulot kartochkasi", action: "market.view", href: "/market/card" as Route, icon: Boxes },
+          { label: "Kartochka (tablica)", action: "market.view", href: "/market/card-table" as Route, icon: Boxes },
+        ],
       },
       {
-        label: "Do'konlar",
-        action: "market.view",
-        href: "/market/shops" as Route,
-        icon: Store,
-        description: "Kim qancha sotyapti",
-      },
-      {
-        label: "Sotuvchilar",
-        action: "market.view",
-        href: "/market/sellers" as Route,
-        icon: Building2,
-        description: "Yuridik shaxs — bir nechta do'kon egasi",
-      },
-      {
-        label: "Qidiruv so'rovlari",
+        label: "SEO | Joylashuv",
         action: "market.view",
         href: "/market/seo" as Route,
-        icon: SearchCheck,
-        description: "Xaridor nima deb yozadi",
+        icon: FileText,
+        children: [
+          { label: "Mahsulot kalitlari", action: "market.view", href: "/market/seo" as Route, icon: Boxes },
+          { label: "Kalit soʻz tahlili", action: "market.view", href: "/market/seo/keyword" as Route, icon: Boxes },
+          { label: "Raqobatchilar va pozitsiyalar", action: "market.view",
+            href: "/market/seo/competitors" as Route, icon: Boxes },
+        ],
+      },
+      {
+        label: "Sotuvchi va do\u2019konlar",
+        action: "market.view",
+        href: "/market/shops" as Route,
+        icon: Building2,
+        children: [
+          { label: "Do\u2019konlar reytingi", action: "market.view", href: "/market/shops" as Route, icon: Boxes },
+          { label: "Do\u2019kon tahlili", action: "market.view", href: "/market/shop" as Route, icon: Boxes },
+          { label: "Sotuvchining SKUlari", action: "market.view", href: "/market/seller-skus" as Route, icon: Boxes },
+          { label: "Sotuvchilar", action: "market.view", href: "/market/sellers" as Route, icon: Boxes },
+        ],
+      },
+      {
+        label: "Video-Yuriqnomasi",
+        action: "market.view",
+        href: "/market/videos" as Route,
+        icon: Info,
+        children: [
+          { label: "Video-yuriqnomalar", action: "market.view", href: "/market/videos" as Route, icon: Boxes },
+        ],
       },
     ],
   },
@@ -201,7 +207,12 @@ export const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-export const ALL_NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
+/** Guruh ichidagi hamma OCHILADIGAN sahifa — bolalari bo'lsa bolalari, bo'lmasa o'zi. */
+export function leafItems(items: NavItem[]): NavItem[] {
+  return items.flatMap((item) => (item.children?.length ? item.children : [item]));
+}
+
+export const ALL_NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => leafItems(g.items));
 
 /**
  * Ruxsat bo'yicha filtrlangan menyu.
@@ -219,6 +230,11 @@ export function visibleNav(actions: string[] | undefined): NavGroup[] {
   const allowed = new Set(actions);
   return NAV_GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter((item) => !item.action || allowed.has(item.action)),
+    items: group.items
+      .filter((item) => !item.action || allowed.has(item.action))
+      .map((item) => (item.children
+        ? { ...item, children: item.children.filter((c) => !c.action || allowed.has(c.action)) }
+        : item))
+      .filter((item) => !item.children || item.children.length > 0),
   })).filter((group) => group.items.length > 0);
 }

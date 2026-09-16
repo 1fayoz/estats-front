@@ -147,7 +147,7 @@ export function ScopeAnalytics({
       label: "Kartochka",
       align: "left",
       render: (row) => (
-        <Link href={`/market/products/${row.product_id}`} className="flex items-center gap-2 hover:underline">
+        <Link href={`/market/card?id=${row.product_id}`} className="flex items-center gap-2 hover:underline">
           {row.photo && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={row.photo} alt="" className="size-8 shrink-0 rounded-md object-cover" />
@@ -164,7 +164,7 @@ export function ScopeAnalytics({
             align: "left" as const,
             render: (row: Mover) =>
               row.shop_id ? (
-                <Link href={`/market/shops/${row.shop_id}`} className="hover:underline">
+                <Link href={`/market/shop?shop_id=${row.shop_id}`} className="hover:underline">
                   {row.shop ?? "—"}
                 </Link>
               ) : (

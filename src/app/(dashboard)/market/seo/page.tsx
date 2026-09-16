@@ -1,84 +1,96 @@
 "use client";
-import { Pagination, useServerPage } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
 
-import { PageHeader } from "@/components/dashboard/page-header";
-import { StateBanner } from "@/features/market/state-banner";
-import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
-import { ExportButtons } from "@/features/market/export-buttons";
-import { Input } from "@/components/ui/input";
-import { Failed, Grid, Loading, type Column } from "@/features/market/shared";
-import { formatCompact, formatNumber } from "@/lib/format";
-import { market, type MarketKeyword, type MarketPage } from "@/lib/market";
+import { CategoryPathControl } from "@/features/report/filters";
+import {
+  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SourceNote, ZTable, fmt, styles, useLoad, useParams,
+} from "@/features/report/ui";
+import { report, type KeywordRow } from "@/lib/report";
 
-export default function MarketSeoPage() {
-  const [q, setQ] = React.useState("");
-  const { page, setPage, offset, limit } = useServerPage({ resetKey: [q] });
-  const [data, setData] = React.useState<MarketPage<MarketKeyword> | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+/*
+  «Mahsulot kalitlari» — predmet bo'yicha qidiruv so'rovlari: davr
+  qamrovi (ko'rsatishlar), kunlik qamrov, qidiruvdagi va reklamadagi
+  SKU'lar, talab koeffitsiyenti. ZoomSelling'da sukut predmeti — «sumkalar».
+*/
 
-  React.useEffect(() => {
-    setError(null);
-    const timer = setTimeout(() => {
-      market.keywords({ q: q || undefined, offset, limit }).then(setData).catch((e) => setError(e.message));
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [q, offset, limit]);
+const LIMIT = 100;
 
-  const columns: Column<MarketKeyword>[] = [
-    {
-      key: "text", label: "So'rov", align: "left",
-      render: (r) => (
-        <Link href={`/market/seo/${r.keyword_id}`} className="text-primary hover:underline">
-          {r.text}
-        </Link>
-      ),
-    },
-    { key: "coverage", label: "Qamrov (1 kun)", render: (r) => <span className="air-num">{r.coverage != null ? formatNumber(r.coverage) : "—"}</span> },
-    { key: "cards", label: "Kartochkalar", render: (r) => <span className="air-num">{r.cards != null ? formatNumber(r.cards) : "—"}</span> },
-    { key: "ads", label: "Reklamada", render: (r) => <span className="air-num text-muted-foreground">{r.cards_in_ads ?? "—"}</span> },
-    // Talab koeffitsiyenti = qamrov / kartochkalar. Nisha
-    // tanlashda eng kerakli raqam: ommabop so'z ustida 5 000
-    // raqobatchi bo'lsa, ommaboplik foyda emas.
-    { key: "demand", label: "Talab koeff.", render: (r) => <span className="air-num">{r.demand_ratio != null ? formatNumber(Number(r.demand_ratio.toFixed(2))) : "—"}</span> },
-    { key: "revenue", label: "TOP-100 tushumi", render: (r) => <span className="air-num">{r.top100_revenue != null ? formatCompact(r.top100_revenue) : "—"}</span> },
-  ];
+const growthTone = (v: number | null) => (v == null ? undefined : v >= 0 ? { color: "#34a853" } : { color: "#ea4335" });
 
-  // Ustun tanlovi — `columns` dan keyin, chunki ro'yxat undan
-  // olinadi. Zavod holatida hammasi ko'rinadi.
-  const options = React.useMemo(
-    () => columns.map((c) => ({ key: c.key, label: c.label })),
-    [columns],
+export default function KeywordsPage() {
+  const [params, setParams] = useParams({
+    period: "d30", subject: "sumkalar", category: "", keyword: "", sort: "coverage", dir: "desc", offset: "0",
+  });
+  const offset = Number(params.offset) || 0;
+  const { data, error } = useLoad(
+    () => report.keywords({ period: params.period, subject: params.subject || undefined,
+                            keyword: params.keyword || undefined, sort: params.sort, dir: params.dir, offset,
+                            limit: LIMIT }),
+    [params.period, params.subject, params.keyword, params.sort, params.dir, offset],
   );
-  const { visible, setVisible, reset } = useColumnPrefs("market-keywords", options);
+  const reset = { offset: null };
 
   return (
-    <div className="space-y-4">
-      <PageHeader title="Qidiruv so'rovlari"
-        description="Xaridor nima deb yozadi, u so'rov ustida qancha raqobat bor."
-        actions={
-          <div className="flex flex-wrap items-center gap-3">
-            <ColumnSettingsButton
-              title="Qidiruv so'rovlari"
-              options={options}
-              visible={visible}
-              onApply={setVisible}
-              onReset={reset}
-            />
-            <ExportButtons report="keywords" days={30} />
-          </div>
-        }
-      />
-      <StateBanner />
-
-      <Input placeholder="So'rov…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
-      {error ? <Failed message={error} /> : !data ? <Loading /> : (
-        <Grid columns={columns} visible={visible} rows={data.items} rowKey={(r) => r.keyword_id}
-              empty="Kalit so'zlar hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limida «Kalit so'zlar» qadamini ishga tushiring." />
-      )}
-      {data && !error && <Pagination page={page} total={data.total} onPage={setPage} label="So'rovlar sahifalari" />}
-    </div>
+    <ReportPage>
+      <Row>
+        <PeriodControl value={params.period} periods={data?.periods ?? []}
+                       onChange={(period) => setParams({ period, ...reset })} style={{ width: 195 }} />
+        <InputControl label="Predmet:" value={params.subject}
+                      onCommit={(subject) => setParams({ subject, ...reset })} style={{ width: 190 }} />
+        <CategoryPathControl value={params.category || null} period={params.period}
+                             onChange={(category) => setParams({ category, ...reset })} style={{ width: 390 }} />
+        <InputControl label="SEO-kalit" value={params.keyword}
+                      onCommit={(keyword) => setParams({ keyword, ...reset })} style={{ flex: 1 }} />
+      </Row>
+      <Card>
+        {error ? <Empty>{error}</Empty> : null}
+        <ZTable<KeywordRow>
+          rows={data?.items ?? []}
+          rowKey={(r) => `${r.keyword}|${r.subject}`}
+          sort={params.sort}
+          dir={params.dir as "asc" | "desc"}
+          onSort={(sort, dir) => setParams({ sort, dir, ...reset })}
+          offset={offset}
+          total={data?.total}
+          limit={LIMIT}
+          onPage={(o) => setParams({ offset: String(o) })}
+          height="calc(100vh - 250px)"
+          columns={[
+            { key: "keyword", title: "SEO-kalit ↗", sortable: false,
+              render: (r) => (
+                <Link className={styles.link} href={`/market/seo/keyword?keyword=${encodeURIComponent(r.keyword)}`}>
+                  {r.keyword} ↗
+                </Link>
+              ) },
+            { key: "subject", title: "subyekt", sortable: false, value: (r) => r.subject },
+            { key: "competition", title: "Kalit so'z raqobati", center: true, sortable: false,
+              render: (r) => (
+                <Link className={styles.link}
+                      href={`/market/seo/competitors?keyword=${encodeURIComponent(r.keyword)}`}>↗</Link>
+              ) },
+            { key: "uzum", title: "Uzum↗", center: true, sortable: false,
+              render: (r) => (
+                <a className={styles.link} target="_blank" rel="noreferrer"
+                   href={`https://uzum.uz/uz/search?query=${encodeURIComponent(r.keyword)}`}>↗</a>
+              ) },
+            { key: "coverage", title: "Davr uchun qamrov", num: true, value: (r) => r.coverage, bar: "#1f3b73" },
+            { key: "coverage_growth", title: "O'sish %", num: true, value: (r) => r.coverage_growth,
+              format: fmt.pct(0), tone: (r) => growthTone(r.coverage_growth) },
+            { key: "daily_coverage", title: "Kunlik qamrov", num: true, value: (r) => r.daily_coverage },
+            { key: "search_skus", title: "Qidiruv SKU / kun", num: true, value: (r) => r.search_skus },
+            { key: "search_skus_growth", title: "O'sish %", num: true, value: (r) => r.search_skus_growth,
+              format: fmt.pct(0), tone: (r) => growthTone(r.search_skus_growth) },
+            { key: "ads_skus", title: "Reklamadagi SKU / kun", num: true, value: (r) => r.ads_skus },
+            { key: "ads_skus_growth", title: "O'sish %", num: true, value: (r) => r.ads_skus_growth,
+              format: fmt.pct(0), tone: (r) => growthTone(r.ads_skus_growth) },
+            { key: "demand", title: "Talab koeffitsiyenti", num: true, value: (r) => r.demand },
+          ]}
+          empty="Bu predmet va davr uchun kalit so'zlar hali yuklanmagan"
+        />
+      </Card>
+      <SourceNote meta={data?.meta} />
+    </ReportPage>
   );
 }

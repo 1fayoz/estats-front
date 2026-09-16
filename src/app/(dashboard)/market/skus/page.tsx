@@ -3,34 +3,32 @@
 import * as React from "react";
 
 import { CategoryPathControl, ToifaControl } from "@/features/report/filters";
-import { periodDays, productColumns } from "@/features/report/product-columns";
+import { skuColumns } from "@/features/report/product-columns";
 import {
-  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SelectControl, SourceNote, ZTable, styles, useLoad,
-  useParams,
+  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SourceNote, ZTable, useLoad, useParams,
 } from "@/features/report/ui";
-import { report, type ProductRow } from "@/lib/report";
+import { report, type SkuRow } from "@/lib/report";
 
 /*
-  «kartochka asosida» — tanlangan davr va toifadagi kartochkalar,
-  ZoomSelling jadvalining 18 ustuni bilan. Sahifada 100 qator
-  (ZoomSelling'dagi kabi «1 - 100 / 25161»).
+  «SKU asosida» — variant (o'lcham/rang) darajasidagi ro'yxat.
+  «Oborot, kunlik» bu jadvalda stokda bo'lgan kunlar bo'yicha:
+  o'rtacha qoldiq ÷ (sotuv ÷ stokdagi kunlar) — ZoomSelling'da o'lchangan
+  (SKU 9826764: 43,24).
 */
 
 const LIMIT = 100;
 
-export default function ProductsPage() {
+export default function SkusPage() {
   const [params, setParams] = useParams({
-    period: "d30", toifa: "Elektronika", category: "", shop: "", sales: "yes", q: "", sort: "revenue", dir: "desc",
-    offset: "0",
+    period: "d30", toifa: "Elektronika", category: "", shop: "", q: "", sort: "revenue", dir: "desc", offset: "0",
   });
   const offset = Number(params.offset) || 0;
   const { data, error } = useLoad(
-    () => report.products({ period: params.period, toifa: params.toifa, category: params.category || undefined,
-                            shop: params.shop || undefined, q: params.q || undefined, sort: params.sort,
-                            dir: params.dir, offset, limit: LIMIT }),
-    [params.period, params.toifa, params.category, params.shop, params.q, params.sort, params.dir, offset],
+    () => report.skus({ period: params.period, toifa: params.toifa, category: params.category || undefined,
+                        q: params.q || undefined, sort: params.sort, dir: params.dir, offset, limit: LIMIT }),
+    [params.period, params.toifa, params.category, params.q, params.sort, params.dir, offset],
   );
-  const columns = React.useMemo(() => productColumns(periodDays(params.period)), [params.period]);
+  const columns = React.useMemo(() => skuColumns(), []);
   const reset = { offset: null };
 
   return (
@@ -46,18 +44,15 @@ export default function ProductsPage() {
       <Row>
         <InputControl label="Do'konlar soni" value={params.shop} placeholder="do'kon nomi"
                       onCommit={(shop) => setParams({ shop, ...reset })} style={{ width: 150 }} />
-        <SelectControl label="Davrdagi sotuvlar" value={params.sales} searchable={false} allowClear={false}
-                       options={[{ value: "yes", label: "Да" }]} onChange={() => undefined}
-                       style={{ width: 235 }} />
         <InputControl label="Nomi bo'yicha qidiruv" value={params.q}
                       onCommit={(q) => setParams({ q, ...reset })} style={{ flex: 1 }} />
       </Row>
-      <Card title="Kartochkalar ro'yxati" bordered>
+      <Card title="SKU ro'yxati (davr bo'yicha sotuvlar bilan)" bordered>
         {error ? <Empty>{error}</Empty> : null}
-        <ZTable<ProductRow>
+        <ZTable<SkuRow>
           numbered={false}
           rows={data?.items ?? []}
-          rowKey={(r) => r.product_id}
+          rowKey={(r) => r.sku_id}
           columns={columns}
           sort={params.sort}
           dir={params.dir as "asc" | "desc"}
@@ -70,9 +65,6 @@ export default function ProductsPage() {
         />
       </Card>
       <SourceNote meta={data?.meta} />
-      <div className={styles.note}>
-        «Davrdagi sotuvlar: Да» — ZoomSelling eksportidagi kabi faqat davrda sotuvi bo&apos;lgan kartochkalar.
-      </div>
     </ReportPage>
   );
 }

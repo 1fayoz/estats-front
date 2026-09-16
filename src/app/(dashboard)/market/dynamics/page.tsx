@@ -1,121 +1,67 @@
 "use client";
 
 import * as React from "react";
+
+import { ComboDaily, TwoLines } from "@/features/report/charts";
+import { CategoryPathControl, useReportIndex } from "@/features/report/filters";
 import {
-  CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
-} from "recharts";
+  Card, DateRangeControl, Empty, ReportPage, Row, dayLabel, styles, useLoad, useParams,
+} from "@/features/report/ui";
+import { report } from "@/lib/report";
 
-import { PageHeader } from "@/components/dashboard/page-header";
-import { CategoryFilter, useCategoryParam } from "@/features/market/category-filter";
-import { StateBanner } from "@/features/market/state-banner";
-import { Failed, Loading, NoData, PeriodPicker, usePeriod } from "@/features/market/shared";
-import { formatCompact, formatNumber } from "@/lib/format";
-import { market, type MarketNichePoint } from "@/lib/market";
+/*
+  «Dinamikasi» — barg turkumning kunlik qatori: tushum (ustun) va
+  sotuvdagi kartochkalar narxining medianasi (chiziq); pastda do'konlar
+  va kartochkalar soni. ZoomSelling tarixi 2024-01-02 dan boshlanadi.
+*/
 
-const shortDay = (value: unknown) => {
-  const [, month, day] = String(value ?? "").split("-");
-  return day && month ? `${day}.${month}` : "";
-};
-const tipMoney = (value: unknown) => value == null ? "—" : formatCompact(Number(value));
-const tipNumber = (value: unknown) => value == null ? "—" : formatNumber(Number(value));
+const DEFAULT_PATH = "elektronika, smartfonlar va telefonlar, smartfonlar, smartfonlar android";
 
-function Fact({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border bg-card p-3.5">
-      <div className="text-[11px] text-muted-foreground">{label}</div>
-      <div className="air-num mt-1 text-xl font-semibold">{value}</div>
-    </div>
-  );
+function shift(iso: string, days: number): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
 }
 
 export default function DynamicsPage() {
-  const days = usePeriod(3650);
-  const [category, setCategory] = useCategoryParam();
-  const [series, setSeries] = React.useState<MarketNichePoint[] | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (!category) { setSeries(null); return; }
-    setError(null);
-    market.nicheDynamics(category, Math.max(days, 7))
-      .then(setSeries)
-      .catch((e) => setError(e.message));
-  }, [category, days]);
-
-  const latest = series?.at(-1);
+  const index = useReportIndex();
+  const end = index?.as_of ?? new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+  const [params, setParams] = useParams({ path: DEFAULT_PATH, start: "", end: "" });
+  const range = { start: params.start || shift(end, -360), end: params.end || end };
+  const { data, error } = useLoad(
+    () => report.dynamics({ path: params.path, start: range.start, end: range.end }),
+    [params.path, range.start, range.end],
+  );
+  const series = data?.series ?? [];
+  const label = (iso: string) => dayLabel(iso).replace(" y.", "");
 
   return (
-    <div className="space-y-5">
-      <PageHeader
-        title="Dinamikasi"
-        description="Tanlangan kategoriya yoki nishaning kunlik o'zgarishi."
-        actions={<PeriodPicker periods={[30, 90, 365, 3650]} defaultDays={3650} />}
-      />
-      <StateBanner />
-      <CategoryFilter value={category} onChange={setCategory} allowAll={false} />
-
-      {error ? <Failed message={error} /> : !category || !series ? <Loading /> : series.length === 0 ? (
-        <NoData>Tanlangan toifa bo&apos;yicha hali kunlik o&apos;lchov yo&apos;q.</NoData>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
-            <Fact label="Kunlik tushum" value={latest?.revenue ? formatCompact(latest.revenue) : "—"} />
-            <Fact label="Sotuv, dona" value={latest?.units != null ? formatNumber(latest.units) : "—"} />
-            <Fact label="Median narx" value={latest?.median_price ? formatCompact(latest.median_price) : "—"} />
-            <Fact label="Do'konlar" value={latest?.shops != null ? formatNumber(latest.shops) : "—"} />
-            <Fact label="Kartochkalar" value={latest?.products != null ? formatNumber(latest.products) : "—"} />
-            <Fact label="Oborot, kun" value={latest?.turnover_days != null ? formatNumber(latest.turnover_days) : "—"} />
-          </div>
-
-          <div className="rounded-xl border bg-card p-4">
-            <div className="mb-3 text-xs font-medium text-muted-foreground">Tushum va sotuv dinamikasi</div>
-            <ResponsiveContainer width="100%" height={330}>
-              <LineChart data={series} margin={{ left: 6, right: 12 }}>
-                <CartesianGrid stroke="var(--border)" />
-                <XAxis dataKey="day" tickFormatter={shortDay} fontSize={11} />
-                <YAxis yAxisId="money" tickFormatter={(value: number) => formatCompact(value)} fontSize={11} />
-                <YAxis yAxisId="units" orientation="right" fontSize={11} />
-                <Tooltip labelFormatter={shortDay} formatter={tipMoney} />
-                <Legend />
-                <Line yAxisId="money" type="monotone" dataKey="revenue" name="Tushum" stroke="#0075ff" strokeWidth={2} dot={false} />
-                <Line yAxisId="units" type="monotone" dataKey="units" name="Sotuv, dona" stroke="#faa72c" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="grid gap-3 xl:grid-cols-2">
-            <div className="rounded-xl border bg-card p-4">
-              <div className="mb-3 text-xs font-medium text-muted-foreground">Narx dinamikasi</div>
-              <ResponsiveContainer width="100%" height={270}>
-                <LineChart data={series} margin={{ left: 6, right: 12 }}>
-                  <CartesianGrid stroke="var(--border)" />
-                  <XAxis dataKey="day" tickFormatter={shortDay} fontSize={11} />
-                  <YAxis tickFormatter={(value: number) => formatCompact(value)} fontSize={11} />
-                  <Tooltip labelFormatter={shortDay} formatter={tipMoney} />
-                  <Legend />
-                  <Line type="monotone" dataKey="median_price" name="Median narx" stroke="#5b4bc4" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="avg_price" name="O'rtacha narx" stroke="#00b8d4" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="rounded-xl border bg-card p-4">
-              <div className="mb-3 text-xs font-medium text-muted-foreground">Raqobat dinamikasi</div>
-              <ResponsiveContainer width="100%" height={270}>
-                <LineChart data={series} margin={{ left: 6, right: 12 }}>
-                  <CartesianGrid stroke="var(--border)" />
-                  <XAxis dataKey="day" tickFormatter={shortDay} fontSize={11} />
-                  <YAxis fontSize={11} />
-                  <Tooltip labelFormatter={shortDay} formatter={tipNumber} />
-                  <Legend />
-                  <Line type="monotone" dataKey="shops" name="Do'konlar" stroke="#1bce7b" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="products" name="Kartochkalar" stroke="#e05fa0" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+    <ReportPage>
+      <Row>
+        <DateRangeControl start={range.start} end={range.end} style={{ width: 205 }}
+                          onChange={(start, e) => setParams({ start, end: e })} />
+        <CategoryPathControl value={params.path} onChange={(path) => setParams({ path: path ?? DEFAULT_PATH })}
+                             style={{ flex: 1 }} />
+      </Row>
+      {error ? <Card><Empty>{error}</Empty></Card> : null}
+      <Card>
+        {series.length ? (
+          <>
+            <ComboDaily data={series} bars="revenue" line="median_price" barName="Tushim (soʻm)"
+                        lineName="O'rtacha narxlar (sotuvdagi kartochkalar narxining medianasi)" height={310}
+                        dateLabel={label} />
+            <TwoLines data={series} left="shops" right="cards" leftName="Do'konlar" rightName="Kartochkalar"
+                      height={230} dateLabel={label} />
+          </>
+        ) : <Empty>Bu turkum uchun kunlik qator hali yo&apos;q</Empty>}
+      </Card>
+      {series.length ? (
+        <div className={styles.note}>
+          Manba: {series.some((s) => s.source === "zoomselling") ? "ZoomSelling tarixi" : ""}
+          {series.some((s) => s.source === "zoomselling") && series.some((s) => s.source === "estats") ? " + " : ""}
+          {series.some((s) => s.source === "estats") ? "o'z o'lchovimiz" : ""}
+        </div>
+      ) : null}
+    </ReportPage>
   );
 }

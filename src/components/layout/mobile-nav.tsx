@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import type { Route } from "next";
 import { Boxes, Calculator, LayoutGrid, SearchCheck, Share2, X } from "lucide-react";
 
-import { visibleNav } from "@/config/nav";
+import { leafItems, visibleNav } from "@/config/nav";
 import { useActions } from "@/stores/user-store";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ export function MobileNav() {
   const allowed = new Set(actions);
   const quick = QUICK.filter((item) => allowed.has(item.action));
   const extra = groups
-    .flatMap((group) => group.items)
+    .flatMap((group) => leafItems(group.items))
     .filter((item) => !QUICK.some((q) => q.href === item.href));
   const bottom = [...quick, ...extra].slice(0, 4);
 
@@ -93,9 +93,9 @@ export function MobileNav() {
                   <div className="px-2 pb-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
                     {group.title}
                   </div>
-                  {group.items.map((item) => (
+                  {leafItems(group.items).map((item) => (
                     <Link
-                      key={item.href}
+                      key={`${item.label}-${String(item.href)}`}
                       href={item.href}
                       className={cn(
                         "flex items-start gap-3 rounded-xl px-2 py-2.5",

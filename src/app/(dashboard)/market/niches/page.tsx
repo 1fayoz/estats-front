@@ -1,140 +1,78 @@
 "use client";
-import { Pagination, useServerPage } from "@/components/ui/pagination";
 
 import * as React from "react";
-import Link from "next/link";
 
-import { PageHeader } from "@/components/dashboard/page-header";
-import { StateBanner } from "@/features/market/state-banner";
-import { CategoryFilter, useCategoryParam } from "@/features/market/category-filter";
-import { ColumnSettingsButton, useColumnPrefs } from "@/components/air/column-settings";
-import { ExportButtons } from "@/features/market/export-buttons";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CategoryPathControl, ToifaControl } from "@/features/report/filters";
 import {
-  Failed, Grid, Growth, Loading, PeriodPicker, usePeriod, type Column,
-} from "@/features/market/shared";
-import { formatCompact, formatNumber, formatPercent } from "@/lib/format";
-import { market, type MarketNiche, type MarketPage } from "@/lib/market";
+  COLORS, Card, Empty, PeriodControl, ReportPage, Row, SourceNote, ZTable, fmt, useLoad, useParams,
+} from "@/features/report/ui";
+import { report, type LayerRow } from "@/lib/report";
 
-export default function NichesPage() {
-  const days = usePeriod();
-  const [category, setCategory] = useCategoryParam();
-  const [q, setQ] = React.useState("");
-  const [level, setLevel] = React.useState("all");
-  const [order, setOrder] = React.useState<"revenue" | "units" | "growth" | "shops" | "products" | "revenue_per_shop">("revenue");
-  const { page, setPage, offset, limit } = useServerPage({ resetKey: [days, q, category, level, order] });
-  const [data, setData] = React.useState<MarketPage<MarketNiche> | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+/*
+  «Qatlamlari» — hamma barg turkum bitta jadvalda. Ustun ranglari
+  ZoomSelling'dagi bilan bir xil (heatmap alfa = qiymat / ustun maksimumi);
+  «Defitsit» 30 kundan kam bo'lsa to'q ko'k fon bilan belgilanadi.
+*/
 
-  React.useEffect(() => {
-    setError(null);
-    // Har harfda emas, 350 ms tinchlikdan keyin. 4 800 qatorli
-    // jadvalda har bosishga so'rov yuborish serverni ham,
-    // brauzerni ham bo'g'ib qo'yadi.
-    const timer = setTimeout(() => {
-      market.niches({
-        days,
-        q: q || undefined,
-        root: category ?? undefined,
-        level: level === "all" ? undefined : Number(level),
-        order,
-        offset,
-        limit,
-      }).then(setData).catch((e) => setError(e.message));
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [days, q, category, level, order, offset, limit]);
+const LIMIT = 500;
 
-  const columns: Column<MarketNiche>[] = [
-    {
-      key: "niche", label: "Nisha", align: "left",
-      render: (r) => (
-        <Link href={`/market/dynamics?category=${r.category_id}&days=${days}`} className="text-primary hover:underline">
-          {r.niche}
-        </Link>
-      ),
-    },
-    { key: "revenue", label: "Tushum", render: (r) => <span className="air-num">{formatCompact(r.revenue)}</span> },
-    { key: "growth", label: "O'sish", render: (r) => <Growth value={r.growth} /> },
-    { key: "units", label: "Sotuv, dona", render: (r) => <span className="air-num">{formatNumber(r.units)}</span> },
-    { key: "median", label: "Median narx", render: (r) => <span className="air-num">{r.median_price ? formatCompact(r.median_price) : "—"}</span> },
-    { key: "shops", label: "Do'konlar", render: (r) => <span className="air-num">{formatNumber(r.shops)}</span> },
-    { key: "spct", label: "…sotuvlar bilan", render: (r) => <span className="air-num text-muted-foreground">{r.shops_with_sales_pct != null ? formatPercent(r.shops_with_sales_pct) : "—"}</span> },
-    { key: "products", label: "Kartochka", render: (r) => <span className="air-num">{formatNumber(r.products)}</span> },
-    { key: "ppct", label: "…sotuvlar bilan", render: (r) => <span className="air-num text-muted-foreground">{r.products_with_sales_pct != null ? formatPercent(r.products_with_sales_pct) : "—"}</span> },
-    // ZoomSelling'da BU USTUN YO'Q va u aynan qaror qabul
-    // qilinadigan raqam: nishaning umumiy hajmi emas, bir
-    // do'konga tegadigan ulush.
-    { key: "pershop", label: "Do'kon boshiga", render: (r) => <span className="air-num">{r.revenue_per_shop ? formatCompact(r.revenue_per_shop) : "—"}</span> },
-    { key: "turnover", label: "Oborot, kun", render: (r) => <span className="air-num">{r.turnover_days ? formatNumber(r.turnover_days) : "—"}</span> },
-  ];
-
-  // Ustun tanlovi — `columns` dan keyin, chunki ro'yxat undan
-  // olinadi. Zavod holatida hammasi ko'rinadi.
-  const options = React.useMemo(
-    () => columns.map((c) => ({ key: c.key, label: c.label })),
-    [columns],
+export default function LayersPage() {
+  const [params, setParams] = useParams({ period: "d30", root: "", category: "", sort: "revenue", dir: "desc",
+                                          offset: "0" });
+  const offset = Number(params.offset) || 0;
+  const { data, error } = useLoad(
+    () => report.layers({ period: params.period, root: params.root || undefined,
+                          category: params.category || undefined, sort: params.sort, dir: params.dir, offset,
+                          limit: LIMIT }),
+    [params.period, params.root, params.category, params.sort, params.dir, offset],
   );
-  const { visible, setVisible, reset } = useColumnPrefs("market-niches", options);
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Qatlamlari"
-        description="Qaysi nishada qancha aylanadi va bir do'konga qancha tegadi."
-        actions={
-          <div className="flex flex-wrap items-center gap-3">
-            <PeriodPicker />
-            <ColumnSettingsButton
-              title="Qatlamlari"
-              options={options}
-              visible={visible}
-              onApply={setVisible}
-              onReset={reset}
-            />
-            <ExportButtons report="niches" days={days} root={category ?? undefined} />
-          </div>
-        }
-      />
-      <StateBanner />
-
-      <CategoryFilter value={category} onChange={setCategory} />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Input
-          placeholder="Nisha nomi bo'yicha qidirish…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          className="max-w-xs"
+    <ReportPage>
+      <Row>
+        <PeriodControl value={params.period} periods={data?.periods ?? []}
+                       onChange={(period) => setParams({ period, offset: null })} style={{ width: 200 }} />
+        <ToifaControl label="Asosiy Kategoriya" value={params.root || null} allowClear
+                      onChange={(root) => setParams({ root, category: null, offset: null })} style={{ width: 200 }} />
+        <CategoryPathControl value={params.category || null} period={params.period} root={params.root || null}
+                             onChange={(category) => setParams({ category, offset: null })} style={{ flex: 1 }} />
+      </Row>
+      <Card>
+        {error ? <Empty>{error}</Empty> : null}
+        <ZTable<LayerRow>
+          rows={data?.items ?? []}
+          rowKey={(r) => r.path}
+          sort={params.sort}
+          dir={params.dir as "asc" | "desc"}
+          onSort={(sort, dir) => setParams({ sort, dir, offset: null })}
+          offset={offset}
+          total={data?.total}
+          limit={LIMIT}
+          onPage={(o) => setParams({ offset: String(o) })}
+          height="calc(100vh - 260px)"
+          columns={[
+            { key: "path", title: "Toifa", value: (r) => r.path, width: "34%", sortable: false },
+            { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, format: fmt.compact,
+              heat: COLORS.heatBlue },
+            { key: "growth", title: "O'sish %", num: true, value: (r) => r.growth, format: fmt.pct(0) },
+            { key: "units", title: "Sotuv, donada", num: true, value: (r) => r.units, heat: COLORS.heatDeep },
+            { key: "avg_price", title: "O'rtacha narx", num: true, value: (r) => r.avg_price, heat: COLORS.heatLight },
+            { key: "shops", title: "Do'konlar soni", num: true, value: (r) => r.shops, heat: COLORS.heatBlue },
+            { key: "shops_with_sales", title: "... sotuvlar bilan", num: true, value: (r) => r.shops_with_sales,
+              format: fmt.pct(0) },
+            { key: "cards", title: "Kartochka", num: true, value: (r) => r.cards, heat: COLORS.heatBlue },
+            { key: "cards_with_sales", title: "... sotuvlar bilan", num: true, value: (r) => r.cards_with_sales,
+              format: fmt.pct(0) },
+            { key: "shop_profit", title: "Magazin foydasi", num: true, value: (r) => r.shop_profit,
+              format: fmt.compact, heat: COLORS.heatLight },
+            { key: "turnover", title: "Defitsit (Oborot, kunlar)", num: true, center: true,
+              value: (r) => r.turnover,
+              tone: (r) => (r.turnover != null && r.turnover < 30 ? { background: "rgb(0, 172, 193)", color: "#fff" }
+                                                                    : undefined) },
+          ]}
         />
-        <Select value={level} onValueChange={setLevel}>
-          <SelectTrigger className="h-10 w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Barcha qatlamlar</SelectItem>
-            {[1, 2, 3, 4].map((value) => (
-              <SelectItem key={value} value={String(value)}>{value}-qatlam</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={order} onValueChange={(value) => setOrder(value as typeof order)}>
-          <SelectTrigger className="h-10 w-52"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="revenue">Tushum bo&apos;yicha</SelectItem>
-            <SelectItem value="units">Sotuv bo&apos;yicha</SelectItem>
-            <SelectItem value="growth">O&apos;sish bo&apos;yicha</SelectItem>
-            <SelectItem value="shops">Do&apos;konlar bo&apos;yicha</SelectItem>
-            <SelectItem value="products">Kartochkalar bo&apos;yicha</SelectItem>
-            <SelectItem value="revenue_per_shop">Do&apos;kon boshiga</SelectItem>
-          </SelectContent>
-        </Select>
-        {data && <span className="text-xs text-muted-foreground">{formatNumber(data.total)} nisha</span>}
-      </div>
-      {error ? <Failed message={error} /> : !data ? <Loading /> : (
-        <Grid columns={columns} visible={visible} rows={data.items} rowKey={(r) => r.category_id}
-              empty="Bu kesim hali o'lchanmagan — «Bozor → Ma'lumot manbai» bo'limiga qarang." />
-      )}
-      {data && !error && <Pagination page={page} total={data.total} onPage={setPage} label="Nishalar sahifalari" />}
-    </div>
+      </Card>
+      <SourceNote meta={data?.meta} />
+    </ReportPage>
   );
 }
