@@ -11,13 +11,32 @@ import {
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Failed, Grid, Loading, PeriodPicker, usePeriod, type Column } from "@/features/market/shared";
-import { formatCompact, formatNumber } from "@/lib/format";
+import { RefreshProduct } from "@/features/market/refresh-product";
+import { ReviewsCard } from "@/features/market/reviews-card";
+import { formatCompact, formatDate, formatNumber } from "@/lib/format";
 import { MARKET_BASE } from "@/lib/market";
+
+type Today = {
+  day?: string;
+  price?: number | null;
+  stock?: number | null;
+  stock_source?: string | null;
+  units?: number | null;
+  revenue?: number | null;
+  units_source?: string | null;
+  gap_days?: number | null;
+  reviews_total?: number | null;
+  reviews_delta?: number | null;
+  rating?: number | null;
+  available?: boolean | null;
+};
 
 type Detail = {
   product: { id: number; title: string; photo: string | null; category: string | null;
              shop: string | null; first_seen: string; url: string };
   totals: Record<string, number | null>;
+  /** Oxirgi O'LCHANGAN kun — davr yig'indisi buni ko'rsatmaydi. */
+  today?: Today;
   skus: { sku_id: number; title: string; revenue: number; units: number;
           avg_price: number | null; stock: number | null }[];
 };
@@ -44,6 +63,8 @@ export default function MarketProductPage({ params }: { params: Promise<{ id: st
   const [detail, setDetail] = React.useState<Detail | null>(null);
   const [timeline, setTimeline] = React.useState<TimelineRow[]>([]);
   const [error, setError] = React.useState<string | null>(null);
+  // «Hozir yangilash» dan keyin hamma blok qaytadan so'raladi.
+  const [reloadKey, setReloadKey] = React.useState(0);
 
   React.useEffect(() => {
     setError(null);
@@ -55,7 +76,7 @@ export default function MarketProductPage({ params }: { params: Promise<{ id: st
     ])
       .then(([d, t]) => { setDetail(d); setTimeline(t); })
       .catch((e) => setError(e.message));
-  }, [id, days]);
+  }, [id, days, reloadKey]);
 
   if (error) return <Failed message={error} />;
   if (!detail) return <Loading />;
@@ -107,6 +128,7 @@ export default function MarketProductPage({ params }: { params: Promise<{ id: st
         actions={
           <div className="flex flex-wrap items-center gap-3">
             <PeriodPicker />
+            <RefreshProduct productId={id} onDone={() => setReloadKey((k) => k + 1)} />
             <Button variant="outline" size="sm" asChild>
               <a href={detail.product.url} target="_blank" rel="noreferrer">
                 <ExternalLink className="h-3.5 w-3.5" /> Uzumda
@@ -115,6 +137,42 @@ export default function MarketProductPage({ params }: { params: Promise<{ id: st
           </div>
         }
       />
+
+      {detail.today?.day && (
+        <section className="space-y-2">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="font-semibold">Oxirgi o&apos;lchov · {formatDate(detail.today.day)}</span>
+            {(detail.today.gap_days ?? 1) > 1 && (
+              <span className="text-xs text-[color:var(--warn)]">
+                {detail.today.gap_days} kunlik oraliq — sotuv shuncha kunniki
+              </span>
+            )}
+          </div>
+          {/* Davr yig'indisi "bugun nima bo'ldi" degan savolga javob
+              bermaydi: 30 kunlik tushum ichida bugungi nol ko'rinmaydi. */}
+          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
+            {[
+              ["Shu kuni sotildi", detail.today.units != null ? `${formatNumber(detail.today.units)} dona` : "—"],
+              ["Shu kuni tushum", detail.today.revenue != null ? formatCompact(detail.today.revenue) : "—"],
+              ["Qoldiq", detail.today.stock != null ? formatNumber(detail.today.stock) : "—"],
+              ["Narx", detail.today.price != null ? formatCompact(detail.today.price) : "—"],
+              ["Sharhlar", detail.today.reviews_total != null ? formatNumber(detail.today.reviews_total) : "—"],
+              ["Yangi sharh", detail.today.reviews_delta != null ? formatNumber(detail.today.reviews_delta) : "—"],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-xl border bg-card p-3.5">
+                <div className="text-[11px] text-muted-foreground">{label}</div>
+                <div className="air-num mt-0.5 text-lg font-semibold">{value}</div>
+              </div>
+            ))}
+          </div>
+          <p className="max-w-2xl text-xs text-muted-foreground">
+            Sotuv o&apos;ylab topilmaydi: u ikki o&apos;lchov orasidagi qoldiq ayirmasi.
+            Kechagi o&apos;lchov bo&apos;lmasa «—» turadi — bu «sotilmadi» degani emas.
+            Yangi kirim qoldiqni ko&apos;taradi va o&apos;sha kungi sotuvni yashiradi,
+            ya&apos;ni raqam kam ko&apos;rsatishi mumkin, ko&apos;p ko&apos;rsatmaydi.
+          </p>
+        </section>
+      )}
 
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4 xl:grid-cols-7">
         {[
@@ -181,6 +239,8 @@ export default function MarketProductPage({ params }: { params: Promise<{ id: st
           />
         </section>
       )}
+
+      <ReviewsCard productId={id} reloadKey={reloadKey} />
     </div>
   );
 }

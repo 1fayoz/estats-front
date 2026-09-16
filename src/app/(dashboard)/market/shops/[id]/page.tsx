@@ -10,6 +10,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Failed, Grid, Loading, PeriodPicker, usePeriod, type Column } from "@/features/market/shared";
+import { ScopeAnalytics } from "@/features/market/scope-analytics";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { market, MARKET_BASE, type MarketPoint, type MarketProduct } from "@/lib/market";
 
@@ -85,22 +86,6 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
         }
       />
 
-      <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
-        {[
-          ["Tushum", t.revenue != null ? formatCompact(t.revenue) : "—"],
-          ["Sotuv, dona", t.units != null ? formatNumber(t.units) : "—"],
-          ["Kunlik sotuv", t.daily_units != null ? formatNumber(t.daily_units) : "—"],
-          ["Kartochkalar", t.products != null ? formatNumber(t.products) : "—"],
-          ["Sotuvi borlari", t.products_with_sales != null ? formatNumber(t.products_with_sales) : "—"],
-          ["Reyting", detail.shop.rating != null ? formatNumber(detail.shop.rating) : "—"],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-xl border bg-card p-3.5">
-            <div className="text-[11px] text-muted-foreground">{label}</div>
-            <div className="air-num mt-0.5 text-lg font-semibold">{value}</div>
-          </div>
-        ))}
-      </div>
-
       {series.length > 0 && (
         <div className="rounded-xl border bg-card p-4">
           <div className="mb-3 text-xs font-medium text-muted-foreground">Kunlik dinamika</div>
@@ -118,6 +103,22 @@ export default function MarketShopPage({ params }: { params: Promise<{ id: strin
           </ResponsiveContainer>
         </div>
       )}
+
+      {/* Kartalar BITTA qatorda: ilgari bu yerda davr yig'indisi alohida
+          turardi va blok qo'shilgach ikkita o'xshash qator paydo bo'ldi —
+          sotuvchi qaysi raqam qaysi davrniki ekanini ajrata olmasdi. */}
+      <ScopeAnalytics
+        kind="shops"
+        id={id}
+        days={days}
+        extraTiles={[
+          {
+            label: "Do'kon reytingi",
+            value: detail.shop.rating != null ? formatNumber(detail.shop.rating) : "—",
+            note: detail.shop.reviews != null ? `${formatNumber(detail.shop.reviews)} ta sharh` : undefined,
+          },
+        ]}
+      />
 
       <section className="space-y-2.5">
         <div className="font-semibold">Turkumlar kesimi</div>

@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Failed, Loading, NoData, PeriodPicker, usePeriod } from "@/features/market/shared";
+import { ScopeAnalytics } from "@/features/market/scope-analytics";
 import { formatCompact, formatDate, formatNumber } from "@/lib/format";
 import {
   LEGAL_FORM_LABELS,
@@ -226,21 +227,23 @@ export default function MarketSellerPage({ params }: { params: Promise<{ id: str
         actions={<PeriodPicker />}
       />
 
-      <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
-        {[
-          ["Do'konlar", formatNumber(detail.totals.shops)],
-          ["Tushum", formatCompact(detail.totals.revenue)],
-          ["Sotuv, dona", formatNumber(detail.totals.units)],
-          ["Uzumda", `${formatJoinDate(detail.totals.joined_at)}dan beri`],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-xl border bg-card p-3.5">
-            <div className="text-[11px] text-muted-foreground">{label}</div>
-            <div className="air-num mt-0.5 text-lg font-semibold">{value}</div>
-          </div>
-        ))}
-      </div>
-
       <SellerInfoCard seller={detail.seller} totals={detail.totals} shops={detail.shops} />
+
+      {/* Tushum/sotuv kartalari BLOK ichida: ilgari ular yuqorida
+          alohida turardi va blok qo'shilgach bir sahifada ikki xil
+          davrdagi ikkita "Tushum" paydo bo'lgan edi. */}
+      <ScopeAnalytics
+        kind="sellers"
+        id={id}
+        days={days}
+        extraTiles={[
+          { label: "Do'konlar", value: formatNumber(detail.totals.shops) },
+          {
+            label: "Uzumda",
+            value: `${formatJoinDate(detail.totals.joined_at)}dan beri`,
+          },
+        ]}
+      />
 
       <section className="space-y-2.5">
         <div className="font-semibold">Do&apos;konlari</div>
