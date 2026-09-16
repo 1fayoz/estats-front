@@ -975,7 +975,10 @@ function Footer({
             joylanmagan qoralamada bosiladigan narsa yo'q (backend
             `productId` yo'qligi uchun rad etardi). Joylanmaganda
             oddiy "Saqlash" yetadi — u yuqorida turibdi. */}
-        {isLiveOnUzum && (editMode || !locked) && (
+        {/* Bog'langan (hali yuborilmagan) qoralamada tugma DARHOL
+            ko'rinadi: sotuvchi «Mavjud tovarni yangilash» ni endigina
+            bosgan — undan yana «Tahrirlash» bosishini kutish ortiqcha. */}
+        {isLiveOnUzum && (editMode || !locked || linkedStatus) && (
           <>
             <label className="flex items-center gap-1.5 text-xs text-[color:var(--air-label)]">
               <input
