@@ -790,6 +790,36 @@ function Footer({
             {blocked ? ` (${blocked})` : ""}
           </button>
         )}
+        {/* Sotuvchi talabi (2026-09-16): tayyor kartochka YANGI e'lon
+            bo'lishi SHART emas — uni do'kondagi MAVJUD tovarga bog'lab,
+            o'sha tovarni shu ma'lumotlar bilan yangilash mumkin.
+            Bog'langach «Uzumda yangilash» tugmasi paydo bo'ladi,
+            «Uzumga joylash» esa dublikat qo'riqchisi bilan yopiladi. */}
+        {!isLiveOnUzum && !publishing && draft.progress >= 95 && (
+          <button
+            type="button"
+            className="air-btn-flat"
+            onClick={() => setLinkOpen(true)}
+            title="Yangi e'lon yaratmasdan, do'koningizdagi mavjud tovarni shu kartochka bilan yangilaydi."
+          >
+            <Link2 className="mr-1.5 inline h-3.5 w-3.5" />
+            Mavjud tovarni yangilash
+          </button>
+        )}
+        {draft.uzumPublish?.linkedManually && draft.uzumPublish.status !== "published" && (
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--air-line)] px-2 py-1 text-[11px] text-[color:var(--air-label)]">
+            <Link2 className="h-3.5 w-3.5" />
+            {`Bog'landi: Uzum ${draft.uzumPublish.productId}`}
+            <button
+              type="button"
+              className="underline hover:text-foreground"
+              onClick={onUnlink}
+              disabled={busy === "unlink"}
+            >
+              bekor qilish
+            </button>
+          </span>
+        )}
         {/* Bu tugma FAQAT hali Uzum'da UMUMAN yo'q qoralama uchun —
             `isLiveOnUzum` bo'lsa, qayta bosish YANGI (dublikat)
             tovar yaratardi (`/products/new`). Allaqachon joylangan
@@ -945,7 +975,7 @@ function Footer({
             joylanmagan qoralamada bosiladigan narsa yo'q (backend
             `productId` yo'qligi uchun rad etardi). Joylanmaganda
             oddiy "Saqlash" yetadi — u yuqorida turibdi. */}
-        {editMode && isLiveOnUzum && (
+        {isLiveOnUzum && (editMode || !locked) && (
           <>
             <label className="flex items-center gap-1.5 text-xs text-[color:var(--air-label)]">
               <input
