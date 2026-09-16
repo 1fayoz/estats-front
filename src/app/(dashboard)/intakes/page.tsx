@@ -3,10 +3,7 @@ import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
-import {
-  AlertCircle, ArrowDownToLine, ArrowUpRight, Banknote, Boxes, CalendarDays,
-  Check, Info, Loader2, Package, PackagePlus, Search, ShoppingBag, Trash2, TrendingUp, Wallet, X,
-} from "lucide-react";
+import { AlertCircle, ArrowDownToLine, ArrowUpRight, Banknote, Boxes, CalendarDays, Check, Info, Layers, Loader2, Package, PackagePlus, Search, ShoppingBag, Trash2, TrendingUp, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -339,7 +336,16 @@ function ProductIdentity({ row }: { row: IntakeRow }) {
       {row.image ? <img src={row.image} alt="" loading="lazy" className="size-12 shrink-0 rounded-xl border bg-white object-contain" /> : <div className="grid size-12 shrink-0 place-items-center rounded-xl border bg-muted/50"><Package className="size-5 text-muted-foreground" /></div>}
       <div className="min-w-0">
         <Link href={`/warehouse/${row.warehouseProductId}`} className="line-clamp-2 text-sm font-medium leading-5 hover:text-[#00904d] hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{row.title}</Link>
-        <p className="mt-1 text-xs text-muted-foreground [overflow-wrap:anywhere]">SKU: {row.skuCode || "—"}</p>
+        <p className="mt-1 text-xs text-muted-foreground [overflow-wrap:anywhere]">
+          SKU: {row.skuCode || "—"}{row.variantName ? ` · ${row.variantName}` : ""}
+        </p>
+        {/* Partiya qaysi e'londa kiritilgan bo'lsa o'sha yerda qoladi, lekin
+            «bir xil tovar» guruhida uni hamma e'lon birga sotadi. */}
+        {row.stockGroupId !== null && (
+          <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] text-muted-foreground">
+            <Layers className="size-3" /> umumiy ombor
+          </span>
+        )}
       </div>
     </div>
   );

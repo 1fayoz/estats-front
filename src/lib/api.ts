@@ -8,6 +8,8 @@ import { AUTH_STORAGE_KEY } from "./auth";
 import type {
   Funnel,
   AdPlan,
+  DuplicateSuggestion,
+  StockGroupBrief,
   AdVerdict,
   AdResult,
   ExpenseBurn,
@@ -320,6 +322,51 @@ export const updateIntake = (id: number, payload: Partial<IntakeInput>) =>
 
 export const deleteIntake = (id: number) =>
   request<void>(`/warehouse/intakes/${id}`, { method: "DELETE" });
+
+// ── bir xil tovar (ikki marta qo'yilgan e'lonlar) ────────────────────────────
+
+/** Do'konning hamma guruhlari — ro'yxatlarda "umumiy ombor" belgisi uchun. */
+export const fetchStockGroups = () => request<StockGroupBrief[]>("/warehouse/stock-groups");
+
+/** Juftlar: `[[a, b], ...]` — har rang o'z jufti bilan. */
+export const linkStockGroup = (pairs: number[][], title?: string) =>
+  request<StockGroupBrief[]>("/warehouse/stock-groups", {
+    method: "POST",
+    body: JSON.stringify({ pairs, title: title ?? null }),
+  });
+
+export const updateStockGroup = (
+  id: number,
+  payload: { title?: string | null; primaryProductId?: number | null },
+) =>
+  request<StockGroupBrief>(`/warehouse/stock-groups/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+
+/** E'lonni guruhdan chiqaradi — o'zi kiritgan kirimlari bilan qoladi. */
+export const unlinkStockGroupMember = (productId: number) =>
+  request<void>(`/warehouse/stock-groups/members/${productId}`, { method: "DELETE" });
+
+export const dissolveStockGroup = (id: number) =>
+  request<void>(`/warehouse/stock-groups/${id}`, { method: "DELETE" });
+
+/** Ehtimoliy takrorlar — Uzum'da ikki marta qo'yilgan bo'lishi mumkin. */
+export const fetchDuplicateSuggestions = () =>
+  request<DuplicateSuggestion[]>("/warehouse/stock-groups/suggestions");
+
+/** "Bular bir xil tovar emas" — juftlik taklif ro'yxatiga qaytmaydi. */
+export const dismissDuplicate = (productIds: number[]) =>
+  request<void>("/warehouse/stock-groups/dismiss", {
+    method: "POST",
+    body: JSON.stringify({ productIds }),
+  });
+
+/** Shu tovar qaysi e'lon bilan bir xil bo'lishi mumkin (`search` — qo'lda qidiruv). */
+export const fetchProductDuplicates = (productId: number, search?: string) =>
+  request<DuplicateSuggestion[]>(
+    `/warehouse/products/${productId}/duplicates${qs({ search })}`,
+  );
 
 // ── sotuv (sales) ────────────────────────────────────────────────────────────
 

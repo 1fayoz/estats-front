@@ -7,12 +7,21 @@ import { cn } from "@/lib/utils";
 import { formatNumber, formatSum } from "@/lib/format";
 import type { Intake, SalesPeriod } from "@/lib/types";
 
-export function DetailIntakes({ intakes, onAdd }: { intakes: Intake[]; onAdd: () => void }) {
+export function DetailIntakes({
+  intakes,
+  onAdd,
+  sharedListings = 1,
+}: {
+  intakes: Intake[];
+  onAdd: () => void;
+  /** «Bir xil tovar» guruhidagi e'lonlar soni — kirim ular uchun UMUMIY. */
+  sharedListings?: number;
+}) {
   const { page, setPage, pageItems } = usePagination(intakes, { param: "intakes_page" });
   return (
     <article className="min-w-0 overflow-hidden rounded-2xl border bg-card">
       <header className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
-        <div><h2 className="flex items-center gap-2 text-base font-semibold"><ArrowDownToLine className="size-4 text-primary" /> Kirim partiyalari <span className="rounded-lg bg-muted px-2 py-1 text-xs text-muted-foreground">{intakes.length}</span></h2><p className="mt-1.5 text-xs text-muted-foreground">Har bir partiyaning tan narxi va qolgan miqdori.</p></div>
+        <div><h2 className="flex items-center gap-2 text-base font-semibold"><ArrowDownToLine className="size-4 text-primary" /> Kirim partiyalari <span className="rounded-lg bg-muted px-2 py-1 text-xs text-muted-foreground">{intakes.length}</span></h2><p className="mt-1.5 text-xs text-muted-foreground">Har bir partiyaning tan narxi va qolgan miqdori.{sharedListings > 1 ? ` Guruhdagi ${sharedListings} ta e’lonning hamma kirimi — tokcha bitta.` : ""}</p></div>
         <Button variant="outline" className="min-h-11 rounded-xl" onClick={onAdd}><PackagePlus /> Kirim qo‘shish</Button>
       </header>
       {!intakes.length ? <div className="m-4 mt-0 rounded-xl border border-dashed px-4 py-8 text-center sm:m-5 sm:mt-0"><ArrowDownToLine className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm font-medium">Hali kirim kiritilmagan</p><p className="mt-1 text-xs text-muted-foreground">Birinchi kirimdan keyin tan narx va foyda hisoblanadi.</p></div> : <>

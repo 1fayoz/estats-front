@@ -159,6 +159,129 @@ export interface WarehouseProduct {
   totalReturnedQuantity: number;
   /** Hisobda qoldiqqa qaytgan, lekin jismonan hali kelmagan donalar. */
   pendingReturnQuantity: number;
+  /**
+   * «Bir xil tovar» guruhi — Uzum'da bir necha marta qo'yilgan bitta tovar.
+   * Bo'lsa: `stockQuantity`, `stockValue`, `totalIntakeQuantity` va tan narx
+   * guruh bo'yicha UMUMIY (har a'zoda AYNAN bir xil raqam), `totalSoldQuantity`
+   * esa shu e'lonniki. Jami hisoblaganda qoldiqni guruh bo'yicha BIR MARTA
+   * qo'shing (`sumStock` yordamchisi).
+   */
+  stockGroupId: number | null;
+}
+
+/** Guruhdagi bitta e'lon — umumiy tovarning Uzum'dagi bir nusxasi. */
+export interface StockGroupMember {
+  id: number;
+  title: string;
+  variantName: string | null;
+  skuCode: string | null;
+  image: string | null;
+  externalProductId: string | null;
+  uzumUrl: string | null;
+  isCurrent: boolean;
+  isPrimary: boolean;
+  isArchived: boolean;
+  isBlocked: boolean;
+  /** Xaridor hozir sotib ola oladimi (arxivda emas, bloklanmagan). */
+  isSellable: boolean;
+  status: string | null;
+  price: number | null;
+  /** Uzum omboridagi shu e'lonning o'z qoldig'i. */
+  uzumStock: number | null;
+  soldQuantity: number;
+  revenue: number;
+  profit: number;
+  avgPerDay: number;
+  /** Guruh savdosidagi ulushi (dona), foizda. */
+  share: number;
+  uzumDaysOfStock: number | null;
+  totalSoldQuantity: number;
+  /** Shu e'londa KIRITILGAN partiyalar — ajratilsa shu yerda qoladi. */
+  intakeQuantity: number;
+  intakes: number;
+  /** Guruh ajratilsa shu e'lonning qoldig'i qancha bo'lardi. */
+  aloneOnHand: number;
+}
+
+/** «Bir xil tovar»: umumiy ombor va e'lonlarni yonma-yon solishtirish. */
+export interface StockGroup {
+  id: number;
+  title: string;
+  customTitle: string | null;
+  primaryProductId: number | null;
+  windowDays: number;
+  onHand: number;
+  stockValue: number;
+  intakeQuantity: number;
+  totalSoldQuantity: number;
+  soldQuantity: number;
+  revenue: number;
+  profit: number;
+  avgPerDay: number;
+  daysOfStock: number | null;
+  priceMin: number | null;
+  priceMax: number | null;
+  members: StockGroupMember[];
+  /** Raqamdan chiqqan eslatmalar — narx farqi, sotuvdan chiqqan nusxa, ulush. */
+  notes: string[];
+}
+
+export interface StockGroupBriefMember {
+  id: number;
+  title: string;
+  variantName: string | null;
+  image: string | null;
+  externalProductId: string | null;
+  isArchived: boolean;
+  isBlocked: boolean;
+  stockQuantity: number;
+  totalSoldQuantity: number;
+}
+
+/** Ro'yxat sahifalari uchun yengil ko'rinish. */
+export interface StockGroupBrief {
+  id: number;
+  title: string;
+  customTitle: string | null;
+  primaryProductId: number | null;
+  members: StockGroupBriefMember[];
+}
+
+export interface DuplicateVariant {
+  id: number;
+  variantName: string | null;
+  skuCode: string | null;
+  isArchived: boolean;
+  price: number | null;
+  stockQuantity: number;
+  totalSoldQuantity: number;
+  stockGroupId: number | null;
+}
+
+export interface DuplicateCard {
+  externalProductId: string | null;
+  title: string;
+  image: string | null;
+  categoryName: string | null;
+  uzumUrl: string | null;
+  isArchived: boolean;
+  isBlocked: boolean;
+  status: string | null;
+  priceMin: number | null;
+  priceMax: number | null;
+  totalSoldQuantity: number;
+  variants: DuplicateVariant[];
+}
+
+/** Ehtimoliy takror: ikki kartochka, nega o'xshashi va variant juftlari. */
+export interface DuplicateSuggestion {
+  a: DuplicateCard;
+  b: DuplicateCard;
+  score: number;
+  reasons: string[];
+  /** Avtomatik moslangan variantlar `[a_sku, b_sku]`. Bo'sh — o'zingiz tanlaysiz. */
+  pairs: number[][];
+  alreadyLinked: boolean;
 }
 
 export interface ProductValidationFinding {
@@ -265,6 +388,9 @@ export interface IntakeRow extends Intake {
   title: string;
   image: string | null;
   skuCode: string | null;
+  variantName: string | null;
+  /** Partiya «bir xil tovar» guruhiga tegishli bo'lsa — uning id'si. */
+  stockGroupId: number | null;
 }
 
 /** Bitta partiyadan sotilgan donalar va ular necha pulga sotilgani (FIFO). */
@@ -296,6 +422,10 @@ export interface IntakeProductMoney {
   /** Kirim kiritilmagan tovarda `null` — foyda noma'lum, nol emas. */
   profit: number | null;
   uncoveredQuantity: number;
+  /** «Bir xil tovar» guruhi — qator bitta jismoniy tovar (kirim bitta). */
+  stockGroupId: number | null;
+  /** Guruhdagi e'lonlar id'lari; birinchisi — asosiy. */
+  productIds: number[];
 }
 
 export interface IntakeMoneyTotals {
@@ -389,6 +519,9 @@ export interface ProductPnl {
   /** Units sold with no intake behind them — their cost is unknown, not zero. */
   uncoveredQuantity: number;
   isCosted: boolean;
+  /** «Bir xil tovar» guruhi: kirim va qoldiq guruhniki (a'zolarda bir xil). */
+  stockGroupId: number | null;
+  stockGroupSize: number;
   totalIntakeQuantity: number;
   totalIntakeCost: number;
   totalSoldQuantity: number;
@@ -454,6 +587,10 @@ export interface ProductTempo {
   daysOfStock: number | null;
   /** O'rtacha kunlik qoldiq — sur'atni to'g'ri o'qish uchun. */
   avgStock: number;
+  /** «Bir xil tovar» guruhidagi e'lonlar soni (1 — guruh yo'q). */
+  sharedListings: number;
+  /** Guruhning BIRGA sur'ati — `daysOfStock` shundan hisoblanadi. */
+  sharedAvgPerDay: number | null;
   firstSaleAt: string | null;
   lastSaleAt: string | null;
 }
@@ -613,6 +750,12 @@ export interface ProductDetail {
   aiDraftId: number | null;
   /** Uzum'ga eStats orqali yuborilgan va saqlangan kartochka. `null` — yuborilmagan. */
   uzumCard?: UzumCard | null;
+  /**
+   * «Bir xil tovar» guruhi — tovar Uzum'da bir necha marta qo'yilgan bo'lsa.
+   * `onHand`, `stockValue`, `totalIntakeQuantity` va `intakes` UMUMIY, sotuv
+   * raqamlari esa shu e'lonniki.
+   */
+  stockGroup?: StockGroup | null;
 }
 
 /** Uzum saqlashni tasdiqlagan paytdagi kartochka nusxasi (`uzum_publish.publishedCard`). */

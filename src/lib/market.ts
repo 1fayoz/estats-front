@@ -69,6 +69,34 @@ export type MarketCategorySlice = {
   growth: number | null;
 };
 
+export type MarketCategoryOption = {
+  category_id: number;
+  parent_id: number | null;
+  title: string;
+  full_title: string;
+  level: number;
+  is_leaf: boolean;
+};
+
+export type MarketNichePoint = MarketPoint & {
+  avg_price: number | null;
+  median_price: number | null;
+  shops: number | null;
+  products: number | null;
+  stock: number | null;
+  turnover_days: number | null;
+};
+
+export type MarketPriceBucket = {
+  low: number;
+  high: number | null;
+  label: string;
+  revenue: number;
+  units: number;
+  shops: number;
+  products: number;
+};
+
 export type MarketNiche = {
   category_id: number;
   niche: string;
@@ -294,18 +322,34 @@ export type MarketRun = {
 export const market = {
   overview: (days: number) => get<MarketOverview>("/overview", { days }),
   timeline: (days: number) => get<MarketPoint[]>("/overview/timeline", { days }),
-  categories: (days: number, level = 1, limit = 12) =>
-    get<MarketCategorySlice[]>("/overview/categories", { days, level, limit }),
+  categories: (days: number, level = 1, limit = 12, root?: number) =>
+    get<MarketCategorySlice[]>("/overview/categories", { days, level, limit, root }),
 
-  niches: (params: { days: number; q?: string; root?: number; limit?: number; offset?: number }) =>
+  categoryTree: () => get<MarketCategoryOption[]>("/niches/categories"),
+
+  niches: (params: {
+    days: number;
+    q?: string;
+    root?: number;
+    level?: number;
+    order?: "revenue" | "units" | "growth" | "shops" | "products" | "revenue_per_shop";
+    limit?: number;
+    offset?: number;
+  }) =>
     get<MarketPage<MarketNiche>>("/niches", { limit: PAGE_SIZE, ...params }),
-  nicheDynamics: (id: number, days = 90) => get<MarketPoint[]>(`/niches/${id}/dynamics`, { days }),
+  nicheDynamics: (id: number, days = 90) =>
+    get<MarketNichePoint[]>(`/niches/${id}/dynamics`, { days }),
+  nichePrices: (id: number, params: { days: number; step: number; buckets?: number }) =>
+    get<MarketPriceBucket[]>(`/niches/${id}/prices`, params),
 
   products: (params: {
     days: number; q?: string; root?: number; shop?: number; limit?: number; offset?: number;
   }) => get<MarketPage<MarketProduct>>("/products", { limit: PAGE_SIZE, ...params }),
 
-  shops: (params: { days: number; q?: string; limit?: number; offset?: number }) =>
+  shops: (params: {
+    days: number; q?: string; root?: number; order?: "revenue" | "units" | "growth" | "orders";
+    limit?: number; offset?: number;
+  }) =>
     get<MarketPage<MarketShop>>("/shops", { limit: PAGE_SIZE, ...params }),
 
   sellers: (params: {

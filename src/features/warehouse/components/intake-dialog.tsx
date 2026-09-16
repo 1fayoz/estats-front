@@ -19,13 +19,15 @@ interface IntakeDialogProps {
   product: WarehouseProduct | null;
   onOpenChange: (open: boolean) => void;
   onSaved: () => void;
+  /** «Bir xil tovar» guruhidagi e'lonlar soni — kirim ular uchun UMUMIY bo'ladi. */
+  sharedListings?: number;
 }
 
 function todayInput(): string {
   return new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
-export function IntakeDialog({ product, onOpenChange, onSaved }: IntakeDialogProps) {
+export function IntakeDialog({ product, onOpenChange, onSaved, sharedListings = 1 }: IntakeDialogProps) {
   const [quantity, setQuantity] = React.useState("");
   const [costPrice, setCostPrice] = React.useState("");
   const [supplier, setSupplier] = React.useState("");
@@ -100,7 +102,7 @@ export function IntakeDialog({ product, onOpenChange, onSaved }: IntakeDialogPro
             </div>
             <div className="space-y-2"><Label htmlFor="intake-reference">Faktura / nakladnoy</Label><Input id="intake-reference" placeholder="Hujjat raqami (ixtiyoriy)" value={reference} onChange={(event) => setReference(event.target.value)} /></div>
           </fieldset>
-          <p className="flex items-start gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground"><Info className="mt-0.5 h-4 w-4 shrink-0" />Har bir kirim alohida partiya sifatida saqlanadi. Sotuvlar eng eski partiyadan boshlab hisoblanadi (FIFO).</p>
+          <p className="flex items-start gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground"><Info className="mt-0.5 h-4 w-4 shrink-0" />Har bir kirim alohida partiya sifatida saqlanadi. Sotuvlar eng eski partiyadan boshlab hisoblanadi (FIFO).{sharedListings > 1 ? ` Bu tovar ${sharedListings} ta e’londa qo‘yilgan — kirim ularning hammasi uchun umumiy bo‘ladi, ikki marta kiritish shart emas.` : ""}</p>
           <DialogFooter className="border-t pt-4">
             <Button type="button" variant="outline" className="h-11 rounded-xl" disabled={saving} onClick={() => close(false)}>Bekor qilish</Button>
             <Button type="submit" className="h-11 rounded-xl bg-[#00904d] text-white hover:bg-[#007d43]" disabled={saving || !valid}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackagePlus className="h-4 w-4" />}{saving ? "Saqlanmoqda…" : "Kirimni saqlash"}</Button>

@@ -377,6 +377,12 @@ function ProductIdentity({ row }: { row: ProductPnl }) {
           {row.skuCode ?? row.barcode ?? "SKU kiritilmagan"}
           {row.categoryName ? <i>·</i> : null}
           {row.categoryName ? <span>{row.categoryName}</span> : null}
+          {/* Kirim va qoldiq «bir xil tovar» guruhiniki: har e'lon qatorida
+              AYNAN bir xil raqam turadi, jamiga bir marta qo'shilgan. */}
+          {row.stockGroupId !== null ? <i>·</i> : null}
+          {row.stockGroupId !== null ? (
+            <span>umumiy ombor ({row.stockGroupSize} e&apos;lon)</span>
+          ) : null}
         </small>
         {!row.isCosted || row.uncoveredQuantity > 0 ? (
           <em>

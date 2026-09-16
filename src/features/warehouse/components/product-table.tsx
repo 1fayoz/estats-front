@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  AlertTriangle, CheckCircle2, ChevronRight, Clock3, Loader2,
+  AlertTriangle, CheckCircle2, ChevronRight, Clock3, Layers, Loader2,
   PackagePlus, PackageX, Pencil, Truck, XCircle,
 } from "lucide-react";
 
@@ -83,6 +83,29 @@ function groupByCard(items: WarehouseProduct[]): Group[] {
 
 function sum(variants: WarehouseProduct[], pick: (v: WarehouseProduct) => number): number {
   return variants.reduce((a, v) => a + (pick(v) || 0), 0);
+}
+
+/**
+ * Qoldiq va kirim «bir xil tovar» guruhida UMUMIY — har a'zoda bir xil raqam.
+ * Bitta kartochkaning ikki varianti bir guruhda bo'lsa oddiy yig'indi uni
+ * ikki marta sanardi.
+ */
+function sharedSum(variants: WarehouseProduct[], pick: (v: WarehouseProduct) => number): number {
+  const seen = new Set<number>();
+  let total = 0;
+  for (const variant of variants) {
+    if (variant.stockGroupId != null) {
+      if (seen.has(variant.stockGroupId)) continue;
+      seen.add(variant.stockGroupId);
+    }
+    total += pick(variant) || 0;
+  }
+  return total;
+}
+
+/** Shu kartochka boshqa e'lon bilan omborni bo'lishadimi. */
+function sharedListings(variants: WarehouseProduct[]): boolean {
+  return variants.some((v) => v.stockGroupId != null);
 }
 
 function priceRange(variants: WarehouseProduct[]): { min: number; max: number } | null {
@@ -246,6 +269,11 @@ export function ProductTable({
               </Link>
               <div className="mt-3 flex flex-wrap items-start gap-1.5">
                 {statusBadge(statusItem)}
+                {sharedListings(g.variants) && (
+                  <Badge variant="outline" className="gap-1 text-xs text-muted-foreground">
+                    <Layers className="h-3 w-3" /> umumiy ombor
+                  </Badge>
+                )}
                 {resubmitHint(statusItem) && (
                   <Badge variant="outline" className="max-w-full whitespace-normal text-xs text-muted-foreground">
                     {resubmitHint(statusItem)}
@@ -300,19 +328,19 @@ export function ProductTable({
                     ),
                   },
                   {
-                    label: "Qoldiq",
-                    value: `${formatNumber(sum(g.variants, (v) => v.stockQuantity))} dona`,
+                    label: sharedListings(g.variants) ? "Qoldiq (umumiy)" : "Qoldiq",
+                    value: `${formatNumber(sharedSum(g.variants, (v) => v.stockQuantity))} dona`,
                   },
                   {
                     label: "Zaxira qiymati",
                     value: (() => {
-                      const sv = sum(g.variants, (v) => v.stockValue);
+                      const sv = sharedSum(g.variants, (v) => v.stockValue);
                       return sv > 0 ? formatSum(sv) : "—";
                     })(),
                   },
                   {
                     label: "Keldi / sotildi",
-                    value: `${formatNumber(sum(g.variants, (v) => v.totalIntakeQuantity))} / ${formatNumber(
+                    value: `${formatNumber(sharedSum(g.variants, (v) => v.totalIntakeQuantity))} / ${formatNumber(
                       sum(g.variants, (v) => v.totalSoldQuantity),
                     )}`,
                   },
@@ -600,6 +628,9 @@ function ProductRow(props: {
   const hasCost = costOf(item) != null;
   const range = priceRange(g.variants);
   const q = (pick: (v: WarehouseProduct) => number) => sum(g.variants, pick);
+  // Qoldiq, kirim va zaxira qiymati «bir xil tovar» guruhida umumiy.
+  const shared = (pick: (v: WarehouseProduct) => number) => sharedSum(g.variants, pick);
+  const isShared = sharedListings(g.variants);
 
   // Guruh bo'lsa: qatorni bosish — ochish/yopish; alohida tovar bo'lsa
   // — detalga o'tish (avvalgidek).
@@ -672,6 +703,14 @@ function ProductRow(props: {
                 </span>
               ) : (
                 [item.variantName, item.skuCode].filter(Boolean).join(" · ") || "—"
+              )}
+              {/* Tovar Uzum'da bir necha marta qo'yilgan: ombor bitta,
+                  e'lonlar alohida. Qatorlar bir-birini takrorlayotgandek
+                  ko'rinmasin deb shu yerda aytiladi. */}
+              {isShared && (
+                <Badge variant="outline" className="ml-1.5 h-4 gap-1 px-1.5 text-[10px] text-muted-foreground">
+                  <Layers className="h-2.5 w-2.5" /> umumiy ombor
+                </Badge>
               )}
             </div>
             {regenerating && (
@@ -759,7 +798,7 @@ function ProductRow(props: {
         )}
       </td>
       <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
-        {formatNumber(q((v) => v.totalIntakeQuantity))}
+        {formatNumber(shared((v) => v.totalIntakeQuantity))}
       </td>
       <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
         {formatNumber(q((v) => v.totalSoldQuantity))}
@@ -783,10 +822,13 @@ function ProductRow(props: {
         )}
       </td>
       <td className="px-3 py-3 text-right tabular-nums font-medium">
-        {formatNumber(q((v) => v.stockQuantity))}
+        {formatNumber(shared((v) => v.stockQuantity))}
+        {isShared && (
+          <div className="text-[10px] font-normal text-muted-foreground">umumiy</div>
+        )}
       </td>
       <td className="px-3 py-3 text-right tabular-nums">
-        {q((v) => v.stockValue) > 0 ? formatSum(q((v) => v.stockValue)) : "—"}
+        {shared((v) => v.stockValue) > 0 ? formatSum(shared((v) => v.stockValue)) : "—"}
       </td>
       <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
         {formatNumber(q((v) => v.marketplaceStock ?? 0))}

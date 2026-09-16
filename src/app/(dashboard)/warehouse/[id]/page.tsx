@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   AlertCircle, ArrowDownToLine, ArrowLeft, ArrowUpRight, Boxes, Check, Copy,
-  History, LayoutGrid, Loader2, Megaphone, Package, PackagePlus, Radar, RefreshCw,
-  ShoppingCart, Sparkles, TrendingUp, Wallet,
+  History, Layers, LayoutGrid, Loader2, Megaphone, Package, PackagePlus, Radar,
+  RefreshCw, ShoppingCart, Sparkles, TrendingUp, Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +23,8 @@ import { ProductGallery } from "@/features/warehouse/components/product-gallery"
 import { ProductModerationCard } from "@/features/warehouse/components/product-moderation-card";
 import { DetailIntakes, DetailSales } from "@/features/warehouse/components/detail-ledgers";
 import { SiblingsCard } from "@/features/warehouse/components/siblings-card";
+import { StockGroupCard } from "@/features/warehouse/components/stock-group-card";
+import { LinkDuplicateDialog } from "@/features/warehouse/components/link-duplicate-dialog";
 import { ProductStats } from "@/features/warehouse/components/product-stats";
 import { UzumFactsCard } from "@/features/warehouse/components/uzum-facts-card";
 import { UzumCardContent } from "@/features/warehouse/components/uzum-card-content";
@@ -115,6 +117,8 @@ function ProductDetailPage({ id }: { id: number }) {
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
   const [editingAi, setEditingAi] = React.useState(false);
   const [complaintFor, setComplaintFor] = React.useState<number | null>(null);
+  // «Bir xil tovar» — Uzum'da ikki marta qo'yilgan e'lonni bog'lash oynasi.
+  const [linkOpen, setLinkOpen] = React.useState(false);
   const requestVersion = React.useRef(0);
   const navigationRef = React.useRef<HTMLElement>(null);
 
@@ -207,6 +211,7 @@ function ProductDetailPage({ id }: { id: number }) {
   }
 
   const product = data.product;
+  const group = data.stockGroup ?? null;
   // eStats orqali Uzum'ga yuborilgan galereya ustun — katalogdagi nusxa
   // tahrirdan keyin eskirib qolardi (sotuvchi: «edit qilingandan keyin
   // rasmlari yangisiga o'zgarishi kerak»).
@@ -240,10 +245,28 @@ function ProductDetailPage({ id }: { id: number }) {
           </div>
           <div className="mt-5 grid min-w-0 grid-cols-2 gap-3 sm:gap-5">
             <div className="min-w-0"><p className="text-xs text-muted-foreground">Uzumdagi narx</p><p className="mt-2 break-words text-lg font-semibold tracking-tight tabular-nums sm:text-2xl">{product.marketplacePrice != null ? formatSum(product.marketplacePrice) : "—"}</p><p className="mt-1 text-xs text-muted-foreground">{product.marketplaceStock != null ? `Uzum qoldig‘i: ${formatNumber(product.marketplaceStock)} dona` : "Uzum qoldig‘i ko‘rsatilmagan"}</p></div>
-            <div className="min-w-0 border-l pl-3 sm:pl-5"><p className="text-xs text-muted-foreground">Hisobdagi qoldiq</p><p className="mt-2 text-lg font-semibold tracking-tight tabular-nums sm:text-2xl">{formatNumber(data.onHand)} <span className="text-sm font-normal text-muted-foreground">dona</span></p><p className="mt-1 break-words text-xs text-muted-foreground">Qiymati: {formatSum(data.stockValue)}</p></div>
+            <div className="min-w-0 border-l pl-3 sm:pl-5">
+              <p className="text-xs text-muted-foreground">{group ? "Umumiy qoldiq" : "Hisobdagi qoldiq"}</p>
+              <p className="mt-2 text-lg font-semibold tracking-tight tabular-nums sm:text-2xl">{formatNumber(data.onHand)} <span className="text-sm font-normal text-muted-foreground">dona</span></p>
+              <p className="mt-1 break-words text-xs text-muted-foreground">
+                {/* Guruhda qoldiq TOKCHANIKI: ikkala e'lon shundan sotadi —
+                    "bu e'lonning qoldig'i" deb o'qilsa ikki barobar ko'p
+                    tovar bordek tuyulardi. */}
+                {group ? `${group.members.length} ta e’lon uchun umumiy · ${formatSum(data.stockValue)}` : `Qiymati: ${formatSum(data.stockValue)}`}
+              </p>
+            </div>
           </div>
           <div className="mt-auto flex flex-wrap gap-2 pt-6">
             <Button className="min-h-11 flex-1 rounded-xl px-5 sm:flex-none" onClick={() => setIntakeFor(product)}><PackagePlus /> Kirim qo‘shish</Button>
+            {/* Tovar Uzum'da ikki marta qo'yilgan bo'lsa — e'lonlarni
+                bog'lash. Guruh bor bo'lsa tugma o'rniga «Bir xil tovar»
+                kartasi (pastda) turadi va yangi e'lon o'sha yerdan
+                qo'shiladi. */}
+            {!group && (
+              <Button variant="outline" className="min-h-11 flex-1 rounded-xl sm:flex-none" onClick={() => setLinkOpen(true)}>
+                <Layers /> Bir xil tovar
+              </Button>
+            )}
             {canSeeAi && (() => {
               // Shu tovar uchun fonda ishlayotgan qoralama bo'lsa —
               // tugma jarayonga mos, progress bilan ko'rinadi
@@ -287,8 +310,8 @@ function ProductDetailPage({ id }: { id: number }) {
       </section>
 
       <div className="grid min-w-0 grid-cols-2 gap-3 xl:grid-cols-4">
-        <SummaryTile label="Jami keldi" value={formatNumber(data.totalIntakeQuantity)} unit="dona" note="Barcha kirim partiyalari" Icon={ArrowDownToLine} />
-        <SummaryTile label="Jami sotildi" value={formatNumber(data.totalSoldQuantity)} unit="dona" note="Butun davr bo‘yicha" Icon={ShoppingCart} />
+        <SummaryTile label="Jami keldi" value={formatNumber(data.totalIntakeQuantity)} unit="dona" note={group ? `${group.members.length} ta e’lonning umumiy kirimi` : "Barcha kirim partiyalari"} Icon={ArrowDownToLine} />
+        <SummaryTile label="Jami sotildi" value={formatNumber(data.totalSoldQuantity)} unit="dona" note={group ? "Faqat shu e’lon bo‘yicha" : "Butun davr bo‘yicha"} Icon={ShoppingCart} />
         <SummaryTile label="Uzum to‘lovi" value={formatSum(data.totalRevenue)} note="Butun davr bo‘yicha" Icon={Wallet} />
         <SummaryTile label={profitPositive ? "Sof foyda" : "Zarar"} value={formatSum(data.totalProfit)} note={`Tan narx (FIFO): ${formatSum(data.totalCogs)}`} Icon={TrendingUp} tone={profitPositive ? "positive" : "negative"} />
       </div>
@@ -310,10 +333,11 @@ function ProductDetailPage({ id }: { id: number }) {
 
       <section id="product-detail-content" key={section} aria-label={SECTIONS.find((item) => item.value === section)?.label} className={cn(styles.content, "min-w-0 space-y-5")}>
         {section === "umumiy" && <>
+          {group && <StockGroupCard group={group} onChanged={load} onAddMore={() => setLinkOpen(true)} />}
           <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} />
           {data.uzumCard && <UzumCardContent card={data.uzumCard} />}
           <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
-          <DetailIntakes intakes={data.intakes} onAdd={() => setIntakeFor(product)} />
+          <DetailIntakes intakes={data.intakes} onAdd={() => setIntakeFor(product)} sharedListings={group?.members.length ?? 1} />
         </>}
         {section === "savdo" && <>
           <ProductStats productId={id} tempo={data.tempo} onHand={data.onHand} facts={data.marketplace} />
@@ -344,7 +368,8 @@ function ProductDetailPage({ id }: { id: number }) {
       </section>
 
       <ComplaintDialog productId={complaintFor} onOpenChange={(open) => { if (!open) setComplaintFor(null); }} />
-      <IntakeDialog product={intakeFor} onOpenChange={(open) => { if (!open) setIntakeFor(null); }} onSaved={load} />
+      <IntakeDialog product={intakeFor} onOpenChange={(open) => { if (!open) setIntakeFor(null); }} onSaved={load} sharedListings={group?.members.length ?? 1} />
+      <LinkDuplicateDialog productId={id} open={linkOpen} onOpenChange={setLinkOpen} onLinked={load} />
       {canSeeAi && (
         <ProductAiModal
           open={aiOpen}

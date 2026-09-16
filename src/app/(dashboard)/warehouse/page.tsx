@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductTable } from "@/features/warehouse/components/product-table";
+import { DuplicateSuggestions } from "@/features/warehouse/components/duplicate-suggestions";
 import { SupportRequestDialog } from "@/features/warehouse/components/support-request-dialog";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { AiGenerationTray } from "@/features/products-ai/components/generation-tray";
@@ -198,6 +199,8 @@ function WarehouseContent() {
   // chiqib ketardi va qaytganda qayerda qolgani yo'qolardi.
   const canSeeAi = useCan("products_ai.view");
   const canAddAi = useCan("products_ai.control");
+  // Bog'lash — ombor amali (`warehouse.control`), AI ruxsati bilan aloqasi yo'q.
+  const canLinkDuplicates = useCan("warehouse.control");
   const drafts = useAiDrafts(canSeeAi);
 
   // Oyna holati URL'DA turadi (`?draft=12`/`?draft=new`) — endi
@@ -266,15 +269,28 @@ function WarehouseContent() {
     setBulkResult(null);
   }, [tab, query]);
 
-  const totals = React.useMemo(
-    () => ({
+  // «Bir xil tovar» guruhida qoldiq va zaxira qiymati UMUMIY: har a'zoda
+  // AYNAN bir xil raqam turadi. Oddiy `reduce` uni ikki marta qo'shib,
+  // omborda yo'q tovarni bordek ko'rsatardi — shuning uchun guruh bir marta.
+  const totals = React.useMemo(() => {
+    const counted = new Set<number>();
+    let onHand = 0;
+    let stockValue = 0;
+    for (const item of items) {
+      if (item.stockGroupId != null) {
+        if (counted.has(item.stockGroupId)) continue;
+        counted.add(item.stockGroupId);
+      }
+      onHand += item.stockQuantity;
+      stockValue += item.stockValue;
+    }
+    return {
       goods: items.length,
-      onHand: items.reduce((sum, i) => sum + i.stockQuantity, 0),
-      stockValue: items.reduce((sum, i) => sum + i.stockValue, 0),
+      onHand,
+      stockValue,
       withoutCost: items.filter((i) => !i.lastCost && !i.averageCost).length,
-    }),
-    [items]
-  );
+    };
+  }, [items]);
   const loading = view === "active" ? status === "idle" || isInitialLoading : archivedLoading && items.length === 0;
   const visibleError = view === "archived" ? archivedError : error;
   const hasFilters = query.trim().length > 0 || onlyNoCost || tab !== "all";
@@ -457,6 +473,10 @@ function WarehouseContent() {
       </div>
       {hasFilters && <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2"><span className="text-xs text-muted-foreground">{onlyNoCost ? "Tan narxi kiritilmagan tovarlar" : STATUS_TABS.find((statusTab) => statusTab.key === tab)?.label}</span><Button variant="ghost" className="min-h-11 rounded-xl text-xs" onClick={clearFilters}><X className="h-3.5 w-3.5" /> Filtrlarni tozalash</Button></div>}
       </section>
+
+      {/* «Bu tovarni ikki marta qo'ygan bo'lishingiz mumkin» — o'zi
+          chiqadigan taklif. Hech narsa avtomatik bog'lanmaydi. */}
+      <DuplicateSuggestions canLink={canLinkDuplicates} onChanged={refresh} />
 
       <SupportRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
 

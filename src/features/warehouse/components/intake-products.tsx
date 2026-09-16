@@ -3,7 +3,7 @@ import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import Link from "next/link";
-import { AlertTriangle, Info, Package, Search, X } from "lucide-react";
+import { AlertTriangle, Info, Layers, Package, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -235,6 +235,13 @@ function Identity({ row }: { row: IntakeProductMoney }) {
         <p className="mt-1 text-xs text-muted-foreground [overflow-wrap:anywhere]">
           SKU: {row.skuCode || "—"}{row.batches > 1 && ` · ${formatNumber(row.batches)} ta partiya`}
         </p>
+        {/* Qator bitta JISMONIY tovar: Uzum'da u bir necha e'lon, kirim esa
+            bitta — shuning uchun qator ham bitta. */}
+        {row.stockGroupId !== null && row.productIds.length > 1 && (
+          <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] text-muted-foreground">
+            <Layers className="size-3" /> {row.productIds.length} ta e&apos;lon · umumiy ombor
+          </span>
+        )}
         {(noIntake || row.uncoveredQuantity > 0) && (
           <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-[color:var(--warn)]">
             <AlertTriangle className="size-3" />
