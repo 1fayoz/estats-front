@@ -26,22 +26,29 @@ import { cn } from "@/lib/utils";
 const PERIODS = [1, 7, 14, 30, 90, 365];
 const LABELS: Record<number, string> = {
   1: "1 kun", 7: "7 kun", 14: "14 kun", 30: "30 kun", 90: "90 kun", 365: "1 yil",
+  3650: "Barchasi",
 };
 
-export function usePeriod(): number {
+export function usePeriod(defaultDays = 30): number {
   const params = useSearchParams();
-  const days = Number(params.get("days") ?? 30);
-  return Number.isFinite(days) && days > 0 ? days : 30;
+  const days = Number(params.get("days") ?? defaultDays);
+  return Number.isFinite(days) && days > 0 ? days : defaultDays;
 }
 
-export function PeriodPicker() {
+export function PeriodPicker({
+  periods = PERIODS,
+  defaultDays = 30,
+}: {
+  periods?: number[];
+  defaultDays?: number;
+} = {}) {
   const router = useRouter();
   const params = useSearchParams();
-  const current = usePeriod();
+  const current = usePeriod(defaultDays);
 
   return (
     <div className="flex flex-wrap gap-1.5">
-      {PERIODS.map((days) => (
+      {periods.map((days) => (
         <button
           key={days}
           type="button"
@@ -57,7 +64,7 @@ export function PeriodPicker() {
               : "border-border text-muted-foreground hover:bg-muted"
           )}
         >
-          {LABELS[days]}
+          {LABELS[days] ?? `${days} kun`}
         </button>
       ))}
     </div>

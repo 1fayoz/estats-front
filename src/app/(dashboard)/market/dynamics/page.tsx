@@ -29,7 +29,7 @@ function Fact({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export default function DynamicsPage() {
-  const days = usePeriod();
+  const days = usePeriod(3650);
   const [category, setCategory] = useCategoryParam();
   const [series, setSeries] = React.useState<MarketNichePoint[] | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -49,7 +49,7 @@ export default function DynamicsPage() {
       <PageHeader
         title="Dinamikasi"
         description="Tanlangan kategoriya yoki nishaning kunlik o'zgarishi."
-        actions={<PeriodPicker />}
+        actions={<PeriodPicker periods={[30, 90, 365, 3650]} defaultDays={3650} />}
       />
       <StateBanner />
       <CategoryFilter value={category} onChange={setCategory} allowAll={false} />
