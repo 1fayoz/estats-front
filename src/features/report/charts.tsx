@@ -99,7 +99,7 @@ export function GrowthBars({ data, height = 360 }: { data: { name: string; growt
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={rows} layout="vertical" margin={{ left: 10, right: 30, top: 24 }}>
-        <Legend verticalAlign="top" align="center" iconType="square"
+        <Legend itemSorter={null} verticalAlign="top" align="center" iconType="square"
                 formatter={() => "Toifa O'sish % Muddatdan Muddatga %"} wrapperStyle={{ ...axis, top: 0 }} />
         <XAxis type="number" domain={[-100, 100]} ticks={[-100, -50, 0, 50, 100]} tickFormatter={(v) => `${v}%`}
                tick={axis} axisLine={false} tickLine={false} />
@@ -125,7 +125,7 @@ export function DailyBars({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 20 }}>
-        <Legend verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 60 }} />
+        <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 60 }} />
         <CartesianGrid vertical={false} stroke="#e6e6e6" />
         <XAxis dataKey="day" tickFormatter={shortDay} tick={axis} interval={0} tickLine={false} />
         <YAxis tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60}
@@ -154,7 +154,7 @@ export function ComboDaily({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart data={data} margin={{ left: 10, right: 10, top: 24, bottom: 10 }}>
-        <Legend verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
+        <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
         <CartesianGrid vertical={false} stroke="#e6e6e6" />
         <XAxis dataKey="day" tickFormatter={(v) => (dateLabel ? dateLabel(String(v)) : shortDay(String(v)))}
                tick={axis} minTickGap={12} angle={-35} textAnchor="end" height={50} />
@@ -186,7 +186,7 @@ export function TwoLines({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ left: 10, right: 10, top: 24, bottom: 10 }}>
-        <Legend verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
+        <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
         <CartesianGrid vertical={false} stroke="#e6e6e6" />
         <XAxis dataKey="day" tickFormatter={(v) => (dateLabel ? dateLabel(String(v)) : shortDay(String(v)))}
                tick={axis} minTickGap={12} angle={-35} textAnchor="end" height={50} />
@@ -203,6 +203,16 @@ export function TwoLines({
   );
 }
 
+/** Looker narx grafigidagi kabi: yorliqlar navbatma-navbat ikki qatorda (sig'magani ustma-ust tushmasin). */
+function StaggeredTick(props: { x?: number; y?: number; payload?: { value: string; index?: number }; index?: number }) {
+  const { x = 0, y = 0, payload, index = 0 } = props;
+  return (
+    <text x={x} y={y + (index % 2 === 0 ? 10 : 22)} textAnchor="middle" style={{ ...axis, fontSize: 10 }}>
+      {payload?.value}
+    </text>
+  );
+}
+
 export function GroupedBars({
   data, category, series, height = 290,
 }: {
@@ -214,10 +224,9 @@ export function GroupedBars({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 28, bottom: 18 }} barGap={1}>
-        <Legend verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
+        <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
         <CartesianGrid vertical={false} stroke="#e6e6e6" />
-        <XAxis dataKey={category} tick={{ ...axis, fontSize: 10 }} interval={0} angle={0} height={34}
-               tickFormatter={(v, i) => (i % 2 === 0 ? String(v) : `\n${v}`)} />
+        <XAxis dataKey={category} tick={<StaggeredTick />} interval={0} height={34} />
         <YAxis yAxisId="l" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={55} />
         <YAxis yAxisId="r" orientation="right" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false}
                width={55} />
@@ -318,7 +327,7 @@ export function Bubbles({
                         style: { ...axis, fontStyle: "italic" } }} />
         <ZAxis type="number" dataKey="revenue" range={[80, 9000]} />
         <Tooltip formatter={(v) => number(v)} />
-        <Legend verticalAlign="top" align="center" iconType="circle" iconSize={8}
+        <Legend itemSorter={null} verticalAlign="top" align="center" iconType="circle" iconSize={8}
                 wrapperStyle={{ ...axis, fontSize: 10, top: 0 }} />
         {data.map((d, i) => (
           <Scatter key={d.toifa} name={d.toifa} data={[d]} fill={PALETTE[i % PALETTE.length]}
@@ -339,7 +348,7 @@ export function StackedDaily({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 28 }}>
-        <Legend verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
+        <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
         <CartesianGrid vertical={false} stroke="#e6e6e6" />
         <XAxis dataKey="day" tickFormatter={shortDay} tick={axis} reversed />
         <YAxis tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={50} />
@@ -363,7 +372,7 @@ export function MultiLine({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ left: 10, right: 10, top: 28 }}>
-        <Legend verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
+        <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
         <CartesianGrid vertical={false} stroke="#e6e6e6" />
         <XAxis dataKey="day" tickFormatter={shortDay} tick={axis} />
         <YAxis tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60} />
