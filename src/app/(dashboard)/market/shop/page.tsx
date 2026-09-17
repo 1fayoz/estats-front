@@ -6,6 +6,7 @@ import {
   Bar, CartesianGrid, ComposedChart, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 
+import { MoversCard } from "@/features/market/movers-card";
 import { RevenueTreemap } from "@/features/report/charts";
 import { useReportIndex } from "@/features/report/filters";
 import {
@@ -130,6 +131,11 @@ export default function ShopAnalysisPage() {
               ]}
             />
           </Card>
+          {/* Kartalar jadvali oldingi davr bilan SOLISHTIRMAYDI: "bu
+              karta 4 mln keltirdi" degan son o'sayotgani yoki
+              qulayotganini aytmaydi. Tushib ketganini topish esa aynan
+              shu sahifada qilinadigan ish. */}
+          <MoversCard kind="shops" id={data?.info.id} start={range.start} end={range.end} />
           <Card>
             <ResponsiveContainer width="100%" height={150}>
               <LineChart data={lines} margin={{ left: 10, right: 10, top: 20 }}>
