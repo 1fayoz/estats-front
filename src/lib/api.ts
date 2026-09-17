@@ -65,6 +65,9 @@ import type {
   AiDraft,
   AiCost,
   AiCostList,
+  ProductPeriods,
+  ProductPeriodCompare,
+  ProductPeriodEvent,
   AiCategoryNode,
   AiDraftPatch,
   AiDraftRow,
@@ -230,6 +233,36 @@ export const deleteShop = (id: number) =>
 export const fetchProducts = (
   params: { search?: string; page?: number; size?: number; sync?: boolean; archived?: boolean } = {},
 ) => request<Paginated<WarehouseProduct>>(`/warehouse/products${qs({ ...params, size: params.size ?? 200 })}`);
+
+/**
+ * Tovar davrlari — kartochka o'zgargan har safar yangi davr (§9.28).
+ *
+ * Davrlar saqlanmaydi: o'zgarishlar jurnalidan hisoblanadi, ko'rsatkichlar
+ * esa voronka/sotuv/o'rin kunlaridan — manba yangilansa davr ham yangilanadi.
+ */
+export const fetchProductPeriods = (id: number) =>
+  request<ProductPeriods>(`/warehouse/products/${id}/periods`);
+
+/** Ikki oraliqni solishtiradi (davr bo'lishi shart emas). */
+export const compareProductPeriods = (
+  id: number,
+  a: { from: string; to: string },
+  b: { from: string; to: string },
+) =>
+  request<ProductPeriodCompare>(
+    `/warehouse/products/${id}/periods/compare${qs({ aFrom: a.from, aTo: a.to, bFrom: b.from, bTo: b.to })}`,
+  );
+
+/** Sotuvchining o'z belgisi — shu kundan yangi davr («reklama boshlandi»). */
+export const markProductPeriod = (id: number, body: { note: string; day?: string }) =>
+  request<ProductPeriodEvent>(`/warehouse/products/${id}/periods`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+/** Qo'lda qo'yilgan belgini o'chiradi (Uzum/eStats o'zgarishlari tarix — o'chmaydi). */
+export const deleteProductPeriodMark = (id: number, eventId: number) =>
+  request<void>(`/warehouse/products/${id}/periods/marks/${eventId}`, { method: "DELETE" });
 
 export const fetchProductDetail = (id: number) =>
   request<ProductDetail>(`/warehouse/products/${id}`);

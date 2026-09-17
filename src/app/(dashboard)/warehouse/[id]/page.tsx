@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
-  AlertCircle, ArrowDownToLine, ArrowLeft, ArrowUpRight, Boxes, Check, Copy,
+  AlertCircle, ArrowDownToLine, ArrowLeft, ArrowUpRight, Boxes, CalendarRange, Check, Copy,
   History, Layers, LayoutGrid, Loader2, Megaphone, Package, PackagePlus, Radar,
   RefreshCw, ShoppingCart, Sparkles, TrendingUp, Wallet,
 } from "lucide-react";
@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TopbarSlot } from "@/components/layout/topbar-slot";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
+import { PeriodsCard } from "@/features/warehouse/components/periods-card";
 import { ComplaintDialog } from "@/features/warehouse/components/complaint-dialog";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
@@ -52,6 +53,9 @@ const SECTIONS = [
   { value: "savdo", label: "Savdo", Icon: ShoppingCart },
   { value: "bozor", label: "Bozor va SEO", Icon: Radar },
   { value: "reklama", label: "Reklama", Icon: Megaphone },
+  // «Davrlar» — kartochka o'zgargandan keyingi statistika alohida: sotuvchi
+  // «o'zgarishdan oldin shunday edi, hozir bunday» deb solishtiradi (§9.28).
+  { value: "davrlar", label: "Davrlar", Icon: CalendarRange },
   { value: "tarix", label: "O‘zgarishlar tarixi", Icon: History },
 ];
 
@@ -364,6 +368,7 @@ function ProductDetailPage({ id }: { id: number }) {
           <ProductNetworksCard product={product} />
           <ProductInstagramCard productId={id} />
         </>}
+        {section === "davrlar" && <PeriodsCard productId={id} />}
         {section === "tarix" && <ChangeHistoryCard productId={id} changeLogs={data.changeLogs ?? []} draftTextPushedAt={data.draftTextPushedAt ?? null} onReverted={load} />}
       </section>
 

@@ -2274,6 +2274,95 @@ export interface AiDraft extends AiDraftRow {
   updatedAt: string;
 }
 
+/** Davrni ochgan bitta o'zgarish (`warehouse_product_change_logs`). */
+export interface ProductPeriodEvent {
+  id: number;
+  at: string;
+  /** title / image / images / category / price / description / sections / period. */
+  field: string;
+  label: string;
+  /** uzum — katalogdan topildi, estats — «Uzumda yangilash», manual — sotuvchi belgisi. */
+  source: string;
+  before: string | null;
+  after: string | null;
+  note: string | null;
+}
+
+/** Davr ko'rsatkichlari — hammasi o'lchangan ma'lumotdan hisoblanadi. */
+export interface ProductPeriodMetrics {
+  days: number;
+  funnel: {
+    measuredDays: number;
+    impressions: number;
+    views: number;
+    cart: number;
+    orders: number;
+    impressionsPerDay: number | null;
+    viewsPerDay: number | null;
+    cartPerDay: number | null;
+    ordersPerDay: number | null;
+    viewRate: number | null;
+    cartRate: number | null;
+    orderRate: number | null;
+  };
+  sales: {
+    units: number;
+    revenue: number;
+    unitsPerDay: number;
+    revenuePerDay: number;
+    avgPrice: number | null;
+  };
+  seo: {
+    checkedPhrases: number;
+    foundPhrases: number;
+    top10: number;
+    top50: number;
+    avgPosition: number | null;
+    best: { phrase: string; avgPosition: number | null; bestPosition: number | null; foundDays: number }[];
+  };
+  /** Solishtiruv javobida — oraliq chegaralari. */
+  from?: string;
+  to?: string;
+}
+
+export interface ProductPeriod {
+  index: number;
+  start: string;
+  end: string;
+  days: number;
+  isCurrent: boolean;
+  /** Shu davrdagi nom va asosiy rasm (hodisalardan orqaga tiklangan). */
+  title: string | null;
+  image: string | null;
+  events: ProductPeriodEvent[];
+  metrics: ProductPeriodMetrics;
+}
+
+export interface ProductPeriods {
+  productId: number;
+  externalProductId: string | null;
+  firstDay: string;
+  periods: ProductPeriod[];
+}
+
+/** Ikki davrdagi bitta kalit so'z. */
+export interface PeriodKeywordRow {
+  phrase: string;
+  a: number | null;
+  b: number | null;
+  aFoundDays: number;
+  bFoundDays: number;
+  delta: number | null;
+  /** up / down / same / new / lost / unmeasured. */
+  status: string;
+}
+
+export interface ProductPeriodCompare {
+  a: ProductPeriodMetrics;
+  b: ProductPeriodMetrics;
+  keywords: PeriodKeywordRow[];
+}
+
 /** AI sarfining bir bo'lagi — xizmat (Gemini/OpenAI) yoki ish guruhi. */
 export interface AiCostPart {
   key: string;
