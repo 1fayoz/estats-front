@@ -19,7 +19,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Chrome, Download, Loader2, PlugZap, ShieldCheck, XCircle } from "lucide-react";
+import { CheckCircle2, Download, Globe, Loader2, PlugZap, ShieldCheck, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -113,7 +113,7 @@ function ConnectFlow() {
         ) : phase === "detecting" ? (
           <Status icon={<Loader2 className="size-5 animate-spin text-primary" />} title="Kengaytma qidirilmoqda…" />
         ) : phase === "missing" ? (
-          <Status icon={<Chrome className="size-5 text-[var(--warn)]" />} title="Kengaytma topilmadi">
+          <Status icon={<Globe className="size-5 text-[var(--warn)]" />} title="Kengaytma topilmadi">
             <p>Bu brauzerda eStats Lens o&apos;rnatilmagan yoki o&apos;chirilgan. O&apos;rnatib, shu sahifani yangilang.</p>
             <Button asChild className="mt-3 min-h-10 gap-2 rounded-xl">
               <a href={lensDownloadUrl()}>
@@ -149,7 +149,7 @@ function ConnectFlow() {
             <p className="flex items-start gap-2 rounded-xl bg-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">
               <ShieldCheck className="mt-0.5 size-4 shrink-0" />
               Kengaytma faqat uzum.uz va eStats bilan ishlaydi. Uzum parolingiz yoki tokeningiz unga berilmaydi. Brauzerni istalgan vaqtda
-              Integratsiyalar → Kengaytma bo&apos;limidan uzishingiz mumkin.
+              Integratsiyalar → «Brauzer kengaytmasi» bo&apos;limidan uzishingiz mumkin.
             </p>
             {error ? <p className="text-sm text-[var(--bad)]">{error}</p> : null}
             <Button className="min-h-11 w-full gap-2 rounded-xl" disabled={phase === "connecting"} onClick={() => void connect()}>

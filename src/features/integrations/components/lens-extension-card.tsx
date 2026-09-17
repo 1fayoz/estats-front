@@ -10,7 +10,7 @@
  */
 
 import * as React from "react";
-import { Chrome, Download, Laptop, Loader2, Trash2 } from "lucide-react";
+import { Download, Globe, Laptop, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -125,7 +125,7 @@ export function LensExtensionCard() {
             <p className="text-sm text-[var(--warn)]">{error}</p>
           ) : devices.length === 0 ? (
             <div className="flex items-center gap-3 rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-              <Chrome className="size-5 shrink-0" />
+              <Globe className="size-5 shrink-0" />
               Hali hech bir brauzer ulanmagan.
             </div>
           ) : (
