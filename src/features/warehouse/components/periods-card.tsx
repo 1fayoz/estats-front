@@ -98,7 +98,14 @@ export function PeriodsCard({ productId }: { productId: number }) {
       setPickB((current) => current ?? next.periods[0]?.index ?? null);
       setPickA((current) => current ?? next.periods[1]?.index ?? null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Davrlar yuklanmadi.");
+      // Eski backend (deploy hali chiqmagan) 404/405 beradi — xom «Not Found»
+      // o'rniga tushunarli matn (§9.18 dagi naqsh).
+      const stale = err instanceof ApiError && [404, 405].includes(err.status);
+      setError(
+        stale
+          ? "Davrlar hisobi serverning yangi versiyasida ishlaydi — deploy chiqqach ko'rinadi."
+          : err instanceof ApiError ? err.message : "Davrlar yuklanmadi.",
+      );
     }
   }, [productId]);
 
