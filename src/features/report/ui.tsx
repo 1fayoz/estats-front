@@ -202,6 +202,18 @@ export function SelectControl({
   );
 }
 
+const UZ_MONTHS = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr",
+  "Noyabr", "Dekabr"];
+
+/** `d30` → «30 kun», `m2026-08` → «'26 Avgust» (estats-market `report/periods.label`). */
+export function periodLabel(key: string): string {
+  const sliding = /^d(\d+)$/.exec(key);
+  if (sliding) return `${sliding[1]} kun`;
+  const month = /^m(\d{4})-(\d{2})$/.exec(key);
+  if (month) return `'${month[1].slice(2)} ${UZ_MONTHS[Number(month[2]) - 1] ?? month[2]}`;
+  return key;
+}
+
 export function PeriodControl({
   value, periods, onChange, label = "Muddat", style,
 }: {
@@ -211,10 +223,10 @@ export function PeriodControl({
   label?: string;
   style?: React.CSSProperties;
 }) {
-  const options = (periods.length ? periods : [{ key: value, label: value }]).map((p) => ({
-    value: p.key,
-    label: p.label,
-  }));
+  // Davr ro'yxati bo'sh bo'lsa (bu kesimda hali snapshot yo'q) ham yozuv
+  // «d30» emas, «30 kun» bo'lsin — backend `periods.label()` bilan bir xil.
+  const options = periods.map((p) => ({ value: p.key, label: p.label }));
+  if (!options.some((o) => o.value === value)) options.unshift({ value, label: periodLabel(value) });
   return (
     <SelectControl
       label={label}
