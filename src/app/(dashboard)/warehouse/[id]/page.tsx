@@ -89,6 +89,9 @@ function ProductDetailPage({ id }: { id: number }) {
   const section = SECTIONS.some((item) => item.value === rawSection) ? rawSection : "umumiy";
   const period = ["daily", "monthly", "yearly"].includes(rawPeriod) ? rawPeriod : "daily";
   const canSeeAi = useCan("products_ai.view");
+  // Bog'lash/ajratish — ombor amali; faqat ko'ra oladigan jamoa a'zosiga
+  // tugmalar ko'rinmaydi (bosganda baribir 403 bo'lardi).
+  const canControlWarehouse = useCan("warehouse.control");
   const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
   // Burchakdagi panel (`AiGenerationTray`) va bu sahifaning O'Z
   // tovari uchun fonda ishlayotgan qoralama — bir xil manba
@@ -266,7 +269,10 @@ function ProductDetailPage({ id }: { id: number }) {
                 bog'lash. Guruh bor bo'lsa tugma o'rniga «Bir xil tovar»
                 kartasi (pastda) turadi va yangi e'lon o'sha yerdan
                 qo'shiladi. */}
-            {!group && (
+            {/* `stockGroup` kaliti umuman yo'q (`undefined`) — eski backend:
+                bog'lash endpointlari hali yo'q, tugma bo'sh oyna ochardi.
+                Yangi backend guruhsiz tovarda `null` qaytaradi. */}
+            {!group && data.stockGroup !== undefined && canControlWarehouse && (
               <Button variant="outline" className="min-h-11 flex-1 rounded-xl sm:flex-none" onClick={() => setLinkOpen(true)}>
                 <Layers /> Bir xil tovar
               </Button>
@@ -337,7 +343,7 @@ function ProductDetailPage({ id }: { id: number }) {
 
       <section id="product-detail-content" key={section} aria-label={SECTIONS.find((item) => item.value === section)?.label} className={cn(styles.content, "min-w-0 space-y-5")}>
         {section === "umumiy" && <>
-          {group && <StockGroupCard group={group} onChanged={load} onAddMore={() => setLinkOpen(true)} />}
+          {group && <StockGroupCard group={group} canEdit={canControlWarehouse} onChanged={load} onAddMore={() => setLinkOpen(true)} />}
           <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} />
           {data.uzumCard && <UzumCardContent card={data.uzumCard} />}
           <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />

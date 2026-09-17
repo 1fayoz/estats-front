@@ -379,8 +379,9 @@ function ProductIdentity({ row }: { row: ProductPnl }) {
           {row.categoryName ? <span>{row.categoryName}</span> : null}
           {/* Kirim va qoldiq «bir xil tovar» guruhiniki: har e'lon qatorida
               AYNAN bir xil raqam turadi, jamiga bir marta qo'shilgan. */}
-          {row.stockGroupId !== null ? <i>·</i> : null}
-          {row.stockGroupId !== null ? (
+          {/* `!= null`: eski backend maydonni bermaydi (`undefined`). */}
+          {row.stockGroupId != null ? <i>·</i> : null}
+          {row.stockGroupId != null ? (
             <span>umumiy ombor ({row.stockGroupSize} e&apos;lon)</span>
           ) : null}
         </small>

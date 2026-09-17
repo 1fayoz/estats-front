@@ -25,10 +25,13 @@ import type { StockGroup, StockGroupMember } from "@/lib/types";
  */
 export function StockGroupCard({
   group,
+  canEdit = true,
   onChanged,
   onAddMore,
 }: {
   group: StockGroup;
+  /** `warehouse.control` — yo'q bo'lsa bog'lash/ajratish tugmalari ko'rinmaydi. */
+  canEdit?: boolean;
   onChanged: () => void;
   onAddMore: () => void;
 }) {
@@ -68,7 +71,7 @@ export function StockGroupCard({
               har e&apos;lon uchun alohida qoladi.
             </CardDescription>
           </div>
-          <div className="flex flex-wrap gap-2">
+          {canEdit && <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="gap-1.5" onClick={onAddMore}>
               <Link2 className="h-3.5 w-3.5" /> Yana e&apos;lon qo&apos;shish
             </Button>
@@ -84,7 +87,7 @@ export function StockGroupCard({
               {busy === "dissolve" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unlink className="h-3.5 w-3.5" />}
               Guruhni tarqatish
             </Button>
-          </div>
+          </div>}
         </div>
       </CardHeader>
 
@@ -95,12 +98,16 @@ export function StockGroupCard({
           <Tile
             label={`Sotildi (${group.windowDays} kun)`}
             value={`${formatNumber(group.soldQuantity)} dona`}
-            note={`Kuniga ${group.avgPerDay} dona`}
+            note={`Kuniga ${formatNumber(group.avgPerDay)} dona`}
           />
           <Tile
             label="Qoldiq yetadi"
-            value={group.daysOfStock === null ? "—" : `${group.daysOfStock} kun`}
-            note={group.daysOfStock === null ? "Bu davrda sotuv bo'lmagan" : "Ikkala e'lon birga sotadi"}
+            value={group.daysOfStock === null ? "—" : `${formatNumber(group.daysOfStock)} kun`}
+            note={
+              group.daysOfStock === null
+                ? "Bu davrda sotuv bo'lmagan"
+                : `${group.members.length} ta e'lon birga sotadi`
+            }
             tone={group.daysOfStock !== null && group.daysOfStock <= 14 ? "warn" : undefined}
           />
         </div>
@@ -117,7 +124,9 @@ export function StockGroupCard({
         )}
 
         {/* ── nom ── */}
-        {renaming ? (
+        {!canEdit ? (
+          <p className="text-sm text-muted-foreground">{group.title}</p>
+        ) : renaming ? (
           <form
             className="flex flex-wrap items-center gap-2"
             onSubmit={(event) => {
@@ -167,19 +176,14 @@ export function StockGroupCard({
               <CardStats
                 items={[
                   { label: `Sotildi (${group.windowDays} kun)`, value: `${formatNumber(member.soldQuantity)} dona` },
-                  { label: "Ulush", value: `${member.share}%` },
+                  { label: "Ulush", value: `${formatNumber(member.share)}%` },
                   { label: "Narx", value: member.price ? formatSum(member.price) : "—" },
                   { label: "Uzum qoldig'i", value: member.uzumStock === null ? "—" : formatNumber(member.uzumStock) },
                   { label: "Shu e'lon kirimi", value: `${formatNumber(member.intakeQuantity)} dona` },
                   { label: "Ajratilsa qoldiq", value: `${formatNumber(member.aloneOnHand)} dona` },
                 ]}
               />
-              <MemberActions
-                group={group}
-                member={member}
-                busy={busy}
-                run={run}
-              />
+              {canEdit && <MemberActions group={group} member={member} busy={busy} run={run} />}
             </DataCard>
           ))}
         </CardList>
@@ -196,7 +200,9 @@ export function StockGroupCard({
                 <th className="px-3 py-2 text-right font-medium">{group.windowDays} kun</th>
                 <th className="px-3 py-2 text-right font-medium">Ulush</th>
                 <th className="px-3 py-2 text-right font-medium">Shu e&apos;lon kirimi</th>
-                <th className="px-3 py-2 text-right font-medium">Amal</th>
+                <th className="px-3 py-2 text-right font-medium">
+                  <span className="sr-only">Amallar</span>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -220,19 +226,21 @@ export function StockGroupCard({
                   <td className="px-3 py-2 text-right tabular-nums">{member.price ? formatSum(member.price) : "—"}</td>
                   <td className="px-3 py-2 text-right tabular-nums">
                     {member.uzumStock === null ? "—" : formatNumber(member.uzumStock)}
-                    {member.uzumDaysOfStock !== null && (
-                      <span className="ml-1 text-xs text-muted-foreground">· {member.uzumDaysOfStock} kun</span>
+                    {member.uzumDaysOfStock !== null && (member.uzumStock ?? 0) > 0 && (
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        {`· ${formatNumber(member.uzumDaysOfStock)} kun`}
+                      </span>
                     )}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">{formatNumber(member.soldQuantity)} dona</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">{member.share}%</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">{formatNumber(member.share)}%</td>
                   <td className="px-3 py-2 text-right tabular-nums">
                     {formatNumber(member.intakeQuantity)}
                     <span className="ml-1 text-xs text-muted-foreground">({member.intakes} partiya)</span>
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end">
-                      <MemberActions group={group} member={member} busy={busy} run={run} compact />
+                      {canEdit && <MemberActions group={group} member={member} busy={busy} run={run} compact />}
                     </div>
                   </td>
                 </tr>
@@ -243,9 +251,7 @@ export function StockGroupCard({
 
         <p className="flex items-start gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Kirim qaysi e&apos;londa kiritilgan bo&apos;lsa o&apos;sha yerda qoladi — guruh ularni
-          ko&apos;chirmaydi, faqat FIFO&apos;da birga hisoblaydi. Ajratsangiz har e&apos;lon
-          &laquo;Ajratilsa qoldiq&raquo; ustunidagi holatga qaytadi.
+          {"Kirim qaysi e'londa kiritilgan bo'lsa o'sha yerda qoladi — guruh ularni ko'chirmaydi, faqat FIFO'da birga hisoblaydi. Ajratsangiz har e'lon faqat o'zi kiritgan kirim bilan qoladi (necha dona — «Ajratish» tugmasi ustida)."}
         </p>
       </CardContent>
     </Card>
@@ -280,20 +286,26 @@ function MemberActions({
   run: (key: string, action: () => Promise<unknown>, done: string) => Promise<void>;
   compact?: boolean;
 }) {
+  // Jadvalda — faqat belgi (ustun tor, uch so'zli tugma ustma-ust tushib
+  // qatorni uch barobar baland qilardi). Mobil kartada — yozuvi bilan.
+  const label = (text: string) => (compact ? <span className="sr-only">{text}</span> : text);
+  const size = compact ? "icon" : "sm";
+  const iconClass = compact ? "size-9 rounded-lg text-muted-foreground" : "gap-1.5 text-muted-foreground";
   return (
-    <div className={cn("flex flex-wrap items-center gap-1.5", !compact && "mt-3")}>
+    <div className={cn("flex items-center gap-1", compact ? "flex-nowrap" : "mt-3 flex-wrap")}>
       {member.uzumUrl && (
-        <Button asChild variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
-          <a href={member.uzumUrl} target="_blank" rel="noreferrer" aria-label="Uzumda ochish">
-            <ExternalLink className="h-3.5 w-3.5" /> Uzum
+        <Button asChild variant="ghost" size={size} className={iconClass} title="Uzum'da ochish">
+          <a href={member.uzumUrl} target="_blank" rel="noreferrer">
+            <ExternalLink className="h-3.5 w-3.5" /> {label("Uzum")}
           </a>
         </Button>
       )}
       {!member.isPrimary && (
         <Button
           variant="ghost"
-          size="sm"
-          className="gap-1.5 text-muted-foreground"
+          size={size}
+          className={iconClass}
+          title="Asosiy qilish — nom, rasm va tarmoqdagi havola shundan olinadi"
           disabled={busy !== null}
           onClick={() =>
             run(
@@ -304,13 +316,14 @@ function MemberActions({
           }
         >
           {busy === `primary-${member.id}` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Star className="h-3.5 w-3.5" />}
-          Asosiy qilish
+          {label("Asosiy qilish")}
         </Button>
       )}
       <Button
         variant="ghost"
-        size="sm"
-        className="gap-1.5 text-muted-foreground"
+        size={size}
+        className={iconClass}
+        title={`Guruhdan ajratish — bu e'lon ${formatNumber(member.aloneOnHand)} dona bilan qoladi`}
         disabled={busy !== null}
         onClick={() =>
           run(
@@ -321,7 +334,7 @@ function MemberActions({
         }
       >
         {busy === `unlink-${member.id}` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unlink className="h-3.5 w-3.5" />}
-        Ajratish
+        {label("Ajratish")}
       </Button>
     </div>
   );

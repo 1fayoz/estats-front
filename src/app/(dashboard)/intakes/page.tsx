@@ -341,7 +341,9 @@ function ProductIdentity({ row }: { row: IntakeRow }) {
         </p>
         {/* Partiya qaysi e'londa kiritilgan bo'lsa o'sha yerda qoladi, lekin
             «bir xil tovar» guruhida uni hamma e'lon birga sotadi. */}
-        {row.stockGroupId !== null && (
+        {/* `!= null`: eski backendda maydon yo'q (`undefined`) — `!==` har
+            qatorga soxta belgi qo'yardi. */}
+        {row.stockGroupId != null && (
           <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] text-muted-foreground">
             <Layers className="size-3" /> umumiy ombor
           </span>

@@ -109,7 +109,7 @@ export function DuplicateSuggestions({
                     ? `${row.pairs.length} ta variant rangi bo'yicha juftlanadi`
                     : "Ikkala e'lon bitta omborni bo'lishadi"}
                 </span>
-                <div className="flex flex-wrap gap-2">
+                {canLink && <div className="flex flex-wrap gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -119,7 +119,7 @@ export function DuplicateSuggestions({
                   >
                     <X className="h-3.5 w-3.5" /> Yo&apos;q, boshqa tovar
                   </Button>
-                  {canLink && (
+                  {(
                     <Button
                       size="sm"
                       className="gap-1.5"
@@ -134,7 +134,7 @@ export function DuplicateSuggestions({
                       Bir xil tovar
                     </Button>
                   )}
-                </div>
+                </div>}
               </div>
             </div>
           ))}

@@ -237,9 +237,15 @@ function Identity({ row }: { row: IntakeProductMoney }) {
         </p>
         {/* Qator bitta JISMONIY tovar: Uzum'da u bir necha e'lon, kirim esa
             bitta — shuning uchun qator ham bitta. */}
-        {row.stockGroupId !== null && row.productIds.length > 1 && (
+        {/* `!= null` va `?.` ATAYLAB: eski backend bu maydonlarni umuman
+            bermaydi (`undefined`), `!== null` esa uni "guruh bor" deb o'qib
+            `productIds.length` da butun blokni yiqitardi — prodda aynan
+            shunday bo'ldi (front backenddan oldin chiqdi). */}
+        {row.stockGroupId != null && (row.productIds?.length ?? 0) > 1 && (
           <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] text-muted-foreground">
-            <Layers className="size-3" /> {row.productIds.length} ta e&apos;lon · umumiy ombor
+            {/* flex ichida `{son} ta` bo'shlig'i yeyiladi (§9.19) — bitta satr. */}
+            <Layers className="size-3" />
+            {`${row.productIds?.length ?? 0} ta e'lon · umumiy ombor`}
           </span>
         )}
         {(noIntake || row.uncoveredQuantity > 0) && (
