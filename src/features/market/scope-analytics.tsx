@@ -27,6 +27,9 @@ type Summary = {
     day?: string; revenue?: number | null; units?: number | null;
     products?: number | null; products_with_sales?: number | null;
     stock?: number | null; reviews_delta?: number | null;
+    /** Eng uzun o'lchov oralig'i va ko'p kunlik qatorlarning ulushi. */
+    max_gap_days?: number | null;
+    multi_day_share?: number | null;
   };
   period: { start: string; end: string; days: number };
 };
@@ -233,10 +236,19 @@ export function ScopeAnalytics({
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
+        {/* "Kunlik" son har doim ham bir kunniki emas: kartochka bir
+            necha kun o'lchanmay qolsa, ayirma keyingi o'lchovga to'liq
+            tushadi. Buni yashirish yolg'on bo'lardi — prodda o'sha
+            kungi tushumning 75% i 4 kunlik oraliqdan kelgan edi. */}
         <Tile
           label={last.day ? `Oxirgi o'lchov · ${formatDate(last.day)}` : "Oxirgi o'lchov"}
           value={last.revenue != null ? formatCompact(last.revenue) : "—"}
           note={last.units != null ? `${formatNumber(last.units)} dona` : "o'lchanmagan"}
+          warn={
+            (last.max_gap_days ?? 1) > 1 && (last.multi_day_share ?? 0) >= 5
+              ? `${formatNumber(last.multi_day_share ?? 0)}% — ${last.max_gap_days} kungacha oraliqdan`
+              : undefined
+          }
         />
         <Tile
           label={`Davr (${summary.period.days} kun)`}
@@ -376,12 +388,24 @@ function GrowthCell({ row }: { row: Mover }) {
   );
 }
 
-function Tile({ label, value, note }: { label: string; value: string; note?: string }) {
+function Tile({
+  label,
+  value,
+  note,
+  warn,
+}: {
+  label: string;
+  value: string;
+  note?: string;
+  /** Raqamning o'zi haqidagi ogohlantirish — yashirilmaydi. */
+  warn?: string;
+}) {
   return (
     <div className="rounded-xl border bg-card p-3.5">
       <div className="text-[11px] text-muted-foreground">{label}</div>
       <div className="air-num mt-0.5 text-lg font-semibold">{value}</div>
       {note && <div className="mt-0.5 text-[11px] text-muted-foreground/80">{note}</div>}
+      {warn && <div className="mt-0.5 text-[11px] text-[color:var(--warn)]">{warn}</div>}
     </div>
   );
 }
