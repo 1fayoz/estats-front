@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, CircleCheck, Link2, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
+import { AlertCircle, CircleCheck, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
 import { AiCostCard } from "@/features/integrations/components/ai-cost-card";
 import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
+import { LensExtensionCard } from "@/features/integrations/components/lens-extension-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import styles from "@/features/integrations/components/integrations.module.css";
 import { TelegramDialog } from "@/features/social/components/telegram-dialog";
@@ -138,7 +139,8 @@ function IntegrationsWorkspace() {
     } finally { connectingRef.current = false; setConnecting(false); }
   };
 
-  const selected = !hasShop || !["uzum", "ai", ...PLATFORM_ORDER].includes(tab) ? "uzum" : tab;
+  // Kengaytma do'konsiz ham ishlaydi (butun bozor tahlili) — shuning uchun u do'kon talab qilmaydi.
+  const selected = tab === "extension" ? "extension" : !hasShop || !["uzum", "ai", ...PLATFORM_ORDER].includes(tab) ? "uzum" : tab;
   const selectedPlatform = platforms.find((row) => row.platform === selected);
   React.useEffect(() => {
     const navigation = servicesRef.current;
@@ -162,6 +164,7 @@ function IntegrationsWorkspace() {
   const aiBroken = aiStates.filter((state) => state.account?.status === "no_credit" || state.account?.status === "invalid").length;
   const services = [
     { value: "uzum", label: "Uzum Market", icon: <ShoppingBag />, detail: hasShop ? `${shops.length} ta do‘kon` : "Birinchi do‘konni ulang", connected: hasShop },
+    { value: "extension", label: "Brauzer kengaytmasi", icon: <Puzzle />, detail: "uzum.uz ustida tahlil", connected: false },
     { value: "ai", label: "AI yordamchilar", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: aiConfigured > aiBroken },
     ...PLATFORM_ORDER.map((platform) => {
       const mine = accounts.filter((account) => account.platform === platform);
@@ -203,7 +206,7 @@ function IntegrationsWorkspace() {
             <p className="mb-3 hidden px-2 text-[11px] font-semibold uppercase tracking-[.14em] text-muted-foreground xl:block">Xizmatlar</p>
             <nav ref={servicesRef} aria-label="Integratsiya xizmatlari" className={styles.services}>
               {services.map((service) => (
-                <button key={service.value} type="button" aria-pressed={selected === service.value} aria-controls="integration-content" disabled={!hasShop && service.value !== "uzum"} onClick={() => setTab(service.value)} className={cn(styles.service, selected === service.value && styles.selected)}>
+                <button key={service.value} type="button" aria-pressed={selected === service.value} aria-controls="integration-content" disabled={!hasShop && service.value !== "uzum" && service.value !== "extension"} onClick={() => setTab(service.value)} className={cn(styles.service, selected === service.value && styles.selected)}>
                   <span className={styles.serviceIcon}>{service.icon}</span>
                   <span className="min-w-0 text-left"><span className="block whitespace-nowrap text-sm font-medium">{service.label}</span><span className="mt-1 hidden text-xs text-muted-foreground xl:block">{service.detail}</span></span>
                   {service.connected && <CircleCheck aria-label="Ulangan" className="ml-auto hidden size-4 shrink-0 text-[var(--ok)] xl:block" />}
@@ -223,7 +226,9 @@ function IntegrationsWorkspace() {
             {hasShop && <><UzumSyncCard /><div className="grid min-w-0 gap-4 2xl:grid-cols-2"><UzumSellerLoginCard /><MarketAccountLoginCard /></div><MarketTokenCard collapsible /></>}
           </div>}
 
-          {selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
+          {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard /></div>}
+
+          {selected === "extension" ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
             <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
             <AiCostCard />
             <div className="grid min-w-0 gap-4 2xl:grid-cols-2">{aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}{openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}</div>

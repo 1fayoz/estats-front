@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
+import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Loader2, LogOut, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { ApiError, googleLogin } from "@/lib/api";
+import { consumeReturn } from "@/lib/lens";
 import { useUserStore } from "@/stores/user-store";
 
 import { GoogleButton } from "./google-button";
@@ -43,7 +45,8 @@ export function LoginForm() {
         const { accessToken: jwt, user: signedInUser } = await googleLogin(idToken);
         signIn(jwt, signedInUser);
         toast.success(`Xush kelibsiz, ${signedInUser.fullName || signedInUser.email}`);
-        router.push(signedInUser.shops.length ? "/warehouse" : "/integrations");
+        const back = consumeReturn();
+        router.push((back ?? (signedInUser.shops.length ? "/warehouse" : "/integrations")) as Route);
       } catch (error) {
         toast.error(error instanceof ApiError ? error.message : "Kirishda xatolik yuz berdi.");
       } finally {

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useUserStore } from "@/stores/user-store";
 import { ApiError, fetchMe } from "@/lib/api";
+import { rememberReturn } from "@/lib/lens";
 import { ALL_NAV_ITEMS, visibleNav } from "@/config/nav";
 
 /**
@@ -21,6 +22,8 @@ import { ALL_NAV_ITEMS, visibleNav } from "@/config/nav";
  */
 //: Magazini yo'q foydalanuvchi shu yerga tushadi — Uzum tokeni shu yerda.
 const SETUP_PATH = "/integrations";
+//: Kengaytmani ulash do'kon talab qilmaydi (bozor tahlili hamma uchun).
+const EXTENSION_PATH = "/extension/";
 
 /** Shu manzilni ochadigan ruxsat kodi (menyu ta'rifidan). */
 function actionFor(pathname: string): string | undefined {
@@ -50,6 +53,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       // Landing emas, kirish sahifasi: bu odam allaqachon kabinetga
       // kirmoqchi bo'lgan, unga mahsulotni qaytadan tanishtirish emas,
       // kirish formasini ko'rsatish kerak.
+      // Kengaytmani ulash sahifasi kirgandan keyin o'ziga QAYTADI —
+      // aks holda `state` yo'qolib, sotuvchi ulashni boshidan boshlardi.
+      rememberReturn(`${window.location.pathname}${window.location.search}`);
       router.replace("/login");
       return;
     }
@@ -95,7 +101,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const needsShop =
     checked && user != null && user.shops.length === 0 && canSetUp;
   React.useEffect(() => {
-    if (needsShop && pathname !== SETUP_PATH) router.replace(SETUP_PATH);
+    if (needsShop && pathname !== SETUP_PATH && !pathname.startsWith(EXTENSION_PATH)) router.replace(SETUP_PATH);
   }, [needsShop, pathname, router]);
 
   // Ruxsati yo'q sahifa. Menyudan yashiringan bo'lsa ham manzilni
@@ -122,7 +128,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     !accessToken ||
     !checked ||
     !allowed ||
-    (needsShop && pathname !== SETUP_PATH)
+    (needsShop && pathname !== SETUP_PATH && !pathname.startsWith(EXTENSION_PATH))
   ) {
     return (
       <div className="flex h-svh items-center justify-center bg-background">
