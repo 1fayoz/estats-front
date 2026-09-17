@@ -5,7 +5,7 @@ import * as React from "react";
 import { CategoryPathControl, ToifaControl } from "@/features/report/filters";
 import { periodDays, productColumns } from "@/features/report/product-columns";
 import {
-  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SelectControl, SourceNote, ZTable, styles, useLoad,
+  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SelectControl, SourceNote, ZTable, fmt, styles, useLoad,
   useParams,
 } from "@/features/report/ui";
 import { report, type ProductRow } from "@/lib/report";
@@ -67,6 +67,11 @@ export default function ProductsPage() {
           limit={LIMIT}
           onPage={(o) => setParams({ offset: String(o) })}
           height="calc(100vh - 300px)"
+          totalsRow={data?.totals ? {
+            title: "Jami",
+            revenue: fmt.money(data.totals.revenue),
+            units: fmt.int(data.totals.units),
+          } : undefined}
         />
       </Card>
       <SourceNote meta={data?.meta} />

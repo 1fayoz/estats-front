@@ -253,7 +253,8 @@ export const report = {
   ),
   layers: (params: ListParams) => get<Paged<LayerRow>>("/layers", params),
   categoryPaths: (params: ListParams) => get<{ path: string; revenue: number | null }[]>("/category-paths", params),
-  products: (params: ListParams) => get<Paged<ProductRow>>("/products", params),
+  products: (params: ListParams) =>
+    get<Paged<ProductRow> & { totals: { revenue: number | null; units: number | null } }>("/products", params),
   skus: (params: ListParams) => get<Paged<SkuRow> & { totals: { revenue: number | null } }>("/skus", params),
   sellerSkus: (params: ListParams) =>
     get<Paged<SkuRow> & { totals: { revenue: number | null } }>("/seller-skus", params),
