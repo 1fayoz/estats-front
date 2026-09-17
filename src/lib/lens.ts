@@ -61,14 +61,18 @@ export type LensDevice = {
   lastSeenAt: string | null;
 };
 
+/**
+ * Kengaytma FAQAT Chrome Web Store orqali tarqatiladi (zip yuklab olish yo'q).
+ * `storeUrl` bo'sh — do'kon hali tasdiqlamagan (item ID lens `.env` ida).
+ */
 export type LensRelease = {
-  version: string;
-  file: string;
-  size: number;
-  sha256: string;
-  minimumChromeVersion?: string;
-  builtAt: string;
+  storeUrl: string | null;
+  version: string | null;
 };
+
+//: Kengaytmaning ochiq sahifasi va maxfiylik siyosati (do'kon sahifasidan havola).
+export const LENS_PAGE_PATH = "/lens";
+export const LENS_PRIVACY_PATH = "/lens/privacy";
 
 export const fetchLensDevices = () => request<{ items: LensDevice[] }>("/devices");
 
@@ -80,7 +84,15 @@ export const revokeLensDevice = (id: number) => request<{ ok: boolean }>(`/devic
 
 export const fetchLensRelease = () => request<LensRelease>("/extension", { auth: false });
 
-export const lensDownloadUrl = () => `${LENS_BASE}/extension/download`;
+/** Server komponenti uchun (ochiq sahifa): xizmat javob bermasa `null` — sahifa baribir chiziladi. */
+export async function fetchLensReleaseCached(): Promise<LensRelease | null> {
+  try {
+    const response = await fetch(`${LENS_BASE}/extension`, { next: { revalidate: 600 } });
+    return response.ok ? ((await response.json()) as LensRelease) : null;
+  } catch {
+    return null;
+  }
+}
 
 // ── Kengaytma bilan sahifa ichida gaplashish ─────────────────────
 //

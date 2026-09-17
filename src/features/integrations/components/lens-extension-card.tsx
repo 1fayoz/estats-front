@@ -3,14 +3,19 @@
 /**
  * Integratsiyalar → Kengaytma: eStats Lens (uzum.uz uchun brauzer kengaytmasi).
  *
- * Bu yerda: oxirgi versiya va yuklab olish, o'rnatish yo'riqnomasi va
- * ulangan brauzerlar ro'yxati (uzish bilan). Ulashning O'ZI shu yerda emas —
- * uni kengaytma boshlaydi (`/extension/connect`), chunki token aynan
- * o'sha brauzerga tushishi kerak.
+ * Bu yerda: Chrome Web Store'dan o'rnatish, qisqa yo'riqnoma va ulangan
+ * brauzerlar ro'yxati (uzish bilan). Ulashning O'ZI shu yerda emas — uni
+ * kengaytma boshlaydi (`/extension/connect`), chunki token aynan o'sha
+ * brauzerga tushishi kerak.
+ *
+ * Kengaytma FAQAT do'kon orqali tarqatiladi: zip arxiv yo'q, yangilanishni
+ * Chrome o'zi o'rnatadi (qaror 2026-09-17). Do'kon manzili lens'dan keladi
+ * (`EXTENSION_STORE_URL`); u bo'sh bo'lsa — do'kon tekshiruvi hali tugamagan.
  */
 
 import * as React from "react";
-import { Download, Globe, Laptop, Loader2, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, Globe, Laptop, Loader2, Puzzle, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,8 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api";
-import { formatNumber } from "@/lib/format";
-import { fetchLensDevices, fetchLensRelease, lensDownloadUrl, revokeLensDevice, type LensDevice, type LensRelease } from "@/lib/lens";
+import { fetchLensDevices, fetchLensRelease, LENS_PAGE_PATH, LENS_PRIVACY_PATH, revokeLensDevice, type LensDevice, type LensRelease } from "@/lib/lens";
 
 const MONTHS = ["yan", "fev", "mar", "apr", "may", "iyn", "iyl", "avg", "sen", "okt", "noy", "dek"];
 
@@ -80,22 +84,26 @@ export function LensExtensionCard() {
                 Uzum tariflari bilan unit iqtisodiyot va rasm bo&apos;yicha qidiruv.
               </p>
             </div>
-            {release ? (
+            {release?.storeUrl ? (
               <Button asChild className="min-h-10 shrink-0 gap-2 rounded-xl">
-                <a href={lensDownloadUrl()}>
-                  <Download className="size-4" /> Yuklab olish · v{release.version}
+                <a href={release.storeUrl} target="_blank" rel="noopener noreferrer">
+                  <Puzzle className="size-4" /> Chrome Web Store&apos;dan o&apos;rnatish
+                  <ExternalLink className="size-3.5 opacity-70" />
                 </a>
               </Button>
+            ) : release ? (
+              <Badge variant="secondary" className="shrink-0 rounded-lg px-3 py-1.5 text-xs">
+                Chrome Web Store tekshiruvida
+              </Badge>
             ) : null}
           </div>
         </CardHeader>
         <CardContent>
-          <ol className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+          <ol className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
             {[
-              "Arxivni yuklab oling va papkaga oching.",
-              "Chrome'da chrome://extensions ni oching, «Dasturchi rejimi» ni yoqing.",
-              "«Paketlanmagan kengaytmani yuklash» → ochilgan papkani tanlang.",
-              "Paneldagi eStats Lens belgisi → «eStats'ga ulash» — ochilgan eStats sahifasida tasdiqlaysiz.",
+              "Chrome Web Store sahifasida «Chrome'ga qo'shish» ni bosing.",
+              "O'rnatilgach eStats'ning ulash sahifasi o'zi ochiladi (yoki paneldagi eStats Lens belgisi → «eStats'ga ulash»).",
+              "«Shu brauzerni ulash» ni tasdiqlang — uzum.uz sahifalarida tahlil paydo bo'ladi.",
             ].map((step, index) => (
               <li key={step} className="flex gap-3 rounded-xl bg-muted/50 p-3">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{index + 1}</span>
@@ -103,11 +111,16 @@ export function LensExtensionCard() {
               </li>
             ))}
           </ol>
-          {release ? (
-            <p className="mt-3 break-all text-xs text-muted-foreground">
-              {formatNumber(Math.round(release.size / 1024))} KB · sha256 {release.sha256}
-            </p>
-          ) : null}
+          <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <ShieldCheck className="size-3.5" />
+            <span>Yangilanishlarni Chrome o&apos;zi o&apos;rnatadi{release?.version ? ` · joriy versiya ${release.version}` : ""}.</span>
+            <Link href={LENS_PAGE_PATH} className="underline underline-offset-2 hover:text-foreground" target="_blank">
+              Kengaytma haqida
+            </Link>
+            <Link href={LENS_PRIVACY_PATH} className="underline underline-offset-2 hover:text-foreground" target="_blank">
+              Maxfiylik siyosati
+            </Link>
+          </p>
         </CardContent>
       </Card>
 

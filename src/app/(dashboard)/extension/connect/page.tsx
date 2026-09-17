@@ -19,12 +19,12 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Download, Globe, Loader2, PlugZap, ShieldCheck, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, Globe, Loader2, PlugZap, Puzzle, ShieldCheck, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api";
-import { createLensDevice, isExtensionMessage, lensDownloadUrl, SOURCE_PAGE } from "@/lib/lens";
+import { createLensDevice, fetchLensRelease, isExtensionMessage, LENS_PRIVACY_PATH, SOURCE_PAGE, type LensRelease } from "@/lib/lens";
 import { useUserStore } from "@/stores/user-store";
 
 type Phase = "detecting" | "missing" | "ready" | "connecting" | "connected" | "failed";
@@ -50,7 +50,13 @@ function ConnectFlow() {
   const [phase, setPhase] = React.useState<Phase>("detecting");
   const [error, setError] = React.useState<string | null>(null);
   const [extensionVersion, setExtensionVersion] = React.useState<string | null>(version);
+  const [release, setRelease] = React.useState<LensRelease | null>(null);
   const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    if (phase !== "missing") return;
+    fetchLensRelease().then(setRelease, () => setRelease(null));
+  }, [phase]);
 
   React.useEffect(() => {
     const onMessage = (event: MessageEvent) => {
@@ -114,12 +120,16 @@ function ConnectFlow() {
           <Status icon={<Loader2 className="size-5 animate-spin text-primary" />} title="Kengaytma qidirilmoqda…" />
         ) : phase === "missing" ? (
           <Status icon={<Globe className="size-5 text-[var(--warn)]" />} title="Kengaytma topilmadi">
-            <p>Bu brauzerda eStats Lens o&apos;rnatilmagan yoki o&apos;chirilgan. O&apos;rnatib, shu sahifani yangilang.</p>
-            <Button asChild className="mt-3 min-h-10 gap-2 rounded-xl">
-              <a href={lensDownloadUrl()}>
-                <Download className="size-4" /> Kengaytmani yuklab olish
-              </a>
-            </Button>
+            <p>Bu brauzerda eStats Lens o&apos;rnatilmagan yoki o&apos;chirilgan. Chrome Web Store&apos;dan o&apos;rnating — ulash sahifasi o&apos;zi ochiladi.</p>
+            {release?.storeUrl ? (
+              <Button asChild className="mt-3 min-h-10 gap-2 rounded-xl">
+                <a href={release.storeUrl} target="_blank" rel="noopener noreferrer">
+                  <Puzzle className="size-4" /> Chrome Web Store&apos;dan o&apos;rnatish <ExternalLink className="size-3.5 opacity-70" />
+                </a>
+              </Button>
+            ) : (
+              <p className="mt-2 text-xs">Kengaytma Chrome Web Store tekshiruvida — tasdiqlangach shu yerda o&apos;rnatish tugmasi paydo bo&apos;ladi.</p>
+            )}
           </Status>
         ) : phase === "connected" ? (
           <Status icon={<CheckCircle2 className="size-5 text-[var(--ok)]" />} title="Ulandi">
@@ -148,8 +158,13 @@ function ConnectFlow() {
             </dl>
             <p className="flex items-start gap-2 rounded-xl bg-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">
               <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-              Kengaytma faqat uzum.uz va eStats bilan ishlaydi. Uzum parolingiz yoki tokeningiz unga berilmaydi. Brauzerni istalgan vaqtda
-              Integratsiyalar → «Brauzer kengaytmasi» bo&apos;limidan uzishingiz mumkin.
+              <span>
+                Kengaytma faqat uzum.uz va eStats bilan ishlaydi. Uzum parolingiz yoki tokeningiz unga berilmaydi. Brauzerni istalgan vaqtda
+                Integratsiyalar → «Brauzer kengaytmasi» bo&apos;limidan uzishingiz mumkin.{" "}
+                <a href={LENS_PRIVACY_PATH} target="_blank" className="underline underline-offset-2">
+                  Maxfiylik siyosati
+                </a>
+              </span>
             </p>
             {error ? <p className="text-sm text-[var(--bad)]">{error}</p> : null}
             <Button className="min-h-11 w-full gap-2 rounded-xl" disabled={phase === "connecting"} onClick={() => void connect()}>

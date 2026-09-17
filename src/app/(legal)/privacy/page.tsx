@@ -66,6 +66,15 @@ export default function PrivacyPage() {
         o&apos;chirishni istasangiz, quyidagi manzilga yozing.
       </p>
 
+      <h2>Brauzer kengaytmasi (eStats Lens)</h2>
+      <p>
+        uzum.uz uchun eStats Lens kengaytmasi qanday ma&apos;lumot bilan ishlashi alohida sahifada:{" "}
+        <a href="/lens/privacy" className="underline underline-offset-2">
+          eStats Lens maxfiylik siyosati
+        </a>
+        .
+      </p>
+
       <h2>Aloqa</h2>
       <p>turaqulovfayoz4@gmail.com</p>
     </>
