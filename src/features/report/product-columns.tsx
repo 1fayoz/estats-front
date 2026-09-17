@@ -29,8 +29,15 @@ function Thumb({ id, src }: { id: number; src: string | null }) {
   );
 }
 
+// Looker jadvalidagi shartli ranglar (1 kun va 30 kun eksport ekranlarida
+// o'lchangan): reyting 4,9+ yashil, 4,5 va past qizil; «Stokda mavjud kunlar»
+// 30 va undan ko'p — ko'k, kam — qizil (davr uzunligiga qaramaydi: 1 kunlik
+// davrda ham «1» qizil); yo'qotilgan foyda faqat noldan katta bo'lsa qizil.
 const ratingTone = (rating: number | null) =>
-  rating == null ? undefined : rating >= 4.9 ? { color: "#34a853" } : rating < 4.5 ? { color: "#ea4335" } : undefined;
+  rating == null ? undefined : rating >= 4.9 ? { color: "#34a853" } : rating <= 4.5 ? { color: "#ea4335" } : undefined;
+const lostTone = (value: number | null) => (value ? { color: "#ea4335" } : undefined);
+const stockDaysTone = (value: number | null) =>
+  value == null ? undefined : value >= 30 ? { color: "#1e88e5" } : { color: "#ea4335" };
 
 export function productColumns(periodDays: number | null): Column<ProductRow>[] {
   return [
@@ -48,18 +55,15 @@ export function productColumns(periodDays: number | null): Column<ProductRow>[] 
     { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, heat: COLORS.heatLight },
     { key: "growth", title: "O'sish %", num: true, value: (r) => r.growth, format: fmt.pct(0, true) },
     { key: "lost_revenue", title: "Yo'qotilgan foyda", num: true, value: (r) => r.lost_revenue, format: fmt.compact,
-      tone: () => ({ color: "#ea4335" }) },
+      tone: (r) => lostTone(r.lost_revenue) },
     { key: "units", title: "Sotuv, donada", num: true, value: (r) => r.units },
     { key: "daily_units", title: "Kunlik sotuv (dona)", num: true, value: (r) => r.daily_units, format: fmt.dec(2) },
     { key: "avg_price", title: "O'rtacha narx", num: true, value: (r) => r.avg_price },
     { key: "fbs_days", title: "FBS dagi kunlar", num: true, value: (r) => r.fbs_days },
     { key: "boost_days", title: "Bust mavjud kunlar", num: true, value: (r) => r.boost_days,
       heat: COLORS.heatPurple },
-    {
-      key: "stock_days", title: "Stokda mavjud kunlar", num: true, value: (r) => r.stock_days,
-      tone: (r) => r.stock_days == null || periodDays == null ? undefined
-        : r.stock_days >= periodDays ? { color: "#1e88e5" } : { color: "#ea4335" },
-    },
+    { key: "stock_days", title: "Stokda mavjud kunlar", num: true, value: (r) => r.stock_days,
+      tone: (r) => (periodDays == null ? undefined : stockDaysTone(r.stock_days)) },
     { key: "orders", title: "Buyurtmalar soni", num: true, value: (r) => r.orders },
     { key: "reviews", title: "Sharhlar", num: true, value: (r) => r.reviews },
     { key: "rating", title: "Reyting", num: true, value: (r) => r.rating, format: fmt.dec(1),
@@ -87,7 +91,7 @@ export function skuColumns({ withSkuId = false }: { withSkuId?: boolean } = {}):
     ...(withSkuId ? [{ key: "sku_id", title: "sku", num: true, sortable: false,
                        value: (r: SkuRow) => r.sku_id } as Column<SkuRow>] : []),
     { key: "lost_revenue", title: "Yo'qotilgan tushum (soʻm)", num: true, value: (r) => r.lost_revenue,
-      format: withSkuId ? fmt.compact : fmt.int, tone: () => ({ color: "#ea4335" }) },
+      format: withSkuId ? fmt.compact : fmt.int, tone: (r) => lostTone(r.lost_revenue) },
     { key: "units", title: "Sotuv, donada", num: true, value: (r) => r.units },
     { key: "daily_units", title: "Kunlik sotuv (dona)", num: true, value: (r) => r.daily_units,
       format: withSkuId ? fmt.dec(2) : fmt.int },

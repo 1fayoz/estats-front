@@ -29,27 +29,68 @@ export function shortDay(iso: string): string {
   return `${d}/${m}`;
 }
 
+/** Looker donut'i: 19 ta eng katta bo'lak + «Boshqa», yorliq faqat 5% dan katta bo'lakda. */
+const DONUT_SLICES = 19;
+
 export function Donut({
   data, height = 330,
 }: {
   data: { name: string; value: number; share: number | null }[];
   height?: number;
 }) {
+  const sorted = [...data].sort((a, b) => b.value - a.value);
+  const head = sorted.slice(0, DONUT_SLICES);
+  const rest = sorted.slice(DONUT_SLICES).reduce((sum, d) => sum + d.value, 0);
+  const slices = rest > 0 ? [...head, { name: "Boshqa", value: rest, share: null }] : head;
+  const total = slices.reduce((sum, d) => sum + d.value, 0) || 1;
+  const RADIAN = Math.PI / 180;
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" innerRadius="45%" outerRadius="75%" cx="38%"
-             isAnimationActive={false}
-             label={(entry: { percent?: number }) =>
-               (entry.percent ?? 0) >= 0.05 ? `${formatNumber(Number(((entry.percent ?? 0) * 100).toFixed(1)))}%` : ""}
-             labelLine={false}>
-          {data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} stroke="#fff" />)}
-        </Pie>
-        <Tooltip formatter={(v) => compact(v)} />
-        <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" iconSize={9}
-                wrapperStyle={{ ...axis, fontSize: 10, lineHeight: "16px", width: "40%" }} />
-      </PieChart>
-    </ResponsiveContainer>
+    <div style={{ display: "flex", alignItems: "center", height }}>
+      <div style={{ flex: "0 0 58%", height: "100%" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={slices} dataKey="value" nameKey="name" innerRadius="48%" outerRadius="88%"
+                 isAnimationActive={false} startAngle={90} endAngle={-270} labelLine={false}
+                 label={(p: { cx?: number; cy?: number; midAngle?: number; innerRadius?: number;
+                              outerRadius?: number; value?: number }) => {
+                   const share = (p.value ?? 0) / total;
+                   if (share < 0.05) return null;
+                   const r = ((p.innerRadius ?? 0) + (p.outerRadius ?? 0)) / 2;
+                   const x = (p.cx ?? 0) + r * Math.cos(-(p.midAngle ?? 0) * RADIAN);
+                   const y = (p.cy ?? 0) + r * Math.sin(-(p.midAngle ?? 0) * RADIAN);
+                   return (
+                     <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central"
+                           style={{ ...axis, fontSize: 10, fill: "#fff" }}>
+                       {formatNumber(Number((share * 100).toFixed(1)))}%
+                     </text>
+                   );
+                 }}>
+              {slices.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} stroke="#fff" />)}
+            </Pie>
+            <Tooltip formatter={(v) => compact(v)} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+      <div style={{ flex: 1, ...axis, fontSize: 10, lineHeight: "14px", overflow: "hidden" }}>
+        {slices.map((s, i) => (
+          <div key={s.name} style={{ display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+            <span style={{ width: 8, height: 8, borderRadius: 8, background: PALETTE[i % PALETTE.length],
+                           flex: "none" }} />
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{s.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OneLineTick(props: { x?: number; y?: number; payload?: { value: string } }) {
+  const { x = 0, y = 0, payload } = props;
+  const text = payload?.value ?? "";
+  return (
+    <text x={x} y={y} dy={3} textAnchor="end" style={{ ...axis, fontSize: 10, fill: "#1f3b73" }}>
+      {text.length > 26 ? `${text.slice(0, 25)}…` : text}
+    </text>
   );
 }
 
@@ -62,7 +103,7 @@ export function GrowthBars({ data, height = 360 }: { data: { name: string; growt
                 formatter={() => "Toifa O'sish % Muddatdan Muddatga %"} wrapperStyle={{ ...axis, top: 0 }} />
         <XAxis type="number" domain={[-100, 100]} ticks={[-100, -50, 0, 50, 100]} tickFormatter={(v) => `${v}%`}
                tick={axis} axisLine={false} tickLine={false} />
-        <YAxis type="category" dataKey="name" width={140} tick={{ ...axis, fill: "#1f3b73" }} axisLine={false}
+        <YAxis type="category" dataKey="name" width={140} tick={<OneLineTick />} axisLine={false}
                tickLine={false} interval={0} />
         <CartesianGrid horizontal={false} stroke="#e6e6e6" />
         <Bar dataKey="growth" fill="#7eb2f4" isAnimationActive={false} barSize={8}>
@@ -194,27 +235,49 @@ export function GroupedBars({
 
 type TreeDatum = { name: string; size?: number; children?: TreeDatum[] };
 
+/*
+  Treemap — Looker ko'rinishida: tepada «Все» sarlavhasi, 1-daraja guruhlar
+  to'q ko'k SARLAVHA chizig'i bilan, 2-daraja to'rtburchaklar nomi bilan,
+  undan chuqurlari faqat ingichka chegara. Rang — tushum ulushiga qarab
+  och ko'kdan to'qroq ko'kka (Looker'ning «color by metric» uslubi).
+*/
+const HEADER = 16;
+
 function TreeCell(props: {
-  x?: number; y?: number; width?: number; height?: number; name?: string; depth?: number; root?: unknown;
-  value?: number; index?: number;
+  x?: number; y?: number; width?: number; height?: number; name?: string; depth?: number;
+  value?: number; root?: { value?: number };
 }) {
-  const { x = 0, y = 0, width = 0, height = 0, name = "", depth = 0, value = 0 } = props;
+  const { x = 0, y = 0, width = 0, height = 0, name = "", depth = 0, value = 0, root } = props;
   if (width <= 0 || height <= 0) return null;
-  const header = depth <= 2 && width > 40;
-  const shade = Math.min(0.9, 0.25 + Math.log10(Math.max(value, 1)) / 14);
+  const share = root?.value ? value / root.value : 0;
+  const fill = `rgba(66, 133, 244, ${Math.min(0.85, 0.12 + share * 2.2).toFixed(3)})`;
+  const clip = (text: string, px: number) => {
+    const fits = Math.floor(px / 6.2);
+    return text.length > fits ? `${text.slice(0, Math.max(2, fits - 1))}…` : text;
+  };
+  if (depth === 1) {
+    return (
+      <g>
+        <rect x={x} y={y} width={width} height={height} style={{ fill: "#fff", stroke: "#fff", strokeWidth: 2 }} />
+        <rect x={x + 1} y={y + 1} width={Math.max(0, width - 2)} height={Math.min(HEADER, height)}
+              style={{ fill: "#5b9bef" }} />
+        {width > 30 ? (
+          <text x={x + width / 2} y={y + 12} textAnchor="middle"
+                style={{ ...axis, fontSize: 11, fontWeight: 700, fill: "#000" }}>
+            {clip(name, width)}
+          </text>
+        ) : null}
+      </g>
+    );
+  }
+  const top = depth === 2 ? y + (y === 0 ? 0 : 0) : y;
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height}
-            style={{ fill: depth === 1 ? "#a8c8f0" : `rgba(100,160,235,${shade.toFixed(2)})`, stroke: "#fff",
-                     strokeWidth: depth === 1 ? 2 : 1 }} />
-      {header && depth === 1 ? (
-        <text x={x + width / 2} y={y + 13} textAnchor="middle" style={{ ...axis, fontSize: 12, fontWeight: 700 }}>
-          {name}
-        </text>
-      ) : null}
-      {depth >= 2 && width > 36 && height > 16 ? (
+      <rect x={x} y={top} width={width} height={height}
+            style={{ fill: depth === 2 ? fill : "transparent", stroke: "#fff", strokeWidth: depth === 2 ? 1.5 : 0.6 }} />
+      {depth === 2 && width > 34 && height > 16 ? (
         <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" style={{ ...axis, fontSize: 11 }}>
-          {name.length * 5.5 > width ? `${name.slice(0, Math.max(3, Math.floor(width / 6)))}…` : name}
+          {clip(name, width)}
         </text>
       ) : null}
     </g>
@@ -223,10 +286,16 @@ function TreeCell(props: {
 
 export function RevenueTreemap({ data, height = 530 }: { data: TreeDatum[]; height?: number }) {
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <Treemap data={data} dataKey="size" nameKey="name" isAnimationActive={false} content={<TreeCell />}
-               aspectRatio={4 / 3} />
-    </ResponsiveContainer>
+    <div>
+      <div style={{ background: "#5b9bef", textAlign: "center", ...axis, fontSize: 12, fontWeight: 700,
+                    padding: "2px 0", margin: "0 4px" }}>
+        Все
+      </div>
+      <ResponsiveContainer width="100%" height={height}>
+        <Treemap data={data} dataKey="size" nameKey="name" isAnimationActive={false} content={<TreeCell />}
+                 aspectRatio={4 / 3} />
+      </ResponsiveContainer>
+    </div>
   );
 }
 
