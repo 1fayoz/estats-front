@@ -55,9 +55,9 @@ export default function LensPrivacyPage() {
           </li>
           <li>
             <strong>Rasm bo&apos;yicha qidiruv.</strong>{" "}Faqat siz tanlaganda: rasm havolasi yoki ekranning siz belgilagan qismi (1280 px gacha
-            kichraytirilgan JPEG) serverga yuboriladi. Server rasmni qidiruv so&apos;rovlariga aylantirish uchun Google Gemini API&apos;ga beradi, Uzum
-            ochiq katalogidan o&apos;xshash tovarlarni topadi va natijani qaytaradi. Rasmning o&apos;zi saqlanmaydi; kunlik limit va sifat uchun vaqt,
-            yaratilgan so&apos;rovlar va natijalar soni yoziladi. Natija brauzerning sessiya xotirasida brauzer yopilguncha turadi (10 daqiqadan eskisi yangi qidiruvda o&apos;chiriladi).
+            kichraytirilgan JPEG) serverga yuboriladi. Server rasmni eStats&apos;ning o&apos;zida turgan Uzum ochiq katalogi suratlari bilan solishtiradi
+            (sun&apos;iy intellekt ham, tashqi xizmat ham ishlatilmaydi — rasm hech kimga uzatilmaydi) va o&apos;xshash tovarlarni qaytaradi. Rasmning
+            o&apos;zi saqlanmaydi; kunlik limit va sifat uchun vaqt, topilgan tovar nomi, natijalar soni va eng yuqori moslik yoziladi. Natija brauzerning sessiya xotirasida brauzer yopilguncha turadi (10 daqiqadan eskisi yangi qidiruvda o&apos;chiriladi).
           </li>
           <li>
             <strong>Sozlamalar</strong>{" "}(til, qaysi bloklar ko&apos;rinishi, davrlar) brauzeringizning o&apos;zida (Chrome sinxronizatsiyasi) saqlanadi va
@@ -76,8 +76,8 @@ export default function LensPrivacyPage() {
         <h2>Kimga beriladi</h2>
         <p>
           Ma&apos;lumot sotilmaydi, reklama, profil tuzish yoki kredit baholash uchun ishlatilmaydi. Uchinchi tomonlar faqat xizmatni ko&apos;rsatish
-          uchun: Google (Gemini API — faqat rasm bo&apos;yicha qidiruvda siz tanlagan rasm), Telegram (faqat siz yoqqan kuzatuv xabarlari), server
-          joylashgan hosting (Germaniya). Qonun talab qilgan hollar bundan mustasno.
+          uchun: Telegram (faqat siz yoqqan kuzatuv xabarlari) va server joylashgan hosting (Germaniya). Rasm bo&apos;yicha qidiruvdagi rasm
+          uchinchi tomonga berilmaydi. Qonun talab qilgan hollar bundan mustasno.
         </p>
 
         <h2>Limited Use</h2>
@@ -130,9 +130,9 @@ export default function LensPrivacyPage() {
           </li>
           <li>
             <strong>Поиск по фото.</strong>{" "}Только по вашему выбору: ссылка на изображение или выделенная вами часть экрана (JPEG, уменьшенный до
-            1280 px) отправляется на сервер. Сервер передаёт изображение в Google Gemini API, чтобы получить поисковые запросы, находит похожие
-            товары в открытом каталоге Uzum и возвращает результат. Само изображение не сохраняется; для дневного лимита и качества записываются
-            время, сгенерированные запросы и число результатов. Результат хранится в сессионной памяти браузера до его закрытия (результаты старше 10 минут удаляются при новом поиске).
+            1280 px) отправляется на сервер. Сервер сравнивает его с фотографиями открытого каталога Uzum, которые хранятся у eStats (без
+            искусственного интеллекта и сторонних сервисов — изображение никому не передаётся), и возвращает похожие товары. Само изображение не
+            сохраняется; для дневного лимита и качества записываются время, название найденного товара, число результатов и наибольшее сходство. Результат хранится в сессионной памяти браузера до его закрытия (результаты старше 10 минут удаляются при новом поиске).
           </li>
           <li>
             <strong>Настройки</strong>{" "}(язык, видимые блоки, периоды) хранятся в самом браузере (синхронизация Chrome) и на сервер eStats не
@@ -151,8 +151,8 @@ export default function LensPrivacyPage() {
         <h2>Кому передаются данные</h2>
         <p>
           Данные не продаются и не используются для рекламы, профилирования или оценки кредитоспособности. Третьи стороны — только для работы
-          сервиса: Google (Gemini API — только выбранное вами изображение при поиске по фото), Telegram (только включённые вами уведомления),
-          хостинг сервера (Германия). Исключение — требования закона.
+          сервиса: Telegram (только включённые вами уведомления) и хостинг сервера (Германия). Изображение из поиска по фото третьим лицам не
+          передаётся. Исключение — требования закона.
         </p>
 
         <h2>Limited Use</h2>
@@ -202,9 +202,9 @@ export default function LensPrivacyPage() {
           </li>
           <li>
             <strong>Image search.</strong>{" "}Only when you choose it: the image link or the screen area you select (a JPEG downscaled to at most
-            1280 px) is sent to the server. The server passes the image to the Google Gemini API to turn it into search queries, finds similar
-            products in Uzum&apos;s public catalog, and returns the results. The image itself is not stored; the time, generated queries and the
-            number of results are logged for the daily limit and quality. Results stay in the browser&apos;s session storage until the browser is closed (results older than 10 minutes are removed when a new search starts).
+            1280 px) is sent to the server. The server compares it with photos of Uzum&apos;s public catalog that eStats stores itself (no artificial
+            intelligence and no third-party service — the image is not shared with anyone) and returns similar products. The image itself is not
+            stored; the time, the matched product title, the number of results and the best similarity are logged for the daily limit and quality. Results stay in the browser&apos;s session storage until the browser is closed (results older than 10 minutes are removed when a new search starts).
           </li>
           <li>
             <strong>Settings</strong>{" "}(language, visible blocks, periods) are stored in your browser (Chrome sync) and are not sent to the eStats
@@ -223,8 +223,8 @@ export default function LensPrivacyPage() {
         <h2>Sharing</h2>
         <p>
           Data is not sold and is not used for advertising, profiling, or creditworthiness or lending decisions. Third parties are used only to
-          provide the service: Google (Gemini API — only the image you choose for image search), Telegram (only notifications you enable), and
-          the server hosting provider (Germany), except where required by law.
+          provide the service: Telegram (only notifications you enable) and the server hosting provider (Germany), except where required by law.
+          The image used for image search is not shared with any third party.
         </p>
 
         <h2>Limited Use</h2>

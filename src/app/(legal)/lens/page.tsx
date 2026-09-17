@@ -50,7 +50,9 @@ export default async function LensPage() {
           Uzum tariflari bo&apos;yicha unit iqtisodiyot va Excel hisobot, narx yoki qoldiq o&apos;zgarsa Telegram xabari.
         </li>
         <li>
-          <strong>Rasm bo&apos;yicha qidiruv</strong>{" "}— istalgan rasm yoki ekrandan belgilangan joy bo&apos;yicha Uzum&apos;dagi o&apos;xshash tovarlar.
+          <strong>Rasm bo&apos;yicha qidiruv</strong>{" "}— istalgan rasm yoki ekrandan belgilangan joy bo&apos;yicha: shu suratning o&apos;zini ishlatgan
+          e&apos;lonlar (bir xil tovarni kim sotyapti) va o&apos;xshash tovarlar, narx oralig&apos;i va tushumi bilan. Suratlar to&apos;g&apos;ridan-to&apos;g&apos;ri
+          solishtiriladi — sun&apos;iy intellektsiz.
         </li>
       </ul>
 
