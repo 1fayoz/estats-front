@@ -222,8 +222,6 @@ export interface StockGroup {
   priceMin: number | null;
   priceMax: number | null;
   members: StockGroupMember[];
-  /** Raqamdan chiqqan eslatmalar — narx farqi, sotuvdan chiqqan nusxa, ulush. */
-  notes: string[];
 }
 
 export interface StockGroupBriefMember {

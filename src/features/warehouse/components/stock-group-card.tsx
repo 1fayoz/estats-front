@@ -112,17 +112,6 @@ export function StockGroupCard({
           />
         </div>
 
-        {group.notes.length > 0 && (
-          <ul className="space-y-1.5 rounded-xl border border-[var(--warn)]/25 bg-[var(--warn)]/5 p-3.5">
-            {group.notes.map((note) => (
-              <li key={note} className="flex items-start gap-2 text-xs leading-relaxed">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--warn)]" />
-                <span>{note}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-
         {/* ── nom ── */}
         {!canEdit ? (
           <p className="text-sm text-muted-foreground">{group.title}</p>
