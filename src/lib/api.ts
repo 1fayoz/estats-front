@@ -8,7 +8,6 @@ import { AUTH_STORAGE_KEY } from "./auth";
 import type {
   Funnel,
   AdPlan,
-  DuplicateSuggestion,
   StockGroupBrief,
   AdVerdict,
   AdResult,
@@ -384,22 +383,6 @@ export const unlinkStockGroupMember = (productId: number) =>
 export const dissolveStockGroup = (id: number) =>
   request<void>(`/warehouse/stock-groups/${id}`, { method: "DELETE" });
 
-/** Ehtimoliy takrorlar — Uzum'da ikki marta qo'yilgan bo'lishi mumkin. */
-export const fetchDuplicateSuggestions = () =>
-  request<DuplicateSuggestion[]>("/warehouse/stock-groups/suggestions");
-
-/** "Bular bir xil tovar emas" — juftlik taklif ro'yxatiga qaytmaydi. */
-export const dismissDuplicate = (productIds: number[]) =>
-  request<void>("/warehouse/stock-groups/dismiss", {
-    method: "POST",
-    body: JSON.stringify({ productIds }),
-  });
-
-/** Shu tovar qaysi e'lon bilan bir xil bo'lishi mumkin (`search` — qo'lda qidiruv). */
-export const fetchProductDuplicates = (productId: number, search?: string) =>
-  request<DuplicateSuggestion[]>(
-    `/warehouse/products/${productId}/duplicates${qs({ search })}`,
-  );
 
 // ── sotuv (sales) ────────────────────────────────────────────────────────────
 

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductTable } from "@/features/warehouse/components/product-table";
-import { DuplicateSuggestions } from "@/features/warehouse/components/duplicate-suggestions";
 import { SupportRequestDialog } from "@/features/warehouse/components/support-request-dialog";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { AiGenerationTray } from "@/features/products-ai/components/generation-tray";
@@ -199,8 +198,6 @@ function WarehouseContent() {
   // chiqib ketardi va qaytganda qayerda qolgani yo'qolardi.
   const canSeeAi = useCan("products_ai.view");
   const canAddAi = useCan("products_ai.control");
-  // Bog'lash — ombor amali (`warehouse.control`), AI ruxsati bilan aloqasi yo'q.
-  const canLinkDuplicates = useCan("warehouse.control");
   const drafts = useAiDrafts(canSeeAi);
 
   // Oyna holati URL'DA turadi (`?draft=12`/`?draft=new`) — endi
@@ -473,10 +470,6 @@ function WarehouseContent() {
       </div>
       {hasFilters && <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2"><span className="text-xs text-muted-foreground">{onlyNoCost ? "Tan narxi kiritilmagan tovarlar" : STATUS_TABS.find((statusTab) => statusTab.key === tab)?.label}</span><Button variant="ghost" className="min-h-11 rounded-xl text-xs" onClick={clearFilters}><X className="h-3.5 w-3.5" /> Filtrlarni tozalash</Button></div>}
       </section>
-
-      {/* «Bu tovarni ikki marta qo'ygan bo'lishingiz mumkin» — o'zi
-          chiqadigan taklif. Hech narsa avtomatik bog'lanmaydi. */}
-      <DuplicateSuggestions canLink={canLinkDuplicates} onChanged={refresh} />
 
       <SupportRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
 

@@ -247,42 +247,6 @@ export interface StockGroupBrief {
   members: StockGroupBriefMember[];
 }
 
-export interface DuplicateVariant {
-  id: number;
-  variantName: string | null;
-  skuCode: string | null;
-  isArchived: boolean;
-  price: number | null;
-  stockQuantity: number;
-  totalSoldQuantity: number;
-  stockGroupId: number | null;
-}
-
-export interface DuplicateCard {
-  externalProductId: string | null;
-  title: string;
-  image: string | null;
-  categoryName: string | null;
-  uzumUrl: string | null;
-  isArchived: boolean;
-  isBlocked: boolean;
-  status: string | null;
-  priceMin: number | null;
-  priceMax: number | null;
-  totalSoldQuantity: number;
-  variants: DuplicateVariant[];
-}
-
-/** Ehtimoliy takror: ikki kartochka, nega o'xshashi va variant juftlari. */
-export interface DuplicateSuggestion {
-  a: DuplicateCard;
-  b: DuplicateCard;
-  score: number;
-  reasons: string[];
-  /** Avtomatik moslangan variantlar `[a_sku, b_sku]`. Bo'sh — o'zingiz tanlaysiz. */
-  pairs: number[][];
-  alreadyLinked: boolean;
-}
 
 export interface ProductValidationFinding {
   field: string;
