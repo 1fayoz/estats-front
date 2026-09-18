@@ -64,6 +64,14 @@ export default function LensPrivacyPage() {
             eStats serveriga yuborilmaydi.
           </li>
           <li>
+            <strong>Foydalanish statistikasi.</strong>{" "}Kengaytmaning qaysi bo&apos;limi ishlatilganini bilish uchun hodisa nomi (masalan «tovar
+            tahlili ochildi»), ekran turi, uzum.uz&apos;ning ochiq tovar/turkum raqami, tanlangan davr va bitta son (masalan natijalar soni)
+            hisobingizga bog&apos;lab yuboriladi. Sahifa manzili, sahifa matni, qidiruv so&apos;zlaringiz, uzum.uz&apos;dan tashqari saytlardagi faoliyat,
+            klaviatura yoki sichqoncha izlari, shaxsiy va nozik toifadagi ma&apos;lumot YUBORILMAYDI — kengaytmada bunday yo&apos;l yo&apos;q, server esa
+            ro&apos;yxatda yo&apos;q hodisani qabul qilmaydi. Buni kengaytma oynachasidagi «Foydalanish statistikasi» belgisi bilan istalgan vaqtda
+            o&apos;chirasiz; yozuvlar 180 kundan keyin o&apos;chiriladi.
+          </li>
+          <li>
             <strong>Hisob ma&apos;lumoti.</strong>{" "}Kengaytma oynachasida eStats hisobingizning ismi va email&apos;i ko&apos;rsatiladi — ular serverdan
             olinadi va kengaytmada saqlanmaydi.
           </li>
@@ -139,6 +147,14 @@ export default function LensPrivacyPage() {
             отправляются.
           </li>
           <li>
+            <strong>Статистика использования.</strong>{" "}Чтобы понимать, какие разделы расширения используются, отправляются название события
+            (например «открыт анализ товара»), тип экрана, публичный номер товара или категории uzum.uz, выбранный период и одно число (например
+            количество результатов) — привязанные к вашему аккаунту. Адреса страниц, их содержимое, ваши поисковые запросы, активность на сайтах
+            кроме uzum.uz, следы клавиатуры или мыши, личные и чувствительные данные НЕ отправляются: в расширении нет такого пути, а сервер не
+            принимает события вне списка. Отключается в любой момент галочкой «Статистика использования» во всплывающем окне; записи удаляются
+            через 180 дней.
+          </li>
+          <li>
             <strong>Данные аккаунта.</strong>{" "}Во всплывающем окне показываются имя и email аккаунта eStats — они берутся с сервера и в расширении не
             сохраняются.
           </li>
@@ -209,6 +225,13 @@ export default function LensPrivacyPage() {
           <li>
             <strong>Settings</strong>{" "}(language, visible blocks, periods) are stored in your browser (Chrome sync) and are not sent to the eStats
             server.
+          </li>
+          <li>
+            <strong>Usage statistics.</strong>{" "}To understand which parts of the extension are used, we send the event name (for example &quot;product
+            analysis opened&quot;), the screen type, the public uzum.uz product or category id, the selected period and a single number (such as the
+            result count), linked to your account. Page URLs, page content, your search queries, activity on sites other than uzum.uz, keyboard or
+            mouse traces, personal and sensitive data are NOT sent — the extension has no code path for that, and the server rejects events outside
+            the list. You can switch it off at any time with the &quot;Usage statistics&quot; checkbox in the popup; records are deleted after 180 days.
           </li>
           <li>
             <strong>Account details.</strong>{" "}The popup shows the name and email of your eStats account; they are loaded from the server and are not
