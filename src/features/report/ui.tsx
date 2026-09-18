@@ -326,7 +326,7 @@ export function DateRangeControl({
 }
 
 export function InputControl({
-  label, value, onCommit, placeholder = "Qiymat kiriting", style, inputMode,
+  label, value, onCommit, placeholder = "Qiymat kiriting", style, inputMode, options, onDraft,
 }: {
   label: string;
   value: string;
@@ -334,8 +334,13 @@ export function InputControl({
   placeholder?: string;
   style?: React.CSSProperties;
   inputMode?: "numeric" | "text";
+  /** Tayyor variantlar (ZoomSelling'dagi ro'yxatli filtrlar kabi). */
+  options?: string[];
+  /** Har tugmabosishda chaqiriladi — takliflarni serverdan olish uchun. */
+  onDraft?: (value: string) => void;
 }) {
   const [draft, setDraft] = React.useState(value);
+  const listId = React.useId();
   React.useEffect(() => setDraft(value), [value]);
   return (
     <div className={s.control} style={{ cursor: "default", ...style }}>
@@ -345,10 +350,16 @@ export function InputControl({
         value={draft}
         inputMode={inputMode}
         placeholder={placeholder}
-        onChange={(e) => setDraft(e.target.value)}
+        list={options ? listId : undefined}
+        onChange={(e) => { setDraft(e.target.value); onDraft?.(e.target.value); }}
         onBlur={() => draft !== value && onCommit(draft)}
         onKeyDown={(e) => e.key === "Enter" && onCommit(draft)}
       />
+      {options ? (
+        <datalist id={listId}>
+          {options.map((o) => <option key={o} value={o} />)}
+        </datalist>
+      ) : null}
     </div>
   );
 }

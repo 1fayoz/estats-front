@@ -260,6 +260,8 @@ export const report = {
     get<Paged<SkuRow> & { totals: { revenue: number | null } }>("/seller-skus", params),
   shops: (params: ListParams) => get<Paged<ShopRow> & { totals: Totals }>("/shops", params),
   keywords: (params: ListParams) => get<Paged<KeywordRow>>("/keywords", params),
+  keywordSubjects: (params: ListParams) =>
+    get<{ items: { subject: string; keywords: number }[] }>("/keyword-subjects", params),
   card: (id: number, params: ListParams) => get<CardData>(`/product/${id}`, params),
   cardTable: (id: number, params: ListParams) => get<CardData>(`/product/${id}/table`, params),
   shop: (params: ListParams) => get<ShopData>("/shop", params),
