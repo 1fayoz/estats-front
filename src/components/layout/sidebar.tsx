@@ -40,7 +40,7 @@ export function Sidebar() {
       .sort((a, b) => b.length - a.length)[0];
   }, [groups, pathname]);
 
-  // Ichma-ich guruh (ZoomSelling hisobotidagi kabi) — ochiq/yopiq holati
+  // Ichma-ich guruh (tashqi hisobotdagi kabi) — ochiq/yopiq holati
   // eslab qolinadi; faol sahifa turgan guruh har doim ochiq.
   const [open, setOpen] = React.useState<Record<string, boolean>>({});
   React.useEffect(() => setOpen(readOpen()), []);

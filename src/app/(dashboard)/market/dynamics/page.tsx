@@ -12,7 +12,7 @@ import { report } from "@/lib/report";
 /*
   «Dinamikasi» — barg turkumning kunlik qatori: tushum (ustun) va
   sotuvdagi kartochkalar narxining medianasi (chiziq); pastda do'konlar
-  va kartochkalar soni. ZoomSelling tarixi 2024-01-02 dan boshlanadi.
+  va kartochkalar soni. import qilingan tarix 2024-01-02 dan boshlanadi.
 */
 
 const DEFAULT_PATH = "elektronika, smartfonlar va telefonlar, smartfonlar, smartfonlar android";
@@ -57,8 +57,8 @@ export default function DynamicsPage() {
       </Card>
       {series.length ? (
         <div className={styles.note}>
-          Manba: {series.some((s) => s.source === "zoomselling") ? "ZoomSelling tarixi" : ""}
-          {series.some((s) => s.source === "zoomselling") && series.some((s) => s.source === "estats") ? " + " : ""}
+          Manba: {series.some((s) => s.source === "import") ? "import qilingan tarix" : ""}
+          {series.some((s) => s.source === "import") && series.some((s) => s.source === "estats") ? " + " : ""}
           {series.some((s) => s.source === "estats") ? "o'z o'lchovimiz" : ""}
         </div>
       ) : null}

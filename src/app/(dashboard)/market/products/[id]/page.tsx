@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 /*
-  Eski manzil. Kartochka sahifasi endi ZoomSelling tuzilishida —
+  Eski manzil. Kartochka sahifasi endi tashqi xizmat tuzilishida —
   «Maxsulot kartochkasi» (`/market/card?id=`). Tashqi havolalar va
   xatcho'plar buzilmasin deb yo'naltiriladi.
 */

@@ -18,7 +18,7 @@ export interface NavItem {
    */
   action?: string;
   /**
-   * Ichma-ich bo'limlar — «Bozor» menyusi ZoomSelling hisobotidagi
+   * Ichma-ich bo'limlar — «Bozor» menyusi tashqi hisobotdagi
    * tuzilishda: guruh bosilganda ochiladi/yopiladi, o'zi sahifa emas.
    */
   children?: NavItem[];

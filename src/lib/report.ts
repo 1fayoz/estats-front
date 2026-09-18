@@ -1,8 +1,8 @@
 /**
  * Bozor hisoboti — `estats-market` ning `/report` bo'limi.
  *
- * Sahifalar ZoomSelling hisoboti bilan bir-bir. Har javobda `meta`
- * bor: raqam qaysi davr, qaysi kun holatiga va QAYERDAN (ZoomSelling
+ * Sahifalar tashqi hisobot bilan bir-bir. Har javobda `meta`
+ * bor: raqam qaysi davr, qaysi kun holatiga va QAYERDAN (tashqi xizmat
  * importi yoki o'z o'lchovimiz) — interfeys buni yashirmaydi.
  */
 
@@ -34,7 +34,7 @@ export type ReportMeta = {
   period: string;
   period_label?: string;
   as_of: string | null;
-  source: "zoomselling" | "estats" | null;
+  source: "import" | "estats" | null;
   scope: string;
 } | null;
 

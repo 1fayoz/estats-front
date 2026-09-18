@@ -9,7 +9,7 @@ import {
 import { report } from "@/lib/report";
 
 /*
-  «Ko'rib Uzum» — ZoomSelling hisobotining birinchi sahifasi bilan bir-bir:
+  «Ko'rib Uzum» — tashqi hisobotning birinchi sahifasi bilan bir-bir:
   «Muddat» filtri + 7 ta ko'rsatkich, toifalar ulushi (donut), toifalar
   o'sishi, top-do'konlar va oxirgi 30 kunlik tushum.
 */

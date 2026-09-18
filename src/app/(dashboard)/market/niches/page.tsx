@@ -10,7 +10,7 @@ import { report, type LayerRow } from "@/lib/report";
 
 /*
   «Qatlamlari» — hamma barg turkum bitta jadvalda. Ustun ranglari
-  ZoomSelling'dagi bilan bir xil (heatmap alfa = qiymat / ustun maksimumi);
+  tashqi xizmatdagi bilan bir xil (heatmap alfa = qiymat / ustun maksimumi);
   «Defitsit» 30 kundan kam bo'lsa to'q ko'k fon bilan belgilanadi.
 */
 

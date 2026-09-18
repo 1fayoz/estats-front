@@ -6,8 +6,8 @@ import Link from "next/link";
 import { ReportPage, styles } from "@/features/report/ui";
 
 /*
-  «Video-yuriqnomalar» — ZoomSelling'dagi sahifa tuzilishi bilan bir xil
-  (markazda beshta tugma). Ularning videolari ZoomSelling brendi bilan
+  «Video-yuriqnomalar» — tashqi xizmatdagi sahifa tuzilishi bilan bir xil
+  (markazda beshta tugma). Ularning videolari tashqi xizmat brendi bilan
   yozilgan reklama roliklari, shuning uchun havolalar ko'chirilmadi:
   har tugma shu mavzudagi eStats bo'limiga va qisqa yo'riqnomaga olib boradi.
 */

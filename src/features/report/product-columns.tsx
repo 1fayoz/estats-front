@@ -10,7 +10,7 @@ import { COLORS, fmt, styles, type Column } from "./ui";
 /*
   «kartochka asosida», «SKU asosida», «Sotuvchining SKUlari» ustunlari.
 
-  Rang qoidalari ZoomSelling jadvalidan ko'chirildi:
+  Rang qoidalari tashqi xizmat jadvalidan ko'chirildi:
     · «Tushim» — och ko'k fon (heatmap);
     · «Yo'qotilgan foyda» — qizil matn;
     · «Bust mavjud kunlar» — binafsha heatmap;

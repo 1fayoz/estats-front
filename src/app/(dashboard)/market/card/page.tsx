@@ -14,7 +14,7 @@ import { report } from "@/lib/report";
   «Maxsulot kartochkasi» — bitta tovar: KPI (sparkline bilan, oldingi
   shuncha kunga nisbatan), SKU jadvali, aksiyalar, SKU narxi, SKU
   bo'yicha sotuv, toifa va kalit so'zlar bo'yicha kunlik o'rinlar.
-  Sukut davri — oxirgi 30 kun (ZoomSelling'dagi kabi).
+  Sukut davri — oxirgi 30 kun (tashqi xizmatdagi kabi).
 */
 
 function shift(iso: string, days: number): string {
@@ -73,7 +73,7 @@ export default function CardPage() {
       ) : null}
       {data?.sources?.length ? (
         <div className={styles.note}>
-          Kunlik qatorlar: {data.sources.map((s) => (s === "zoomselling" ? "ZoomSelling tarixi" : "o'z o'lchovimiz"))
+          Kunlik qatorlar: {data.sources.map((s) => (s === "import" ? "import qilingan tarix" : "o'z o'lchovimiz"))
             .join(" + ")}
         </div>
       ) : null}

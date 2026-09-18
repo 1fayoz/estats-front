@@ -12,7 +12,7 @@ import { report, type TreeNode } from "@/lib/report";
 
 /*
   «Kategoriyalar» — tanlangan toifa ichidagi qatlamlar (treemap, tushum
-  bo'yicha) va shu toifadagi top-do'konlar. ZoomSelling'da sukutdagi
+  bo'yicha) va shu toifadagi top-do'konlar. tashqi xizmatda sukutdagi
   toifa — «Kiyim».
 */
 

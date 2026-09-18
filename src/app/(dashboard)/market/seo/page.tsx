@@ -12,7 +12,7 @@ import { report, type KeywordRow } from "@/lib/report";
 /*
   «Mahsulot kalitlari» — predmet bo'yicha qidiruv so'rovlari: davr
   qamrovi (ko'rsatishlar), kunlik qamrov, qidiruvdagi va reklamadagi
-  SKU'lar, talab koeffitsiyenti. ZoomSelling'da sukut predmeti — «sumkalar».
+  SKU'lar, talab koeffitsiyenti. tashqi xizmatda sukut predmeti — «sumkalar».
 */
 
 const LIMIT = 100;

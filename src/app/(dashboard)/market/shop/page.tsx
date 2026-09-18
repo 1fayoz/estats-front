@@ -21,7 +21,7 @@ import { report } from "@/lib/report";
   (pulda), oborot, buyurtma va sharhlar; toifalar treemap'i; kartalar
   jadvali; tushum oldingi davr bilan; sotuv va qoldiq.
 
-  Formulalar ZoomSelling kartalaridan tiklangan: «O'rtacha kunlik savdo»
+  Formulalar tashqi xizmat kartalaridan tiklangan: «O'rtacha kunlik savdo»
   = tushum / kunlar; «O'rtacha kunlik qoldiq» = Σ(qoldiq × narx) / kunlar;
   «Oborot» = ikkalasining nisbati (Xiaomi-Uzbekistan: 559,9 / 22,2 = 25,2 ✓).
 */

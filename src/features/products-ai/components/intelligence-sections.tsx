@@ -424,7 +424,7 @@ export function SeoSection({ data }: { data: AiSeoPlan }) {
       <div className="grid grid-cols-2 gap-2">
         <Stat label="Qamrab olindi" value={`${coverage}%`} accent={coverage >= 60} />
         {/*
-          "Qo'ldan ketayotgan qamrov" — ZoomSelling auditining
+          "Qo'ldan ketayotgan qamrov" — tashqi xizmat auditining
           asosiy ko'rsatkichi: matnda YO'Q, lekin talabi BOR
           so'zlarning og'irligi. Oddiy "qamrov" foizidan foydaliroq,
           chunki u nima YUTQAZILAYOTGANINI aytadi.

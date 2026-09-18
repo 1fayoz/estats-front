@@ -12,7 +12,7 @@ import { report } from "@/lib/report";
 /*
   «Kalit soʻz tahlili» — bitta so'rovning kechagi holati (qamrov,
   qidiruvdagi va reklamadagi SKU, talab) va yil bo'yi dinamikasi.
-  ZoomSelling'da sukut — «xiaomi».
+  tashqi xizmatda sukut — «xiaomi».
 */
 
 function shift(iso: string, days: number): string {

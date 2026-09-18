@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 /*
-  Eski manzil. Do'kon sahifasi endi ZoomSelling tuzilishida —
+  Eski manzil. Do'kon sahifasi endi tashqi xizmat tuzilishida —
   «Do'kon tahlili» (`/market/shop?shop_id=`).
 */
 export default async function LegacyShopPage({ params }: { params: Promise<{ id: string }> }) {

@@ -12,7 +12,7 @@ import { report, type SkuRow } from "@/lib/report";
 /*
   «SKU asosida» — variant (o'lcham/rang) darajasidagi ro'yxat.
   «Oborot, kunlik» bu jadvalda stokda bo'lgan kunlar bo'yicha:
-  o'rtacha qoldiq ÷ (sotuv ÷ stokdagi kunlar) — ZoomSelling'da o'lchangan
+  o'rtacha qoldiq ÷ (sotuv ÷ stokdagi kunlar) — tashqi xizmatda o'lchangan
   (SKU 9826764: 43,24).
 */
 

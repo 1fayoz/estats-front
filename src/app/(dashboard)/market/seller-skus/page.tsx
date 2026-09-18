@@ -11,7 +11,7 @@ import { report, type SkuRow } from "@/lib/report";
 
 /*
   «Sotuvchining SKUlari» — bitta yuridik shaxsning (bir nechta do'konining)
-  hamma SKU'lari. ZoomSelling'da sukut — «ООО «Uzum market»».
+  hamma SKU'lari. tashqi xizmatda sukut — «ООО «Uzum market»».
 */
 
 const LIMIT = 100;

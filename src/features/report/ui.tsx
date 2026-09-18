@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import s from "./report.module.css";
 
 /*
-  Bozor hisobotining umumiy qismlari — ZoomSelling (Looker Studio)
+  Bozor hisobotining umumiy qismlari — tashqi xizmat (Looker Studio)
   ko'rinishi bilan bir-bir. O'lchangan qiymatlar `report.module.css`
   boshida.
 
@@ -91,7 +91,7 @@ export function SourceNote({ meta }: { meta: ReportMeta | undefined }) {
     <div className={s.note}>
       Ma&apos;lumot {meta.as_of.split("-").reverse().join(".")} holatiga ·{" "}
       <span className={own ? s.sourceOwn : s.sourceZs}>
-        {own ? "o'z o'lchovimiz" : "ZoomSelling tarixi (import)"}
+        {own ? "o'z o'lchovimiz" : "import qilingan tarix (import)"}
       </span>
     </div>
   );

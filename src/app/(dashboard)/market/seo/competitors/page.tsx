@@ -12,7 +12,7 @@ import { report } from "@/lib/report";
 /*
   «Raqobatchilar va pozitsiyalar» — so'rov bo'yicha oxirgi 7 kun:
   qaysi kartochka qidiruvda nechanchi o'rinda, TOPda boost (reklama)
-  bilanmi. Reklama va organik chiqish alohida qator (ZoomSelling'dagi kabi).
+  bilanmi. Reklama va organik chiqish alohida qator (tashqi xizmatdagi kabi).
 */
 
 const MONTHS = ["yan", "fev", "mar", "apr", "may", "iyun", "iyul", "avg", "sen", "okt", "noy", "dek"];

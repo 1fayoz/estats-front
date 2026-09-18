@@ -10,10 +10,10 @@ import { report, type SkuDay } from "@/lib/report";
 
 /*
   «Kartochka (tablica)» — tovarning kun × SKU jadvali: narx, qoldiq,
-  sotuv, tushum, sharhlar, reyting. Bu ZoomSelling'ning xom fakti —
+  sotuv, tushum, sharhlar, reyting. Bu tashqi xizmatning xom fakti —
   qolgan hamma ko'rsatkich shundan hisoblanadi.
 
-  Jami qatori ZoomSelling'dagi kabi: narx — o'rtacha, qoldiq — stokda
+  Jami qatori tashqi xizmatdagi kabi: narx — o'rtacha, qoldiq — stokda
   bo'lgan kunlar soni, sotuv va tushum — yig'indi.
 */
 

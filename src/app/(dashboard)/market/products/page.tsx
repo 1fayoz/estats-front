@@ -12,8 +12,8 @@ import { report, type ProductRow } from "@/lib/report";
 
 /*
   «kartochka asosida» — tanlangan davr va toifadagi kartochkalar,
-  ZoomSelling jadvalining 18 ustuni bilan. Sahifada 100 qator
-  (ZoomSelling'dagi kabi «1 - 100 / 25161»).
+  tashqi hisobot jadvalining 18 ustuni bilan. Sahifada 100 qator
+  (tashqi xizmatdagi kabi «1 - 100 / 25161»).
 */
 
 const LIMIT = 100;
@@ -76,7 +76,7 @@ export default function ProductsPage() {
       </Card>
       <SourceNote meta={data?.meta} />
       <div className={styles.note}>
-        «Davrdagi sotuvlar: Да» — ZoomSelling eksportidagi kabi faqat davrda sotuvi bo&apos;lgan kartochkalar.
+        «Davrdagi sotuvlar: Да» — tashqi xizmat eksportidagi kabi faqat davrda sotuvi bo&apos;lgan kartochkalar.
       </div>
     </ReportPage>
   );

@@ -2541,7 +2541,7 @@ export interface AiKeyword {
 
 export interface AiSeoPlan {
   coverage: number;
-  /** Qo'ldan ketayotgan qamrov — ZoomSelling'dagi asosiy ko'rsatkich. */
+  /** Qo'ldan ketayotgan qamrov — tashqi xizmatdagi asosiy ko'rsatkich. */
   missed_coverage: number;
   keywords: AiKeyword[];
   grouped: Record<string, AiKeyword[]>;
