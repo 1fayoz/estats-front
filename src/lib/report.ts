@@ -99,7 +99,11 @@ export type ShopRow = {
   turnover?: number | null;
 };
 
-export type Totals = { revenue: number | null; growth: number | null; share: number | null } | null;
+/* `growth_as_of` — o'sish ustuni QAYSI kunning eksportidan. Tushum bilan
+   bir xil bo'lmasligi mumkin: do'kon eksporti kechroq olinadi, o'sishni
+   esa qatorlardan tiklab bo'lmaydi (backend `_published_growth`). */
+export type Totals = { revenue: number | null; growth: number | null; share: number | null;
+                       growth_as_of?: string } | null;
 
 export type OverviewData = {
   meta: ReportMeta;

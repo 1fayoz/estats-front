@@ -4,14 +4,14 @@ import * as React from "react";
 import Link from "next/link";
 
 import { COLORS, ZTable, fmt, styles } from "@/features/report/ui";
-import type { ShopRow } from "@/lib/report";
+import type { ShopRow, Totals } from "@/lib/report";
 
 /** «Top-magazinlar» jadvali — «Ko'rib Uzum», «Kategoriyalar», «Raqobat» sahifalarida bir xil. */
 export function TopShops({
   rows, totals, height, withSeller = false,
 }: {
   rows: ShopRow[];
-  totals: { revenue: number | null; growth: number | null; share: number | null } | null;
+  totals: Totals;
   height?: number;
   withSeller?: boolean;
 }) {
@@ -38,7 +38,15 @@ export function TopShops({
         ...(withSeller ? [{ key: "seller", title: "Sotuvchilar (yur.shaxs)", sortable: false,
                             render: (r: ShopRow) => r.seller }] : []),
         { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, bar: COLORS.bar },
-        { key: "growth", title: "O'sish %", num: true, value: (r) => r.growth, format: fmt.pct(1) },
+        // O'sish HISOBOTNING O'ZI e'lon qilgan qiymat (tiklanmaydi) — u tushum
+        // kunidan orqada bo'lsa sana sarlavhada ko'rsatiladi, yashirilmaydi.
+        {
+          key: "growth",
+          title: totals?.growth_as_of
+            ? `O'sish % (${totals.growth_as_of.slice(8)}.${totals.growth_as_of.slice(5, 7)})`
+            : "O'sish %",
+          num: true, value: (r) => r.growth, format: fmt.pct(1),
+        },
         { key: "share", title: "Bozor ulushi %", num: true, value: (r) => r.share, format: fmt.pct(1),
           heat: COLORS.heatGreen },
       ]}
