@@ -34,6 +34,11 @@ export const fmt = {
   int: (v: number | null | undefined) => (v == null ? "-" : formatNumber(Math.round(v))),
   money: (v: number | null | undefined) => (v == null ? "-" : formatNumber(Math.round(v))),
   compact: (v: number | null | undefined) => (v == null ? "-" : formatCompact(v)),
+  // Ko'rsatkich kartasi — HAR DOIM bitta kasr xonasi. Tashqi hisobot ham
+  // shunday yozadi ("762,6 mlrd", "2,2 mln") va yaxlitlanган "763 mlrd"
+  // yonma-yon qo'yilganda farqdek ko'rinardi. Jadval va grafik o'qi
+  // o'zgarmaydi: u yerda kasr shovqin qiladi.
+  score: (v: number | null | undefined) => (v == null ? "-" : formatCompact(v, 1)),
   dec: (digits: number) => (v: number | null | undefined) =>
     v == null ? "-" : formatNumber(Number(v.toFixed(digits))),
   pct: (digits = 0, space = false) => (v: number | null | undefined) =>
@@ -378,7 +383,7 @@ export function InputControl({
 // ── Ko'rsatkich kartasi ─────────────────────────────────────────
 
 export function Scorecard({
-  label, value, growth, format = fmt.compact, compare, spark, style, invert,
+  label, value, growth, format = fmt.score, compare, spark, style, invert,
 }: {
   label: string;
   value: number | null | undefined;

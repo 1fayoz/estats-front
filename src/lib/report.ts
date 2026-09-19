@@ -77,7 +77,9 @@ export type Paged<T> = {
   periods: PeriodOption[];
 };
 
-export type Kpi = { value: number | null; previous?: number | null; growth: number | null };
+/* `as_of` — FAQAT o'z kuni sahifaning kunidan farq qiladigan kartalarda
+   bo'ladi (do'kon eksporti tushum eksportidan kechroq olinadi). */
+export type Kpi = { value: number | null; previous?: number | null; growth: number | null; as_of?: string };
 export type KpiBlock = { meta: ReportMeta; values: Record<string, Kpi> } | null;
 
 // `in_growth` — «Toifa O'sish %» diagrammasiga kiradimi (subsidiya toifasi

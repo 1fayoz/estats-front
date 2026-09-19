@@ -39,9 +39,14 @@ export default function MarketOverviewPage() {
         {KPIS.map((k) => {
           const kpi = data?.kpis?.values?.[k.key];
           const value = kpi?.value ?? (k.key === "revenue" && revenueFallback ? revenueFallback : null);
+          // Do'kon kartalari eng yangi HAQIQIY do'kon eksportidan olinadi
+          // va u tushum kunidan orqada bo'lishi mumkin — sana YASHIRILMAYDI
+          // (aks holda ikki xil kunning raqami bir qatorda jimgina turardi).
+          const stale = kpi?.as_of && data?.meta?.as_of && kpi.as_of !== data.meta.as_of
+            ? `${kpi.as_of.slice(8)}.${kpi.as_of.slice(5, 7)} holatiga` : undefined;
           return (
             <Scorecard key={k.key} label={k.label} value={value} growth={kpi?.growth ?? null}
-                       format={k.format} invert={k.invert} />
+                       compare={stale} format={k.format} invert={k.invert} />
           );
         })}
       </Row>
