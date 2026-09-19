@@ -96,12 +96,21 @@ function OneLineTick(props: { x?: number; y?: number; payload?: { value: string 
 
 export function GrowthBars({ data, height = 360 }: { data: { name: string; growth: number | null }[]; height?: number }) {
   const rows = data.map((d) => ({ name: d.name, growth: d.growth == null ? 0 : Math.round(d.growth * 100) }));
+  // O'q qat'iy ±100% emas, MA'LUMOTGA moslashadi (hisobotdagi kabi): 20% lik
+  // qadamlar bilan eng yaqin yaxlit chegaraga kengaytiriladi. Qat'iy ±100% da
+  // 58% lik ustun ham, −37% lik ham o'rtada siqilib, farqi ko'rinmay qolardi.
+  const step = 20;
+  const values = rows.map((r) => r.growth);
+  const low = Math.min(0, ...values), high = Math.max(0, ...values);
+  const from = Math.floor(low / step) * step, to = Math.ceil(high / step) * step;
+  const ticks: number[] = [];
+  for (let v = from; v <= to; v += step) ticks.push(v);
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={rows} layout="vertical" margin={{ left: 10, right: 30, top: 24 }}>
         <Legend itemSorter={null} verticalAlign="top" align="center" iconType="square"
                 formatter={() => "Toifa O'sish % Muddatdan Muddatga %"} wrapperStyle={{ ...axis, top: 0 }} />
-        <XAxis type="number" domain={[-100, 100]} ticks={[-100, -50, 0, 50, 100]} tickFormatter={(v) => `${v}%`}
+        <XAxis type="number" domain={[from, to]} ticks={ticks} tickFormatter={(v) => `${v}%`}
                tick={axis} axisLine={false} tickLine={false} />
         <YAxis type="category" dataKey="name" width={140} tick={<OneLineTick />} axisLine={false}
                tickLine={false} interval={0} />
