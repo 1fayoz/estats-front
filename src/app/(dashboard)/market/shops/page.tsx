@@ -77,11 +77,11 @@ export default function ShopsRatingPage() {
           onPage={(o) => setParams({ offset: String(o) })}
           height="calc(100vh - 330px)"
           columns={[
-            { key: "shop", title: "Do'kon", sortable: false,
+            { key: "shop", title: "Do'kon",
               render: (r) => r.shop_id ? (
                 <Link className={styles.link} href={`/market/shop?shop_id=${r.shop_id}`}>{r.shop}</Link>
               ) : <span className={styles.link}>{r.shop}</span> },
-            { key: "seller", title: "Sotuvchilar (yur.shaxs)", sortable: false,
+            { key: "seller", title: "Sotuvchilar (yur.shaxs)",
               render: (r) => <span style={{ whiteSpace: "nowrap" }}>{(r.seller ?? "").slice(0, 28)}
                 {(r.seller ?? "").length > 28 ? "…" : ""}</span> },
             { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, format: fmt.compact,
