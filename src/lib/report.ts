@@ -9,6 +9,31 @@
 import { ApiError } from "./api";
 import { MARKET_BASE } from "./market";
 
+/*
+  Yuklanish holati — BITTA joyda.
+
+  Hisobot so'rovlari sekundlarga cho'zilishi mumkin (butun bozor jadvallari
+  million qatorli). Bu vaqtda sahifa «Ma'lumot yo'q» deb turardi — ya'ni
+  foydalanuvchiga BUZUQ ko'rinardi. Har sahifaga alohida holat qo'shish
+  o'rniga hisoblagich shu yerda: `get()` dan o'tmaydigan so'rov yo'q.
+*/
+let inFlight = 0;
+const listeners = new Set<(busy: boolean) => void>();
+
+export function reportBusy(): boolean {
+  return inFlight > 0;
+}
+
+export function onReportActivity(listener: (busy: boolean) => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function track(delta: number) {
+  inFlight = Math.max(0, inFlight + delta);
+  for (const listener of listeners) listener(inFlight > 0);
+}
+
 async function get<T>(path: string, params?: Record<string, unknown>): Promise<T> {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(params ?? {})) {
@@ -17,12 +42,15 @@ async function get<T>(path: string, params?: Record<string, unknown>): Promise<T
   }
   const url = `${MARKET_BASE}/report${path}${query.toString() ? `?${query}` : ""}`;
   let response: Response;
+  track(1);
   try {
     response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
   } catch {
+    track(-1);
     throw new ApiError("Bozor xizmatiga ulanib bo'lmadi.", 0);
   }
   const body = await response.json().catch(() => null);
+  track(-1);
   if (!response.ok) {
     const detail = (body && (body.detail ?? body.message)) || "So'rov bajarilmadi";
     throw new ApiError(typeof detail === "string" ? detail : JSON.stringify(detail), response.status);

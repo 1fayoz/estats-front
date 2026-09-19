@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
 import { formatCompact, formatNumber } from "@/lib/format";
+import { onReportActivity, reportBusy } from "@/lib/report";
 import type { PeriodOption, ReportMeta } from "@/lib/report";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +42,13 @@ export const fmt = {
 
 // ── Sahifa ──────────────────────────────────────────────────────
 
+/** Hisobot so'rovi ketyaptimi — BITTA manbadan (`lib/report`). */
+export function useReportBusy(): boolean {
+  return React.useSyncExternalStore(onReportActivity, reportBusy, () => false);
+}
+
 export function ReportPage({ children }: { children: React.ReactNode }) {
+  const busy = useReportBusy();
   return (
     <div className={cn(s.page, oswald.variable)}>
       <div className={s.canvas}>
@@ -52,6 +59,7 @@ export function ReportPage({ children }: { children: React.ReactNode }) {
             <a href="https://t.me/estats_uz_bot" target="_blank" rel="noreferrer">Telegram yordam</a>
           </span>
         </div>
+        {busy ? <div className={s.loading} aria-label="Yuklanmoqda" /> : null}
         <div className={s.body}>{children}</div>
       </div>
     </div>
@@ -98,7 +106,10 @@ export function SourceNote({ meta }: { meta: ReportMeta | undefined }) {
 }
 
 export function Empty({ children = "Ma'lumot yo'q" }: { children?: React.ReactNode }) {
-  return <div className={s.empty}>{children}</div>;
+  // So'rov hali ketayotgan bo'lsa «ma'lumot yo'q» deyish YOLG'ON —
+  // foydalanuvchi buni buzuq sahifa deb o'qiydi.
+  const busy = useReportBusy();
+  return <div className={s.empty}>{busy ? "Yuklanmoqda…" : children}</div>;
 }
 
 // ── Filtr: tanlov ro'yxati ──────────────────────────────────────

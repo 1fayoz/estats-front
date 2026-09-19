@@ -401,3 +401,29 @@
     font-size: 20px;
   }
 }
+
+/* Yuklanish chizig'i — sahifa tepasida. Hisobot so'rovlari sekundlarga
+   cho'zilishi mumkin va bu vaqtda sahifa «Ma'lumot yo'q» bo'lib
+   ko'rinmasligi kerak. */
+.loading {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .18);
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: #7eb2f4;
+  animation: reportSweep 1.1s ease-in-out infinite;
+}
+
+@keyframes reportSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
