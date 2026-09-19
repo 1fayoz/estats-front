@@ -6,7 +6,7 @@ import { Oswald } from "next/font/google";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
-import { formatCompact, formatNumber } from "@/lib/format";
+import { formatCompact, formatDecimal, formatNumber } from "@/lib/format";
 import { onReportActivity, reportBusy } from "@/lib/report";
 import type { PeriodOption, ReportMeta } from "@/lib/report";
 import { cn } from "@/lib/utils";
@@ -34,8 +34,12 @@ export const fmt = {
   int: (v: number | null | undefined) => (v == null ? "-" : formatNumber(Math.round(v))),
   money: (v: number | null | undefined) => (v == null ? "-" : formatNumber(Math.round(v))),
   compact: (v: number | null | undefined) => (v == null ? "-" : formatCompact(v)),
+  // Butun qisqartma — hisobot «Yo'qotilgan foyda» ni shunday yozadi.
+  compact0: (v: number | null | undefined) => (v == null ? "-" : formatCompact(v, 0)),
+  // ⚠️ `formatNumber` EMAS: u kasr bo'lsa har doim bitta xona qoldiradi,
+  // ya'ni `dec(2)` ham "32,4" chiqarardi (hisobotda "32,37").
   dec: (digits: number) => (v: number | null | undefined) =>
-    v == null ? "-" : formatNumber(Number(v.toFixed(digits))),
+    v == null ? "-" : formatDecimal(v, digits),
   pct: (digits = 0, space = false) => (v: number | null | undefined) =>
     v == null || !Number.isFinite(v) ? "-" : `${formatNumber(Number((v * 100).toFixed(digits)))}${space ? " " : ""}%`,
 };

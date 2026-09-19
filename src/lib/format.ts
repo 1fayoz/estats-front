@@ -74,17 +74,34 @@ export function formatNumber(value: number): string {
  * O'nlik ajratgich — VERGUL (o'zbek/rus yozuvi), minglik ajratgich
  * esa bo'sh joy.
  */
-export function formatCompact(value: number): string {
+/**
+ * Kasr xonasi ANIQ berilgan son — "32,37", "4,50".
+ *
+ * `formatNumber` buning o'rniga yaramaydi: u kasr bo'lsa HAR DOIM bitta
+ * xona qoldiradi, ya'ni `Number(v.toFixed(2))` dan keyin ham "32,4"
+ * chiqaradi. Tashqi hisobotda «Kunlik sotuv» ikki xonali ("32,37") va
+ * «Oborot, kunlik» ham ("44,29") — yonma-yon qo'yilganda farq shu yerda
+ * ko'rinardi.
+ */
+export function formatDecimal(value: number, digits: number): string {
+  return uz(value, digits);
+}
+
+export function formatCompact(value: number, digits = 1): string {
   if (!Number.isFinite(value)) return "—";
   const abs = Math.abs(value);
   const cut = (divider: number, suffix: string) => {
-    // HAR DOIM bitta kasr xonasi; `uz()` nol kasrni o'zi olib tashlaydi
-    // ("23,0" → "23"). Ilgari 100 dan katta qiymat yaxlitlanardi va
-    // tashqi hisobot bilan yonma-yon qo'yilganda AYNAN shu yerda farq
-    // chiqardi: qatlamlar jadvalida 90 kun uchun "127 mlrd" ko'rinardi,
-    // hisobotda esa "127,3 mlrd". Ikkitasi ortiq — qisqartmaning
-    // ma'nosini yo'qotadi.
-    return `${uz(value / divider, 1)} ${suffix}`;
+    // Sukut bo'yicha bitta kasr xonasi; `uz()` nol kasrni o'zi olib
+    // tashlaydi ("23,0" → "23"). Ilgari 100 dan katta qiymat
+    // yaxlitlanardi va tashqi hisobot bilan yonma-yon qo'yilganda AYNAN
+    // shu yerda farq chiqardi: qatlamlar jadvalida 90 kun uchun
+    // "127 mlrd" ko'rinardi, hisobotda esa "127,3 mlrd".
+    //
+    // `digits = 0` — «Yo'qotilgan foyda» ustuni uchun: hisobot uni
+    // butun qilib yozadi ("62 mln"), «Magazin foydasi» ni esa kasr
+    // bilan ("43,1 mln"). Ustunning xona soni Looker sozlamasi va u
+    // ustundan ustunga farq qiladi.
+    return `${uz(value / divider, digits)} ${suffix}`;
   };
   if (abs >= 1e9) return cut(1e9, "mlrd");
   if (abs >= 1e6) return cut(1e6, "mln");
