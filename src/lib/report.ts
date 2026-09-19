@@ -261,6 +261,13 @@ export type DynamicsData = {
   range: { start: string; end: string };
   series: { day: string; revenue: number | null; median_price: number | null; shops: number | null;
             cards: number | null; source: string }[];
+  /* Oylik qator — HAR turkum uchun bor (kunlik qator esa faqat to'liq
+     o'lchangan kunlardan iborat va yangi turkumda deyarli bo'sh). */
+  monthly: { month: string; as_of: string; source: string; revenue: number | null; units: number | null;
+             avg_price: number | null; shops: number | null; cards: number | null;
+             growth: number | null }[];
+  /* Kunlik qator ishonchli bo'lgan eng erta kun; `null` — hali yo'q. */
+  daily_from: string | null;
 };
 
 type ListParams = Record<string, string | number | undefined | null>;
