@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   Card, Empty, InputControl, PeriodControl, ReportPage, Row, SourceNote, ZTable, fmt, styles, useLoad, useParams,
 } from "@/features/report/ui";
+import { CategoryPathControl } from "@/features/report/filters";
 import { report, type KeywordRow } from "@/lib/report";
 
 /*
@@ -20,13 +21,14 @@ const growthTone = (v: number | null) => (v == null ? undefined : v >= 0 ? { col
 
 export default function KeywordsPage() {
   const [params, setParams] = useParams({
-    period: "d30", subject: "sumkalar", keyword: "", sort: "coverage", dir: "desc", offset: "0",
+    period: "d30", subject: "sumkalar", category: "", keyword: "", sort: "coverage", dir: "desc", offset: "0",
   });
   const offset = Number(params.offset) || 0;
   // «Predmet» — tashqi xizmatda qidiruvli ro'yxat. Bizda erkin matn, lekin
   // yozilgani bo'yicha serverdan takliflar keladi (datalist).
-  // «Tovar turini qidirish» filtri ATAYLAB yo'q: eksportda tovar turi
-  // ustuni umuman bo'lmagani uchun uni qayta tiklab bo'lmaydi.
+  // «Tovar turini qidirish» — to'liq turkum yo'li tanlanadi; eksportda
+  // faqat BARG nomi bor va u predmet bilan mos keladi
+  // («aksessuarlar, …, sumkalar» → predmet «sumkalar»).
   const [subjectDraft, setSubjectDraft] = React.useState("");
   const [subjectQuery, setSubjectQuery] = React.useState("");
   React.useEffect(() => {
@@ -39,9 +41,10 @@ export default function KeywordsPage() {
   );
   const { data, error } = useLoad(
     () => report.keywords({ period: params.period, subject: params.subject || undefined,
+                            category: params.category || undefined,
                             keyword: params.keyword || undefined, sort: params.sort, dir: params.dir, offset,
                             limit: LIMIT }),
-    [params.period, params.subject, params.keyword, params.sort, params.dir, offset],
+    [params.period, params.subject, params.category, params.keyword, params.sort, params.dir, offset],
   );
   const reset = { offset: null };
 
@@ -56,6 +59,8 @@ export default function KeywordsPage() {
                       onDraft={setSubjectDraft} />
         <InputControl label="SEO-kalit" value={params.keyword}
                       onCommit={(keyword) => setParams({ keyword, ...reset })} style={{ flex: 1 }} />
+        <CategoryPathControl value={params.category || null} period={params.period}
+                             onChange={(category) => setParams({ category, ...reset })} style={{ flex: 1 }} />
       </Row>
       <Card>
         {error ? <Empty>{error}</Empty> : null}
