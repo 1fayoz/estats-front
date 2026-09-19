@@ -25,10 +25,11 @@ export default function SkusPage() {
   const offset = Number(params.offset) || 0;
   const { data, error } = useLoad(
     () => report.skus({ period: params.period, toifa: params.toifa, category: params.category || undefined,
-                        q: params.q || undefined, sort: params.sort, dir: params.dir, offset, limit: LIMIT }),
-    [params.period, params.toifa, params.category, params.q, params.sort, params.dir, offset],
+                        shop: params.shop || undefined, q: params.q || undefined,
+                        sort: params.sort, dir: params.dir, offset, limit: LIMIT }),
+    [params.period, params.toifa, params.category, params.shop, params.q, params.sort, params.dir, offset],
   );
-  const columns = React.useMemo(() => skuColumns(), []);
+  const columns = React.useMemo(() => skuColumns({ idFirst: true }), []);
   const reset = { offset: null };
 
   return (

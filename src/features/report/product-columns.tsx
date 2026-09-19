@@ -41,6 +41,9 @@ const stockDaysTone = (value: number | null) =>
 
 export function productColumns(periodDays: number | null): Column<ProductRow>[] {
   return [
+    // Hisobot jadvalining BIRINCHI ustuni — kartochkaning Uzum'dagi raqami.
+    { key: "product_id", title: "product_id", sortable: false, width: 74,
+      render: (r) => <span className={styles.muted}>{r.product_id}</span> },
     { key: "image", title: "Uzum↗", sortable: false, width: 44, render: (r) => <Thumb id={r.product_id} src={r.image} /> },
     { key: "category", title: "Toifa 4", sortable: false, width: 90, render: (r) => r.category ?? "-" },
     {
@@ -73,8 +76,14 @@ export function productColumns(periodDays: number | null): Column<ProductRow>[] 
   ];
 }
 
-export function skuColumns({ withSkuId = false }: { withSkuId?: boolean } = {}): Column<SkuRow>[] {
+export function skuColumns(
+  { withSkuId = false, idFirst = false }: { withSkuId?: boolean; idFirst?: boolean } = {},
+): Column<SkuRow>[] {
   return [
+    // «SKU asosida» da hisobot jadvali SKU raqamidan boshlanadi;
+    // «Sotuvchining SKUlari» da esa u o'rtada turadi (`withSkuId`).
+    ...(idFirst ? [{ key: "sku", title: "sku", sortable: false, width: 74,
+                     render: (r: SkuRow) => <span className={styles.muted}>{r.sku_id}</span> } as Column<SkuRow>] : []),
     { key: "image", title: "Uzum↗", sortable: false, width: 44, render: (r) => <Thumb id={r.product_id} src={r.image} /> },
     { key: "category", title: "Toifa 4", sortable: false, width: 80, render: (r) => r.category ?? "-" },
     {
