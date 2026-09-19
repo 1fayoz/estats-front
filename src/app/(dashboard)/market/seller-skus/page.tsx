@@ -27,7 +27,7 @@ export default function SellerSkusPage() {
                               q: params.q || undefined, sort: params.sort, dir: params.dir, offset, limit: LIMIT }),
     [params.period, params.seller, params.category, params.q, params.sort, params.dir, offset],
   );
-  const columns = React.useMemo(() => skuColumns({ withSkuId: true }), []);
+  const columns = React.useMemo(() => skuColumns({ withSkuId: true, idFirst: true }), []);
   const reset = { offset: null };
 
   return (
