@@ -74,15 +74,17 @@ export function formatNumber(value: number): string {
  * O'nlik ajratgich — VERGUL (o'zbek/rus yozuvi), minglik ajratgich
  * esa bo'sh joy.
  */
-export function formatCompact(value: number, digits?: number): string {
+export function formatCompact(value: number): string {
   if (!Number.isFinite(value)) return "—";
   const abs = Math.abs(value);
   const cut = (divider: number, suffix: string) => {
-    const scaled = value / divider;
-    // Bir xonali kasr — ikkitasi qisqartmaning ma'nosini yo'qotadi.
-    // `digits` berilsa har doim shuncha xona: ko'rsatkich kartasida
-    // "762,6 mlrd" tashqi hisobot bilan bir xil, "763 mlrd" esa emas.
-    return `${uz(scaled, digits ?? (Math.abs(scaled) < 100 ? 1 : 0))} ${suffix}`;
+    // HAR DOIM bitta kasr xonasi; `uz()` nol kasrni o'zi olib tashlaydi
+    // ("23,0" → "23"). Ilgari 100 dan katta qiymat yaxlitlanardi va
+    // tashqi hisobot bilan yonma-yon qo'yilganda AYNAN shu yerda farq
+    // chiqardi: qatlamlar jadvalida 90 kun uchun "127 mlrd" ko'rinardi,
+    // hisobotda esa "127,3 mlrd". Ikkitasi ortiq — qisqartmaning
+    // ma'nosini yo'qotadi.
+    return `${uz(value / divider, 1)} ${suffix}`;
   };
   if (abs >= 1e9) return cut(1e9, "mlrd");
   if (abs >= 1e6) return cut(1e6, "mln");
