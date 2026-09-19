@@ -56,7 +56,8 @@ export default function MarketOverviewPage() {
         </Card>
         <Card style={{ flex: "0 0 360px" }}>
           {toifas.length ? (
-            <GrowthBars data={[...toifas].sort((a, b) => (b.growth ?? -9) - (a.growth ?? -9))
+            <GrowthBars data={[...toifas].filter((t) => t.in_growth !== false)
+              .sort((a, b) => (b.growth ?? -9) - (a.growth ?? -9))
               .map((t) => ({ name: t.toifa, growth: t.growth }))} />
           ) : <Empty />}
         </Card>

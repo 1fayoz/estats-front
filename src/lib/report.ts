@@ -52,7 +52,10 @@ export type Paged<T> = {
 export type Kpi = { value: number | null; previous?: number | null; growth: number | null };
 export type KpiBlock = { meta: ReportMeta; values: Record<string, Kpi> } | null;
 
-export type ToifaSlice = { toifa: string; revenue: number; share: number | null; growth: number | null };
+// `in_growth` — «Toifa O'sish %» diagrammasiga kiradimi (subsidiya toifasi
+// hisobotda ham u yerda ko'rsatilmaydi; doiraviy diagrammada qoladi).
+export type ToifaSlice = { toifa: string; revenue: number; share: number | null; growth: number | null;
+                           in_growth?: boolean };
 
 export type ShopRow = {
   shop: string;
