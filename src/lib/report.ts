@@ -274,6 +274,10 @@ export type DynamicsData = {
              growth: number | null }[];
   /* Kunlik qator ishonchli bo'lgan eng erta kun; `null` — hali yo'q. */
   daily_from: string | null;
+  /* Shu turkumda BOR bo'lgan eng erta kun (import qilingan tarix bilan
+     birga). Sana oynasi shundan boshlanadi — aks holda import qilingan
+     tarix bazada bor-u, sahifada ko'rinmay qolardi. */
+  first_day: string | null;
 };
 
 type ListParams = Record<string, string | number | undefined | null>;

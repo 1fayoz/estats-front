@@ -46,11 +46,18 @@ export default function DynamicsPage() {
   const index = useReportIndex();
   const end = index?.as_of ?? new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
   const [params, setParams] = useParams({ path: DEFAULT_PATH, start: "", end: "" });
-  const range = { start: params.start || shift(end, -360), end: params.end || end };
+  /* Sana oynasi qo'lda tanlanmagan bo'lsa SO'RALMAYDI — backend shu
+     turkumda bor eng erta kundan boshlab beradi (`first_day`). Ilgari
+     front 360 kun qo'yardi va import qilingan tarix (2024-01-02 dan)
+     bazada bor bo'lsa ham grafikka tushmasdi. */
   const { data, error } = useLoad(
-    () => report.dynamics({ path: params.path, start: range.start, end: range.end }),
-    [params.path, range.start, range.end],
+    () => report.dynamics({ path: params.path, start: params.start || undefined, end: params.end || undefined }),
+    [params.path, params.start, params.end],
   );
+  const range = {
+    start: params.start || data?.range?.start || shift(end, -360),
+    end: params.end || data?.range?.end || end,
+  };
   const series = data?.series ?? [];
   const label = (iso: string) => dayLabel(iso).replace(" y.", "");
 
