@@ -155,6 +155,30 @@ export function SelectControl({
     ? options
     : options.filter((o) => !query || o.label.toLowerCase().includes(query.toLowerCase()));
 
+  /* Ro'yxat MINGLAB qatorli bo'lishi mumkin (turkumlar — 5 337 ta), shuning
+     uchun DOM'ga faqat ko'rinadigan oyna chiziladi. Ilgari ro'yxat 600 ta
+     bilan CHEKLANGAN edi va pastdagi turkumlarni (masalan «…tennis va
+     badminton, padel») aylantirib topib bo'lmasdi — faqat yozib qidirsa
+     chiqardi. tashqi hisobotda esa butun ro'yxat aylantiriladi. */
+  const listRef = React.useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = React.useState(0);
+  const [viewport, setViewport] = React.useState(320);
+  React.useEffect(() => {
+    if (!open) return;
+    setScrollTop(0);
+    if (listRef.current) {
+      listRef.current.scrollTop = 0;
+      setViewport(listRef.current.clientHeight || 320);
+    }
+  }, [open]);
+  React.useEffect(() => { setScrollTop(0); if (listRef.current) listRef.current.scrollTop = 0; }, [query]);
+  const ROW = 32;
+  const OVER = 8;
+  const virtual = shown.length > 120;
+  const first = virtual ? Math.max(0, Math.floor(scrollTop / ROW) - OVER) : 0;
+  const last = virtual ? Math.min(shown.length, Math.ceil((scrollTop + viewport) / ROW) + OVER) : shown.length;
+  const window_ = shown.slice(first, last);
+
   return (
     <div ref={ref} style={{ position: "relative", ...style }}>
       <div className={s.control} onClick={() => setOpen((v) => !v)} role="button" tabIndex={0}>
@@ -188,17 +212,23 @@ export function SelectControl({
               />
             </div>
           ) : null}
-          <div className={s.dropdownList}>
+          <div
+            className={s.dropdownList}
+            ref={listRef}
+            onScroll={virtual ? (e) => setScrollTop((e.target as HTMLDivElement).scrollTop) : undefined}
+          >
             {allowClear && value ? (
               <div className={s.option} onClick={() => { onChange(null); setOpen(false); }}>
                 <span className={s.check} />
                 <span className={cn(s.optionText, s.muted)}>Tanlovni bekor qilish</span>
               </div>
             ) : null}
-            {shown.map((o) => (
+            {virtual && first ? <div style={{ height: first * ROW }} /> : null}
+            {window_.map((o) => (
               <div
                 key={o.value}
                 className={s.option}
+                style={virtual ? { height: ROW } : undefined}
                 onClick={() => {
                   onChange(o.value);
                   setOpen(false);
@@ -209,6 +239,7 @@ export function SelectControl({
                 {o.metric ? <span className={s.optionMetric}>{o.metric}</span> : null}
               </div>
             ))}
+            {virtual && last < shown.length ? <div style={{ height: (shown.length - last) * ROW }} /> : null}
             {!shown.length ? <Empty>Hech narsa topilmadi</Empty> : null}
           </div>
         </div>

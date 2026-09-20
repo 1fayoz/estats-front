@@ -61,18 +61,29 @@ export function CategoryPathControl({
 }) {
   const [query, setQuery] = React.useState("");
   const [options, setOptions] = React.useState<Option[]>([]);
+  /* Ro'yxat BIR MARTA, TO'LIQ olinadi (5 337 turkum ≈ 40 KB gzip) va
+     qidiruv MIJOZDA ishlaydi. Ilgari har harfda server so'rovi ketardi
+     va javob 600 ta bilan cheklanardi: pastdagi turkumni aylantirib
+     topib bo'lmasdi. Endi tashqi hisobotdagi kabi butun ro'yxat
+     aylantiriladi (`SelectControl` uni virtual chizadi). */
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      report
-        .categoryPaths({ period, root: root ? root.toLowerCase() : undefined, q: query || undefined, limit: 600 })
-        .then((rows) =>
-          setOptions(rows.map((r) => ({ value: r.path, label: r.path, metric: r.revenue ? formatCompact(r.revenue) : null }))),
-        )
-        .catch(() => setOptions([]));
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [period, root, query]);
-  const list = value && !options.some((o) => o.value === value) ? [{ value, label: value }, ...options] : options;
+    let alive = true;
+    report
+      .categoryPaths({ period, root: root ? root.toLowerCase() : undefined, limit: 10000 })
+      .then((rows) => {
+        if (!alive) return;
+        setOptions(rows.map((r) => ({
+          value: r.path, label: r.path, metric: r.revenue ? formatCompact(r.revenue) : null,
+        })));
+      })
+      .catch(() => { if (alive) setOptions([]); });
+    return () => { alive = false; };
+  }, [period, root]);
+  const needle = query.trim().toLowerCase();
+  const filtered = needle ? options.filter((o) => o.label.toLowerCase().includes(needle)) : options;
+  const list = value && !filtered.some((o) => o.value === value)
+    ? [{ value, label: value }, ...filtered]
+    : filtered;
   return (
     <SelectControl label={label} value={value} options={list} onChange={onChange} style={style}
                    onSearch={setQuery} metricLabel="Tushim (so'm)" />
