@@ -45,6 +45,10 @@ export function ToifaControl({
   );
 }
 
+/* Ro'yxat TO'LIQ (sotuvsiz katalog barglari ham), lekin bir zumda
+   5 000 qatorni brauzerga tashish shart emas: nazorat nomi ham
+   «qidirish» — yozilgan matn serverda BUTUN ro'yxat bo'ylab
+   qidiriladi, ro'yxatning o'zi esa tushum bo'yicha eng yiriklari. */
 export function CategoryPathControl({
   label = "Tovar turini qidirish", value, onChange, period = "d30", root, style,
 }: {
@@ -60,7 +64,7 @@ export function CategoryPathControl({
   React.useEffect(() => {
     const timer = setTimeout(() => {
       report
-        .categoryPaths({ period, root: root ? root.toLowerCase() : undefined, q: query || undefined, limit: 300 })
+        .categoryPaths({ period, root: root ? root.toLowerCase() : undefined, q: query || undefined, limit: 600 })
         .then((rows) =>
           setOptions(rows.map((r) => ({ value: r.path, label: r.path, metric: r.revenue ? formatCompact(r.revenue) : null }))),
         )
