@@ -153,17 +153,38 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
   const validCheckedAt = checkedAt && Number.isFinite(new Date(checkedAt).getTime()) ? checkedAt : null;
   const canFindReason = product.uzumBlocked || ["HAS_COMPLAINTS", "PERM_BANNED"].includes(product.uzumModerationValue ?? "");
 
-  const [fixProposal, setFixProposal] = React.useState<(ProductFixDiagnosis & { draftId: number }) | null>(null);
+  type FixStep = "idle" | "analyzing" | "applying" | "done";
+  const [fixStep, setFixStep] = React.useState<FixStep>("idle");
+  const [dismissed, setDismissed] = React.useState(false);
+  const [fixProposal, setFixProposal] = React.useState<ProductFixDiagnosis | null>(
+    () => (data.fixProposal ? { ...data.fixProposal, draftId: data.aiDraftId ?? data.fixProposal.draftId } : null)
+  );
   const [applyingFix, setApplyingFix] = React.useState(false);
+
+  React.useEffect(() => {
+    if (data.fixProposal && !dismissed) {
+      setFixProposal((prev) => ({
+        ...data.fixProposal!,
+        draftId: data.aiDraftId ?? data.fixProposal!.draftId ?? prev?.draftId,
+        applied: data.fixProposal!.applied ?? prev?.applied ?? false,
+      }));
+    }
+  }, [data.fixProposal, data.aiDraftId, dismissed]);
 
   const handleApplyFix = async () => {
     if (!fixProposal || applyingFix) return;
+    const targetDraftId = fixProposal.draftId || data.aiDraftId;
+    if (!targetDraftId) return;
     setApplyingFix(true);
+    setFeedback({
+      message: "To'g'rilangan nom va tavsif Uzum'ga yuborilmoqda…",
+      tone: "neutral",
+    });
     try {
-      const res = await applyProductFix(product.id, fixProposal.draftId, true);
-      setFixProposal(null);
+      const res = await applyProductFix(product.id, targetDraftId, true);
+      setFixProposal((prev) => (prev ? { ...prev, applied: true } : null));
       setFeedback({
-        message: res.uzumPush?.message || res.message || "Kartochka to'g'rilandi va Uzum'ga yuborildi!",
+        message: res.uzumPush?.message || res.message || "✓ To'g'rilab kelindi! Kartochka Uzum'da yangilandi va qayta tekshiruvga yuborildi.",
         tone: res.uzumPush?.ok === false ? "warning" : "success",
       });
       await onReload();
@@ -174,6 +195,54 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
       });
     } finally {
       setApplyingFix(false);
+    }
+  };
+
+  const handleAutoFix = async () => {
+    if (busyRef.current || applyingFix || !canSeeAi) return;
+    busyRef.current = true;
+    setBusy("auto");
+    setFixStep("analyzing");
+    setFeedback({
+      message: "1/2: Kartochka matni va rasmlar Uzum qoidalariga solishtirilib, to'g'ri variant tayyorlanmoqda…",
+      tone: "neutral",
+    });
+    try {
+      const result = await autoFixProductUzum(product.id);
+      const diag = result.diagnosis || result.deterministicFix?.diagnosis;
+      if (diag && diag.detectedIssue) {
+        setDismissed(false);
+        setFixProposal({ ...diag, draftId: result.draftId, applied: false });
+      }
+
+      const targetDraftId = result.draftId;
+      if (targetDraftId) {
+        setFixStep("applying");
+        setFeedback({
+          message: "2/2: To'g'rilangan nom va tavsif Uzum'ga yuborilmoqda…",
+          tone: "neutral",
+        });
+        const res = await applyProductFix(product.id, targetDraftId, true);
+        setFixStep("done");
+        setFixProposal((prev) => (prev ? { ...prev, applied: true } : null));
+        setFeedback({
+          message: res.uzumPush?.message || res.message || "✓ To'g'rilab kelindi! Kartochka Uzum'da yangilandi va qayta tekshiruvga yuborildi.",
+          tone: res.uzumPush?.ok === false ? "warning" : "success",
+        });
+        await onReload();
+      } else {
+        setFixStep("done");
+        setFeedback(fixFeedback(result, true));
+      }
+    } catch (error) {
+      setFixStep("idle");
+      setFeedback({
+        message: error instanceof Error ? error.message : "To'g'rilashda xatolik yuz berdi. Qayta urinib ko'ring.",
+        tone: "error",
+      });
+    } finally {
+      busyRef.current = false;
+      setBusy(null);
     }
   };
 
@@ -302,13 +371,33 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
                   </p>
                 </div>
               </div>
-              {fixProposal.ruleTitle && (
-                <div className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                  <span>Qoida:</span>
-                  <span className="text-foreground">{fixProposal.ruleTitle}</span>
-                </div>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                {fixProposal.applied && (
+                  <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>To&apos;g&apos;rilandi va Uzum&apos;ga yuborildi</span>
+                  </div>
+                )}
+                {fixProposal.ruleTitle && (
+                  <div className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                    <span>Qoida:</span>
+                    <span className="text-foreground">{fixProposal.ruleTitle}</span>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {fixProposal.applied ? (
+              <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-xs font-medium text-emerald-800 dark:text-emerald-300">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <span>✓ Uzum&apos;da to&apos;g&apos;rilab kelindi! Nom va tavsifdagi tuzatishlar kartochkaga qo&apos;llandi hamda Uzum tekshiruviga yuborildi.</span>
+              </div>
+            ) : (applyingFix || fixStep === "applying") ? (
+              <div className="flex items-center gap-2.5 rounded-xl border border-primary/30 bg-primary/10 p-3.5 text-xs font-medium text-primary animate-pulse">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                <span>2/2: To&apos;g&apos;rilangan nom va tavsif Uzum&apos;ga yuborilmoqda…</span>
+              </div>
+            ) : null}
 
             {/* 1. Nega bloklangan (aniqlangan nomuvofiqlik) */}
             <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-2.5">
@@ -395,31 +484,51 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
 
             {/* Actions: To'g'rilansin button */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
-              <Button
-                type="button"
-                disabled={applyingFix || busy !== null}
-                onClick={() => void handleApplyFix()}
-                className={cn(ACTION_CLASS, "bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-4")}
-              >
-                {applyingFix ? <Loader2 className="animate-spin mr-2 h-4 w-4" aria-hidden="true" /> : <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden="true" />}
-                {applyingFix ? "Uzum'da to'g'rilanmoqda…" : "To'g'rilansin"}
-              </Button>
+              {fixProposal.applied ? (
+                <Button
+                  type="button"
+                  disabled
+                  className={cn(ACTION_CLASS, "bg-emerald-600 text-white font-medium px-4 cursor-default disabled:opacity-100")}
+                >
+                  <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                  To&apos;g&apos;rilandi ✓
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  disabled={applyingFix || fixStep === "applying" || busy !== null}
+                  onClick={() => void handleApplyFix()}
+                  className={cn(ACTION_CLASS, "bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-4")}
+                >
+                  {applyingFix || fixStep === "applying" ? (
+                    <Loader2 className="animate-spin mr-2 h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                  )}
+                  {applyingFix || fixStep === "applying" ? "Uzum'da to'g'rilanmoqda…" : "To'g'rilansin"}
+                </Button>
+              )}
 
-              <Button
-                type="button"
-                variant="outline"
-                disabled={applyingFix || busy !== null}
-                onClick={() => onOpenAi(fixProposal.draftId)}
-                className={cn(ACTION_CLASS, "text-muted-foreground")}
-              >
-                Tahrirlash modalida ko&apos;rish
-              </Button>
+              {(fixProposal.draftId || data.aiDraftId) && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={applyingFix || busy !== null}
+                  onClick={() => onOpenAi((fixProposal.draftId || data.aiDraftId)!)}
+                  className={cn(ACTION_CLASS, "text-muted-foreground")}
+                >
+                  Tahrirlash modalida ko&apos;rish
+                </Button>
+              )}
 
               <Button
                 type="button"
                 variant="ghost"
                 disabled={applyingFix || busy !== null}
-                onClick={() => setFixProposal(null)}
+                onClick={() => {
+                  setDismissed(true);
+                  setFixProposal(null);
+                }}
                 className={cn(ACTION_CLASS, "text-muted-foreground sm:ml-auto")}
               >
                 Yopish
@@ -465,19 +574,20 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
               variant="outline"
               disabled={busy !== null || applyingFix}
               className={ACTION_CLASS}
-              onClick={() => void runAction("auto", async () => {
-                const result = await autoFixProductUzum(product.id);
-                const diag = result.diagnosis || result.deterministicFix?.diagnosis;
-                if (diag && diag.detectedIssue) {
-                  setFixProposal({ ...diag, draftId: result.draftId });
-                  setFeedback(null);
-                } else {
-                  setFeedback(fixFeedback(result, true));
-                }
-              })}
+              onClick={() => void handleAutoFix()}
             >
-              {busy === "auto" ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <WandSparkles aria-hidden="true" />}
-              {busy === "auto" ? "Aniqlanmoqda va tuzatilmoqda…" : "Avtomatik tuzatish"}
+              {fixStep === "analyzing" || fixStep === "applying" || busy === "auto" ? (
+                <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
+              ) : (
+                <WandSparkles aria-hidden="true" />
+              )}
+              {fixStep === "analyzing"
+                ? "1/2: Xato tahlil qilinmoqda…"
+                : fixStep === "applying"
+                  ? "2/2: Uzum'da to'g'rilanmoqda…"
+                  : busy === "auto"
+                    ? "Aniqlanmoqda va tuzatilmoqda…"
+                    : "Avtomatik tuzatish"}
             </Button>
           )}
           {canFindReason && (

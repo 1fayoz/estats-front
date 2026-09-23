@@ -733,6 +733,8 @@ export interface ProductDetail {
    * raqamlari esa shu e'lonniki.
    */
   stockGroup?: StockGroup | null;
+  /** Bloklangan tovar uchun aniqlangan nomuvofiqlik va tuzatish taklifi. */
+  fixProposal?: (ProductFixDiagnosis & { draftId?: number; applied?: boolean }) | null;
 }
 
 /** Uzum saqlashni tasdiqlagan paytdagi kartochka nusxasi (`uzum_publish.publishedCard`). */
@@ -846,6 +848,8 @@ export interface ProductFixDiagnosis {
   fixSummary?: string | null;
   ruleTitle?: string | null;
   changes: ProductFixFieldDiff[];
+  applied?: boolean;
+  draftId?: number;
 }
 
 export interface ProductFixResult {
