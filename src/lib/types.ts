@@ -831,6 +831,23 @@ export interface ProductRegenerateResult {
   draftId: number;
 }
 
+export interface ProductFixFieldDiff {
+  field: string;
+  fieldLabel: string;
+  before: string;
+  after: string;
+  reason?: string | null;
+}
+
+export interface ProductFixDiagnosis {
+  detectedIssue: string;
+  sellerWrote?: string | null;
+  actualInImages?: string | null;
+  fixSummary?: string | null;
+  ruleTitle?: string | null;
+  changes: ProductFixFieldDiff[];
+}
+
 export interface ProductFixResult {
   draftId: number;
   validation: ProductValidation;
@@ -841,11 +858,14 @@ export interface ProductFixResult {
     aiUsed?: boolean;
     manual?: ModerationManualBlock[];
     at?: string;
+    diagnosis?: ProductFixDiagnosis;
   };
   /** SEO bali past bo'lgani uchun chaqirilgan AI-fix qoralamani tuzatgach
    *  avtomatik Uzum'ga ham yubordi — natija shu yerda (moderatsiya-
    *  tetiklangan AI-fix'da bo'sh: sotuvchi "Uzumda yangilash"ni o'zi bosadi). */
   uzumPush?: { ok: boolean; message: string } | null;
+  diagnosis?: ProductFixDiagnosis | null;
+  canApply?: boolean;
 }
 
 /** Hamma sinxronizatsiyaning bir joydagi holati (Sozlamalar → Uzum). */

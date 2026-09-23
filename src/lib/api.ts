@@ -301,6 +301,20 @@ export const autoFixProductUzum = (id: number) =>
   request<ProductFixResult>(`/warehouse/products/${id}/auto-fix`, { method: "POST" });
 
 /**
+ * Moderatsiya xatosi bo'yicha taklif etilgan to'g'rilashni
+ * tovar va Uzum'ga ko'chiradi («To'g'rilansin» harakati).
+ */
+export const applyProductFix = (id: number, draftId?: number, pushToUzum = true) =>
+  request<{ ok: boolean; message: string; uzumPush?: { ok: boolean; message: string } | null }>(
+    `/warehouse/products/${id}/apply-fix`,
+    {
+      method: "POST",
+      body: JSON.stringify({ draftId, pushToUzum }),
+    },
+  );
+
+
+/**
  * CREATE'dagi kabi TO'LIQ AI bilan qayta yaratadi — qoralama
  * hali yo'q bo'lsa shu yerda tug'iladi (tovarning Uzum'dagi
  * rasmi/kategoriyasi/MXIK'i bilan backfill qilib). Natija esa

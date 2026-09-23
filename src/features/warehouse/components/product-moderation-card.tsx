@@ -18,12 +18,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  applyProductFix,
   autoFixProductUzum,
   checkProductUzum,
   syncModerationReasons,
 } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import type { ProductDetail, ProductFixResult, ProductValidationFinding, WarehouseProduct } from "@/lib/types";
+import type {
+  ProductDetail,
+  ProductFixDiagnosis,
+  ProductFixResult,
+  ProductValidationFinding,
+  WarehouseProduct,
+} from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Tone = "neutral" | "success" | "warning" | "error";
@@ -146,8 +153,32 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
   const validCheckedAt = checkedAt && Number.isFinite(new Date(checkedAt).getTime()) ? checkedAt : null;
   const canFindReason = product.uzumBlocked || ["HAS_COMPLAINTS", "PERM_BANNED"].includes(product.uzumModerationValue ?? "");
 
+  const [fixProposal, setFixProposal] = React.useState<(ProductFixDiagnosis & { draftId: number }) | null>(null);
+  const [applyingFix, setApplyingFix] = React.useState(false);
+
+  const handleApplyFix = async () => {
+    if (!fixProposal || applyingFix) return;
+    setApplyingFix(true);
+    try {
+      const res = await applyProductFix(product.id, fixProposal.draftId, true);
+      setFixProposal(null);
+      setFeedback({
+        message: res.uzumPush?.message || res.message || "Kartochka to'g'rilandi va Uzum'ga yuborildi!",
+        tone: res.uzumPush?.ok === false ? "warning" : "success",
+      });
+      await onReload();
+    } catch (err) {
+      setFeedback({
+        message: err instanceof Error ? err.message : "To'g'rilashda xatolik yuz berdi.",
+        tone: "error",
+      });
+    } finally {
+      setApplyingFix(false);
+    }
+  };
+
   const runAction = async (action: Action, execute: () => Promise<void>) => {
-    if (busyRef.current || (action === "auto" && !canSeeAi)) return;
+    if (busyRef.current || applyingFix || (action === "auto" && !canSeeAi)) return;
     busyRef.current = true;
     setBusy(action);
     setFeedback(null);
@@ -252,6 +283,151 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
           </section>
         )}
 
+        {fixProposal && (
+          <section
+            aria-label="Aniqlangan xato va to'g'rilash taklifi"
+            className="rounded-2xl border-2 border-primary/25 bg-primary/[0.03] p-4 sm:p-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <WandSparkles className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Aniqlangan xato va to&apos;g&apos;rilash taklifi
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Matn va rasmlar Uzum moderatsiya talabiga solishtirildi
+                  </p>
+                </div>
+              </div>
+              {fixProposal.ruleTitle && (
+                <div className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                  <span>Qoida:</span>
+                  <span className="text-foreground">{fixProposal.ruleTitle}</span>
+                </div>
+              )}
+            </div>
+
+            {/* 1. Nega bloklangan (aniqlangan nomuvofiqlik) */}
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-2.5">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-destructive">
+                    Nega bloklangan (aniqlangan nomuvofiqlik)
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground font-medium">
+                    {fixProposal.detectedIssue}
+                  </p>
+                </div>
+              </div>
+
+              {(fixProposal.sellerWrote || fixProposal.actualInImages) && (
+                <div className="grid gap-2 pt-1 sm:grid-cols-2 text-xs">
+                  {fixProposal.sellerWrote && (
+                    <div className="rounded-lg border bg-background/90 p-2.5">
+                      <span className="font-semibold text-destructive block mb-1">
+                        Siz yozgan matn:
+                      </span>
+                      <span className="text-muted-foreground whitespace-pre-wrap">
+                        «{fixProposal.sellerWrote}»
+                      </span>
+                    </div>
+                  )}
+                  {fixProposal.actualInImages && (
+                    <div className="rounded-lg border bg-background/90 p-2.5">
+                      <span className="font-semibold text-primary block mb-1">
+                        Rasmlarda aks etgan:
+                      </span>
+                      <span className="text-foreground whitespace-pre-wrap">
+                        «{fixProposal.actualInImages}»
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* 2. Bunaqa yozsangiz to'g'rilanadi */}
+            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4 space-y-3">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                    Bunaqa yozsangiz to&apos;g&apos;rilanadi
+                  </p>
+                  {fixProposal.fixSummary && (
+                    <p className="mt-1 text-sm leading-relaxed text-foreground">
+                      {fixProposal.fixSummary}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {fixProposal.changes && fixProposal.changes.length > 0 && (
+                <div className="space-y-2.5 pt-1">
+                  {fixProposal.changes.map((change, i) => (
+                    <div key={i} className="rounded-lg border bg-background/90 p-3 space-y-2 text-xs">
+                      <div className="font-medium text-foreground">
+                        {change.fieldLabel || FIELD_LABELS[change.field] || change.field}
+                      </div>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="rounded border bg-muted/30 p-2.5">
+                          <p className="text-[11px] font-medium text-destructive mb-1">Joriy matn (xato):</p>
+                          <p className="text-muted-foreground max-h-32 overflow-y-auto whitespace-pre-wrap line-through">
+                            {change.before || "—"}
+                          </p>
+                        </div>
+                        <div className="rounded border border-emerald-500/30 bg-emerald-500/10 p-2.5">
+                          <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mb-1">Taklif etilgan to&apos;g&apos;ri matn:</p>
+                          <p className="text-foreground max-h-32 overflow-y-auto whitespace-pre-wrap font-medium">
+                            {change.after}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Actions: To'g'rilansin button */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+              <Button
+                type="button"
+                disabled={applyingFix || busy !== null}
+                onClick={() => void handleApplyFix()}
+                className={cn(ACTION_CLASS, "bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-4")}
+              >
+                {applyingFix ? <Loader2 className="animate-spin mr-2 h-4 w-4" aria-hidden="true" /> : <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden="true" />}
+                {applyingFix ? "Uzum'da to'g'rilanmoqda…" : "To'g'rilansin"}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                disabled={applyingFix || busy !== null}
+                onClick={() => onOpenAi(fixProposal.draftId)}
+                className={cn(ACTION_CLASS, "text-muted-foreground")}
+              >
+                Tahrirlash modalida ko&apos;rish
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={applyingFix || busy !== null}
+                onClick={() => setFixProposal(null)}
+                className={cn(ACTION_CLASS, "text-muted-foreground sm:ml-auto")}
+              >
+                Yopish
+              </Button>
+            </div>
+          </section>
+        )}
+
         {(attentionAreas.length > 0 || attentionFindings.length > 0) && (
           <section aria-label="E'tibor talab qiladigan qismlar" className="space-y-3">
             <h3 className="text-sm font-semibold">E&apos;tibor talab qiladigan qismlar</h3>
@@ -284,17 +460,28 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
       <div className="space-y-3 border-t bg-muted/15 p-4 sm:p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {canSeeAi && (
-            <Button type="button" variant="outline" disabled={busy !== null} className={ACTION_CLASS} onClick={() => void runAction("auto", async () => {
-              const result = await autoFixProductUzum(product.id);
-              setFeedback(fixFeedback(result, true));
-              onOpenAi(result.draftId);
-            })}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy !== null || applyingFix}
+              className={ACTION_CLASS}
+              onClick={() => void runAction("auto", async () => {
+                const result = await autoFixProductUzum(product.id);
+                const diag = result.diagnosis || result.deterministicFix?.diagnosis;
+                if (diag && diag.detectedIssue) {
+                  setFixProposal({ ...diag, draftId: result.draftId });
+                  setFeedback(null);
+                } else {
+                  setFeedback(fixFeedback(result, true));
+                }
+              })}
+            >
               {busy === "auto" ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <WandSparkles aria-hidden="true" />}
-              {busy === "auto" ? "Tuzatilmoqda…" : "Avtomatik tuzatish"}
+              {busy === "auto" ? "Aniqlanmoqda va tuzatilmoqda…" : "Avtomatik tuzatish"}
             </Button>
           )}
           {canFindReason && (
-            <Button type="button" variant="outline" disabled={busy !== null} className={ACTION_CLASS} onClick={() => void runAction("reason", async () => {
+            <Button type="button" variant="outline" disabled={busy !== null || applyingFix} className={ACTION_CLASS} onClick={() => void runAction("reason", async () => {
               const result = await syncModerationReasons(product.id);
               setFeedback({ message: result.message, tone: "neutral" });
               await onReload();
@@ -303,7 +490,7 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
               {busy === "reason" ? "Sabab aniqlanmoqda…" : "Uzum sababini aniqlash"}
             </Button>
           )}
-          <Button type="button" variant="ghost" disabled={busy !== null} className={cn(ACTION_CLASS, "text-muted-foreground sm:ml-auto")} onClick={onComplaint}>
+          <Button type="button" variant="ghost" disabled={busy !== null || applyingFix} className={cn(ACTION_CLASS, "text-muted-foreground sm:ml-auto")} onClick={onComplaint}>
             <MessageSquare aria-hidden="true" />Operatorga yozish
           </Button>
         </div>
