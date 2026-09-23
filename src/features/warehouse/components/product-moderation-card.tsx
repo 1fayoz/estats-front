@@ -5,6 +5,7 @@ import {
   AlertCircle,
   CheckCircle2,
   ChevronDown,
+  ChevronUp,
   Clock3,
   Info,
   Loader2,
@@ -155,21 +156,21 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
 
   type FixStep = "idle" | "analyzing" | "applying" | "done";
   const [fixStep, setFixStep] = React.useState<FixStep>("idle");
-  const [dismissed, setDismissed] = React.useState(false);
+  const [isProposalOpen, setIsProposalOpen] = React.useState(true);
   const [fixProposal, setFixProposal] = React.useState<ProductFixDiagnosis | null>(
     () => (data.fixProposal ? { ...data.fixProposal, draftId: data.aiDraftId ?? data.fixProposal.draftId } : null)
   );
   const [applyingFix, setApplyingFix] = React.useState(false);
 
   React.useEffect(() => {
-    if (data.fixProposal && !dismissed) {
+    if (data.fixProposal) {
       setFixProposal((prev) => ({
         ...data.fixProposal!,
         draftId: data.aiDraftId ?? data.fixProposal!.draftId ?? prev?.draftId,
         applied: data.fixProposal!.applied ?? prev?.applied ?? false,
       }));
     }
-  }, [data.fixProposal, data.aiDraftId, dismissed]);
+  }, [data.fixProposal, data.aiDraftId]);
 
   const handleApplyFix = async () => {
     if (!fixProposal || applyingFix) return;
@@ -211,7 +212,7 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
       const result = await autoFixProductUzum(product.id);
       const diag = result.diagnosis || result.deterministicFix?.diagnosis;
       if (diag && diag.detectedIssue) {
-        setDismissed(false);
+        setIsProposalOpen(true);
         setFixProposal({ ...diag, draftId: result.draftId, applied: false });
       }
 
@@ -353,39 +354,51 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
         )}
 
         {fixProposal && (
-          <section
-            aria-label="Aniqlangan xato va to'g'rilash taklifi"
-            className="rounded-2xl border-2 border-primary/25 bg-primary/[0.03] p-4 sm:p-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <WandSparkles className="h-4 w-4" aria-hidden="true" />
-                </span>
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">
-                    Aniqlangan xato va to&apos;g&apos;rilash taklifi
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Matn va rasmlar Uzum moderatsiya talabiga solishtirildi
-                  </p>
+          isProposalOpen ? (
+            <section
+              aria-label="Aniqlangan xato va to'g'rilash taklifi"
+              className="rounded-2xl border-2 border-primary/25 bg-primary/[0.03] p-4 sm:p-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <WandSparkles className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Aniqlangan xato va to&apos;g&apos;rilash taklifi
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Matn va rasmlar Uzum moderatsiya talabiga solishtirildi
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {fixProposal.applied && (
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>To&apos;g&apos;rilandi va Uzum&apos;ga yuborildi</span>
+                    </div>
+                  )}
+                  {fixProposal.ruleTitle && (
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                      <span>Qoida:</span>
+                      <span className="text-foreground">{fixProposal.ruleTitle}</span>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={applyingFix || busy !== null}
+                    onClick={() => setIsProposalOpen(false)}
+                    className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/80"
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                    Yopish
+                  </Button>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {fixProposal.applied && (
-                  <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>To&apos;g&apos;rilandi va Uzum&apos;ga yuborildi</span>
-                  </div>
-                )}
-                {fixProposal.ruleTitle && (
-                  <div className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                    <span>Qoida:</span>
-                    <span className="text-foreground">{fixProposal.ruleTitle}</span>
-                  </div>
-                )}
-              </div>
-            </div>
 
             {fixProposal.applied ? (
               <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-xs font-medium text-emerald-800 dark:text-emerald-300">
@@ -566,17 +579,52 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
                 type="button"
                 variant="ghost"
                 disabled={applyingFix || busy !== null}
-                onClick={() => {
-                  setDismissed(true);
-                  setFixProposal(null);
-                }}
+                onClick={() => setIsProposalOpen(false)}
                 className={cn(ACTION_CLASS, "text-muted-foreground sm:ml-auto")}
               >
+                <ChevronUp className="mr-1.5 h-3.5 w-3.5" />
                 Yopish
               </Button>
             </div>
           </section>
-        )}
+        ) : (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-primary/20 bg-primary/[0.03] p-3.5 sm:p-4 animate-in fade-in duration-200">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <WandSparkles className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">
+                  Aniqlangan xato va to&apos;g&apos;rilash taklifi
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {fixProposal.applied
+                    ? "To'g'rilandi va Uzum tekshiruviga yuborildi"
+                    : "Tahlil va to'g'rilash varianti mavjud"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {fixProposal.applied && (
+                <span className="hidden sm:inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="h-3 w-3" />
+                  To&apos;g&apos;rilangan
+                </span>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsProposalOpen(true)}
+                className="h-8 gap-1.5 text-xs font-medium border-primary/30 text-primary hover:bg-primary/10 shadow-xs"
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+                Ochish
+              </Button>
+            </div>
+          </div>
+        )
+      )}
 
         {(attentionAreas.length > 0 || attentionFindings.length > 0) && (
           <section aria-label="E'tibor talab qiladigan qismlar" className="space-y-3">
