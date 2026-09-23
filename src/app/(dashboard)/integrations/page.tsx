@@ -38,9 +38,8 @@ function IntegrationsSkeleton() {
 }
 
 export default function IntegrationsPage() {
-  const activeShopId = useUserStore((state) => state.activeShopId);
   const workspaceId = useUserStore((state) => state.workspaceId);
-  return <React.Suspense fallback={<IntegrationsSkeleton />}><IntegrationsWorkspace key={`${workspaceId}:${activeShopId}`} /></React.Suspense>;
+  return <React.Suspense fallback={<IntegrationsSkeleton />}><IntegrationsWorkspace key={workspaceId ?? "default"} /></React.Suspense>;
 }
 
 function IntegrationsWorkspace() {
@@ -60,16 +59,18 @@ function IntegrationsWorkspace() {
   const requestVersion = React.useRef(0);
   const servicesRef = React.useRef<HTMLElement>(null);
   const [tab, setTab] = useQueryState("tab", "uzum");
-  const [loading, setLoading] = React.useState(hasShop);
+  const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const load = React.useCallback(async () => {
-    if (!hasShop) { setLoading(false); return; }
     const version = ++requestVersion.current;
     setRefreshing(true);
     const results = await Promise.allSettled([
-      fetchSocialPlatforms(), fetchSocialAccounts(), fetchSocialApps(),
-      fetchAiKey({ account: true }), fetchOpenAiKey({ account: true }),
+      hasShop ? fetchSocialPlatforms() : Promise.resolve([]),
+      hasShop ? fetchSocialAccounts() : Promise.resolve([]),
+      hasShop ? fetchSocialApps() : Promise.resolve([]),
+      fetchAiKey({ account: true }),
+      fetchOpenAiKey({ account: true }),
     ]);
     if (version !== requestVersion.current) return;
     const [networks, connections, apps, gemini, openai] = results;
@@ -139,8 +140,13 @@ function IntegrationsWorkspace() {
     } finally { connectingRef.current = false; setConnecting(false); }
   };
 
-  // Kengaytma do'konsiz ham ishlaydi (butun bozor tahlili) — shuning uchun u do'kon talab qilmaydi.
-  const selected = tab === "extension" ? "extension" : !hasShop || !["uzum", "ai", ...PLATFORM_ORDER].includes(tab) ? "uzum" : tab;
+  // Kengaytma va AI sozlamalari do'konsiz ham ishlaydi (butun hisob/foydalanuvchi doirasida).
+  const selected =
+    tab === "extension" || tab === "ai"
+      ? tab
+      : !hasShop || !["uzum", ...PLATFORM_ORDER].includes(tab)
+      ? "uzum"
+      : tab;
   const selectedPlatform = platforms.find((row) => row.platform === selected);
   React.useEffect(() => {
     const navigation = servicesRef.current;
@@ -206,14 +212,14 @@ function IntegrationsWorkspace() {
             <p className="mb-3 hidden px-2 text-[11px] font-semibold uppercase tracking-[.14em] text-muted-foreground xl:block">Xizmatlar</p>
             <nav ref={servicesRef} aria-label="Integratsiya xizmatlari" className={styles.services}>
               {services.map((service) => (
-                <button key={service.value} type="button" aria-pressed={selected === service.value} aria-controls="integration-content" disabled={!hasShop && service.value !== "uzum" && service.value !== "extension"} onClick={() => setTab(service.value)} className={cn(styles.service, selected === service.value && styles.selected)}>
+                <button key={service.value} type="button" aria-pressed={selected === service.value} aria-controls="integration-content" disabled={!hasShop && service.value !== "uzum" && service.value !== "extension" && service.value !== "ai"} onClick={() => setTab(service.value)} className={cn(styles.service, selected === service.value && styles.selected)}>
                   <span className={styles.serviceIcon}>{service.icon}</span>
                   <span className="min-w-0 text-left"><span className="block whitespace-nowrap text-sm font-medium">{service.label}</span><span className="mt-1 hidden text-xs text-muted-foreground xl:block">{service.detail}</span></span>
                   {service.connected && <CircleCheck aria-label="Ulangan" className="ml-auto hidden size-4 shrink-0 text-[var(--ok)] xl:block" />}
                 </button>
               ))}
             </nav>
-            <p className="mt-4 hidden items-start gap-2 px-2 text-xs leading-relaxed text-muted-foreground xl:flex"><ShieldCheck className="mt-0.5 size-4 shrink-0" />Ulanishlarni istalgan vaqtda boshqarishingiz yoki uzishingiz mumkin.</p>
+            <p className="mt-4 hidden items-start gap-2 px-2 text-xs leading-relaxed text-muted-foreground xl:flex"><ShieldCheck className="mt-0.5 size-4 shrink-0" />Ulanishlar hisobingizdagi barcha do‘konlar uchun umumiy ishlaydi.</p>
           </div>
         </aside>
 

@@ -74,6 +74,7 @@ ehthumbs.db
 /src/lib/uzum.ts
 /src/data/
 /src/app/api/
+/.legacy_api/
 /src/components/charts/
 
 # Xuddi shu narsa 2026-09-06 da QAYTA sodir bo'ldi: 25 ta eski

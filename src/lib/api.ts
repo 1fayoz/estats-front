@@ -956,15 +956,15 @@ const aiAccountQuery = (options?: { account?: boolean; refresh?: boolean }) => {
 };
 
 export const fetchAiKey = (options?: { account?: boolean; refresh?: boolean }) =>
-  request<AiKeyState>(`/seo/ai-key${aiAccountQuery(options)}`);
+  request<AiKeyState>(`/seo/ai-key${aiAccountQuery(options)}`, { shopScoped: false });
 
 export const saveAiBalance = (usd: number | null) =>
-  request<AiKeyState>("/seo/ai-key/balance", { method: "PUT", body: JSON.stringify({ usd }) });
+  request<AiKeyState>("/seo/ai-key/balance", { method: "PUT", body: JSON.stringify({ usd }), shopScoped: false });
 
 export const saveAiKey = (apiKey: string) =>
-  request<AiKeyState>("/seo/ai-key", { method: "PUT", body: JSON.stringify({ apiKey }) });
+  request<AiKeyState>("/seo/ai-key", { method: "PUT", body: JSON.stringify({ apiKey }), shopScoped: false });
 
-export const deleteAiKey = () => request<void>("/seo/ai-key", { method: "DELETE" });
+export const deleteAiKey = () => request<void>("/seo/ai-key", { method: "DELETE", shopScoped: false });
 
 /** Bir necha tovarni birdan — fonda. */
 export const runSeoBulk = (payload: {
@@ -1046,19 +1046,20 @@ export function mediaUrl(path: string | null | undefined): string {
 }
 
 export const fetchOpenAiKey = (options?: { account?: boolean; refresh?: boolean }) =>
-  request<OpenAiKeyState>(`/product-ai/key${aiAccountQuery(options)}`);
+  request<OpenAiKeyState>(`/product-ai/key${aiAccountQuery(options)}`, { shopScoped: false });
 
 export const saveOpenAiBalance = (usd: number | null) =>
-  request<OpenAiKeyState>("/product-ai/key/balance", { method: "PUT", body: JSON.stringify({ usd }) });
+  request<OpenAiKeyState>("/product-ai/key/balance", { method: "PUT", body: JSON.stringify({ usd }), shopScoped: false });
 
 export const saveOpenAiKey = (apiKey: string) =>
   request<OpenAiKeyState>("/product-ai/key", {
     method: "PUT",
     body: JSON.stringify({ apiKey }),
+    shopScoped: false,
   });
 
 export const clearOpenAiKey = () =>
-  request<void>("/product-ai/key", { method: "DELETE" });
+  request<void>("/product-ai/key", { method: "DELETE", shopScoped: false });
 
 export const fetchAiDrafts = () => request<AiDraftRow[]>("/product-ai/drafts");
 

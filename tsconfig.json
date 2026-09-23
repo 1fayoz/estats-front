@@ -30,5 +30,14 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "src/app/api",
+    "src/features/products",
+    "src/lib/uzum.ts",
+    "src/data",
+    "src/components/charts",
+    "src/features/warehouse/components/warehouse-table.tsx",
+    "src/features/warehouse/types.ts"
+  ]
 }
