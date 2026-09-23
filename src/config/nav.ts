@@ -115,14 +115,14 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "Bozor",
     items: [
       {
-        label: "Ko'rib Uzum",
+        label: "Uzum bozori",
         action: "market.view",
         href: "/market" as Route,
         icon: Store,
         description: "Butun Uzum bozori bir qarashda",
       },
       {
-        label: "Kategoriya va qatlamlari",
+        label: "Kategoriya va qatlamlar",
         action: "market.view",
         href: "/market/categories" as Route,
         icon: LayoutDashboard,
@@ -135,15 +135,15 @@ export const NAV_GROUPS: NavGroup[] = [
         ],
       },
       {
-        label: "Maxsulot tanlash",
+        label: "Mahsulot tanlash",
         action: "market.view",
         href: "/market/products" as Route,
         icon: BarChart3,
         children: [
-          { label: "kartochka asosida", action: "market.view", href: "/market/products" as Route, icon: Boxes },
+          { label: "Kartochka asosida", action: "market.view", href: "/market/products" as Route, icon: Boxes },
           { label: "SKU asosida", action: "market.view", href: "/market/skus" as Route, icon: Boxes },
-          { label: "Maxsulot kartochkasi", action: "market.view", href: "/market/card" as Route, icon: Boxes },
-          { label: "Kartochka (tablica)", action: "market.view", href: "/market/card-table" as Route, icon: Boxes },
+          { label: "Mahsulot kartochkasi", action: "market.view", href: "/market/card" as Route, icon: Boxes },
+          { label: "Kartochkalar jadvali", action: "market.view", href: "/market/card-table" as Route, icon: Boxes },
         ],
       },
       {
@@ -171,12 +171,12 @@ export const NAV_GROUPS: NavGroup[] = [
         ],
       },
       {
-        label: "Video-Yuriqnomasi",
+        label: "Video yo‘riqnomalar",
         action: "market.view",
         href: "/market/videos" as Route,
         icon: Info,
         children: [
-          { label: "Video-yuriqnomalar", action: "market.view", href: "/market/videos" as Route, icon: Boxes },
+          { label: "Video yo‘riqnomalar", action: "market.view", href: "/market/videos" as Route, icon: Boxes },
         ],
       },
     ],

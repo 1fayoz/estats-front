@@ -3,6 +3,7 @@ import { Pagination, usePagination } from "@/components/ui/pagination";
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AlertTriangle, Inbox, LoaderCircle } from "lucide-react";
 
 import { formatCompact, formatNumber, formatPercent } from "@/lib/format";
 import type { MarketScorecard } from "@/lib/market";
@@ -121,8 +122,13 @@ export function Score({ card }: { card: MarketScorecard }) {
 
 export function Loading({ label = "Yuklanmoqda…" }: { label?: string }) {
   return (
-    <div className="rounded-xl border bg-card p-10 text-center text-sm text-muted-foreground">
-      {label}
+    <div className="relative overflow-hidden rounded-2xl border bg-card p-8 text-center shadow-sm" role="status">
+      <div className="mx-auto flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+      </div>
+      <div className="mt-3 text-sm font-medium text-foreground">{label}</div>
+      <div className="mx-auto mt-4 h-2 w-48 animate-pulse rounded-full bg-muted" />
+      <div className="mx-auto mt-2 h-2 w-32 animate-pulse rounded-full bg-muted/70" />
     </div>
   );
 }
@@ -133,16 +139,18 @@ export function Failed({ message }: { message: string }) {
   // o'zi tuzatadi. "Nimadir xato ketdi" esa uni yordamga murojaat
   // qilishga majbur qiladi.
   return (
-    <div className="air-notice rounded-xl p-4 text-sm" style={{ borderColor: "var(--bad)", color: "var(--bad)" }}>
-      {message}
+    <div className="flex items-start gap-3 rounded-2xl border bg-card p-4 text-sm shadow-sm" style={{ borderColor: "color-mix(in srgb, var(--bad) 28%, transparent)", color: "var(--bad)" }} role="alert">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-red-50"><AlertTriangle className="size-4" aria-hidden="true" /></span>
+      <div><div className="font-semibold">Ma’lumotni olib bo‘lmadi</div><div className="mt-0.5 opacity-80">{message}</div></div>
     </div>
   );
 }
 
 export function NoData({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border bg-card p-10 text-center text-sm text-muted-foreground">
-      {children}
+    <div className="rounded-2xl border border-dashed bg-muted/30 p-10 text-center text-sm text-muted-foreground">
+      <Inbox className="mx-auto mb-3 size-6 text-primary/65" aria-hidden="true" />
+      <div className="font-medium text-foreground">{children}</div>
     </div>
   );
 }

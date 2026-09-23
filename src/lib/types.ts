@@ -322,6 +322,12 @@ export interface UnitEconomics {
   avgSellPrice: number;
   commissionRate: number;
   logisticsPerUnit: number;
+  /**
+   * Logistika qayerdan: `own` — shu tovar sotuvlari, `shop` — do'kon
+   * sotuvlaridagi odatiy summa (sotuvi yo'q tovar), `none` — noma'lum.
+   * Eski backend'da yo'q.
+   */
+  logisticsSource?: "own" | "shop" | "none";
   breakEvenPrice: number | null;
   isEstimated: boolean;
   hasCost: boolean;

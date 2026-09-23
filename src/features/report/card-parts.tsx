@@ -82,14 +82,14 @@ export function SkuTable({ data, height = 190 }: { data: CardData | null; height
       columns={[
         { key: "sku_id", title: "SKU", value: (r) => (r.sku_id == null ? "" : String(r.sku_id)), sortable: false },
         { key: "sku_title", title: "SKU nomi", value: (r) => r.sku_title, sortable: false },
-        { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, bar: "#4dd0e1", sortable: false },
-        { key: "units", title: "Sotuv, donada", value: (r) => r.units, bar: "#42a5f5", sortable: false,
+        { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, bar: "#20a7c2", sortable: false },
+        { key: "units", title: "Sotuv, donada", value: (r) => r.units, bar: "#6a6ce1", sortable: false,
           render: (r) => (
             <span className={styles.barCell} style={{ justifyContent: "flex-start" }}>
               {formatNumber(r.units)}
               <span className={styles.bar} style={{
                 width: `${Math.max(2, (r.units / Math.max(1, ...(data?.skus ?? []).map((x) => x.units))) * 80)}px`,
-                background: "#42a5f5" }} />
+                background: "#6a6ce1" }} />
             </span>
           ) },
         { key: "avg_price", title: "O'rtacha narx", num: true, value: (r) => r.avg_price, sortable: false },
@@ -146,9 +146,9 @@ export function PositionPivot({
       <table className={`${styles.ztable} ${styles.pivot}`}>
         <thead>
           <tr>
-            <th style={{ textAlign: "left", background: "#fff", color: "#000", fontSize: 11 }}>{rowLabel}</th>
+            <th style={{ textAlign: "left", fontSize: 11 }}>{rowLabel}</th>
             {days.map((d) => (
-              <th key={d} style={{ background: "#fff", color: "#000", fontSize: 11, textAlign: "center" }}>
+              <th key={d} style={{ fontSize: 11, textAlign: "center" }}>
                 {d.slice(8)}
               </th>
             ))}
@@ -164,7 +164,7 @@ export function PositionPivot({
                 const v = r.values[d];
                 const alpha = v == null ? 0 : Math.max(0.08, 1 - (v - 1) / max);
                 return (
-                  <td key={d} style={{ background: v == null ? undefined : `rgba(100,181,246,${alpha.toFixed(2)})` }}>
+                  <td key={d} style={{ background: v == null ? undefined : `rgba(124,125,232,${(alpha * .72).toFixed(2)})` }}>
                     {v == null ? "-" : formatNumber(v)}
                   </td>
                 );

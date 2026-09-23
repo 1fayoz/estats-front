@@ -8,19 +8,15 @@ import {
 
 import { formatCompact, formatNumber } from "@/lib/format";
 
-/*
-  Grafiklar — Looker Studio uslubida: Oswald 11px o'qlar, yupqa
-  kulrang to'r, legenda tepada, animatsiyasiz (Looker ham animatsiya
-  qilmaydi va tez-tez almashadigan filtrda animatsiya ko'zni charchatadi).
-*/
+/* Grafiklar eStats palitrasida; filtrlashda animatsiya ataylab o'chirilgan. */
 
 export const PALETTE = [
-  "#1f3b73", "#f4a93b", "#e02c8f", "#7eb2f4", "#4cb6c4", "#8bb04c", "#4a8ef0", "#ef7648", "#e25c6c", "#e8508f",
-  "#4a2ea0", "#737373", "#b56a4a", "#96c173", "#7f9fd1", "#8fcdf2", "#c6644e", "#f0b37e", "#c86a9c", "#e3a1c7",
-  "#5c9ead", "#d4a017", "#6a5acd",
+  "#5b5ce2", "#20a7c2", "#8b5cf6", "#ec7a5c", "#16a37b", "#f0aa3c", "#4a78db", "#dd5f96", "#73a9ec", "#8d77dd",
+  "#2f8f9d", "#ef8f58", "#6f7a97", "#53ae78", "#aa63b8", "#539acf", "#ca6b6b", "#c78b3a", "#7b8bd2", "#d479a3",
+  "#639da8", "#af8c31", "#7764c9",
 ];
 
-const axis = { fontSize: 11, fontFamily: "var(--font-oswald), Oswald, sans-serif", fill: "#333" };
+const axis = { fontSize: 11, fontFamily: "var(--font-geist-sans), system-ui, sans-serif", fill: "#6e728d" };
 const compact = (v: unknown) => (v == null || v === "" ? "" : formatCompact(Number(v)));
 const number = (v: unknown) => (v == null ? "-" : formatNumber(Number(v)));
 
@@ -88,7 +84,7 @@ function OneLineTick(props: { x?: number; y?: number; payload?: { value: string 
   const { x = 0, y = 0, payload } = props;
   const text = payload?.value ?? "";
   return (
-    <text x={x} y={y} dy={3} textAnchor="end" style={{ ...axis, fontSize: 10, fill: "#1f3b73" }}>
+    <text x={x} y={y} dy={3} textAnchor="end" style={{ ...axis, fontSize: 10, fill: "#505472" }}>
       {text.length > 26 ? `${text.slice(0, 25)}…` : text}
     </text>
   );
@@ -114,10 +110,10 @@ export function GrowthBars({ data, height = 360 }: { data: { name: string; growt
                tick={axis} axisLine={false} tickLine={false} />
         <YAxis type="category" dataKey="name" width={140} tick={<OneLineTick />} axisLine={false}
                tickLine={false} interval={0} />
-        <CartesianGrid horizontal={false} stroke="#e6e6e6" />
-        <Bar dataKey="growth" fill="#7eb2f4" isAnimationActive={false} barSize={8}>
+        <CartesianGrid horizontal={false} stroke="#ececf4" />
+        <Bar dataKey="growth" fill="#7c7de8" radius={[0, 6, 6, 0]} isAnimationActive={false} barSize={9}>
           <LabelList dataKey="growth" position="right" formatter={(v: unknown) => `${v}%`}
-                     style={{ ...axis, fontSize: 10, fill: "#7eb2f4" }} />
+                     style={{ ...axis, fontSize: 10, fill: "#6b6cce" }} />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -135,12 +131,12 @@ export function DailyBars({
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 20 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 60 }} />
-        <CartesianGrid vertical={false} stroke="#e6e6e6" />
+        <CartesianGrid vertical={false} stroke="#ececf4" />
         <XAxis dataKey="day" tickFormatter={shortDay} tick={axis} interval={0} tickLine={false} />
         <YAxis tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60}
                label={{ value: name, angle: -90, position: "insideLeft", style: { ...axis, fontSize: 10 } }} />
         <Tooltip formatter={(v) => number(v)} labelFormatter={(l) => shortDay(String(l))} />
-        <Bar dataKey="revenue" name={name} fill="#3a66c4" isAnimationActive={false} />
+        <Bar dataKey="revenue" name={name} fill="#6668de" radius={[5, 5, 0, 0]} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -164,7 +160,7 @@ export function ComboDaily({
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart data={data} margin={{ left: 10, right: 10, top: 24, bottom: 10 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#e6e6e6" />
+        <CartesianGrid vertical={false} stroke="#ececf4" />
         <XAxis dataKey="day" tickFormatter={(v) => (dateLabel ? dateLabel(String(v)) : shortDay(String(v)))}
                tick={axis} minTickGap={12} angle={-35} textAnchor="end" height={50} />
         <YAxis yAxisId="l" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60} />
@@ -196,7 +192,7 @@ export function TwoLines({
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ left: 10, right: 10, top: 24, bottom: 10 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#e6e6e6" />
+        <CartesianGrid vertical={false} stroke="#ececf4" />
         <XAxis dataKey="day" tickFormatter={(v) => (dateLabel ? dateLabel(String(v)) : shortDay(String(v)))}
                tick={axis} minTickGap={12} angle={-35} textAnchor="end" height={50} />
         <YAxis yAxisId="l" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60} />
@@ -234,7 +230,7 @@ export function GroupedBars({
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 28, bottom: 18 }} barGap={1}>
         <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#e6e6e6" />
+        <CartesianGrid vertical={false} stroke="#ececf4" />
         <XAxis dataKey={category} tick={<StaggeredTick />} interval={0} height={34} />
         <YAxis yAxisId="l" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={55} />
         <YAxis yAxisId="r" orientation="right" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false}
@@ -254,8 +250,8 @@ export function GroupedBars({
 type TreeDatum = { name: string; size?: number; children?: TreeDatum[] };
 
 /*
-  Treemap — Looker ko'rinishida: tepada «Все» sarlavhasi, 1-daraja guruhlar
-  to'q ko'k SARLAVHA chizig'i bilan, 2-daraja to'rtburchaklar nomi bilan,
+  Treemap: tepada umumiy sarlavha, 1-daraja guruhlar
+  binafsha SARLAVHA chizig'i bilan, 2-daraja to'rtburchaklar nomi bilan,
   undan chuqurlari faqat ingichka chegara. Rang — tushum ulushiga qarab
   och ko'kdan to'qroq ko'kka (Looker'ning «color by metric» uslubi).
 */
@@ -268,7 +264,7 @@ function TreeCell(props: {
   const { x = 0, y = 0, width = 0, height = 0, name = "", depth = 0, value = 0, root } = props;
   if (width <= 0 || height <= 0) return null;
   const share = root?.value ? value / root.value : 0;
-  const fill = `rgba(66, 133, 244, ${Math.min(0.85, 0.12 + share * 2.2).toFixed(3)})`;
+  const fill = `rgba(91, 92, 226, ${Math.min(0.78, 0.1 + share * 2).toFixed(3)})`;
   const clip = (text: string, px: number) => {
     const fits = Math.floor(px / 6.2);
     return text.length > fits ? `${text.slice(0, Math.max(2, fits - 1))}…` : text;
@@ -278,7 +274,7 @@ function TreeCell(props: {
       <g>
         <rect x={x} y={y} width={width} height={height} style={{ fill: "#fff", stroke: "#fff", strokeWidth: 2 }} />
         <rect x={x + 1} y={y + 1} width={Math.max(0, width - 2)} height={Math.min(HEADER, height)}
-              style={{ fill: "#5b9bef" }} />
+              style={{ fill: "#7c7de8" }} />
         {width > 30 ? (
           <text x={x + width / 2} y={y + 12} textAnchor="middle"
                 style={{ ...axis, fontSize: 11, fontWeight: 700, fill: "#000" }}>
@@ -305,9 +301,9 @@ function TreeCell(props: {
 export function RevenueTreemap({ data, height = 530 }: { data: TreeDatum[]; height?: number }) {
   return (
     <div>
-      <div style={{ background: "#5b9bef", textAlign: "center", ...axis, fontSize: 12, fontWeight: 700,
-                    padding: "2px 0", margin: "0 4px" }}>
-        Все
+      <div style={{ background: "#eeeeff", color: "#4c4eca", textAlign: "center", ...axis, fontSize: 12, fontWeight: 700,
+                    padding: "7px 0", margin: "0 8px", borderRadius: 9 }}>
+        Barchasi
       </div>
       <ResponsiveContainer width="100%" height={height}>
         <Treemap data={data} dataKey="size" nameKey="name" isAnimationActive={false} content={<TreeCell />}

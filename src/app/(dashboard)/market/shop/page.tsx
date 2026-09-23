@@ -26,7 +26,7 @@ import { report } from "@/lib/report";
   «Oborot» = ikkalasining nisbati (Xiaomi-Uzbekistan: 559,9 / 22,2 = 25,2 ✓).
 */
 
-const axis = { fontSize: 11, fontFamily: "var(--font-oswald), Oswald, sans-serif" };
+const axis = { fontSize: 11, fontFamily: "var(--font-geist-sans), system-ui, sans-serif", color: "#6e728d" };
 
 function shift(iso: string, days: number): string {
   const d = new Date(`${iso}T00:00:00Z`);
@@ -140,13 +140,13 @@ export default function ShopAnalysisPage() {
             <ResponsiveContainer width="100%" height={150}>
               <LineChart data={lines} margin={{ left: 10, right: 10, top: 20 }}>
                 <Legend verticalAlign="top" wrapperStyle={{ ...axis, top: 0 }} />
-                <CartesianGrid vertical={false} stroke="#e6e6e6" />
+                <CartesianGrid vertical={false} stroke="#ececf4" />
                 <XAxis dataKey="day" tick={axis} tickFormatter={(v: string) => `${Number(v.slice(8))}.${v.slice(5, 7)}`} />
                 <YAxis tick={axis} tickFormatter={(v: number) => formatCompact(v)} width={50} />
                 <Tooltip formatter={(v) => formatNumber(Number(v))} />
-                <Line dataKey="revenue" name="Tushim (soʻm)" stroke="#42a5f5" dot={false} type="monotone"
+                <Line dataKey="revenue" name="Tushim (soʻm)" stroke="#5b5ce2" strokeWidth={2} dot={false} type="monotone"
                       isAnimationActive={false} />
-                <Line dataKey="previous" name={`Tushim (soʻm) (oldingi ${days} kun)`} stroke="#bbdefb" dot={false}
+                <Line dataKey="previous" name={`Tushim (soʻm) (oldingi ${days} kun)`} stroke="#b7b8e9" dot={false}
                       type="monotone" isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -155,13 +155,13 @@ export default function ShopAnalysisPage() {
             <ResponsiveContainer width="100%" height={150}>
               <ComposedChart data={lines} margin={{ left: 10, right: 10, top: 20 }}>
                 <Legend verticalAlign="top" wrapperStyle={{ ...axis, top: 0 }} />
-                <CartesianGrid vertical={false} stroke="#e6e6e6" />
+                <CartesianGrid vertical={false} stroke="#ececf4" />
                 <XAxis dataKey="day" tick={axis} tickFormatter={(v: string) => `${Number(v.slice(8))}.${v.slice(5, 7)}`} />
                 <YAxis yAxisId="l" tick={axis} width={40} />
                 <YAxis yAxisId="r" orientation="right" tick={axis} width={40} tickFormatter={(v: number) => formatCompact(v)} />
                 <Tooltip formatter={(v) => formatNumber(Number(v))} />
-                <Bar yAxisId="r" dataKey="stock" name="Qoldiq, donada" fill="#42a5f5" isAnimationActive={false} />
-                <Line yAxisId="l" dataKey="units" name="Sotuv, donada" stroke="#e91e63" dot={false} type="monotone"
+                <Bar yAxisId="r" dataKey="stock" name="Qoldiq, donada" fill="#7c7de8" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                <Line yAxisId="l" dataKey="units" name="Sotuv, donada" stroke="#dd5f96" strokeWidth={2} dot={false} type="monotone"
                       isAnimationActive={false} />
               </ComposedChart>
             </ResponsiveContainer>

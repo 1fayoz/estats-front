@@ -47,7 +47,7 @@ export default function ProductsPage() {
         <InputControl label="Do'konlar soni" value={params.shop} placeholder="do'kon nomi"
                       onCommit={(shop) => setParams({ shop, ...reset })} style={{ width: 150 }} />
         <SelectControl label="Davrdagi sotuvlar" value={params.sales} searchable={false} allowClear={false}
-                       options={[{ value: "yes", label: "Да" }]} onChange={() => undefined}
+                       options={[{ value: "yes", label: "Ha" }]} onChange={() => undefined}
                        style={{ width: 235 }} />
         <InputControl label="Nomi bo'yicha qidiruv" value={params.q}
                       onCommit={(q) => setParams({ q, ...reset })} style={{ flex: 1 }} />
@@ -76,7 +76,7 @@ export default function ProductsPage() {
       </Card>
       <SourceNote meta={data?.meta} />
       <div className={styles.note}>
-        «Davrdagi sotuvlar: Да» — tashqi xizmat eksportidagi kabi faqat davrda sotuvi bo&apos;lgan kartochkalar.
+        «Davrdagi sotuvlar: Ha» — faqat tanlangan davrda sotuvi bo&apos;lgan kartochkalar ko&apos;rsatiladi.
       </div>
     </ReportPage>
   );

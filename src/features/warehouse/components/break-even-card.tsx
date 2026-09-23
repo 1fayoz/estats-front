@@ -121,7 +121,17 @@ export function BreakEvenCard({
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Metric label="Tan narx (keyingi dona)" value={formatSum(economics.unitCost)} />
           <Metric label="Uzum komissiyasi" value={`${economics.commissionRate.toFixed(1)}%`} />
-          <Metric label="Yetkazib berish / dona" value={formatSum(economics.logisticsPerUnit)} />
+          <Metric
+            label="Yetkazib berish / dona"
+            value={economics.logisticsSource === "none" ? "—" : formatSum(economics.logisticsPerUnit)}
+            hint={
+              economics.logisticsSource === "shop"
+                ? "do‘kon o‘rtachasi — bu tovar hali sotilmagan"
+                : economics.logisticsSource === "none"
+                  ? "hali noma’lum — sotuv bo‘lmagan"
+                  : undefined
+            }
+          />
           <Metric
             label="Beziyon nuqta"
             value={economics.breakEvenPrice ? formatSum(economics.breakEvenPrice) : "—"}
@@ -330,13 +340,24 @@ export function BreakEvenCard({
   );
 }
 
-function Metric({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+function Metric({
+  label,
+  value,
+  accent,
+  hint,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+  hint?: string;
+}) {
   return (
     <div className={cn("rounded-lg border p-3", accent && "border-primary/40 bg-primary/5")}>
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className={cn("mt-0.5 font-semibold tabular-nums", accent && "text-primary")}>
         {value}
       </div>
+      {hint ? <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div> : null}
     </div>
   );
 }

@@ -2,8 +2,20 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Oswald } from "next/font/google";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BarChart3,
+  Check,
+  ChevronDown,
+  CircleHelp,
+  Database,
+  Inbox,
+  LoaderCircle,
+  PlugZap,
+  Search,
+} from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
 import { formatCompact, formatDecimal, formatNumber } from "@/lib/format";
@@ -23,8 +35,6 @@ import s from "./report.module.css";
   tegishli — ular o'zbekchaga o'girilgan. Hisobot muallifi qo'ygan
   yorliqlar (Tushim, Do'kon, Muddat…) esa aynan saqlangan.
 */
-
-const oswald = Oswald({ subsets: ["latin", "cyrillic"], weight: ["400", "700"], variable: "--font-oswald" });
 
 export const styles = s;
 
@@ -54,16 +64,29 @@ export function useReportBusy(): boolean {
 export function ReportPage({ children }: { children: React.ReactNode }) {
   const busy = useReportBusy();
   return (
-    <div className={cn(s.page, oswald.variable)}>
+    <div className={s.page}>
       <div className={s.canvas}>
         <div className={s.strip}>
-          <span className={s.brand}>eStats · Bozor</span>
-          <span>
-            <Link href="/integrations">Ulanishlar</Link>
-            <a href="https://t.me/estats_uz_bot" target="_blank" rel="noreferrer">Telegram yordam</a>
-          </span>
+          <div className={s.brandBlock}>
+            <span className={s.brandIcon}><BarChart3 aria-hidden="true" /></span>
+            <span>
+              <span className={s.brand}>Bozor tahlili</span>
+              <span className={s.brandMeta}>Uzum Market bo‘yicha real ma’lumotlar</span>
+            </span>
+          </div>
+          <div className={s.stripActions}>
+            <Link href="/integrations"><PlugZap aria-hidden="true" /> Ulanishlar</Link>
+            <a href="https://t.me/estats_uz_bot" target="_blank" rel="noreferrer">
+              <CircleHelp aria-hidden="true" /> Yordam
+            </a>
+          </div>
         </div>
-        {busy ? <div className={s.loading} aria-label="Yuklanmoqda" /> : null}
+        {busy ? (
+          <div className={s.loadingWrap} role="status" aria-live="polite">
+            <div className={s.loading} />
+            <div className={s.loadingPill}><LoaderCircle aria-hidden="true" /> Ma’lumot yangilanmoqda</div>
+          </div>
+        ) : null}
         <div className={s.body}>{children}</div>
       </div>
     </div>
@@ -101,10 +124,11 @@ export function SourceNote({ meta }: { meta: ReportMeta | undefined }) {
   const own = meta.source === "estats";
   return (
     <div className={s.note}>
-      Ma&apos;lumot {meta.as_of.split("-").reverse().join(".")} holatiga ·{" "}
+      <Database aria-hidden="true" />
+      <span>Ma&apos;lumot {meta.as_of.split("-").reverse().join(".")} holatiga ·{" "}
       <span className={own ? s.sourceOwn : s.sourceZs}>
         {own ? "o'z o'lchovimiz" : "import qilingan tarix (import)"}
-      </span>
+      </span></span>
     </div>
   );
 }
@@ -113,7 +137,16 @@ export function Empty({ children = "Ma'lumot yo'q" }: { children?: React.ReactNo
   // So'rov hali ketayotgan bo'lsa «ma'lumot yo'q» deyish YOLG'ON —
   // foydalanuvchi buni buzuq sahifa deb o'qiydi.
   const busy = useReportBusy();
-  return <div className={s.empty}>{busy ? "Yuklanmoqda…" : children}</div>;
+  return busy ? (
+    <div className={s.emptyLoading} role="status">
+      <LoaderCircle aria-hidden="true" />
+      <span>Ma’lumot yuklanmoqda…</span>
+      <span className={s.skeletonLine} />
+      <span className={s.skeletonLineShort} />
+    </div>
+  ) : (
+    <div className={s.empty}><Inbox aria-hidden="true" /><span>{children}</span></div>
+  );
 }
 
 // ── Filtr: tanlov ro'yxati ──────────────────────────────────────
@@ -181,14 +214,26 @@ export function SelectControl({
 
   return (
     <div ref={ref} style={{ position: "relative", ...style }}>
-      <div className={s.control} onClick={() => setOpen((v) => !v)} role="button" tabIndex={0}>
+      <div
+        className={s.control}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setOpen((v) => !v);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+      >
         <span className={s.controlLabel}>
           {label}
           {current || placeholderValue ? ":" : ""}
         </span>
         <span className={s.controlValue}>{current?.label ?? placeholderValue ?? ""}</span>
         {value ? <span className={s.controlCount}>(1)</span> : null}
-        <span className={s.caret} />
+        <ChevronDown className={s.caret} aria-hidden="true" />
       </div>
       {open ? (
         <div className={s.dropdown}>
@@ -200,7 +245,7 @@ export function SelectControl({
           </div>
           {searchable ? (
             <div className={s.dropdownSearch}>
-              <span>🔍</span>
+              <Search aria-hidden="true" />
               <input
                 autoFocus
                 placeholder="Qidirish"
@@ -234,7 +279,7 @@ export function SelectControl({
                   setOpen(false);
                 }}
               >
-                <span className={s.check}>{o.value === value ? "✓" : ""}</span>
+                <span className={s.check}>{o.value === value ? <Check aria-hidden="true" /> : null}</span>
                 <span className={s.optionText}>{o.label}</span>
                 {o.metric ? <span className={s.optionMetric}>{o.metric}</span> : null}
               </div>
@@ -318,11 +363,23 @@ export function DateRangeControl({
 
   return (
     <div ref={ref} style={{ position: "relative", ...style }}>
-      <div className={s.control} onClick={() => setOpen((v) => !v)} role="button" tabIndex={0}>
+      <div
+        className={s.control}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setOpen((v) => !v);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+      >
         <span className={s.controlValue} style={{ fontSize: 13 }}>
           {dayLabel(start)} - {dayLabel(end)}
         </span>
-        <span className={s.caret} />
+        <ChevronDown className={s.caret} aria-hidden="true" />
       </div>
       {open ? (
         <div className={s.dropdown} style={{ minWidth: 300, padding: 14 }}>
@@ -356,7 +413,7 @@ export function DateRangeControl({
             <button
               type="button"
               className={s.option}
-              style={{ marginLeft: "auto", background: "#18457e", color: "#fff" }}
+              style={{ marginLeft: "auto", background: "#5b5ce2", color: "#fff" }}
               onClick={() => {
                 onChange(draft.start, draft.end);
                 setOpen(false);
@@ -434,7 +491,8 @@ export function Scorecard({
         <span className={s.scoreDelta}>
           {growth != null ? (
             <span className={good ? s.up : s.down}>
-              {growth >= 0 ? "↑" : "↓"} {formatNumber(Number((growth * 100).toFixed(1)))}%
+              {growth >= 0 ? <ArrowUpRight aria-hidden="true" /> : <ArrowDownRight aria-hidden="true" />}
+              {formatNumber(Number((Math.abs(growth) * 100).toFixed(1)))}%
             </span>
           ) : null}
           {compare ? <span className={s.muted}>{compare}</span> : null}
@@ -444,7 +502,7 @@ export function Scorecard({
         <div style={{ height: 22, marginTop: 2 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={spark} margin={{ top: 1, bottom: 0, left: 0, right: 0 }}>
-              <Area dataKey="value" stroke="#4a7ab8" fill="#c9d6e8" strokeWidth={1} isAnimationActive={false} />
+              <Area dataKey="value" stroke="#5b5ce2" fill="#e7e7ff" strokeWidth={1.7} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -662,14 +720,14 @@ export function useLoad<T>(load: () => Promise<T>, deps: React.DependencyList) {
 }
 
 export const COLORS = {
-  heatBlue: [100, 181, 246] as [number, number, number],
-  heatLight: [187, 222, 251] as [number, number, number],
-  heatDeep: [33, 150, 243] as [number, number, number],
-  heatGreen: [129, 199, 132] as [number, number, number],
-  heatPurple: [206, 147, 216] as [number, number, number],
-  heatTeal: [0, 172, 193] as [number, number, number],
-  heatOrange: [255, 204, 128] as [number, number, number],
-  heatRed: [239, 154, 154] as [number, number, number],
-  heatPink: [240, 98, 146] as [number, number, number],
-  bar: "#4e8ef7",
+  heatBlue: [124, 125, 232] as [number, number, number],
+  heatLight: [209, 210, 248] as [number, number, number],
+  heatDeep: [91, 92, 226] as [number, number, number],
+  heatGreen: [95, 196, 154] as [number, number, number],
+  heatPurple: [173, 135, 231] as [number, number, number],
+  heatTeal: [74, 185, 201] as [number, number, number],
+  heatOrange: [242, 183, 103] as [number, number, number],
+  heatRed: [232, 132, 126] as [number, number, number],
+  heatPink: [221, 117, 169] as [number, number, number],
+  bar: "#6a6ce1",
 };
