@@ -445,7 +445,7 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                    Bunaqa yozsangiz to&apos;g&apos;rilanadi
+                    {fixProposal.applied ? "Qanday qilib to'g'rilandi (bunaqa yozildi)" : "Bunaqa yozsangiz to'g'rilanadi"}
                   </p>
                   {fixProposal.fixSummary && (
                     <p className="mt-1 text-sm leading-relaxed text-foreground">
@@ -455,29 +455,70 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
                 </div>
               </div>
 
-              {fixProposal.changes && fixProposal.changes.length > 0 && (
-                <div className="space-y-2.5 pt-1">
+              {/* Oldingi matn (bunaqa edi) VS Yangi to'g'rilangan matn (bunaqa yozildi) */}
+              {fixProposal.changes && fixProposal.changes.length > 0 ? (
+                <div className="space-y-3 pt-1">
                   {fixProposal.changes.map((change, i) => (
-                    <div key={i} className="rounded-lg border bg-background/90 p-3 space-y-2 text-xs">
-                      <div className="font-medium text-foreground">
-                        {change.fieldLabel || FIELD_LABELS[change.field] || change.field}
+                    <div key={i} className="rounded-xl border bg-background/95 p-3.5 space-y-2 text-xs shadow-xs">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-foreground text-sm">
+                          {change.fieldLabel || FIELD_LABELS[change.field] || change.field}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground font-medium">
+                          Oldingi va yangi matn solishtiruvi
+                        </span>
                       </div>
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        <div className="rounded border bg-muted/30 p-2.5">
-                          <p className="text-[11px] font-medium text-destructive mb-1">Joriy matn (xato):</p>
-                          <p className="text-muted-foreground max-h-32 overflow-y-auto whitespace-pre-wrap line-through">
-                            {change.before || "—"}
+                      <div className="grid gap-2.5 sm:grid-cols-2">
+                        <div className="rounded-lg border border-destructive/20 bg-destructive/[0.04] p-3 space-y-1.5">
+                          <p className="text-[11px] font-semibold text-destructive flex items-center gap-1.5">
+                            <AlertCircle className="h-3.5 w-3.5" />
+                            Oldingi matn (bunaqa edi):
+                          </p>
+                          <p className="text-muted-foreground max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed text-[12px] line-through">
+                            {change.before || fixProposal.sellerWrote || "—"}
                           </p>
                         </div>
-                        <div className="rounded border border-emerald-500/30 bg-emerald-500/10 p-2.5">
-                          <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mb-1">Taklif etilgan to&apos;g&apos;ri matn:</p>
-                          <p className="text-foreground max-h-32 overflow-y-auto whitespace-pre-wrap font-medium">
+                        <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 p-3 space-y-1.5">
+                          <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Yangi to&apos;g&apos;rilangan matn ({fixProposal.applied ? "bunaqa yozildi" : "bunaqa yoziladi"}):
+                          </p>
+                          <p className="text-foreground max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed text-[12px] font-medium">
                             {change.after}
                           </p>
                         </div>
                       </div>
                     </div>
                   ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border bg-background/95 p-3.5 space-y-2 text-xs shadow-xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-foreground text-sm">Tavsif</span>
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      Oldingi va yangi matn solishtiruvi
+                    </span>
+                  </div>
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    <div className="rounded-lg border border-destructive/20 bg-destructive/[0.04] p-3 space-y-1.5">
+                      <p className="text-[11px] font-semibold text-destructive flex items-center gap-1.5">
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        Oldingi matn (bunaqa edi):
+                      </p>
+                      <p className="text-muted-foreground max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed text-[12px] line-through">
+                        {fixProposal.sellerWrote || product.title}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 p-3 space-y-1.5">
+                      <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Yangi to&apos;g&apos;rilangan matn ({fixProposal.applied ? "bunaqa yozildi" : "bunaqa yoziladi"}):
+                      </p>
+                      <p className="text-foreground max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed text-[12px] font-medium">
+                        {fixProposal.actualInImages || fixProposal.fixSummary}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
