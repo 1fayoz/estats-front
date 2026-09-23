@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import { Pagination, useServerPage } from "@/components/ui/pagination";
-import { Grid, NoData, type Column } from "@/features/market/shared";
+import { Grid, Loading, NoData, type Column } from "@/features/market/shared";
 import { formatCompact, formatDate, formatNumber } from "@/lib/format";
 import { MARKET_BASE } from "@/lib/market";
 
@@ -140,7 +140,7 @@ export function ScopeAnalytics({
   // Eski backendda bu yo'llar yo'q — blok jimgina yashiriladi,
   // sahifaning qolgani ishlayveradi.
   if (failed) return null;
-  if (!summary) return <NoData>Yuklanmoqda…</NoData>;
+  if (!summary) return <Loading label="Tahlil tayyorlanmoqda…" />;
 
   const last = summary.last_measured ?? {};
 

@@ -12,22 +12,12 @@ import {
   RefreshCw,
   Search,
   ShieldCheck,
-  Sparkles,
   WandSparkles,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  aiFixProductUzum,
   autoFixProductUzum,
   checkProductUzum,
   syncModerationReasons,
@@ -37,7 +27,7 @@ import type { ProductDetail, ProductFixResult, ProductValidationFinding, Warehou
 import { cn } from "@/lib/utils";
 
 type Tone = "neutral" | "success" | "warning" | "error";
-type Action = "check" | "ai" | "auto" | "reason";
+type Action = "check" | "auto" | "reason";
 
 interface ProductModerationCardProps {
   data: ProductDetail;
@@ -157,7 +147,7 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
   const canFindReason = product.uzumBlocked || ["HAS_COMPLAINTS", "PERM_BANNED"].includes(product.uzumModerationValue ?? "");
 
   const runAction = async (action: Action, execute: () => Promise<void>) => {
-    if (busyRef.current || ((action === "ai" || action === "auto") && !canSeeAi)) return;
+    if (busyRef.current || (action === "auto" && !canSeeAi)) return;
     busyRef.current = true;
     setBusy(action);
     setFeedback(null);
@@ -170,12 +160,6 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
       setBusy(null);
     }
   };
-
-  const runAiFix = (field?: "title" | "description") => runAction("ai", async () => {
-    const result = await aiFixProductUzum(product.id, field);
-    setFeedback(fixFeedback(result, false));
-    onOpenAi(result.draftId);
-  });
 
   return (
     <Card aria-labelledby={headingId} className="overflow-hidden rounded-2xl">
@@ -298,36 +282,16 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
       </div>
 
       <div className="space-y-3 border-t bg-muted/15 p-4 sm:p-5">
-        <p className="text-xs font-medium text-muted-foreground">Kartochka ustida ishlash</p>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {canSeeAi && (
-            <>
-              <DropdownMenu>
-                <div className="flex min-w-0 sm:w-auto">
-                  <Button type="button" variant="outline" disabled={busy !== null} className={cn(ACTION_CLASS, "min-w-0 flex-1 rounded-r-none border-r-0")} onClick={() => void runAiFix()}>
-                    {busy === "ai" ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
-                    {busy === "ai" ? "AI tuzatmoqda…" : "AI bilan tuzatish"}
-                  </Button>
-                  <DropdownMenuTrigger asChild>
-                    <Button type="button" variant="outline" disabled={busy !== null} aria-label="AI bilan qaysi qismini tuzatishni tanlash" className={cn(ACTION_CLASS, "w-11 shrink-0 rounded-l-none px-0")}><ChevronDown aria-hidden="true" /></Button>
-                  </DropdownMenuTrigger>
-                </div>
-                <DropdownMenuContent align="start" className="max-w-[calc(100vw-2rem)] rounded-xl motion-reduce:animate-none">
-                  <DropdownMenuLabel>Alohida tuzatish</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem disabled={busy !== null} className="min-h-11 rounded-lg motion-reduce:transition-none" onSelect={() => void runAiFix("title")}>Faqat tovar nomini</DropdownMenuItem>
-                  <DropdownMenuItem disabled={busy !== null} className="min-h-11 rounded-lg motion-reduce:transition-none" onSelect={() => void runAiFix("description")}>Faqat tavsifni</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button type="button" variant="outline" disabled={busy !== null} className={ACTION_CLASS} onClick={() => void runAction("auto", async () => {
-                const result = await autoFixProductUzum(product.id);
-                setFeedback(fixFeedback(result, true));
-                onOpenAi(result.draftId);
-              })}>
-                {busy === "auto" ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <WandSparkles aria-hidden="true" />}
-                {busy === "auto" ? "Tuzatilmoqda…" : "Avtomatik tuzatish"}
-              </Button>
-            </>
+            <Button type="button" variant="outline" disabled={busy !== null} className={ACTION_CLASS} onClick={() => void runAction("auto", async () => {
+              const result = await autoFixProductUzum(product.id);
+              setFeedback(fixFeedback(result, true));
+              onOpenAi(result.draftId);
+            })}>
+              {busy === "auto" ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <WandSparkles aria-hidden="true" />}
+              {busy === "auto" ? "Tuzatilmoqda…" : "Avtomatik tuzatish"}
+            </Button>
           )}
           {canFindReason && (
             <Button type="button" variant="outline" disabled={busy !== null} className={ACTION_CLASS} onClick={() => void runAction("reason", async () => {

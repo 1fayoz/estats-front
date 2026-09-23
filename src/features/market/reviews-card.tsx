@@ -4,7 +4,7 @@ import * as React from "react";
 import { Star } from "lucide-react";
 
 import { Pagination, usePagination } from "@/components/ui/pagination";
-import { NoData } from "@/features/market/shared";
+import { Loading, NoData } from "@/features/market/shared";
 import { formatDate, formatNumber } from "@/lib/format";
 import { MARKET_BASE } from "@/lib/market";
 import { cn } from "@/lib/utils";
@@ -141,7 +141,7 @@ export function ReviewsCard({
       )}
 
       {loading ? (
-        <NoData>Yuklanmoqda…</NoData>
+        <Loading label="Sharhlar yuklanmoqda…" />
       ) : items.length === 0 ? (
         <NoData>
           {rating
