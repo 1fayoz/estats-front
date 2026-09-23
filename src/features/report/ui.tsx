@@ -1,20 +1,16 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowDownRight,
   ArrowUpRight,
   Check,
   ChevronDown,
-  CircleHelp,
   Database,
   Inbox,
   LoaderCircle,
-  PlugZap,
   Search,
-  Store,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
@@ -37,26 +33,6 @@ import s from "./report.module.css";
 */
 
 export const styles = s;
-
-const PAGE_INFO: Record<string, { title: string; description: string }> = {
-  "/market": { title: "Uzum bozori", description: "Bozor hajmi, o‘sish va yetakchilar" },
-  "/market/categories": { title: "Kategoriyalar", description: "Toifalar kesimida tushum va raqobat" },
-  "/market/dynamics": { title: "Kategoriya dinamikasi", description: "Tushum va narxning vaqt bo‘yicha o‘zgarishi" },
-  "/market/niches": { title: "Bozor qatlamlari", description: "Talab yuqori va raqobat past yo‘nalishlar" },
-  "/market/prices": { title: "Narx tahlili", description: "Narx oralig‘i bo‘yicha talab va tushum" },
-  "/market/competition": { title: "Raqobat va assortiment", description: "Taklif, sotuv va bozor ulushi" },
-  "/market/products": { title: "Mahsulotlar", description: "Kartochkalar kesimida bozor natijalari" },
-  "/market/skus": { title: "SKU tahlili", description: "Variantlar kesimida sotuv va qoldiq" },
-  "/market/card": { title: "Mahsulot kartochkasi", description: "Bitta mahsulotning batafsil ko‘rsatkichlari" },
-  "/market/card-table": { title: "Kartochkalar jadvali", description: "Mahsulot tarixining to‘liq ko‘rinishi" },
-  "/market/seo": { title: "Mahsulot kalitlari", description: "Qidiruv talabi va kalit so‘zlar" },
-  "/market/seo/keyword": { title: "Kalit so‘z tahlili", description: "Qamrov va qidiruv dinamikasi" },
-  "/market/seo/competitors": { title: "SEO raqobatchilar", description: "Qidiruvdagi kartochkalar va pozitsiyalar" },
-  "/market/shops": { title: "Do‘konlar reytingi", description: "Yetakchi do‘konlar va bozor ulushi" },
-  "/market/shop": { title: "Do‘kon tahlili", description: "Do‘konning sotuv va assortiment dinamikasi" },
-  "/market/seller-skus": { title: "Sotuvchi SKUlari", description: "Sotuvchi assortimentining natijalari" },
-  "/market/sellers": { title: "Sotuvchilar", description: "Yuridik shaxslar, do‘konlar va bozor natijalari" },
-};
 
 // ── Formatlar ───────────────────────────────────────────────────
 
@@ -81,46 +57,11 @@ export function useReportBusy(): boolean {
   return React.useSyncExternalStore(onReportActivity, reportBusy, () => false);
 }
 
-export function ReportPage({
-  children,
-  title,
-  description,
-  showHeader = true,
-}: {
-  children: React.ReactNode;
-  title?: string;
-  description?: string;
-  showHeader?: boolean;
-}) {
+export function ReportPage({ children }: { children: React.ReactNode }) {
   const busy = useReportBusy();
-  const pathname = usePathname();
-  const routeInfo = PAGE_INFO[pathname]
-    ?? (pathname.startsWith("/market/sellers/") ? PAGE_INFO["/market/sellers"] : undefined)
-    ?? { title: "Bozor tahlili", description: "Uzum Market ma’lumotlari" };
-  const info = {
-    title: title ?? routeInfo.title,
-    description: description ?? routeInfo.description,
-  };
   return (
     <div className={s.page}>
       <div className={s.canvas}>
-        {showHeader ? (
-          <div className={s.strip}>
-            <div className={s.brandBlock}>
-              <span className={s.brandIcon}><Store aria-hidden="true" /></span>
-              <span>
-                <span className={s.brand}>{info.title}</span>
-                <span className={s.brandMeta}>{info.description}</span>
-              </span>
-            </div>
-            <div className={s.stripActions}>
-              <Link href="/integrations"><PlugZap aria-hidden="true" /> Ulanishlar</Link>
-              <a href="https://t.me/estats_uz_bot" target="_blank" rel="noreferrer">
-                <CircleHelp aria-hidden="true" /> Yordam
-              </a>
-            </div>
-          </div>
-        ) : null}
         {busy ? (
           <div className={s.loadingWrap} role="status" aria-live="polite">
             <LoaderCircle aria-hidden="true" />

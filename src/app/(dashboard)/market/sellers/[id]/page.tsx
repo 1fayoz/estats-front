@@ -209,15 +209,8 @@ export default function MarketSellerPage({ params }: { params: Promise<{ id: str
   if (error) return <ReportPage><Failed message={error} /></ReportPage>;
   if (!detail) return <ReportPage><Loading /></ReportPage>;
 
-  const sellerTitle = detail.seller.title || `Sotuvchi #${detail.seller.seller_id}`;
-  const sellerDescription = detail.seller.legal_form
-    ? LEGAL_FORM_LABELS[detail.seller.legal_form] ?? detail.seller.legal_form
-    : detail.seller.tin
-      ? `STIR: ${detail.seller.tin}`
-      : "Yuridik shakli aniqlanmagan";
-
   return (
-    <ReportPage title={sellerTitle} description={sellerDescription}>
+    <ReportPage>
       <FilterBar>
         <Button variant="ghost" size="sm" asChild>
           <Link href="/market/sellers"><ArrowLeft className="h-3.5 w-3.5" /> Sotuvchilarga qaytish</Link>
