@@ -800,6 +800,115 @@
   height: 15px;
 }
 
+.passwordForm {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field > span:first-child {
+  color: #555866;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.field input {
+  width: 100%;
+  min-height: 46px;
+  padding-inline: 14px;
+  border: 1px solid var(--login-line);
+  border-radius: 11px;
+  color: #23242b;
+  background: #fff;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.field input:focus {
+  border-color: var(--login-purple);
+  box-shadow: 0 0 0 3px #6650df1f;
+}
+
+.field input:disabled {
+  opacity: 0.6;
+}
+
+.passwordWrap {
+  position: relative;
+  display: block;
+}
+
+.passwordWrap input {
+  padding-right: 46px;
+}
+
+.revealButton {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 9px;
+  color: #8a8c97;
+  transform: translateY(-50%);
+}
+
+.revealButton:hover {
+  color: var(--login-purple);
+  background: #f4f2ff;
+}
+
+.revealButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.formError {
+  padding: 10px 12px;
+  border: 1px solid #f0caca;
+  border-radius: 10px;
+  color: #9b3434;
+  background: #fff8f8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.primaryAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.spin {
+  animation: spin 800ms linear infinite;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #93959f;
+  font-size: 11px;
+}
+
+.divider::before,
+.divider::after {
+  height: 1px;
+  flex: 1;
+  background: var(--login-line);
+  content: "";
+}
+
 .legalCopy {
   margin-top: 21px;
   color: #93959f;

@@ -9,6 +9,7 @@ import { useTheme } from "next-themes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { PasswordCard } from "@/features/auth/components/set-password";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -17,7 +18,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Sozlamalar"
-        description="Tashqi ko'rinish. Ism, raqam va tokenlar — Jamoa va Integratsiyalarda"
+        description="Parol va tashqi ko'rinish. Ism, raqam va tokenlar — Jamoa va Integratsiyalarda"
         actions={
           <Link href={"/integrations" as Route}>
             <Button variant="outline" size="sm" className="gap-1.5">
@@ -28,6 +29,7 @@ export default function SettingsPage() {
       />
 
       <div className="grid grid-cols-1 gap-6">
+        <PasswordCard />
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

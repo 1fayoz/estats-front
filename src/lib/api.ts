@@ -200,6 +200,23 @@ export const googleLogin = (idToken: string) =>
     body: JSON.stringify({ idToken }),
   });
 
+/** Email + parol. Hisob bu yerda OCHILMAYDI — birinchi kirish Google bilan. */
+export const passwordLogin = (email: string, password: string) =>
+  request<LoginResponse>("/auth/password/login", {
+    method: "POST",
+    auth: false,
+    shopScoped: false,
+    body: JSON.stringify({ email, password }),
+  });
+
+/** Parol o'rnatish yoki almashtirish (parol bor bo'lsa joriysi majburiy). */
+export const setPassword = (password: string, currentPassword?: string) =>
+  request<Me>("/auth/password", {
+    method: "PUT",
+    shopScoped: false,
+    body: JSON.stringify({ password, currentPassword: currentPassword || null }),
+  });
+
 export const fetchMe = () => request<Me>("/auth/me", { shopScoped: false });
 
 // ── magazinlar ───────────────────────────────────────────────────────────────

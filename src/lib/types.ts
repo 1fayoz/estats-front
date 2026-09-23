@@ -51,6 +51,15 @@ export interface Me {
    */
   actions?: string[];
   isOwner?: boolean;
+  /**
+   * Parol o'rnatilganmi. `false` va email bor bo'lsa — kabinet
+   * ochilishidan oldin parol o'rnatish MAJBURIY (birinchi kirish
+   * Google bilan, keyingilari email + parol). `undefined` — eski
+   * backend, hech narsa so'ralmaydi.
+   */
+  hasPassword?: boolean;
+  /** Hozirgina Google bilan kirilgan — parolni joriysisiz almashtirish mumkin (15 daqiqa). */
+  passwordResetAllowed?: boolean;
 }
 
 export interface TeamMember {

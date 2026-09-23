@@ -7,6 +7,7 @@ import { useUserStore } from "@/stores/user-store";
 import { ApiError, fetchMe } from "@/lib/api";
 import { rememberReturn } from "@/lib/lens";
 import { ALL_NAV_ITEMS, visibleNav } from "@/config/nav";
+import { SetPasswordGate } from "@/features/auth/components/set-password";
 
 /**
  * Protects the dashboard. Once the persisted session is rehydrated it sends the JWT to
@@ -122,6 +123,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (!allowed) router.replace(firstAllowed as Parameters<typeof router.replace>[0]);
   }, [allowed, firstAllowed, router]);
+
+  // Birinchi Google kirishidan keyin parol MAJBURIY: kabinet o'rniga
+  // shu ekran. `hasPassword === undefined` — eski backend, so'ralmaydi;
+  // emailsiz (Telegram orqali kirgan) a'zo parol bilan kira olmaydi.
+  if (checked && user?.email && user.hasPassword === false) {
+    return <SetPasswordGate />;
+  }
 
   if (
     !hydrated ||
