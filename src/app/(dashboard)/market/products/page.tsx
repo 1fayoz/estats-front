@@ -5,7 +5,7 @@ import * as React from "react";
 import { CategoryPathControl, ToifaControl } from "@/features/report/filters";
 import { periodDays, productColumns } from "@/features/report/product-columns";
 import {
-  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SelectControl, SourceNote, ZTable, fmt, styles, useLoad,
+  Card, Empty, FilterBar, InputControl, PeriodControl, ReportPage, SelectControl, SourceNote, ZTable, fmt, styles, useLoad,
   useParams,
 } from "@/features/report/ui";
 import { report, type ProductRow } from "@/lib/report";
@@ -35,15 +35,13 @@ export default function ProductsPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period, ...reset })} style={{ width: 150 }} />
         <ToifaControl value={params.toifa} style={{ width: 235 }}
                       onChange={(toifa) => toifa && setParams({ toifa, category: null, ...reset })} />
         <CategoryPathControl value={params.category || null} period={params.period} root={params.toifa}
                              onChange={(category) => setParams({ category, ...reset })} style={{ flex: 1 }} />
-      </Row>
-      <Row>
         <InputControl label="Do'konlar soni" value={params.shop} placeholder="do'kon nomi"
                       onCommit={(shop) => setParams({ shop, ...reset })} style={{ width: 150 }} />
         <SelectControl label="Davrdagi sotuvlar" value={params.sales} searchable={false} allowClear={false}
@@ -51,7 +49,7 @@ export default function ProductsPage() {
                        style={{ width: 235 }} />
         <InputControl label="Nomi bo'yicha qidiruv" value={params.q}
                       onCommit={(q) => setParams({ q, ...reset })} style={{ flex: 1 }} />
-      </Row>
+      </FilterBar>
       <Card title="Kartochkalar ro'yxati" bordered>
         {error ? <Empty>{error}</Empty> : null}
         <ZTable<ProductRow>

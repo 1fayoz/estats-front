@@ -122,13 +122,22 @@ export function Score({ card }: { card: MarketScorecard }) {
 
 export function Loading({ label = "Yuklanmoqda…" }: { label?: string }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border bg-card p-8 text-center shadow-sm" role="status">
-      <div className="mx-auto flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+    <div className="flex min-h-40 items-center justify-center rounded-2xl border bg-card p-6 shadow-sm" role="status">
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+        </div>
+        <div className="text-sm font-medium text-foreground">{label}</div>
       </div>
-      <div className="mt-3 text-sm font-medium text-foreground">{label}</div>
-      <div className="mx-auto mt-4 h-2 w-48 animate-pulse rounded-full bg-muted" />
-      <div className="mx-auto mt-2 h-2 w-32 animate-pulse rounded-full bg-muted/70" />
+    </div>
+  );
+}
+
+/** Ichki bloklar uchun sokin placeholder — sahifada qo‘shimcha spinner ko‘paytirmaydi. */
+export function Pending({ label = "Yuklanmoqda…" }: { label?: string }) {
+  return (
+    <div className="min-h-28 animate-pulse rounded-2xl border bg-muted/35" role="status" aria-label={label}>
+      <span className="sr-only">{label}</span>
     </div>
   );
 }
@@ -140,7 +149,12 @@ export function Failed({ message }: { message: string }) {
   // qilishga majbur qiladi.
   return (
     <div className="flex items-start gap-3 rounded-2xl border bg-card p-4 text-sm shadow-sm" style={{ borderColor: "color-mix(in srgb, var(--bad) 28%, transparent)", color: "var(--bad)" }} role="alert">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-red-50"><AlertTriangle className="size-4" aria-hidden="true" /></span>
+      <span
+        className="flex size-9 shrink-0 items-center justify-center rounded-xl"
+        style={{ background: "color-mix(in srgb, var(--bad) 13%, transparent)" }}
+      >
+        <AlertTriangle className="size-4" aria-hidden="true" />
+      </span>
       <div><div className="font-semibold">Ma’lumotni olib bo‘lmadi</div><div className="mt-0.5 opacity-80">{message}</div></div>
     </div>
   );

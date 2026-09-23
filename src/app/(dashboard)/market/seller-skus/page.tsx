@@ -5,7 +5,8 @@ import * as React from "react";
 import { CategoryPathControl } from "@/features/report/filters";
 import { skuColumns } from "@/features/report/product-columns";
 import {
-  Card, Empty, InputControl, PeriodControl, ReportPage, Row, Scorecard, SourceNote, ZTable, useLoad, useParams,
+  Card, Empty, FilterBar, InputControl, PeriodControl, ReportPage, Scorecard, SourceNote, StatsGrid, ZTable, useLoad,
+  useParams,
 } from "@/features/report/ui";
 import { report, type SkuRow } from "@/lib/report";
 
@@ -32,7 +33,7 @@ export default function SellerSkusPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period, ...reset })} style={{ width: 160 }} />
         <InputControl label="Sotuvchilar:" value={params.seller}
@@ -42,8 +43,10 @@ export default function SellerSkusPage() {
                              onChange={(category) => setParams({ category, ...reset })} style={{ width: 200 }} />
         <InputControl label="Nomi bo'yicha qidiruv" value={params.q}
                       onCommit={(q) => setParams({ q, ...reset })} style={{ flex: 1 }} />
-        <Scorecard label="Tushim (soʻm)" value={data?.totals?.revenue ?? null} style={{ flex: "0 0 130px" }} />
-      </Row>
+      </FilterBar>
+      <StatsGrid>
+        <Scorecard label="Tushim (soʻm)" value={data?.totals?.revenue ?? null} />
+      </StatsGrid>
       <Card title="SKU ro'yxati (davr bo'yicha sotuvlar bilan)" bordered>
         {error ? <Empty>{error}</Empty> : null}
         <ZTable<SkuRow>

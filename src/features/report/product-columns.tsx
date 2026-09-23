@@ -34,10 +34,10 @@ function Thumb({ id, src }: { id: number; src: string | null }) {
 // 30 va undan ko'p — ko'k, kam — qizil (davr uzunligiga qaramaydi: 1 kunlik
 // davrda ham «1» qizil); yo'qotilgan foyda faqat noldan katta bo'lsa qizil.
 const ratingTone = (rating: number | null) =>
-  rating == null ? undefined : rating >= 4.9 ? { color: "#34a853" } : rating <= 4.5 ? { color: "#ea4335" } : undefined;
-const lostTone = (value: number | null) => (value ? { color: "#ea4335" } : undefined);
+  rating == null ? undefined : rating >= 4.9 ? { color: "var(--ok, var(--success))" } : rating <= 4.5 ? { color: "var(--bad, var(--destructive))" } : undefined;
+const lostTone = (value: number | null) => (value ? { color: "var(--bad, var(--destructive))" } : undefined);
 const stockDaysTone = (value: number | null) =>
-  value == null ? undefined : value >= 30 ? { color: "#1e88e5" } : { color: "#ea4335" };
+  value == null ? undefined : value >= 30 ? { color: "var(--primary)" } : { color: "var(--bad, var(--destructive))" };
 
 export function productColumns(periodDays: number | null): Column<ProductRow>[] {
   return [

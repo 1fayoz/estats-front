@@ -7,7 +7,7 @@ import { CardCharts, CardFilters, CardInfo, CardKpis, SkuTable } from "@/feature
 import { RefreshProduct } from "@/features/market/refresh-product";
 import { ReviewsCard } from "@/features/market/reviews-card";
 import { useReportIndex } from "@/features/report/filters";
-import { Card, Empty, ReportPage, Row, styles, useLoad, useParams } from "@/features/report/ui";
+import { Card, Empty, FilterBar, ReportPage, Row, StatsGrid, styles, useLoad, useParams } from "@/features/report/ui";
 import { report } from "@/lib/report";
 
 /*
@@ -37,12 +37,14 @@ export default function CardPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <CardFilters start={range.start} end={range.end} id={params.id}
                      onRange={(start, end) => setParams({ start, end })} onId={(v) => setParams({ id: v })} />
+      </FilterBar>
+      <StatsGrid>
         <CardKpis data={data} keys={["revenue", "units", "daily_units", "daily_stock", "turnover", "orders",
                                      "reviews", "rating", "found"]} />
-      </Row>
+      </StatsGrid>
       {error ? <Card><Empty>{error}</Empty></Card> : null}
       {!id ? <Card><Empty>Kartochka ID (prod_id) kiriting</Empty></Card> : null}
       <Row>

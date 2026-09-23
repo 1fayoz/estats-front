@@ -11,12 +11,22 @@ import { formatCompact, formatNumber } from "@/lib/format";
 /* Grafiklar eStats palitrasida; filtrlashda animatsiya ataylab o'chirilgan. */
 
 export const PALETTE = [
-  "#5b5ce2", "#20a7c2", "#8b5cf6", "#ec7a5c", "#16a37b", "#f0aa3c", "#4a78db", "#dd5f96", "#73a9ec", "#8d77dd",
+  "var(--primary)", "var(--info)", "var(--success)", "#8b5cf6", "#ec7a5c", "#f0aa3c", "#4a78db", "#dd5f96", "#73a9ec", "#8d77dd",
   "#2f8f9d", "#ef8f58", "#6f7a97", "#53ae78", "#aa63b8", "#539acf", "#ca6b6b", "#c78b3a", "#7b8bd2", "#d479a3",
   "#639da8", "#af8c31", "#7764c9",
 ];
 
-const axis = { fontSize: 11, fontFamily: "var(--font-geist-sans), system-ui, sans-serif", fill: "#6e728d" };
+const axis = { fontSize: 11, fontFamily: "var(--font-geist-sans), system-ui, sans-serif", fill: "var(--muted-foreground)" };
+const tooltipContent: React.CSSProperties = {
+  background: "var(--popover)",
+  border: "1px solid var(--border)",
+  borderRadius: 10,
+  boxShadow: "0 14px 36px rgba(12, 8, 48, .2)",
+  color: "var(--popover-foreground)",
+  fontSize: 12,
+};
+const tooltipLabel: React.CSSProperties = { color: "var(--popover-foreground)", fontWeight: 650 };
+const tooltipItem: React.CSSProperties = { color: "var(--popover-foreground)" };
 const compact = (v: unknown) => (v == null || v === "" ? "" : formatCompact(Number(v)));
 const number = (v: unknown) => (v == null ? "-" : formatNumber(Number(v)));
 
@@ -61,9 +71,9 @@ export function Donut({
                      </text>
                    );
                  }}>
-              {slices.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} stroke="#fff" />)}
+              {slices.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} stroke="var(--card)" />)}
             </Pie>
-            <Tooltip formatter={(v) => compact(v)} />
+            <Tooltip formatter={(v) => compact(v)} contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
           </PieChart>
         </ResponsiveContainer>
       </div>
@@ -84,7 +94,7 @@ function OneLineTick(props: { x?: number; y?: number; payload?: { value: string 
   const { x = 0, y = 0, payload } = props;
   const text = payload?.value ?? "";
   return (
-    <text x={x} y={y} dy={3} textAnchor="end" style={{ ...axis, fontSize: 10, fill: "#505472" }}>
+    <text x={x} y={y} dy={3} textAnchor="end" style={{ ...axis, fontSize: 10 }}>
       {text.length > 26 ? `${text.slice(0, 25)}…` : text}
     </text>
   );
@@ -110,10 +120,10 @@ export function GrowthBars({ data, height = 360 }: { data: { name: string; growt
                tick={axis} axisLine={false} tickLine={false} />
         <YAxis type="category" dataKey="name" width={140} tick={<OneLineTick />} axisLine={false}
                tickLine={false} interval={0} />
-        <CartesianGrid horizontal={false} stroke="#ececf4" />
-        <Bar dataKey="growth" fill="#7c7de8" radius={[0, 6, 6, 0]} isAnimationActive={false} barSize={9}>
+        <CartesianGrid horizontal={false} stroke="var(--border)" />
+        <Bar dataKey="growth" fill="var(--primary)" radius={[0, 6, 6, 0]} isAnimationActive={false} barSize={9}>
           <LabelList dataKey="growth" position="right" formatter={(v: unknown) => `${v}%`}
-                     style={{ ...axis, fontSize: 10, fill: "#6b6cce" }} />
+                     style={{ ...axis, fontSize: 10, fill: "var(--primary)" }} />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -131,19 +141,20 @@ export function DailyBars({
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 20 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 60 }} />
-        <CartesianGrid vertical={false} stroke="#ececf4" />
+        <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis dataKey="day" tickFormatter={shortDay} tick={axis} interval={0} tickLine={false} />
         <YAxis tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60}
                label={{ value: name, angle: -90, position: "insideLeft", style: { ...axis, fontSize: 10 } }} />
-        <Tooltip formatter={(v) => number(v)} labelFormatter={(l) => shortDay(String(l))} />
-        <Bar dataKey="revenue" name={name} fill="#6668de" radius={[5, 5, 0, 0]} isAnimationActive={false} />
+        <Tooltip formatter={(v) => number(v)} labelFormatter={(l) => shortDay(String(l))}
+                 contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
+        <Bar dataKey="revenue" name={name} fill="var(--primary)" radius={[5, 5, 0, 0]} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );
 }
 
 export function ComboDaily({
-  data, bars, line, barName, lineName, height = 280, barColor = "#4fb3cf", lineColor = "#e2552b",
+  data, bars, line, barName, lineName, height = 280, barColor = "var(--primary)", lineColor = "var(--info)",
   dateLabel,
 }: {
   data: Record<string, unknown>[];
@@ -160,13 +171,13 @@ export function ComboDaily({
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart data={data} margin={{ left: 10, right: 10, top: 24, bottom: 10 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#ececf4" />
+        <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis dataKey="day" tickFormatter={(v) => (dateLabel ? dateLabel(String(v)) : shortDay(String(v)))}
                tick={axis} minTickGap={12} angle={-35} textAnchor="end" height={50} />
         <YAxis yAxisId="l" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60} />
         <YAxis yAxisId="r" orientation="right" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false}
                width={60} />
-        <Tooltip formatter={(v) => number(v)} />
+        <Tooltip formatter={(v) => number(v)} contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
         <Bar yAxisId="l" dataKey={bars} name={barName} fill={barColor} isAnimationActive={false} />
         <Line yAxisId="r" dataKey={line} name={lineName} stroke={lineColor} dot={false} strokeWidth={1.5}
               isAnimationActive={false} connectNulls />
@@ -176,7 +187,7 @@ export function ComboDaily({
 }
 
 export function TwoLines({
-  data, left, right, leftName, rightName, height = 220, leftColor = "#e2552b", rightColor = "#4fb3cf", dateLabel,
+  data, left, right, leftName, rightName, height = 220, leftColor = "var(--primary)", rightColor = "var(--info)", dateLabel,
 }: {
   data: Record<string, unknown>[];
   left: string;
@@ -192,13 +203,13 @@ export function TwoLines({
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ left: 10, right: 10, top: 24, bottom: 10 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#ececf4" />
+        <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis dataKey="day" tickFormatter={(v) => (dateLabel ? dateLabel(String(v)) : shortDay(String(v)))}
                tick={axis} minTickGap={12} angle={-35} textAnchor="end" height={50} />
         <YAxis yAxisId="l" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60} />
         <YAxis yAxisId="r" orientation="right" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false}
                width={60} />
-        <Tooltip formatter={(v) => number(v)} />
+        <Tooltip formatter={(v) => number(v)} contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
         <Line yAxisId="l" dataKey={left} name={leftName} stroke={leftColor} dot={false} strokeWidth={1.5}
               isAnimationActive={false} connectNulls />
         <Line yAxisId="r" dataKey={right} name={rightName} stroke={rightColor} dot={false} strokeWidth={1.5}
@@ -230,16 +241,16 @@ export function GroupedBars({
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 28, bottom: 18 }} barGap={1}>
         <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#ececf4" />
+        <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis dataKey={category} tick={<StaggeredTick />} interval={0} height={34} />
         <YAxis yAxisId="l" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={55} />
         <YAxis yAxisId="r" orientation="right" tickFormatter={compact} tick={axis} axisLine={false} tickLine={false}
                width={55} />
-        <Tooltip formatter={(v) => number(v)} />
+        <Tooltip formatter={(v) => number(v)} contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
         {series.map((s) => (
           <Bar key={s.key} yAxisId={s.axis} dataKey={s.key} name={s.name} fill={s.color} isAnimationActive={false}>
             <LabelList dataKey={s.key} position="top" formatter={compact}
-                       style={{ ...axis, fontSize: 10, fill: "#777" }} />
+                       style={{ ...axis, fontSize: 10 }} />
           </Bar>
         ))}
       </BarChart>
@@ -264,7 +275,8 @@ function TreeCell(props: {
   const { x = 0, y = 0, width = 0, height = 0, name = "", depth = 0, value = 0, root } = props;
   if (width <= 0 || height <= 0) return null;
   const share = root?.value ? value / root.value : 0;
-  const fill = `rgba(91, 92, 226, ${Math.min(0.78, 0.1 + share * 2).toFixed(3)})`;
+  const amount = Math.round(Math.min(78, 12 + share * 190));
+  const fill = `color-mix(in oklch, var(--primary) ${amount}%, var(--card))`;
   const clip = (text: string, px: number) => {
     const fits = Math.floor(px / 6.2);
     return text.length > fits ? `${text.slice(0, Math.max(2, fits - 1))}…` : text;
@@ -272,12 +284,12 @@ function TreeCell(props: {
   if (depth === 1) {
     return (
       <g>
-        <rect x={x} y={y} width={width} height={height} style={{ fill: "#fff", stroke: "#fff", strokeWidth: 2 }} />
+        <rect x={x} y={y} width={width} height={height} style={{ fill: "var(--card)", stroke: "var(--card)", strokeWidth: 2 }} />
         <rect x={x + 1} y={y + 1} width={Math.max(0, width - 2)} height={Math.min(HEADER, height)}
-              style={{ fill: "#7c7de8" }} />
+              style={{ fill: "var(--primary)" }} />
         {width > 30 ? (
           <text x={x + width / 2} y={y + 12} textAnchor="middle"
-                style={{ ...axis, fontSize: 11, fontWeight: 700, fill: "#000" }}>
+                style={{ ...axis, fontSize: 11, fontWeight: 700, fill: "var(--primary-foreground)" }}>
             {clip(name, width)}
           </text>
         ) : null}
@@ -288,7 +300,7 @@ function TreeCell(props: {
   return (
     <g>
       <rect x={x} y={top} width={width} height={height}
-            style={{ fill: depth === 2 ? fill : "transparent", stroke: "#fff", strokeWidth: depth === 2 ? 1.5 : 0.6 }} />
+            style={{ fill: depth === 2 ? fill : "transparent", stroke: "var(--card)", strokeWidth: depth === 2 ? 1.5 : 0.6 }} />
       {depth === 2 && width > 34 && height > 16 ? (
         <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" style={{ ...axis, fontSize: 11 }}>
           {clip(name, width)}
@@ -301,7 +313,7 @@ function TreeCell(props: {
 export function RevenueTreemap({ data, height = 530 }: { data: TreeDatum[]; height?: number }) {
   return (
     <div>
-      <div style={{ background: "#eeeeff", color: "#4c4eca", textAlign: "center", ...axis, fontSize: 12, fontWeight: 700,
+      <div style={{ background: "var(--accent)", color: "var(--accent-foreground)", textAlign: "center", ...axis, fontSize: 12, fontWeight: 700,
                     padding: "7px 0", margin: "0 8px", borderRadius: 9 }}>
         Barchasi
       </div>
@@ -322,7 +334,7 @@ export function Bubbles({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <ScatterChart margin={{ left: 20, right: 20, top: 50, bottom: 30 }}>
-        <CartesianGrid stroke="#e6e6e6" />
+        <CartesianGrid stroke="var(--border)" />
         <XAxis type="number" dataKey="shops" name="magazinlar soni (raqobat)" tickFormatter={compact} tick={axis}
                label={{ value: "magazinlar soni (raqobat)", position: "insideBottom", offset: -18,
                         style: { ...axis, fontStyle: "italic" } }} />
@@ -331,7 +343,7 @@ export function Bubbles({
                label={{ value: "kartochkalar soni (assortiment)", angle: -90, position: "insideLeft",
                         style: { ...axis, fontStyle: "italic" } }} />
         <ZAxis type="number" dataKey="revenue" range={[80, 9000]} />
-        <Tooltip formatter={(v) => number(v)} />
+        <Tooltip formatter={(v) => number(v)} contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
         <Legend itemSorter={null} verticalAlign="top" align="center" iconType="circle" iconSize={8}
                 wrapperStyle={{ ...axis, fontSize: 10, top: 0 }} />
         {data.map((d, i) => (
@@ -354,10 +366,10 @@ export function StackedDaily({
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ left: 10, right: 10, top: 28 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" iconType="square" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#e6e6e6" />
+        <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis dataKey="day" tickFormatter={shortDay} tick={axis} reversed />
         <YAxis tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={50} />
-        <Tooltip formatter={(v) => number(v)} />
+        <Tooltip formatter={(v) => number(v)} contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
         {keys.map((k, i) => (
           <Bar key={k.key} dataKey={k.key} name={k.name} stackId="a" fill={PALETTE[(i * 3 + 10) % PALETTE.length]}
                isAnimationActive={false} />
@@ -378,10 +390,10 @@ export function MultiLine({
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ left: 10, right: 10, top: 28 }}>
         <Legend itemSorter={null} verticalAlign="top" align="left" wrapperStyle={{ ...axis, top: 0, left: 40 }} />
-        <CartesianGrid vertical={false} stroke="#e6e6e6" />
+        <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis dataKey="day" tickFormatter={shortDay} tick={axis} />
         <YAxis tickFormatter={compact} tick={axis} axisLine={false} tickLine={false} width={60} />
-        <Tooltip formatter={(v) => number(v)} />
+        <Tooltip formatter={(v) => number(v)} contentStyle={tooltipContent} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
         {keys.map((k, i) => (
           <Line key={k.key} dataKey={k.key} name={k.name} stroke={PALETTE[i % PALETTE.length]} dot={false}
                 strokeWidth={1.3} isAnimationActive={false} connectNulls />

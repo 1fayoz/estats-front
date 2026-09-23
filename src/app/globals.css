@@ -572,6 +572,32 @@
   --ring: oklch(0.86 0.09 235);
 }
 
+/* Radix select/dropdown/dialog elementlari `body` ichidagi portalda
+   chiziladi, shuning uchun `.air-surface` tokenlarini meros olmaydi.
+   Sayt rangidagi rejimda ularning oq bo'lib qolmasligi uchun rejim
+   `html` ga ham yoziladi va portalning o'ziga xuddi shu tokenlar beriladi. */
+html[data-surface="tinted"] [data-air-portal],
+body:has(.air-shell[data-surface="tinted"]) [data-air-portal] {
+  color-scheme: dark;
+  --background: oklch(0.24 0.055 279);
+  --foreground: oklch(0.99 0 0);
+  --card: oklch(0.28 0.055 279);
+  --card-foreground: oklch(0.99 0 0);
+  --popover: oklch(0.24 0.055 279);
+  --popover-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.86 0.09 235);
+  --primary-foreground: oklch(0.22 0.05 279);
+  --secondary: oklch(1 0 0 / 12%);
+  --secondary-foreground: oklch(0.99 0 0);
+  --muted: oklch(1 0 0 / 10%);
+  --muted-foreground: oklch(0.84 0.02 270);
+  --accent: oklch(1 0 0 / 16%);
+  --accent-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 16%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.86 0.09 235);
+}
+
 .air-shell[data-surface="tinted"] .air-surface,
 .air-shell[data-surface="tinted"] .air-table-wrap,
 .air-shell[data-surface="tinted"] .air-modal {

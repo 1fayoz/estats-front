@@ -5,7 +5,7 @@ import * as React from "react";
 import { Bubbles } from "@/features/report/charts";
 import { TopShops } from "@/features/report/top-shops";
 import {
-  Card, Empty, PeriodControl, ReportPage, Row, Scorecard, SourceNote, fmt, useLoad, useParams,
+  Card, Empty, FilterBar, PeriodControl, ReportPage, Row, Scorecard, SourceNote, StatsGrid, fmt, useLoad, useParams,
 } from "@/features/report/ui";
 import { report } from "@/lib/report";
 
@@ -32,9 +32,11 @@ export default function CompetitionPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period })} style={{ width: 340 }} />
+      </FilterBar>
+      <StatsGrid>
         {KPIS.map((k) => {
           const kpi = data?.kpis?.values?.[k.key];
           return (
@@ -43,13 +45,13 @@ export default function CompetitionPage() {
                        growth={kpi?.growth ?? null} />
           );
         })}
-      </Row>
+      </StatsGrid>
       {error ? <Card><Empty>{error}</Empty></Card> : null}
       <Row>
-        <Card style={{ flex: "1 1 58%" }}>
+        <Card title="Raqobat xaritasi" style={{ flex: "1 1 58%" }}>
           {data?.bubbles?.length ? <Bubbles data={data.bubbles} /> : <Empty>Toifalar kesimi hali yuklanmagan</Empty>}
         </Card>
-        <Card style={{ flex: "1 1 40%" }}>
+        <Card title="Top do‘konlar" style={{ flex: "1 1 40%" }}>
           <TopShops rows={(data?.top_shops ?? []).slice(0, 20)} totals={data?.top_shops_totals ?? null} height={560} />
         </Card>
       </Row>

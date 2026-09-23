@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { ToifaControl } from "@/features/report/filters";
 import {
-  COLORS, Card, Empty, InputControl, PeriodControl, ReportPage, Row, Scorecard, SourceNote, ZTable, fmt, styles,
+  COLORS, Card, Empty, FilterBar, InputControl, PeriodControl, ReportPage, Scorecard, SourceNote, StatsGrid, ZTable, fmt, styles,
   useLoad, useParams,
 } from "@/features/report/ui";
 import { report, type ShopRow } from "@/lib/report";
@@ -43,15 +43,15 @@ export default function ShopsRatingPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl label="Tushim (soʻm)" value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period, ...reset })} style={{ width: 195 }} />
         <ToifaControl label="Toifa" value={params.toifa} style={{ flex: 1 }}
                       onChange={(toifa) => toifa && setParams({ toifa, ...reset })} />
         <InputControl label="Do'kon" value={params.shop} onCommit={(shop) => setParams({ shop, ...reset })}
                       style={{ flex: 1 }} />
-      </Row>
-      <Row>
+      </FilterBar>
+      <StatsGrid>
         {KPIS.map((k) => {
           const kpi = kpis?.kpis?.values?.[k.key];
           const fallback = k.key === "revenue" ? data?.totals?.revenue ?? null : null;
@@ -61,9 +61,8 @@ export default function ShopsRatingPage() {
                        format={k.format} invert={k.invert} />
           );
         })}
-      </Row>
-      <div style={{ fontSize: 14, fontWeight: 700, padding: "4px 2px 0" }}>Top-magazinlar foydaga ko&apos;ra</div>
-      <Card>
+      </StatsGrid>
+      <Card title="Top do‘konlar">
         {error ? <Empty>{error}</Empty> : null}
         <ZTable<ShopRow>
           rows={data?.items ?? []}

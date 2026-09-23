@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { CategoryPathControl, ToifaControl } from "@/features/report/filters";
 import {
-  COLORS, Card, Empty, PeriodControl, ReportPage, Row, SourceNote, ZTable, fmt, useLoad, useParams,
+  COLORS, Card, Empty, FilterBar, PeriodControl, ReportPage, SourceNote, ZTable, fmt, useLoad, useParams,
 } from "@/features/report/ui";
 import { report, type LayerRow } from "@/lib/report";
 
@@ -29,14 +29,14 @@ export default function LayersPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period, offset: null })} style={{ width: 200 }} />
         <ToifaControl label="Asosiy Kategoriya" value={params.root || null} allowClear
                       onChange={(root) => setParams({ root, category: null, offset: null })} style={{ width: 200 }} />
         <CategoryPathControl value={params.category || null} period={params.period} root={params.root || null}
                              onChange={(category) => setParams({ category, offset: null })} style={{ flex: 1 }} />
-      </Row>
+      </FilterBar>
       <Card>
         {error ? <Empty>{error}</Empty> : null}
         <ZTable<LayerRow>
@@ -67,7 +67,7 @@ export default function LayersPage() {
               format: fmt.compact, heat: COLORS.heatLight },
             { key: "turnover", title: "Defitsit (Oborot, kunlar)", num: true, center: true,
               value: (r) => r.turnover,
-              tone: (r) => (r.turnover != null && r.turnover < 30 ? { background: "rgb(0, 172, 193)", color: "#fff" }
+              tone: (r) => (r.turnover != null && r.turnover < 30 ? { background: "var(--primary)", color: "var(--primary-foreground)" }
                                                                     : undefined) },
           ]}
         />

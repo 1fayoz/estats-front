@@ -5,11 +5,11 @@ import { use } from "react";
 import Link from "next/link";
 import { ArrowLeft, Building2, ExternalLink } from "lucide-react";
 
-import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Failed, Loading, NoData, PeriodPicker, usePeriod } from "@/features/market/shared";
 import { ScopeAnalytics } from "@/features/market/scope-analytics";
+import { FilterBar, ReportPage } from "@/features/report/ui";
 import { formatCompact, formatDate, formatNumber } from "@/lib/format";
 import {
   LEGAL_FORM_LABELS,
@@ -206,26 +206,24 @@ export default function MarketSellerPage({ params }: { params: Promise<{ id: str
     market.sellerDetail(Number(id), days).then(setDetail).catch((e) => setError(e.message));
   }, [id, days]);
 
-  if (error) return <Failed message={error} />;
-  if (!detail) return <Loading />;
+  if (error) return <ReportPage><Failed message={error} /></ReportPage>;
+  if (!detail) return <ReportPage><Loading /></ReportPage>;
+
+  const sellerTitle = detail.seller.title || `Sotuvchi #${detail.seller.seller_id}`;
+  const sellerDescription = detail.seller.legal_form
+    ? LEGAL_FORM_LABELS[detail.seller.legal_form] ?? detail.seller.legal_form
+    : detail.seller.tin
+      ? `STIR: ${detail.seller.tin}`
+      : "Yuridik shakli aniqlanmagan";
 
   return (
-    <div className="space-y-5">
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
-        <Link href="/market/sellers"><ArrowLeft className="h-3.5 w-3.5" /> Sotuvchilarga qaytish</Link>
-      </Button>
-
-      <PageHeader
-        title={detail.seller.title || `Sotuvchi #${detail.seller.seller_id}`}
-        description={
-          detail.seller.legal_form
-            ? LEGAL_FORM_LABELS[detail.seller.legal_form] ?? detail.seller.legal_form
-            : detail.seller.tin
-              ? `STIR: ${detail.seller.tin}`
-              : "Yuridik shakli aniqlanmagan"
-        }
-        actions={<PeriodPicker />}
-      />
+    <ReportPage title={sellerTitle} description={sellerDescription}>
+      <FilterBar>
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/market/sellers"><ArrowLeft className="h-3.5 w-3.5" /> Sotuvchilarga qaytish</Link>
+        </Button>
+        <PeriodPicker />
+      </FilterBar>
 
       <SellerInfoCard seller={detail.seller} totals={detail.totals} shops={detail.shops} />
 
@@ -322,6 +320,6 @@ export default function MarketSellerPage({ params }: { params: Promise<{ id: str
           </div>
         )}
       </section>
-    </div>
+    </ReportPage>
   );
 }

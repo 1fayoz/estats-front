@@ -6,7 +6,7 @@ import { RevenueTreemap } from "@/features/report/charts";
 import { ToifaControl } from "@/features/report/filters";
 import { TopShops } from "@/features/report/top-shops";
 import {
-  Card, Empty, PeriodControl, ReportPage, Row, Scorecard, SourceNote, fmt, useLoad, useParams,
+  Card, Empty, FilterBar, PeriodControl, ReportPage, Row, Scorecard, SourceNote, StatsGrid, fmt, useLoad, useParams,
 } from "@/features/report/ui";
 import { report, type TreeNode } from "@/lib/report";
 
@@ -41,11 +41,13 @@ export default function CategoriesPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period })} style={{ width: 150 }} />
         <ToifaControl label="Toifa" value={params.toifa} onChange={(toifa) => setParams({ toifa })}
                       style={{ width: 270 }} />
+      </FilterBar>
+      <StatsGrid>
         {KPIS.map((k) => {
           const kpi = data?.kpis?.values?.[k.key];
           const fallback = k.key === "revenue" ? toifaNode?.revenue ?? null : null;
@@ -54,15 +56,15 @@ export default function CategoriesPage() {
                        format={k.format} invert={k.invert} />
           );
         })}
-      </Row>
+      </StatsGrid>
       {error ? <Card><Empty>{error}</Empty></Card> : null}
       <Row>
-        <Card title="Toifalar foyda hisobiga" style={{ flex: "1 1 60%" }}>
+        <Card title="Kategoriyalar tushum bo‘yicha" style={{ flex: "1 1 60%" }}>
           {toifaNode && toifaNode.children.length ? (
             <RevenueTreemap data={toifaNode.children.map(toTreemap)} />
           ) : <Empty />}
         </Card>
-        <Card title="Top-magazinlar foydaga ko'ra" center style={{ flex: "1 1 38%" }}>
+        <Card title="Top do‘konlar" style={{ flex: "1 1 38%" }}>
           <TopShops rows={data?.top_shops ?? []} totals={data?.top_shops_totals ?? null} height={520} />
         </Card>
       </Row>

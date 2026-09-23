@@ -10,8 +10,8 @@ import { MoversCard } from "@/features/market/movers-card";
 import { RevenueTreemap } from "@/features/report/charts";
 import { useReportIndex } from "@/features/report/filters";
 import {
-  COLORS, Card, DateRangeControl, Empty, InputControl, ReportPage, Row, Scorecard, ZTable, fmt, styles, useLoad,
-  useParams,
+  COLORS, Card, DateRangeControl, Empty, FilterBar, InputControl, ReportPage, Row, Scorecard, StatsGrid, ZTable, fmt,
+  styles, useLoad, useParams,
 } from "@/features/report/ui";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { report } from "@/lib/report";
@@ -26,7 +26,7 @@ import { report } from "@/lib/report";
   «Oborot» = ikkalasining nisbati (Xiaomi-Uzbekistan: 559,9 / 22,2 = 25,2 ✓).
 */
 
-const axis = { fontSize: 11, fontFamily: "var(--font-geist-sans), system-ui, sans-serif", color: "#6e728d" };
+const axis = { fontSize: 11, fontFamily: "var(--font-geist-sans), system-ui, sans-serif", color: "var(--muted-foreground)" };
 
 function shift(iso: string, days: number): string {
   const d = new Date(`${iso}T00:00:00Z`);
@@ -75,20 +75,18 @@ export default function ShopAnalysisPage() {
 
   return (
     <ReportPage>
-      <Row>
-        <div style={{ flex: "0 0 380px", display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ display: "flex", gap: 8 }}>
-            <DateRangeControl start={range.start} end={range.end} style={{ flex: 1 }}
-                              onChange={(start, end) => setParams({ start, end })} />
-            <InputControl label="Do'kon:" value={data?.info.title ?? params.shop} style={{ flex: 1 }}
-                          onCommit={(shop) => setParams({ shop, shop_id: null, offset: null })} />
-          </div>
-          {data?.info.uzum_url ? (
-            <a className={styles.button} href={data.info.uzum_url} target="_blank" rel="noreferrer">
-              ↗ Uzumda do&apos;konga xavola
-            </a>
-          ) : <div className={styles.button}>↗ Uzumda do&apos;konga xavola</div>}
-        </div>
+      <FilterBar>
+        <DateRangeControl start={range.start} end={range.end} style={{ width: 270 }}
+                          onChange={(start, end) => setParams({ start, end })} />
+        <InputControl label="Do'kon" value={data?.info.title ?? params.shop} style={{ flex: 1, minWidth: 220 }}
+                      onCommit={(shop) => setParams({ shop, shop_id: null, offset: null })} />
+        {data?.info.uzum_url ? (
+          <a className={styles.button} href={data.info.uzum_url} target="_blank" rel="noreferrer">
+            ↗ Uzumda ochish
+          </a>
+        ) : null}
+      </FilterBar>
+      <StatsGrid>
         <Scorecard label="Tushim (soʻm)" value={k.revenue?.value} growth={k.revenue?.growth} compare={compare}
                    spark={data?.sparks.revenue} />
         <Scorecard label="O'rtacha kunlik savdo (dona)" value={k.daily_revenue?.value}
@@ -97,19 +95,19 @@ export default function ShopAnalysisPage() {
                    growth={k.daily_stock_value?.growth} compare={compare} spark={data?.sparks.daily_stock_value} />
         <Scorecard label="Oborot, kunlik" value={k.turnover?.value} growth={k.turnover?.growth} invert
                    format={fmt.dec(1)} compare={compare} spark={data?.sparks.daily_stock_value} />
-        <Scorecard label="Buyurtmalar soni" value={k.orders?.value} format={fmt.int} style={{ flex: "0 0 86px" }} />
-        <Scorecard label="Sharhlar soni" value={k.reviews?.value} format={fmt.int} style={{ flex: "0 0 76px" }} />
-      </Row>
+        <Scorecard label="Buyurtmalar soni" value={k.orders?.value} format={fmt.int} />
+        <Scorecard label="Sharhlar soni" value={k.reviews?.value} format={fmt.int} />
+      </StatsGrid>
       {!hasShop ? <Card><Empty>Do&apos;kon nomini kiriting yoki reytingdan tanlang</Empty></Card> : null}
       {error ? <Card><Empty>{error}</Empty></Card> : null}
       <Row>
-        <Card style={{ flex: "1 1 40%" }}>
+        <Card title="Kategoriya tarkibi" style={{ flex: "1 1 40%" }}>
           {data?.tree.length ? (
             <RevenueTreemap data={[{ name: data.info.title, children: buildTree(data.tree) }]} height={510} />
           ) : <Empty />}
         </Card>
         <div style={{ flex: "1 1 58%", display: "flex", flexDirection: "column", gap: 8 }}>
-          <Card>
+          <Card title="Mahsulotlar">
             <ZTable
               numbered={false}
               rows={data?.cards ?? []}
@@ -140,13 +138,13 @@ export default function ShopAnalysisPage() {
             <ResponsiveContainer width="100%" height={150}>
               <LineChart data={lines} margin={{ left: 10, right: 10, top: 20 }}>
                 <Legend verticalAlign="top" wrapperStyle={{ ...axis, top: 0 }} />
-                <CartesianGrid vertical={false} stroke="#ececf4" />
+                <CartesianGrid vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="day" tick={axis} tickFormatter={(v: string) => `${Number(v.slice(8))}.${v.slice(5, 7)}`} />
                 <YAxis tick={axis} tickFormatter={(v: number) => formatCompact(v)} width={50} />
                 <Tooltip formatter={(v) => formatNumber(Number(v))} />
-                <Line dataKey="revenue" name="Tushim (soʻm)" stroke="#5b5ce2" strokeWidth={2} dot={false} type="monotone"
+                <Line dataKey="revenue" name="Tushim (soʻm)" stroke="var(--primary)" strokeWidth={2} dot={false} type="monotone"
                       isAnimationActive={false} />
-                <Line dataKey="previous" name={`Tushim (soʻm) (oldingi ${days} kun)`} stroke="#b7b8e9" dot={false}
+                <Line dataKey="previous" name={`Tushim (soʻm) (oldingi ${days} kun)`} stroke="var(--muted-foreground)" dot={false}
                       type="monotone" isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -155,13 +153,13 @@ export default function ShopAnalysisPage() {
             <ResponsiveContainer width="100%" height={150}>
               <ComposedChart data={lines} margin={{ left: 10, right: 10, top: 20 }}>
                 <Legend verticalAlign="top" wrapperStyle={{ ...axis, top: 0 }} />
-                <CartesianGrid vertical={false} stroke="#ececf4" />
+                <CartesianGrid vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="day" tick={axis} tickFormatter={(v: string) => `${Number(v.slice(8))}.${v.slice(5, 7)}`} />
                 <YAxis yAxisId="l" tick={axis} width={40} />
                 <YAxis yAxisId="r" orientation="right" tick={axis} width={40} tickFormatter={(v: number) => formatCompact(v)} />
                 <Tooltip formatter={(v) => formatNumber(Number(v))} />
-                <Bar yAxisId="r" dataKey="stock" name="Qoldiq, donada" fill="#7c7de8" radius={[4, 4, 0, 0]} isAnimationActive={false} />
-                <Line yAxisId="l" dataKey="units" name="Sotuv, donada" stroke="#dd5f96" strokeWidth={2} dot={false} type="monotone"
+                <Bar yAxisId="r" dataKey="stock" name="Qoldiq, donada" fill="var(--primary)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                <Line yAxisId="l" dataKey="units" name="Sotuv, donada" stroke="var(--info)" strokeWidth={2} dot={false} type="monotone"
                       isAnimationActive={false} />
               </ComposedChart>
             </ResponsiveContainer>

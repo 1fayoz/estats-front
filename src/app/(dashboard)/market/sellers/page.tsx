@@ -5,15 +5,14 @@ import * as React from "react";
 import Link from "next/link";
 import { Building2 } from "lucide-react";
 
-import { PageHeader } from "@/components/dashboard/page-header";
 import { StateBanner } from "@/features/market/state-banner";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Failed, Loading, NoData, PeriodPicker, usePeriod } from "@/features/market/shared";
+import { FilterBar, ReportPage } from "@/features/report/ui";
 import { formatCompact, formatDate, formatNumber } from "@/lib/format";
 import { LEGAL_FORM_LABELS, market, type MarketPage, type MarketSeller } from "@/lib/market";
 
@@ -63,15 +62,11 @@ export default function MarketSellersPage() {
   }, [days, q, legalForm, minShops, order, limit, offset]);
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Sotuvchilar"
-        description="Bitta yuridik shaxs bir nechta do'kon ochishi mumkin — bu ko'rinish ularni birlashtirib ko'rsatadi."
-        actions={<PeriodPicker />}
-      />
+    <ReportPage>
       <StateBanner />
 
-      <div className="flex flex-wrap items-center gap-3">
+      <FilterBar>
+        <PeriodPicker />
         <Input
           placeholder="Sotuvchi yoki do'kon nomi…"
           value={q}
@@ -108,7 +103,7 @@ export default function MarketSellersPage() {
           </SelectContent>
         </Select>
         {data && <span className="text-xs text-muted-foreground">{formatNumber(data.total)} sotuvchi</span>}
-      </div>
+      </FilterBar>
 
       {error ? (
         <Failed message={error} />
@@ -175,6 +170,6 @@ export default function MarketSellersPage() {
           <Pagination page={page} total={data.total} onPage={setPage} label="Sotuvchilar sahifalari" />
         </>
       )}
-    </div>
+    </ReportPage>
   );
 }

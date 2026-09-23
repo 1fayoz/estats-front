@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowDownRight,
   ArrowUpRight,
-  BarChart3,
   Check,
   ChevronDown,
   CircleHelp,
@@ -15,6 +14,7 @@ import {
   LoaderCircle,
   PlugZap,
   Search,
+  Store,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
@@ -37,6 +37,27 @@ import s from "./report.module.css";
 */
 
 export const styles = s;
+
+const PAGE_INFO: Record<string, { title: string; description: string }> = {
+  "/market": { title: "Uzum bozori", description: "Bozor hajmi, o‘sish va yetakchilar" },
+  "/market/categories": { title: "Kategoriyalar", description: "Toifalar kesimida tushum va raqobat" },
+  "/market/dynamics": { title: "Kategoriya dinamikasi", description: "Tushum va narxning vaqt bo‘yicha o‘zgarishi" },
+  "/market/niches": { title: "Bozor qatlamlari", description: "Talab yuqori va raqobat past yo‘nalishlar" },
+  "/market/prices": { title: "Narx tahlili", description: "Narx oralig‘i bo‘yicha talab va tushum" },
+  "/market/competition": { title: "Raqobat va assortiment", description: "Taklif, sotuv va bozor ulushi" },
+  "/market/products": { title: "Mahsulotlar", description: "Kartochkalar kesimida bozor natijalari" },
+  "/market/skus": { title: "SKU tahlili", description: "Variantlar kesimida sotuv va qoldiq" },
+  "/market/card": { title: "Mahsulot kartochkasi", description: "Bitta mahsulotning batafsil ko‘rsatkichlari" },
+  "/market/card-table": { title: "Kartochkalar jadvali", description: "Mahsulot tarixining to‘liq ko‘rinishi" },
+  "/market/seo": { title: "Mahsulot kalitlari", description: "Qidiruv talabi va kalit so‘zlar" },
+  "/market/seo/keyword": { title: "Kalit so‘z tahlili", description: "Qamrov va qidiruv dinamikasi" },
+  "/market/seo/competitors": { title: "SEO raqobatchilar", description: "Qidiruvdagi kartochkalar va pozitsiyalar" },
+  "/market/shops": { title: "Do‘konlar reytingi", description: "Yetakchi do‘konlar va bozor ulushi" },
+  "/market/shop": { title: "Do‘kon tahlili", description: "Do‘konning sotuv va assortiment dinamikasi" },
+  "/market/seller-skus": { title: "Sotuvchi SKUlari", description: "Sotuvchi assortimentining natijalari" },
+  "/market/sellers": { title: "Sotuvchilar", description: "Yuridik shaxslar, do‘konlar va bozor natijalari" },
+  "/market/videos": { title: "Video yo‘riqnomalar", description: "Bozor vositalaridan foydalanish bo‘yicha yordam" },
+};
 
 // ── Formatlar ───────────────────────────────────────────────────
 
@@ -61,17 +82,33 @@ export function useReportBusy(): boolean {
   return React.useSyncExternalStore(onReportActivity, reportBusy, () => false);
 }
 
-export function ReportPage({ children }: { children: React.ReactNode }) {
+export function ReportPage({
+  children,
+  title,
+  description,
+}: {
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+}) {
   const busy = useReportBusy();
+  const pathname = usePathname();
+  const routeInfo = PAGE_INFO[pathname]
+    ?? (pathname.startsWith("/market/sellers/") ? PAGE_INFO["/market/sellers"] : undefined)
+    ?? { title: "Bozor tahlili", description: "Uzum Market ma’lumotlari" };
+  const info = {
+    title: title ?? routeInfo.title,
+    description: description ?? routeInfo.description,
+  };
   return (
     <div className={s.page}>
       <div className={s.canvas}>
         <div className={s.strip}>
           <div className={s.brandBlock}>
-            <span className={s.brandIcon}><BarChart3 aria-hidden="true" /></span>
+            <span className={s.brandIcon}><Store aria-hidden="true" /></span>
             <span>
-              <span className={s.brand}>Bozor tahlili</span>
-              <span className={s.brandMeta}>Uzum Market bo‘yicha real ma’lumotlar</span>
+              <span className={s.brand}>{info.title}</span>
+              <span className={s.brandMeta}>{info.description}</span>
             </span>
           </div>
           <div className={s.stripActions}>
@@ -83,8 +120,9 @@ export function ReportPage({ children }: { children: React.ReactNode }) {
         </div>
         {busy ? (
           <div className={s.loadingWrap} role="status" aria-live="polite">
+            <LoaderCircle aria-hidden="true" />
+            <span>Ma’lumot yangilanmoqda</span>
             <div className={s.loading} />
-            <div className={s.loadingPill}><LoaderCircle aria-hidden="true" /> Ma’lumot yangilanmoqda</div>
           </div>
         ) : null}
         <div className={s.body}>{children}</div>
@@ -99,6 +137,18 @@ export function Row({ children, style }: { children: React.ReactNode; style?: Re
       {children}
     </div>
   );
+}
+
+export function FilterBar({ children }: { children: React.ReactNode }) {
+  return <div className={s.filterBar}>{children}</div>;
+}
+
+export function StatsGrid({ children }: { children: React.ReactNode }) {
+  return <div className={s.statsGrid}>{children}</div>;
+}
+
+export function ChartGrid({ children }: { children: React.ReactNode }) {
+  return <div className={s.chartGrid}>{children}</div>;
 }
 
 export function Card({
@@ -138,12 +188,7 @@ export function Empty({ children = "Ma'lumot yo'q" }: { children?: React.ReactNo
   // foydalanuvchi buni buzuq sahifa deb o'qiydi.
   const busy = useReportBusy();
   return busy ? (
-    <div className={s.emptyLoading} role="status">
-      <LoaderCircle aria-hidden="true" />
-      <span>Ma’lumot yuklanmoqda…</span>
-      <span className={s.skeletonLine} />
-      <span className={s.skeletonLineShort} />
-    </div>
+    <div className={s.pendingSpace} aria-hidden="true" />
   ) : (
     <div className={s.empty}><Inbox aria-hidden="true" /><span>{children}</span></div>
   );
@@ -405,7 +450,7 @@ export function DateRangeControl({
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
             {[7, 14, 30, 90, 365].map((d) => (
-              <button key={d} type="button" className={s.option} style={{ border: "1px solid #ddd" }}
+              <button key={d} type="button" className={s.option} style={{ border: "1px solid var(--border)" }}
                       onClick={() => preset(d)}>
                 {d} kun
               </button>
@@ -413,7 +458,7 @@ export function DateRangeControl({
             <button
               type="button"
               className={s.option}
-              style={{ marginLeft: "auto", background: "#5b5ce2", color: "#fff" }}
+              style={{ marginLeft: "auto", background: "var(--primary)", color: "var(--primary-foreground)" }}
               onClick={() => {
                 onChange(draft.start, draft.end);
                 setOpen(false);
@@ -502,7 +547,7 @@ export function Scorecard({
         <div style={{ height: 22, marginTop: 2 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={spark} margin={{ top: 1, bottom: 0, left: 0, right: 0 }}>
-              <Area dataKey="value" stroke="#5b5ce2" fill="#e7e7ff" strokeWidth={1.7} isAnimationActive={false} />
+              <Area dataKey="value" stroke="var(--primary)" fill="var(--accent)" strokeWidth={1.7} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -720,14 +765,14 @@ export function useLoad<T>(load: () => Promise<T>, deps: React.DependencyList) {
 }
 
 export const COLORS = {
-  heatBlue: [124, 125, 232] as [number, number, number],
-  heatLight: [209, 210, 248] as [number, number, number],
-  heatDeep: [91, 92, 226] as [number, number, number],
+  heatBlue: [91, 132, 232] as [number, number, number],
+  heatLight: [196, 214, 248] as [number, number, number],
+  heatDeep: [55, 98, 220] as [number, number, number],
   heatGreen: [95, 196, 154] as [number, number, number],
   heatPurple: [173, 135, 231] as [number, number, number],
   heatTeal: [74, 185, 201] as [number, number, number],
   heatOrange: [242, 183, 103] as [number, number, number],
   heatRed: [232, 132, 126] as [number, number, number],
   heatPink: [221, 117, 169] as [number, number, number],
-  bar: "#6a6ce1",
+  bar: "var(--primary)",
 };

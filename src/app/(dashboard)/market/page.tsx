@@ -4,7 +4,8 @@ import * as React from "react";
 import { DailyBars, Donut, GrowthBars } from "@/features/report/charts";
 import { TopShops } from "@/features/report/top-shops";
 import {
-  Card, Empty, PeriodControl, ReportPage, Row, Scorecard, SourceNote, fmt, useLoad, useParams,
+  Card, ChartGrid, Empty, FilterBar, PeriodControl, ReportPage, Scorecard, SourceNote, StatsGrid, fmt, useLoad,
+  useParams,
 } from "@/features/report/ui";
 import { report } from "@/lib/report";
 
@@ -33,9 +34,11 @@ export default function MarketOverviewPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
-                       onChange={(period) => setParams({ period })} style={{ width: 340 }} />
+                       onChange={(period) => setParams({ period })} style={{ width: 280 }} />
+      </FilterBar>
+      <StatsGrid>
         {KPIS.map((k) => {
           const kpi = data?.kpis?.values?.[k.key];
           const value = kpi?.value ?? (k.key === "revenue" && revenueFallback ? revenueFallback : null);
@@ -49,27 +52,27 @@ export default function MarketOverviewPage() {
                        compare={stale} format={k.format} invert={k.invert} />
           );
         })}
-      </Row>
+      </StatsGrid>
 
       {error ? <Card><Empty>{error}</Empty></Card> : null}
 
-      <Row>
-        <Card title="Top-magazinlar foydaga ko'ra" center style={{ flex: "0 0 340px" }}>
+      <ChartGrid>
+        <Card title="Kategoriyalar ulushi">
           {toifas.length ? (
             <Donut data={toifas.map((t) => ({ name: t.toifa, value: t.revenue, share: t.share }))} />
           ) : <Empty />}
         </Card>
-        <Card style={{ flex: "0 0 360px" }}>
+        <Card title="Kategoriyalar o‘sishi">
           {toifas.length ? (
             <GrowthBars data={[...toifas].filter((t) => t.in_growth !== false)
               .sort((a, b) => (b.growth ?? -9) - (a.growth ?? -9))
               .map((t) => ({ name: t.toifa, growth: t.growth }))} />
           ) : <Empty />}
         </Card>
-        <Card style={{ flex: 1 }}>
+        <Card title="Top do‘konlar">
           <TopShops rows={data?.top_shops ?? []} totals={data?.top_shops_totals ?? null} height={372} />
         </Card>
-      </Row>
+      </ChartGrid>
 
       <Card>
         {data?.daily?.length ? <DailyBars data={data.daily} /> : <Empty>Kunlik tushum hali yuklanmagan</Empty>}

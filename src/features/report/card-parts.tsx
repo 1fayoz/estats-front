@@ -24,7 +24,7 @@ export function CardFilters({
   onId: (id: string) => void;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 178 }}>
+    <div className={styles.cardFilters}>
       <DateRangeControl start={start} end={end} onChange={onRange} />
       <InputControl label="prod_id" value={id} inputMode="numeric" onCommit={(v) => onId(v.replace(/\D/g, ""))} />
     </div>
@@ -82,14 +82,14 @@ export function SkuTable({ data, height = 190 }: { data: CardData | null; height
       columns={[
         { key: "sku_id", title: "SKU", value: (r) => (r.sku_id == null ? "" : String(r.sku_id)), sortable: false },
         { key: "sku_title", title: "SKU nomi", value: (r) => r.sku_title, sortable: false },
-        { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, bar: "#20a7c2", sortable: false },
-        { key: "units", title: "Sotuv, donada", value: (r) => r.units, bar: "#6a6ce1", sortable: false,
+        { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, bar: "var(--info)", sortable: false },
+        { key: "units", title: "Sotuv, donada", value: (r) => r.units, bar: "var(--primary)", sortable: false,
           render: (r) => (
             <span className={styles.barCell} style={{ justifyContent: "flex-start" }}>
               {formatNumber(r.units)}
               <span className={styles.bar} style={{
                 width: `${Math.max(2, (r.units / Math.max(1, ...(data?.skus ?? []).map((x) => x.units))) * 80)}px`,
-                background: "#6a6ce1" }} />
+                background: "var(--primary)" }} />
             </span>
           ) },
         { key: "avg_price", title: "O'rtacha narx", num: true, value: (r) => r.avg_price, sortable: false },
@@ -164,7 +164,7 @@ export function PositionPivot({
                 const v = r.values[d];
                 const alpha = v == null ? 0 : Math.max(0.08, 1 - (v - 1) / max);
                 return (
-                  <td key={d} style={{ background: v == null ? undefined : `rgba(124,125,232,${(alpha * .72).toFixed(2)})` }}>
+                  <td key={d} style={{ background: v == null ? undefined : `color-mix(in oklch, var(--primary) ${Math.round(alpha * 58)}%, var(--card))` }}>
                     {v == null ? "-" : formatNumber(v)}
                   </td>
                 );

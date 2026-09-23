@@ -5,7 +5,7 @@ import * as React from "react";
 import { TwoLines } from "@/features/report/charts";
 import { useReportIndex } from "@/features/report/filters";
 import {
-  Card, DateRangeControl, Empty, InputControl, ReportPage, Row, dayLabel, fmt, styles, useLoad, useParams,
+  Card, DateRangeControl, Empty, FilterBar, InputControl, ReportPage, dayLabel, fmt, styles, useLoad, useParams,
 } from "@/features/report/ui";
 import { report } from "@/lib/report";
 
@@ -35,7 +35,7 @@ export default function KeywordAnalysisPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <div style={{ flex: "0 0 316px", display: "flex", flexDirection: "column", gap: 8 }}>
           <DateRangeControl start={range.start} end={range.end} onChange={(start, end) => setParams({ start, end })} />
           <InputControl label="Kalit so'z" value={params.keyword}
@@ -53,7 +53,7 @@ export default function KeywordAnalysisPage() {
                 ] as [string, string][]).map(([k, v]) => (
                   <tr key={k}>
                     <th style={{ width: "58%" }}>{k}</th>
-                    <td style={{ background: "#b2ebf2" }}>{v}</td>
+                    <td style={{ background: "var(--accent)", color: "var(--accent-foreground)" }}>{v}</td>
                   </tr>
                 ))}
               </tbody>
@@ -66,12 +66,12 @@ export default function KeywordAnalysisPage() {
                       rightName="Talab koeffitsiyenti" height={300} dateLabel={label} />
           ) : <Empty>Qamrov tarixi hali yuklanmagan</Empty>}
         </Card>
-      </Row>
+      </FilterBar>
       {error ? <Card><Empty>{error}</Empty></Card> : null}
       <Card>
         {data?.series?.length ? (
           <TwoLines data={data.series} left="skus" right="ads_skus" leftName="Jami SKU" rightName="Reklamadagi SKU"
-                    leftColor="#26a6c4" rightColor="#f5921e" height={300} dateLabel={label} />
+                    leftColor="var(--primary)" rightColor="var(--info)" height={300} dateLabel={label} />
         ) : <Empty>Bu so&apos;rov bo&apos;yicha kunlik qator yo&apos;q</Empty>}
       </Card>
     </ReportPage>

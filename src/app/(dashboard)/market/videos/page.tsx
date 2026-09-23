@@ -31,9 +31,9 @@ export default function VideosPage() {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 22, padding: "70px 0 90px" }}>
         {GUIDES.map((g) => (
           <Link key={g.href} href={g.href} className={styles.button} title={g.text}
-                style={{ width: 600, flexDirection: "column", padding: "8px 16px", color: "#1a4f9c" }}>
+                style={{ width: 600, flexDirection: "column", padding: "12px 16px" }}>
             <span>{g.title}</span>
-            <span style={{ fontSize: 11, color: "#37474f", fontFamily: "Roboto, sans-serif" }}>{g.text}</span>
+            <span style={{ fontSize: 12, color: "var(--muted-foreground)", fontWeight: 400 }}>{g.text}</span>
           </Link>
         ))}
       </div>

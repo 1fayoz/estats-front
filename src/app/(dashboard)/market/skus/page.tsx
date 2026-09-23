@@ -5,7 +5,7 @@ import * as React from "react";
 import { CategoryPathControl, ToifaControl } from "@/features/report/filters";
 import { skuColumns } from "@/features/report/product-columns";
 import {
-  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SourceNote, ZTable, useLoad, useParams,
+  Card, Empty, FilterBar, InputControl, PeriodControl, ReportPage, SourceNote, ZTable, useLoad, useParams,
 } from "@/features/report/ui";
 import { report, type SkuRow } from "@/lib/report";
 
@@ -34,20 +34,18 @@ export default function SkusPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period, ...reset })} style={{ width: 150 }} />
         <ToifaControl value={params.toifa} style={{ width: 235 }}
                       onChange={(toifa) => toifa && setParams({ toifa, category: null, ...reset })} />
         <CategoryPathControl value={params.category || null} period={params.period} root={params.toifa}
                              onChange={(category) => setParams({ category, ...reset })} style={{ flex: 1 }} />
-      </Row>
-      <Row>
         <InputControl label="Do'konlar soni" value={params.shop} placeholder="do'kon nomi"
                       onCommit={(shop) => setParams({ shop, ...reset })} style={{ width: 150 }} />
         <InputControl label="Nomi bo'yicha qidiruv" value={params.q}
                       onCommit={(q) => setParams({ q, ...reset })} style={{ flex: 1 }} />
-      </Row>
+      </FilterBar>
       <Card title="SKU ro'yxati (davr bo'yicha sotuvlar bilan)" bordered>
         {error ? <Empty>{error}</Empty> : null}
         <ZTable<SkuRow>

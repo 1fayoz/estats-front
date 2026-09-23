@@ -5,7 +5,7 @@ import * as React from "react";
 import { GroupedBars } from "@/features/report/charts";
 import { CategoryPathControl, ToifaControl } from "@/features/report/filters";
 import {
-  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SourceNote, useLoad, useParams,
+  Card, Empty, FilterBar, InputControl, PeriodControl, ReportPage, SourceNote, useLoad, useParams,
 } from "@/features/report/ui";
 import { formatNumber } from "@/lib/format";
 import { report } from "@/lib/report";
@@ -30,7 +30,7 @@ export default function PricesPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period })} style={{ width: 150 }} />
         <InputControl label="Narx qadami" value={formatNumber(Number(params.step))} inputMode="numeric"
@@ -44,20 +44,20 @@ export default function PricesPage() {
                       onCommit={(v) => setParams({ buckets: String(
                         Math.min(100, Math.max(2, Number(v.replace(/\D/g, "")) || 20)) )})}
                       style={{ width: 150 }} />
-      </Row>
+      </FilterBar>
       {error ? <Card><Empty>{error}</Empty></Card> : null}
       <Card>
         {buckets.length ? (
           <GroupedBars data={buckets} category="range" height={280}
-                       series={[{ key: "revenue", name: "Tushim (soʻm)", color: "#7eb2f4", axis: "l" },
-                                { key: "units", name: "Sotuv, donada", color: "#e06c9f", axis: "r" }]} />
+                       series={[{ key: "revenue", name: "Tushim (soʻm)", color: "var(--primary)", axis: "l" },
+                                { key: "units", name: "Sotuv, donada", color: "var(--info)", axis: "r" }]} />
         ) : <Empty />}
       </Card>
       <Card>
         {buckets.length ? (
           <GroupedBars data={buckets} category="range" height={280}
-                       series={[{ key: "shops", name: "Do'konlar soni", color: "#7eb2f4", axis: "l" },
-                                { key: "cards", name: "Kartochkalar soni", color: "#e06c9f", axis: "r" }]} />
+                       series={[{ key: "shops", name: "Do'konlar soni", color: "var(--primary)", axis: "l" },
+                                { key: "cards", name: "Kartochkalar soni", color: "var(--info)", axis: "r" }]} />
         ) : <Empty />}
       </Card>
       <SourceNote meta={data?.meta} />

@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import {
-  Card, Empty, InputControl, PeriodControl, ReportPage, Row, SourceNote, ZTable, fmt, styles, useLoad, useParams,
+  Card, Empty, FilterBar, InputControl, PeriodControl, ReportPage, SourceNote, ZTable, fmt, styles, useLoad, useParams,
 } from "@/features/report/ui";
 import { CategoryPathControl } from "@/features/report/filters";
 import { report, type KeywordRow } from "@/lib/report";
@@ -17,7 +17,7 @@ import { report, type KeywordRow } from "@/lib/report";
 
 const LIMIT = 100;
 
-const growthTone = (v: number | null) => (v == null ? undefined : v >= 0 ? { color: "#34a853" } : { color: "#ea4335" });
+const growthTone = (v: number | null) => (v == null ? undefined : v >= 0 ? { color: "var(--ok, var(--success))" } : { color: "var(--bad, var(--destructive))" });
 
 export default function KeywordsPage() {
   const [params, setParams] = useParams({
@@ -50,7 +50,7 @@ export default function KeywordsPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period, ...reset })} style={{ width: 195 }} />
         <InputControl label="Predmet:" value={params.subject}
@@ -61,7 +61,7 @@ export default function KeywordsPage() {
                       onCommit={(keyword) => setParams({ keyword, ...reset })} style={{ flex: 1 }} />
         <CategoryPathControl value={params.category || null} period={params.period}
                              onChange={(category) => setParams({ category, ...reset })} style={{ flex: 1 }} />
-      </Row>
+      </FilterBar>
       <Card>
         {error ? <Empty>{error}</Empty> : null}
         <ZTable<KeywordRow>
@@ -93,7 +93,7 @@ export default function KeywordsPage() {
                 <a className={styles.link} target="_blank" rel="noreferrer"
                    href={`https://uzum.uz/uz/search?query=${encodeURIComponent(r.keyword)}`}>↗</a>
               ) },
-            { key: "coverage", title: "Davr uchun qamrov", num: true, value: (r) => r.coverage, bar: "#1f3b73" },
+            { key: "coverage", title: "Davr uchun qamrov", num: true, value: (r) => r.coverage, bar: "var(--primary)" },
             { key: "coverage_growth", title: "O'sish %", num: true, value: (r) => r.coverage_growth,
               format: fmt.pct(0), tone: (r) => growthTone(r.coverage_growth) },
             { key: "daily_coverage", title: "Kunlik qamrov", num: true, value: (r) => r.daily_coverage },

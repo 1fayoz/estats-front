@@ -29,6 +29,11 @@ import {
 const KEY = "estats-surface";
 type Surface = "solid" | "tinted";
 
+function setSurfaceAttribute(value: Surface) {
+  document.documentElement.setAttribute("data-surface", value);
+  document.querySelector(".air-shell")?.setAttribute("data-surface", value);
+}
+
 export function useSurface(): [Surface, (value: Surface) => void] {
   const [surface, setSurface] = React.useState<Surface>("solid");
 
@@ -48,11 +53,11 @@ export function useSurface(): [Surface, (value: Surface) => void] {
     } catch {
       /* yozib bo'lmasa ham rejim shu seansda ishlaydi */
     }
-    document.querySelector(".air-shell")?.setAttribute("data-surface", value);
+    setSurfaceAttribute(value);
   }, []);
 
   React.useEffect(() => {
-    document.querySelector(".air-shell")?.setAttribute("data-surface", surface);
+    setSurfaceAttribute(surface);
   }, [surface]);
 
   return [surface, apply];

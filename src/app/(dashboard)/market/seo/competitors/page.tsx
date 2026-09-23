@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import {
-  Card, Empty, InputControl, ReportPage, Row, fmt, styles, useLoad, useParams,
+  Card, Empty, FilterBar, InputControl, ReportPage, fmt, styles, useLoad, useParams,
 } from "@/features/report/ui";
 import { formatNumber } from "@/lib/format";
 import { report } from "@/lib/report";
@@ -27,12 +27,12 @@ export default function CompetitorsPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <InputControl label="SEO-kalit:" value={params.keyword}
                       onCommit={(keyword) => setParams({ keyword: keyword || "xiaomi" })} style={{ flex: 1 }} />
         <InputControl label="Do'konlar soni" value={params.shop} placeholder="do'kon nomi"
                       onCommit={(shop) => setParams({ shop })} style={{ flex: 1 }} />
-      </Row>
+      </FilterBar>
       <div style={{ fontSize: 12, padding: "6px 2px 0" }}>Tanlangan kalit so&apos;z bo&apos;yicha o&apos;tgan kunning ma&apos;lumotlari</div>
       <Card>
         <table className={styles.ztable}>
@@ -75,14 +75,14 @@ export default function CompetitorsPage() {
                 </th>
               </tr>
               <tr>
-                <th style={{ background: "#fff", color: "#000" }}>SKU</th>
-                <th style={{ background: "#fff", color: "#000" }}>Kategoriya 3</th>
-                <th style={{ background: "#fff", color: "#000" }}>Do&apos;konlar</th>
-                <th style={{ background: "#fff", color: "#000" }}>Bust</th>
+                <th>SKU</th>
+                <th>Kategoriya 3</th>
+                <th>Do&apos;konlar</th>
+                <th>Bust</th>
                 {(data?.days ?? []).map((d) => {
                   const [, m, day] = d.split("-");
                   return (
-                    <th key={d} style={{ background: "#fff", color: "#000", textAlign: "center" }}>
+                    <th key={d} style={{ textAlign: "center" }}>
                       {MONTHS[Number(m) - 1]}. {Number(day)}
                     </th>
                   );
@@ -101,13 +101,13 @@ export default function CompetitorsPage() {
                       <Link className={styles.link} href={`/market/shop?shop_id=${item.shop_id}`}>{item.shop}</Link>
                     ) : item.shop}
                   </td>
-                  <td style={{ color: item.boost ? "#ea4335" : "#000" }}>{item.boost ? "ha" : "yo'q"}</td>
+                  <td style={{ color: item.boost ? "var(--bad, var(--destructive))" : "var(--foreground)" }}>{item.boost ? "ha" : "yo'q"}</td>
                   {(data?.days ?? []).map((d) => {
                     const v = item.positions[d];
                     const top = v != null && v <= 10;
                     return (
-                      <td key={d} style={{ textAlign: "center", background: v != null ? "rgba(100,181,246,0.35)" : undefined,
-                                           color: item.boost && v != null ? "#ea4335" : undefined,
+                      <td key={d} style={{ textAlign: "center", background: v != null ? "var(--accent)" : undefined,
+                                           color: item.boost && v != null ? "var(--bad, var(--destructive))" : undefined,
                                            fontWeight: top ? 700 : 400 }}>
                         {v == null ? "-" : formatNumber(v)}
                       </td>

@@ -5,7 +5,7 @@ import * as React from "react";
 import { ComboDaily, TwoLines } from "@/features/report/charts";
 import { CategoryPathControl, useReportIndex } from "@/features/report/filters";
 import {
-  Card, DateRangeControl, Empty, ReportPage, Row, dayLabel, styles, useLoad, useParams,
+  Card, DateRangeControl, Empty, FilterBar, ReportPage, dayLabel, styles, useLoad, useParams,
 } from "@/features/report/ui";
 import { report } from "@/lib/report";
 
@@ -76,12 +76,12 @@ export default function DynamicsPage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <DateRangeControl start={range.start} end={range.end} style={{ width: 205 }}
                           onChange={(start, e) => setParams({ start, end: e })} />
         <CategoryPathControl value={params.path} onChange={(path) => setParams({ path: path ?? DEFAULT_PATH })}
                              style={{ flex: 1 }} />
-      </Row>
+      </FilterBar>
       {error ? <Card><Empty>{error}</Empty></Card> : null}
 
       {series.length ? (

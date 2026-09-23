@@ -18,6 +18,7 @@ const DropdownMenuContent = React.forwardRef<
   <DropdownMenuPrimitive.Portal>
     <DropdownMenuPrimitive.Content
       ref={ref}
+      data-air-portal=""
       sideOffset={sideOffset}
       className={cn(
         "z-50 min-w-[10rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",

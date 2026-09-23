@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { CardFilters, CardKpis, SkuTable } from "@/features/report/card-parts";
 import { useReportIndex } from "@/features/report/filters";
-import { COLORS, Card, Empty, ReportPage, Row, ZTable, dayLabel, fmt, styles, useLoad, useParams } from "@/features/report/ui";
+import { COLORS, Card, Empty, FilterBar, ReportPage, Row, StatsGrid, ZTable, dayLabel, fmt, styles, useLoad, useParams } from "@/features/report/ui";
 import { report, type SkuDay } from "@/lib/report";
 
 /*
@@ -42,12 +42,14 @@ export default function CardTablePage() {
 
   return (
     <ReportPage>
-      <Row>
+      <FilterBar>
         <CardFilters start={range.start} end={range.end} id={params.id}
                      onRange={(start, end) => setParams({ start, end })} onId={(v) => setParams({ id: v })} />
+      </FilterBar>
+      <StatsGrid>
         <CardKpis data={data} keys={["found", "daily_units", "daily_stock", "turnover", "orders", "rating",
                                      "reviews"]} />
-      </Row>
+      </StatsGrid>
       {error ? <Card><Empty>{error}</Empty></Card> : null}
       <Row>
         <Card style={{ flex: "1 1 38%" }}>
