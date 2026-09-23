@@ -33,7 +33,7 @@ export default function MarketOverviewPage() {
   const revenueFallback = toifas.reduce((sum, t) => sum + (t.revenue || 0), 0);
 
   return (
-    <ReportPage>
+    <ReportPage showHeader={false}>
       <FilterBar>
         <PeriodControl value={params.period} periods={data?.periods ?? []}
                        onChange={(period) => setParams({ period })} style={{ width: 280 }} />

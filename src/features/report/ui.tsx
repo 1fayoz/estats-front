@@ -86,10 +86,12 @@ export function ReportPage({
   children,
   title,
   description,
+  showHeader = true,
 }: {
   children: React.ReactNode;
   title?: string;
   description?: string;
+  showHeader?: boolean;
 }) {
   const busy = useReportBusy();
   const pathname = usePathname();
@@ -103,21 +105,23 @@ export function ReportPage({
   return (
     <div className={s.page}>
       <div className={s.canvas}>
-        <div className={s.strip}>
-          <div className={s.brandBlock}>
-            <span className={s.brandIcon}><Store aria-hidden="true" /></span>
-            <span>
-              <span className={s.brand}>{info.title}</span>
-              <span className={s.brandMeta}>{info.description}</span>
-            </span>
+        {showHeader ? (
+          <div className={s.strip}>
+            <div className={s.brandBlock}>
+              <span className={s.brandIcon}><Store aria-hidden="true" /></span>
+              <span>
+                <span className={s.brand}>{info.title}</span>
+                <span className={s.brandMeta}>{info.description}</span>
+              </span>
+            </div>
+            <div className={s.stripActions}>
+              <Link href="/integrations"><PlugZap aria-hidden="true" /> Ulanishlar</Link>
+              <a href="https://t.me/estats_uz_bot" target="_blank" rel="noreferrer">
+                <CircleHelp aria-hidden="true" /> Yordam
+              </a>
+            </div>
           </div>
-          <div className={s.stripActions}>
-            <Link href="/integrations"><PlugZap aria-hidden="true" /> Ulanishlar</Link>
-            <a href="https://t.me/estats_uz_bot" target="_blank" rel="noreferrer">
-              <CircleHelp aria-hidden="true" /> Yordam
-            </a>
-          </div>
-        </div>
+        ) : null}
         {busy ? (
           <div className={s.loadingWrap} role="status" aria-live="polite">
             <LoaderCircle aria-hidden="true" />
