@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { BarChart3, Boxes, Building2, FileText, Info, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -168,15 +168,6 @@ export const NAV_GROUPS: NavGroup[] = [
           { label: "Do\u2019kon tahlili", action: "market.view", href: "/market/shop" as Route, icon: Boxes },
           { label: "Sotuvchining SKUlari", action: "market.view", href: "/market/seller-skus" as Route, icon: Boxes },
           { label: "Sotuvchilar", action: "market.view", href: "/market/sellers" as Route, icon: Boxes },
-        ],
-      },
-      {
-        label: "Video yo‘riqnomalar",
-        action: "market.view",
-        href: "/market/videos" as Route,
-        icon: Info,
-        children: [
-          { label: "Video yo‘riqnomalar", action: "market.view", href: "/market/videos" as Route, icon: Boxes },
         ],
       },
     ],

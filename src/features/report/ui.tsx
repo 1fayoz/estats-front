@@ -56,7 +56,6 @@ const PAGE_INFO: Record<string, { title: string; description: string }> = {
   "/market/shop": { title: "Do‘kon tahlili", description: "Do‘konning sotuv va assortiment dinamikasi" },
   "/market/seller-skus": { title: "Sotuvchi SKUlari", description: "Sotuvchi assortimentining natijalari" },
   "/market/sellers": { title: "Sotuvchilar", description: "Yuridik shaxslar, do‘konlar va bozor natijalari" },
-  "/market/videos": { title: "Video yo‘riqnomalar", description: "Bozor vositalaridan foydalanish bo‘yicha yordam" },
 };
 
 // ── Formatlar ───────────────────────────────────────────────────
