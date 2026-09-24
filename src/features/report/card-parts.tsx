@@ -7,26 +7,31 @@ import { formatNumber } from "@/lib/format";
 import type { CardData } from "@/lib/report";
 
 import { MultiLine, StackedDaily, shortDay } from "./charts";
-import { COLORS, Card, DateRangeControl, Empty, InputControl, Row, Scorecard, ZTable, fmt, styles } from "./ui";
+import { ProductControl } from "./filters";
+import { COLORS, Card, DateRangeControl, Empty, Row, Scorecard, ZTable, fmt, styles } from "./ui";
 
 /*
   «Maxsulot kartochkasi» va «Kartochka (tablica)» sahifalarining umumiy
   qismlari: filtr qatori, KPI kartalari va SKU jadvali.
 */
 
+export const DEFAULT_CARD_ID = "3176844";
+
 export function CardFilters({
-  start, end, id, onRange, onId,
+  start, end, id, current, onRange, onId,
 }: {
   start: string;
   end: string;
   id: string;
+  current?: CardData["info"] | null;
   onRange: (start: string, end: string) => void;
   onId: (id: string) => void;
 }) {
   return (
     <div className={styles.cardFilters}>
       <DateRangeControl start={start} end={end} onChange={onRange} />
-      <InputControl label="prod_id" value={id} inputMode="numeric" onCommit={(v) => onId(v.replace(/\D/g, ""))} />
+      <ProductControl value={id || null} current={current} onChange={onId}
+                      style={{ flex: "1 1 520px", minWidth: 320 }} />
     </div>
   );
 }

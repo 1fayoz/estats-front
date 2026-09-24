@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { formatCompact } from "@/lib/format";
+import { market, type MarketProduct } from "@/lib/market";
 import { report, type ReportIndex } from "@/lib/report";
 
 import { SelectControl, type Option } from "./ui";
@@ -14,6 +15,71 @@ import { SelectControl, type Option } from "./ui";
 */
 
 let indexCache: Promise<ReportIndex> | null = null;
+
+type CurrentProduct = {
+  product_id: number;
+  title: string | null;
+  shop: string | null;
+  category: string | null;
+};
+
+function productOption(product: CurrentProduct): Option {
+  const leaf = product.category?.split(",").at(-1)?.trim();
+  const details = [`#${product.product_id}`, product.shop, leaf].filter(Boolean).join(" · ");
+  return {
+    value: String(product.product_id),
+    label: product.title || `Mahsulot #${product.product_id}`,
+    metric: details,
+  };
+}
+
+/** Bitta qidiruv ID, nom, do'kon va turkumni qamraydi. */
+export function ProductControl({
+  value, current, onChange, style,
+}: {
+  value: string | null;
+  current?: CurrentProduct | null;
+  onChange: (value: string) => void;
+  style?: React.CSSProperties;
+}) {
+  const [query, setQuery] = React.useState("");
+  const [products, setProducts] = React.useState<MarketProduct[]>([]);
+
+  React.useEffect(() => {
+    let alive = true;
+    const timer = window.setTimeout(() => {
+      market
+        .products({ days: 30, q: query.trim() || undefined, limit: 50 })
+        .then((page) => { if (alive) setProducts(page.items); })
+        .catch(() => { if (alive) setProducts([]); });
+    }, 300);
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
+  }, [query]);
+
+  const options = products.map(productOption);
+  if (current && !options.some((option) => option.value === String(current.product_id))) {
+    options.unshift(productOption(current));
+  } else if (value && !options.some((option) => option.value === value)) {
+    options.unshift({ value, label: `Mahsulot #${value}`, metric: `#${value}` });
+  }
+
+  return (
+    <SelectControl
+      label="Mahsulot"
+      value={value}
+      options={options}
+      onChange={(next) => { if (next) onChange(next); }}
+      onSearch={setQuery}
+      metricLabel="ID · do'kon · turkum"
+      placeholderValue={value ? `#${value}` : "Mahsulot tanlang"}
+      allowClear={false}
+      style={style}
+    />
+  );
+}
 
 export function useReportIndex(): ReportIndex | null {
   const [index, setIndex] = React.useState<ReportIndex | null>(null);

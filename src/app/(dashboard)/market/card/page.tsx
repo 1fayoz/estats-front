@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { CardCharts, CardFilters, CardInfo, CardKpis, SkuTable } from "@/features/report/card-parts";
+import { CardCharts, CardFilters, CardInfo, CardKpis, DEFAULT_CARD_ID, SkuTable } from "@/features/report/card-parts";
 import { RefreshProduct } from "@/features/market/refresh-product";
 import { ReviewsCard } from "@/features/market/reviews-card";
 import { useReportIndex } from "@/features/report/filters";
@@ -26,7 +26,7 @@ function shift(iso: string, days: number): string {
 export default function CardPage() {
   const index = useReportIndex();
   const last = index?.as_of ?? new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-  const [params, setParams] = useParams({ id: "", start: "", end: "" });
+  const [params, setParams] = useParams({ id: DEFAULT_CARD_ID, start: "", end: "" });
   const range = { start: params.start || shift(last, -29), end: params.end || last };
   const id = Number(params.id);
   const [reload, setReload] = React.useState(0);
@@ -38,7 +38,7 @@ export default function CardPage() {
   return (
     <ReportPage>
       <FilterBar>
-        <CardFilters start={range.start} end={range.end} id={params.id}
+        <CardFilters start={range.start} end={range.end} id={params.id} current={data?.info}
                      onRange={(start, end) => setParams({ start, end })} onId={(v) => setParams({ id: v })} />
       </FilterBar>
       <StatsGrid>
