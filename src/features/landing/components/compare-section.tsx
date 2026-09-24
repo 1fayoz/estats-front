@@ -4,43 +4,45 @@ import { cn } from "@/lib/utils";
 
 type Mark = "yes" | "no" | "partly";
 
-const COLUMNS = ["Marketpleys kabineti", "Oddiy tahlil servisi", "eStats"] as const;
+const COLUMNS = ["ZoomSelling / MPStats", "Bozor kabineti", "eStats"] as const;
 
 const ROWS: { label: string; marks: [Mark, Mark, Mark]; note?: string }[] = [
-  { label: "Sotuv va buyurtmalar", marks: ["yes", "no", "yes"] },
-  { label: "Komissiya va logistika", marks: ["yes", "no", "yes"] },
+  { label: "Uzum, Yandex, WB, Ozon birlashuvi", marks: ["no", "no", "yes"], note: "Faqat eStats'da" },
+  { label: "Sotuv va buyurtmalar tahlili", marks: ["yes", "yes", "yes"] },
+  { label: "Komissiya va logistika hisobi", marks: ["partly", "yes", "yes"] },
   {
-    label: "Tan narx bilan sof foyda",
+    label: "Tan narx bilan sof foyda (PnL)",
     marks: ["no", "no", "yes"],
     note: "Bozorlar sizning tan narxingizni bilmaydi",
   },
   { label: "FIFO — partiya bo'yicha tan narx", marks: ["no", "no", "yes"] },
+  { label: "Ombor qoldiqlari va SKU nazorati", marks: ["no", "partly", "yes"] },
   { label: "Doimiy xarajatlar taqsimoti", marks: ["no", "no", "yes"] },
-  { label: "Kalit so'zlar yadrosi", marks: ["no", "partly", "yes"] },
+  { label: "Kalit so'zlar yadrosi & SEO", marks: ["partly", "no", "yes"] },
   {
-    label: "O'zbekcha va ruscha alohida o'lchov",
+    label: "O'zbekcha va ruscha AI kartochka",
     marks: ["no", "no", "yes"],
     note: "Faqat eStats'da",
   },
-  { label: "Qidiruvdagi o'rin kuzatuvi", marks: ["no", "yes", "yes"] },
+  { label: "Qidiruvdagi o'rin kuzatuvi", marks: ["yes", "no", "yes"] },
   { label: "Sharh va rasm tahlili (AI)", marks: ["no", "no", "yes"] },
-  { label: "Ijtimoiy tarmoqqa e'lon", marks: ["no", "no", "yes"] },
+  { label: "Telegram va Instagramga avtopost", marks: ["no", "no", "yes"] },
 ];
 
 export function CompareSection() {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
+    <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
       <div className="max-w-2xl">
-        <p className="text-xs font-medium uppercase tracking-widest text-primary">
-          Nega eStats
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+          ZoomSelling va MPStats muqobili
         </p>
         <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-          Ikkita servis o&apos;rniga bitta kabinet
+          Nega sotuvchilar eStats&apos;ni tanlamoqda?
         </h2>
         <p className="mt-4 text-muted-foreground">
-          Bugun sotuvchi sonni bozor kabinetlaridan, tahlilni boshqa servisdan oladi.
-          Ma&apos;lumot bir-biriga ulanmaydi va haqiqiy foydani hech biri
-          ko&apos;rsatmaydi — chunki tan narxni faqat siz bilasiz.
+          Oddiy skanerlar (ZoomSelling, MPStats) faqat umumiy tushumni ko&apos;rsatadi.
+          eStats esa haqiqiy FIFO tan narxi, ombor nazorati, AI SEO va barcha marketpleyslarni
+          bitta mukammal kabinetga jamlaydi.
         </p>
       </div>
 

@@ -4,6 +4,7 @@ import { LandingFooter } from "@/features/landing/components/footer";
 import { HeroSection, LandingConnections } from "@/features/landing/components/hero-section";
 import { LandingHeader } from "@/features/landing/components/landing-header";
 import { MarketplacesSection } from "@/features/landing/components/marketplaces-section";
+import { CompareSection } from "@/features/landing/components/compare-section";
 import { PricingSection } from "@/features/landing/components/pricing-section";
 import { ProductsSection } from "@/features/landing/components/products-section";
 import { QuestionsSection } from "@/features/landing/components/questions-section";
@@ -19,6 +20,7 @@ export default function LandingPage() {
         <LandingConnections />
         <MarketplacesSection />
         <QuestionsSection />
+        <CompareSection />
         <ProductsSection />
         <PricingSection />
         <FaqSection />

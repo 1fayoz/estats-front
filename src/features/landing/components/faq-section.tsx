@@ -5,26 +5,40 @@ import { cn } from "@/lib/utils";
 import base from "./landing.module.css";
 import styles from "./landing-chrome.module.css";
 
+import { FaqSchema } from "@/components/seo/structured-data";
+
 const FAQ = [
   {
-    question: "Ishni nimadan boshlayman?",
-    answer: "Hisobingizga kiring va Integratsiyalar bo‘limida marketpleys do‘konlaringizni (Uzum Market, Yandex Market, Wildberries, Ozon) ulang. API tokenlari orqali tovarlar, sotuvlar va moliya ma’lumotlari yuklanadi. Xohlasangiz do'kon ulamasdan ham Bozor tahlili va mahsulot qidiruvidan darhol foydalanishingiz mumkin.",
+    question: "ZoomSelling yoki eStats: qaysi birini tanlash kerak?",
+    answer: "ZoomSelling faqat Uzum Market bilan cheklangan va unda haqiqiy partiyaviy FIFO tan narxi hamda ombor nazorati yo‘q. eStats esa Uzum Market, Yandex Market, Wildberries va Ozon kabi barcha bozorlarni birlashtiradi, aniq sof foyda (PnL) va zaxirani hisoblaydi, AI SEO bilan kartochka yozadi hamda tovarlarni bitta tugma bilan Telegram va Instagramga e'lon qiladi.",
   },
   {
-    question: "Sof foyda qanday hisoblanadi?",
-    answer: "Tovar tan narxini kirim qo‘shayotganda partiya bo‘yicha kiritasiz. Hisob FIFO usulida yuritiladi: avval kelgan partiya avval sotiladi. Tushum, tan narx, komissiya, logistika va kiritilgan doimiy xarajatlar foyda hisobida alohida ko‘rinadi.",
+    question: "MPStats o'rniga O'zbekistonda eStats ishlatish qulayroqmi?",
+    answer: "Ha. MPStats juda qimmat va O'zbekistonning asosiy bozori hisoblangan Uzum Market ma'lumotlarini to'liq qamrab olmaydi. eStats esa Uzum Market va xalqaro bozorlarni (WB, Yandex, Ozon) to'liq qo'llab-quvvatlaydi, milliy to'lov tizimlari (Payme, Click, Uzum Pay) orqali ancha arzon tariflarda ishlaydi.",
+  },
+  {
+    question: "Ishni nimadan boshlayman? Uzum tokensiz ishlatsa bo'ladimi?",
+    answer: "Albatta! Siz tokenni kiritmasdan ham Bozor tahlili (/market), tovar qidiruvi, nishalar o'sishi va raqobatchilar tahlilidan bepul foydalanishingiz mumkin. O'z do'koningiz tovarlari, ombor qoldiqlari va moliyaviy hisobotlarni avtomatlashtirish uchun esa Integratsiyalar bo‘limida do‘koningizni bir daqiqada ulaysiz.",
+  },
+  {
+    question: "Kirim-chiqim, tan narx va FIFO hisobi qanday yuritiladi?",
+    answer: "Har bir kelgan tovar partiyasining miqdori va narxini kiritasiz. Mahsulot sotilganda hisob FIFO (First-In, First-Out) qoidasi bo'yicha yuritiladi: eng birinchi kirgan partiya birinchi bo'lib hisobdan chiqariladi. Natijada bozor komissiyasi, logistika, saqlash xarajatlari va QQS ayirilib, har bir tovarning haqiqiy sof foydasi aniqlanadi.",
+  },
+  {
+    question: "Ombor qoldiqlari va partiyalar nazorati bormi?",
+    answer: "Ha. eStats to'liq ombor (Warehouse ERP) moduliga ega. Qoldiqlar, partiyalar, SKU, tan narxsiz qolgan tovarlar hamda zaxirasi tugab borayotgan tovarlar bo'yicha avtomatik ogohlantirishlar beriladi. Shuningdek, bozorga bir xil tovar ikki marta qo'yilgan bo'lsa, ularning ombor qoldig'i birlashtiriladi.",
   },
   {
     question: "AI kartochkani marketpleyslarga ham joylaydimi?",
     answer: "AI avval nom, tavsif, rasmlar va boshqa ma’lumotlardan qoralama tayyorlaydi. Uni tekshirib, tahrirlab, tasdiqlaysiz. Kabinet ulanishi sozlangach, Uzum, Yandex, WB, Ozon kabi platformalarga joylashni boshlashingiz mumkin. Mavjud kartochkalarning matni va rasmlarini yangilash imkoniyati ham bor.",
   },
   {
-    question: "O‘zbekcha va ruscha matn bilan ishlaydimi?",
-    answer: "Ha. AI kartochkada nom va tavsifni o‘zbekcha va ruscha tayyorlash mumkin. SEO auditida ham ikki tildagi matn va qidiruv iboralari alohida ko‘rib chiqiladi. Tayyorlangan matnni qo‘llashdan oldin tekshirib, tahrirlashingiz mumkin.",
+    question: "Tovarlarni Telegram va Instagramga avtomatik joylash mumkinmi?",
+    answer: "Ha! eStats orqali do'koningizdagi tovarlarni bitta klik bilan Telegram kanallaringizga va Instagram profilingizga chiroyli e'lon ko'rinishida yuborishingiz mumkin. Shuningdek, Boost TOP reklama kampaniyalari va DRR (reklama xarajati ulushi) tahlilini ham bir joyda ko'rasiz.",
   },
   {
-    question: "Ma’lumotlar qachon yangilanadi?",
-    answer: "Yangilanish ulangan xizmat va ma’lumot turiga bog‘liq. Tegishli bo‘limlarda oxirgi sinxronlash holatini ko‘rish va yangilashni ishga tushirish mumkin. Tahlil va AI vazifalarining jarayoni ilovada ko‘rsatiladi.",
+    question: "O‘zbekcha va ruscha matn bilan ishlaydimi?",
+    answer: "Ha. AI kartochkada nom va tavsifni o‘zbekcha va ruscha tayyorlash mumkin. SEO auditida ham ikki tildagi matn va qidiruv iboralari alohida ko‘rib chiqiladi. Tayyorlangan matnni qo‘llashdan oldin tekshirib, tahrirlashingiz mumkin.",
   },
   {
     question: "Bir nechta do‘kon bilan ishlash mumkinmi?",
@@ -35,6 +49,7 @@ const FAQ = [
 export function FaqSection() {
   return (
     <section id="savollar" className={styles.faqSection} aria-labelledby="faq-heading">
+      <FaqSchema items={FAQ} />
       <div className={cn(base.container, styles.faqGrid)}>
         <div className={styles.faqIntro}>
           <p className={base.eyebrow}>SAVOL-JAVOB</p>

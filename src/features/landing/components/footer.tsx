@@ -25,11 +25,26 @@ export function LandingFooter() {
           <Link href="#savollar">Savollar</Link>
         </nav>
 
-        <nav aria-label="Hisob va hujjatlar" className={styles.footerNav}>
-          <h3>Foydali havolalar</h3>
+        <nav aria-label="Yechimlar va xizmatlar" className={styles.footerNav}>
+          <h3>Yechimlar</h3>
+          <Link href="/yechimlar/ombor">Ombor hisobi</Link>
+          <Link href="/yechimlar/moliya">Moliya va FIFO</Link>
+          <Link href="/yechimlar/bozor">Bozor va nishalar</Link>
+          <Link href="/yechimlar/marketing">Marketing va DRR</Link>
+        </nav>
+
+        <nav aria-label="Taqqoslash" className={styles.footerNav}>
+          <h3>Muqobillar</h3>
+          <Link href="/muqobil/zoomselling">ZoomSelling muqobili</Link>
+          <Link href="/muqobil/mpstats">MPStats muqobili</Link>
           <Link href="/login">Hisobga kirish</Link>
+        </nav>
+
+        <nav aria-label="Hisob va hujjatlar" className={styles.footerNav}>
+          <h3>Hujjatlar</h3>
           <Link href="/terms">Foydalanish shartlari</Link>
           <Link href="/privacy">Maxfiylik siyosati</Link>
+          <Link href="/lens">eStats Lens</Link>
         </nav>
       </div>
 
