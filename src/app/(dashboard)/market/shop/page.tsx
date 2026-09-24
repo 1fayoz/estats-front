@@ -8,9 +8,9 @@ import {
 
 import { MoversCard } from "@/features/market/movers-card";
 import { RevenueTreemap } from "@/features/report/charts";
-import { useReportIndex } from "@/features/report/filters";
+import { ShopControl, useReportIndex } from "@/features/report/filters";
 import {
-  COLORS, Card, DateRangeControl, Empty, FilterBar, InputControl, ReportPage, Row, Scorecard, StatsGrid, ZTable, fmt,
+  COLORS, Card, DateRangeControl, Empty, FilterBar, ReportPage, Row, Scorecard, StatsGrid, ZTable, fmt,
   styles, useLoad, useParams,
 } from "@/features/report/ui";
 import { formatCompact, formatNumber } from "@/lib/format";
@@ -27,6 +27,7 @@ import { report } from "@/lib/report";
 */
 
 const axis = { fontSize: 11, fontFamily: "var(--font-geist-sans), system-ui, sans-serif", color: "var(--muted-foreground)" };
+const DEFAULT_SHOP_ID = "106821";
 
 function shift(iso: string, days: number): string {
   const d = new Date(`${iso}T00:00:00Z`);
@@ -54,13 +55,14 @@ function buildTree(paths: { path: string; revenue: number }[]): TreeDatum[] {
 export default function ShopAnalysisPage() {
   const index = useReportIndex();
   const last = index?.as_of ?? new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-  const [params, setParams] = useParams({ shop_id: "", shop: "", start: "", end: "", offset: "0" });
+  const [params, setParams] = useParams({ shop_id: DEFAULT_SHOP_ID, shop: "", start: "", end: "", offset: "0" });
   const range = { start: params.start || shift(last, -29), end: params.end || last };
   const offset = Number(params.offset) || 0;
   const hasShop = Boolean(params.shop_id || params.shop);
   const { data, error } = useLoad(
     () => (hasShop
-      ? report.shop({ shop_id: params.shop_id || undefined, shop: params.shop || undefined, start: range.start,
+      ? report.shop({ shop_id: params.shop ? undefined : params.shop_id || undefined,
+                      shop: params.shop || undefined, start: range.start,
                       end: range.end, offset, limit: 100 })
       : Promise.resolve(null)),
     [params.shop_id, params.shop, range.start, range.end, offset],
@@ -78,8 +80,10 @@ export default function ShopAnalysisPage() {
       <FilterBar>
         <DateRangeControl start={range.start} end={range.end} style={{ width: 270 }}
                           onChange={(start, end) => setParams({ start, end })} />
-        <InputControl label="Do'kon" value={data?.info.title ?? params.shop} style={{ flex: 1, minWidth: 220 }}
-                      onCommit={(shop) => setParams({ shop, shop_id: null, offset: null })} />
+        <ShopControl value={params.shop ? (data?.info.id ? String(data.info.id) : null) : params.shop_id || null}
+                     current={data?.info}
+                     onChange={(shop_id) => setParams({ shop_id, shop: null, offset: null })}
+                     style={{ flex: 1, minWidth: 320 }} />
         {data?.info.uzum_url ? (
           <a className={styles.button} href={data.info.uzum_url} target="_blank" rel="noreferrer">
             ↗ Uzumda ochish

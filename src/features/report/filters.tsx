@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { formatCompact } from "@/lib/format";
-import { market, type MarketProduct } from "@/lib/market";
+import { market, type MarketProduct, type MarketShop } from "@/lib/market";
 import { report, type ReportIndex } from "@/lib/report";
 
 import { SelectControl, type Option } from "./ui";
@@ -75,6 +75,67 @@ export function ProductControl({
       onSearch={setQuery}
       metricLabel="ID · do'kon · turkum"
       placeholderValue={value ? `#${value}` : "Mahsulot tanlang"}
+      allowClear={false}
+      style={style}
+    />
+  );
+}
+
+type CurrentShop = {
+  id: number;
+  title: string;
+};
+
+function shopOption(shop: Pick<MarketShop, "shop_id" | "title" | "seller">): Option {
+  return {
+    value: String(shop.shop_id),
+    label: shop.title,
+    metric: [`#${shop.shop_id}`, shop.seller].filter(Boolean).join(" · "),
+  };
+}
+
+/** Do'kon nomi bo'yicha server qidiruvi; tanlov report uchun aniq ID qaytaradi. */
+export function ShopControl({
+  value, current, onChange, style,
+}: {
+  value: string | null;
+  current?: CurrentShop | null;
+  onChange: (value: string) => void;
+  style?: React.CSSProperties;
+}) {
+  const [query, setQuery] = React.useState("");
+  const [shops, setShops] = React.useState<MarketShop[]>([]);
+
+  React.useEffect(() => {
+    let alive = true;
+    const timer = window.setTimeout(() => {
+      market
+        .shops({ days: 30, q: query.trim() || undefined, limit: 50 })
+        .then((page) => { if (alive) setShops(page.items); })
+        .catch(() => { if (alive) setShops([]); });
+    }, 300);
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
+  }, [query]);
+
+  const options = shops.map(shopOption);
+  if (current && !options.some((option) => option.value === String(current.id))) {
+    options.unshift({ value: String(current.id), label: current.title, metric: `#${current.id}` });
+  } else if (value && !options.some((option) => option.value === value)) {
+    options.unshift({ value, label: `Do'kon #${value}`, metric: `#${value}` });
+  }
+
+  return (
+    <SelectControl
+      label="Do'kon"
+      value={value}
+      options={options}
+      onChange={(next) => { if (next) onChange(next); }}
+      onSearch={setQuery}
+      metricLabel="ID · sotuvchi"
+      placeholderValue={value ? `#${value}` : "Do'kon tanlang"}
       allowClear={false}
       style={style}
     />

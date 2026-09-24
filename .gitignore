@@ -115,3 +115,6 @@ ehthumbs.db
 #
 # Kelajakda shu yo'llardan biri HAQIQATAN kerak bo'lsa:
 # `git add -f <fayl>` — e'tiborsizlik ataylab, taqiq emas.
+
+graphify-out/
+src/graphify-out/

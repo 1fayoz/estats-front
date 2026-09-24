@@ -85,29 +85,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     };
   }, [hydrated, accessToken, router, setUser, signOut]);
 
-  // Magazinsiz kabinetning boshqa sahifalari bo'sh — foydalanuvchini darhol
-  // magazin qo'shadigan joyga olib boramiz. Alohida effekt, chunki bu
-  // yo'nalishga bog'liq, sessiya tekshiruvi esa yo'q.
-  //
-  // Manzil AYNAN Integratsiyalar: Uzum tokeni o'sha yerda va magazin
-  // aynan token orqali ochiladi. Boshqa sahifaga qamab qo'yish yangi
-  // foydalanuvchi uchun chiqish yo'li yo'q tuzoq yasaydi.
-  //
-  // A'zoning `shops` — EGASINING do'konlari. Ya'ni egasida do'kon
-  // bo'lsa a'zo bu yerga tushmaydi. Do'kon umuman yo'q bo'lsa esa
-  // a'zoni Integratsiyalarga haydash tuzoq bo'lardi: unga o'sha
-  // sahifa ochiq bo'lmasligi mumkin va u yerdan chiqolmay qolardi.
-  const canSetUp =
-    user?.actions === undefined || user.actions.includes("integrations.view");
-  const needsShop =
-    checked && user != null && user.shops.length === 0 && canSetUp;
-  React.useEffect(() => {
-    if (needsShop && pathname !== SETUP_PATH && !pathname.startsWith(EXTENSION_PATH)) router.replace(SETUP_PATH);
-  }, [needsShop, pathname, router]);
-
   // Ruxsati yo'q sahifa. Menyudan yashiringan bo'lsa ham manzilni
   // qo'lda yozish yoki eski xatcho'p qolishi mumkin — u holda
-  // 403 va bo'sh ekran o'rniga ochiq bo'limga olib boriladi.
+  // 403 va bo'sh ekran o'rniga birinchi ochiq bo'limga olib boriladi.
   const needed = actionFor(pathname);
   const allowed =
     !checked ||
@@ -117,12 +97,16 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     user.actions.includes(needed);
   const firstAllowed = React.useMemo(() => {
     const groups = visibleNav(user?.actions ?? []);
-    return groups[0]?.items[0]?.href ?? "/settings";
+    const firstGroupItem = groups[0]?.items[0];
+    const target = firstGroupItem?.children?.[0]?.href ?? firstGroupItem?.href ?? "/market";
+    return target;
   }, [user?.actions]);
 
   React.useEffect(() => {
-    if (!allowed) router.replace(firstAllowed as Parameters<typeof router.replace>[0]);
-  }, [allowed, firstAllowed, router]);
+    if (checked && !allowed) {
+      router.replace(firstAllowed as Parameters<typeof router.replace>[0]);
+    }
+  }, [checked, allowed, firstAllowed, router]);
 
   // Birinchi Google kirishidan keyin parol MAJBURIY: kabinet o'rniga
   // shu ekran. `hasPassword === undefined` — eski backend, so'ralmaydi;
@@ -135,8 +119,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     !hydrated ||
     !accessToken ||
     !checked ||
-    !allowed ||
-    (needsShop && pathname !== SETUP_PATH && !pathname.startsWith(EXTENSION_PATH))
+    !allowed
   ) {
     return (
       <div className="flex h-svh items-center justify-center bg-background">

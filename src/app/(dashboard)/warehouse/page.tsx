@@ -16,7 +16,7 @@ import { ProductAiModal } from "@/features/products-ai/components/product-modal"
 import { useAiDrafts } from "@/features/products-ai/use-drafts";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useWarehouseProducts } from "@/features/warehouse/store";
-import { useActiveShop, useCan } from "@/stores/user-store";
+import { useActiveShop, useActions, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
 import {
@@ -31,21 +31,21 @@ type StatusTab =
   | "blocked" | "moderation" | "resubmitted" | "re_moderation"
   | "attrs" | "archived";
 
-const STATUS_TABS: { key: StatusTab; label: string }[] = [
-  { key: "all", label: "Barchasi" },
-  { key: "selling", label: "Sotuvda" },
-  { key: "ending", label: "Tugayapti" },
-  { key: "not_selling", label: "Sotuvda emas" },
-  { key: "blocked", label: "Bloklangan" },
-  { key: "moderation", label: "Moderatsiyada" },
+const STATUS_TABS: { key: StatusTab; label: string; action: string }[] = [
+  { key: "all", label: "Barchasi", action: "warehouse.tab.all" },
+  { key: "selling", label: "Sotuvda", action: "warehouse.tab.selling" },
+  { key: "ending", label: "Tugayapti", action: "warehouse.tab.ending" },
+  { key: "not_selling", label: "Sotuvda emas", action: "warehouse.tab.not_selling" },
+  { key: "blocked", label: "Bloklangan", action: "warehouse.tab.blocked" },
+  { key: "moderation", label: "Moderatsiyada", action: "warehouse.tab.moderation" },
   // Ikkalasi ham "moderation"ning ICHIDA (kesishadi) — sotuvchiga
   // "nega qayta moderatsiyada?" degan savolga aniq javob kerak: xato
   // tuzatilganmi (avval bloklangan edi) yoki tirik kartochka o'zi
   // tahrirlanganmi (bloklanmagan, tasdiqlangan edi).
-  { key: "resubmitted", label: "Tuzatildi → qayta yuborildi" },
-  { key: "re_moderation", label: "Tahrirlandi → qayta moderatsiyada" },
-  { key: "attrs", label: "Xususiyat to'ldirilmagan" },
-  { key: "archived", label: "Arxiv" },
+  { key: "resubmitted", label: "Tuzatildi → qayta yuborildi", action: "warehouse.tab.resubmitted" },
+  { key: "re_moderation", label: "Tahrirlandi → qayta moderatsiyada", action: "warehouse.tab.re_moderation" },
+  { key: "attrs", label: "Xususiyat to'ldirilmagan", action: "warehouse.tab.attrs" },
+  { key: "archived", label: "Arxiv", action: "warehouse.tab.archived" },
 ];
 
 //: "Tugayapti" — Uzum ham shunga o'xshash kam qoldiqni ajratadi.
@@ -158,6 +158,19 @@ function WarehouseContent() {
   // ma'noni beradi — arxiv bilan aralashtirish boshqa ekranlarni
   // buzardi. Arxiv faqat so'ralganda yuklanadi.
   const [tab, setTab] = React.useState<StatusTab>("all");
+  const actions = useActions();
+  const allowedSet = React.useMemo(() => (actions ? new Set(actions) : null), [actions]);
+  const visibleStatusTabs = React.useMemo(() => {
+    if (!allowedSet) return STATUS_TABS;
+    return STATUS_TABS.filter((t) => !t.action || allowedSet.has(t.action));
+  }, [allowedSet]);
+
+  React.useEffect(() => {
+    if (visibleStatusTabs.length > 0 && !visibleStatusTabs.some((t) => t.key === tab)) {
+      setTab(visibleStatusTabs[0].key);
+    }
+  }, [visibleStatusTabs, tab]);
+
   const view = tab === "archived" ? "archived" : "active";
   const [archivedItems, setArchivedItems] = React.useState<WarehouseProduct[]>([]);
   const [archivedCount, setArchivedCount] = React.useState<number | null>(null);
@@ -197,7 +210,7 @@ function WarehouseContent() {
   // omborning ICHIDAGI ish. Alohida bo'limda sotuvchi katalogdan
   // chiqib ketardi va qaytganda qayerda qolgani yo'qolardi.
   const canSeeAi = useCan("products_ai.view");
-  const canAddAi = useCan("products_ai.control");
+  const canAddAi = useCan("products_ai.control") && useCan("warehouse.create_product");
   const drafts = useAiDrafts(canSeeAi);
 
   // Oyna holati URL'DA turadi (`?draft=12`/`?draft=new`) — endi
@@ -313,6 +326,28 @@ function WarehouseContent() {
         }
       />
 
+      {shop && !shop.hasToken && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div>
+              <div className="font-semibold">Uzum do&apos;kon tokeni ulanmagan</div>
+              <div className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                Tovarlarni Uzum bilan avtomatik sinxronizatsiya qilish uchun tokenni ulang yoki yangi tovar qo&apos;shing.
+              </div>
+            </div>
+          </div>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="border-amber-300 bg-white hover:bg-amber-100 text-amber-900 dark:border-amber-700 dark:bg-amber-900/40 dark:hover:bg-amber-900/60 dark:text-amber-100 shrink-0"
+          >
+            <a href="/integrations">Uzum tokenni ulash &rarr;</a>
+          </Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 sm:gap-3">
         <InventoryStat loading={loading} icon={Boxes} label="Jami tovarlar" value={formatNumber(totals.goods)} hint="Katalogdagi SKUlar" />
         <InventoryStat loading={loading} icon={Package} label="Ombordagi qoldiq" value={`${formatNumber(totals.onHand)} dona`} hint="Kirim va sotuvlar bo‘yicha" />
@@ -355,11 +390,11 @@ function WarehouseContent() {
           onChange={(event) => setTab(event.target.value as StatusTab)}
           className="h-11 w-full min-w-0 rounded-xl border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {STATUS_TABS.map(({ key, label }) => <option key={key} value={key}>{label} ({tabCounts[key]})</option>)}
+          {visibleStatusTabs.map(({ key, label }) => <option key={key} value={key}>{label} ({tabCounts[key]})</option>)}
         </select>
       </label>
       <div className="hidden flex-wrap items-center gap-1.5 md:flex" role="group" aria-label="Tovar holati">
-        {STATUS_TABS.slice(0, 5).map(({ key, label }) => {
+        {visibleStatusTabs.slice(0, 5).map(({ key, label }) => {
           const active = tab === key;
           const count = tabCounts[key];
           return (
@@ -387,15 +422,17 @@ function WarehouseContent() {
             </button>
           );
         })}
-        <select
-          aria-label="Boshqa tovar holatlari"
-          value={STATUS_TABS.slice(5).some((statusTab) => statusTab.key === tab) ? tab : "more"}
-          onChange={(event) => setTab(event.target.value as StatusTab)}
-          className={cn("h-11 max-w-full rounded-lg border bg-background px-3 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", STATUS_TABS.slice(5).some((statusTab) => statusTab.key === tab) && "border-primary/30 bg-primary/10 text-primary")}
-        >
-          <option value="more" disabled>Boshqa holatlar</option>
-          {STATUS_TABS.slice(5).map(({ key, label }) => <option key={key} value={key}>{label} ({tabCounts[key]})</option>)}
-        </select>
+        {visibleStatusTabs.length > 5 && (
+          <select
+            aria-label="Boshqa tovar holatlari"
+            value={visibleStatusTabs.slice(5).some((statusTab) => statusTab.key === tab) ? tab : "more"}
+            onChange={(event) => setTab(event.target.value as StatusTab)}
+            className={cn("h-11 max-w-full rounded-lg border bg-background px-3 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", visibleStatusTabs.slice(5).some((statusTab) => statusTab.key === tab) && "border-primary/30 bg-primary/10 text-primary")}
+          >
+            <option value="more" disabled>Boshqa holatlar</option>
+            {visibleStatusTabs.slice(5).map(({ key, label }) => <option key={key} value={key}>{label} ({tabCounts[key]})</option>)}
+          </select>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">

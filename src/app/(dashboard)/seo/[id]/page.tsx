@@ -33,6 +33,7 @@ import {
 } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 import { useQueryNumber, useQueryState } from "@/lib/use-query-state";
+import { useCan } from "@/stores/user-store";
 import { cn } from "@/lib/utils";
 import type { SeoAudit } from "@/lib/types";
 import styles from "./seo-detail.module.css";
@@ -45,9 +46,41 @@ export default function SeoDetailPage() {
 
   const [audit, setAudit] = React.useState<SeoAudit | null>(null);
   const [externalId, setExternalId] = React.useState<string | null>(null);
+
+  const canAudit = useCan("seo.tab.audit");
+  const canKeywords = useCan("seo.tab.keywords");
+  const canAttributes = useCan("seo.tab.attributes");
+  const canReviews = useCan("seo.tab.reviews");
+  const canMedia = useCan("seo.tab.media");
+  const canContent = useCan("seo.tab.content");
+  const canFix = useCan("seo.tab.fix");
+  const canPositions = useCan("seo.tab.positions");
+
+  const allowedTabs = React.useMemo(() => {
+    return [
+      { key: "audit", allowed: canAudit },
+      { key: "keywords", allowed: canKeywords },
+      { key: "attributes", allowed: canAttributes },
+      { key: "reviews", allowed: canReviews },
+      { key: "media", allowed: canMedia },
+      { key: "content", allowed: canContent },
+      { key: "fix", allowed: canFix },
+      { key: "positions", allowed: canPositions },
+    ].filter((t) => t.allowed).map((t) => t.key);
+  }, [canAudit, canKeywords, canAttributes, canReviews, canMedia, canContent, canFix, canPositions]);
+
   // Tab va ko'rilayotgan tahlil MANZILDA: yangilash ham, orqaga
   // qaytish ham sahifani boshiga tashlamasin.
-  const [tab, setTab] = useQueryState("tab", "audit");
+  const defaultTab = allowedTabs[0] ?? "audit";
+  const [tab, setTab] = useQueryState("tab", defaultTab);
+
+  const activeTab = React.useMemo(() => {
+    if (allowedTabs.length > 0 && !allowedTabs.includes(tab)) {
+      return allowedTabs[0];
+    }
+    return tab;
+  }, [allowedTabs, tab]);
+
   const [runId, setRunId] = useQueryNumber("run");
   const [job, setJob] = React.useState<Job>(null);
   const [exporting, setExporting] = React.useState(false);
@@ -202,91 +235,121 @@ export default function SeoDetailPage() {
           <RunPicker runs={audit.runs} activeId={runId} onPick={setRunId} />
           <ScoreBlock audit={audit} />
 
-          <Tabs value={tab} onValueChange={setTab} className={styles.tabs}>
+          <Tabs value={activeTab} onValueChange={setTab} className={styles.tabs}>
             <div className={styles.tabsScroller}>
             <TabsList className={styles.tabsList}>
-              <TabsTrigger value="audit">Xulosalar</TabsTrigger>
-              <TabsTrigger value="keywords">
-                {`Kalit so'zlar (${audit.keywordsTotal})`}
-              </TabsTrigger>
-              <TabsTrigger value="attributes" className="gap-1.5">
-                <SlidersHorizontal className="h-3.5 w-3.5" /> Xususiyatlar
-                {audit.attributes && audit.attributes.missing.length > 0 && (
-                  <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-600 dark:text-amber-500">
-                    {audit.attributes.missing.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="reviews" className="gap-1.5">
-                <MessageSquare className="h-3.5 w-3.5" /> Sharhlar
-                {audit.reviews && audit.reviews.total > 0 && (
-                  <span className="rounded bg-background/70 px-1 text-[10px]">
-                    {audit.reviews.total}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="media" className="gap-1.5">
-                <ImageIcon className="h-3.5 w-3.5" /> Rasmlar
-              </TabsTrigger>
-              <TabsTrigger value="content" className="gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> AI matn
-              </TabsTrigger>
-              <TabsTrigger value="fix" className="gap-1.5">
-                <PenLine className="h-3.5 w-3.5" /> Tuzatish
-                {audit.appliedAt && (
-                  <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-500" />
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="positions" className="gap-1.5">
-                <Activity className="h-3.5 w-3.5" /> O&apos;rinlar
-              </TabsTrigger>
+              {canAudit && <TabsTrigger value="audit">Xulosalar</TabsTrigger>}
+              {canKeywords && (
+                <TabsTrigger value="keywords">
+                  {`Kalit so'zlar (${audit.keywordsTotal})`}
+                </TabsTrigger>
+              )}
+              {canAttributes && (
+                <TabsTrigger value="attributes" className="gap-1.5">
+                  <SlidersHorizontal className="h-3.5 w-3.5" /> Xususiyatlar
+                  {audit.attributes && audit.attributes.missing.length > 0 && (
+                    <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-600 dark:text-amber-500">
+                      {audit.attributes.missing.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              )}
+              {canReviews && (
+                <TabsTrigger value="reviews" className="gap-1.5">
+                  <MessageSquare className="h-3.5 w-3.5" /> Sharhlar
+                  {audit.reviews && audit.reviews.total > 0 && (
+                    <span className="rounded bg-background/70 px-1 text-[10px]">
+                      {audit.reviews.total}
+                    </span>
+                  )}
+                </TabsTrigger>
+              )}
+              {canMedia && (
+                <TabsTrigger value="media" className="gap-1.5">
+                  <ImageIcon className="h-3.5 w-3.5" /> Rasmlar
+                </TabsTrigger>
+              )}
+              {canContent && (
+                <TabsTrigger value="content" className="gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" /> AI matn
+                </TabsTrigger>
+              )}
+              {canFix && (
+                <TabsTrigger value="fix" className="gap-1.5">
+                  <PenLine className="h-3.5 w-3.5" /> Tuzatish
+                  {audit.appliedAt && (
+                    <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-500" />
+                  )}
+                </TabsTrigger>
+              )}
+              {canPositions && (
+                <TabsTrigger value="positions" className="gap-1.5">
+                  <Activity className="h-3.5 w-3.5" /> O&apos;rinlar
+                </TabsTrigger>
+              )}
             </TabsList>
             </div>
 
-            <TabsContent value="audit" className={styles.tabContent}>
-              <LanguagesBlock languages={audit.languages || []} />
-              <VerdictsBlock audit={audit} />
-            </TabsContent>
+            {canAudit && (
+              <TabsContent value="audit" className={styles.tabContent}>
+                <LanguagesBlock languages={audit.languages || []} />
+                <VerdictsBlock audit={audit} />
+              </TabsContent>
+            )}
 
-            <TabsContent value="keywords" className={styles.tabContent}>
-              <KeywordsBlock audit={audit} />
-            </TabsContent>
+            {canKeywords && (
+              <TabsContent value="keywords" className={styles.tabContent}>
+                <KeywordsBlock audit={audit} />
+              </TabsContent>
+            )}
 
-            <TabsContent value="attributes" className={styles.tabContent}>
-              <AttributesBlock
-                attributes={audit.attributes}
-                editUrl={
-                  externalId
-                    ? `https://seller.uzum.uz/seller/product/${externalId}/edit`
-                    : null
-                }
-              />
-            </TabsContent>
+            {canAttributes && (
+              <TabsContent value="attributes" className={styles.tabContent}>
+                <AttributesBlock
+                  attributes={audit.attributes}
+                  editUrl={
+                    externalId
+                      ? `https://seller.uzum.uz/seller/product/${externalId}/edit`
+                      : null
+                  }
+                />
+              </TabsContent>
+            )}
 
-            <TabsContent value="reviews" className={styles.tabContent}>
-              <ReviewsBlock reviews={audit.reviews} />
-            </TabsContent>
+            {canReviews && (
+              <TabsContent value="reviews" className={styles.tabContent}>
+                <ReviewsBlock reviews={audit.reviews} />
+              </TabsContent>
+            )}
 
-            <TabsContent value="media" className={styles.tabContent}>
-              <MediaBlock audit={audit} job={job} onRun={() => run("media")} />
-            </TabsContent>
+            {canMedia && (
+              <TabsContent value="media" className={styles.tabContent}>
+                <MediaBlock audit={audit} job={job} onRun={() => run("media")} />
+              </TabsContent>
+            )}
 
-            <TabsContent value="content" className={styles.tabContent}>
-              <ContentBlock audit={audit} job={job} onRun={() => run("content")} />
-            </TabsContent>
+            {canContent && (
+              <TabsContent value="content" className={styles.tabContent}>
+                <ContentBlock audit={audit} job={job} onRun={() => run("content")} />
+              </TabsContent>
+            )}
 
-            <TabsContent value="fix" className={styles.tabContent}>
-              <FixBlock
-                audit={audit}
-                externalId={externalId}
-                onSaved={setAudit}
-              />
-            </TabsContent>
+            {canFix && (
+              <TabsContent value="fix" className={styles.tabContent}>
+                <FixBlock
+                  audit={audit}
+                  externalId={externalId}
+                  onSaved={setAudit}
+                />
+              </TabsContent>
+            )}
 
-            <TabsContent value="positions" className={styles.tabContent}>
-              <PositionsBlock productId={audit.productId} />
-              <RivalsBlock productId={audit.productId} />
-            </TabsContent>
+            {canPositions && (
+              <TabsContent value="positions" className={styles.tabContent}>
+                <PositionsBlock productId={audit.productId} />
+                <RivalsBlock productId={audit.productId} />
+              </TabsContent>
+            )}
           </Tabs>
         </>
       )}

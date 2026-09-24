@@ -1,16 +1,27 @@
 "use client";
 
+import * as React from "react";
 import { BarChart3, Calculator, Landmark, Sparkles } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FinanceReport } from "@/features/finance/components/finance-report";
 import { CalculatorTab } from "@/features/finance/components/calculator-tab";
 import { useQueryState } from "@/lib/use-query-state";
+import { useCan } from "@/stores/user-store";
 import styles from "@/features/finance/components/finance.module.css";
 
 export default function FinancePage() {
-  const [tab, setTab] = useQueryState("view", "report");
-  const activeTab = tab === "calculator" ? "calculator" : "report";
+  const canReport = useCan("finance.tab.report");
+  const canCalc = useCan("finance.tab.calculator");
+
+  const defaultTab = canReport ? "report" : canCalc ? "calculator" : "report";
+  const [tab, setTab] = useQueryState("view", defaultTab);
+
+  const activeTab = React.useMemo(() => {
+    if (tab === "calculator" && canCalc) return "calculator";
+    if (tab === "report" && canReport) return "report";
+    return defaultTab;
+  }, [tab, canCalc, canReport, defaultTab]);
 
   return (
     <div className={styles.page}>
@@ -33,30 +44,39 @@ export default function FinancePage() {
           </div>
 
           <TabsList className={styles.tabsList} aria-label="Moliya bo'limlari">
-            <TabsTrigger value="report" className={styles.tabTrigger}>
-              <span className={styles.tabIcon}><BarChart3 aria-hidden="true" /></span>
-              <span>
-                <strong>Hisobot</strong>
-                <small>Real pul oqimi</small>
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="calculator" className={styles.tabTrigger}>
-              <span className={styles.tabIcon}><Calculator aria-hidden="true" /></span>
-              <span>
-                <strong>Kalkulyator</strong>
-                <small>Foyda prognozi</small>
-              </span>
-            </TabsTrigger>
+            {canReport && (
+              <TabsTrigger value="report" className={styles.tabTrigger}>
+                <span className={styles.tabIcon}><BarChart3 aria-hidden="true" /></span>
+                <span>
+                  <strong>Hisobot</strong>
+                  <small>Real pul oqimi</small>
+                </span>
+              </TabsTrigger>
+            )}
+            {canCalc && (
+              <TabsTrigger value="calculator" className={styles.tabTrigger}>
+                <span className={styles.tabIcon}><Calculator aria-hidden="true" /></span>
+                <span>
+                  <strong>Kalkulyator</strong>
+                  <small>Foyda prognozi</small>
+                </span>
+              </TabsTrigger>
+            )}
           </TabsList>
         </header>
 
-        <TabsContent value="report" className={styles.tabContent}>
-          <FinanceReport />
-        </TabsContent>
-        <TabsContent value="calculator" className={styles.tabContent}>
-          <CalculatorTab />
-        </TabsContent>
+        {canReport && (
+          <TabsContent value="report" className={styles.tabContent}>
+            <FinanceReport />
+          </TabsContent>
+        )}
+        {canCalc && (
+          <TabsContent value="calculator" className={styles.tabContent}>
+            <CalculatorTab />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
 }
+

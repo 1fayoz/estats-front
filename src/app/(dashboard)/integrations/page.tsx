@@ -30,7 +30,7 @@ import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
-import { useShops, useUserStore } from "@/stores/user-store";
+import { useActions, useShops, useUserStore } from "@/stores/user-store";
 import type { AiKeyState, OpenAiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
 
 function IntegrationsSkeleton() {
@@ -140,13 +140,37 @@ function IntegrationsWorkspace() {
     } finally { connectingRef.current = false; setConnecting(false); }
   };
 
-  // Kengaytma va AI sozlamalari do'konsiz ham ishlaydi (butun hisob/foydalanuvchi doirasida).
-  const selected =
-    tab === "extension" || tab === "ai"
-      ? tab
-      : !hasShop || !["uzum", ...PLATFORM_ORDER].includes(tab)
-      ? "uzum"
-      : tab;
+  const attentionCount = accounts.filter((account) => account.tokenExpired || account.tokenExpiresSoon || account.error || account.warning).length;
+  const aiStates = [aiKey, openAiKey].filter((state) => state !== null);
+  const aiConfigured = aiStates.filter((state) => state.configured).length;
+  // Kiritilgan-u ishlamayotgan kalit (mablag' yo'q / yaroqsiz) — "ulangan" belgisi yolg'on bo'lmasin.
+  const aiBroken = aiStates.filter((state) => state.account?.status === "no_credit" || state.account?.status === "invalid").length;
+
+  const services = [
+    { value: "uzum", label: "Uzum Market", action: "integrations.tab.uzum", icon: <ShoppingBag />, detail: hasShop ? `${shops.length} ta do‘kon` : "Birinchi do‘konni ulang", connected: hasShop },
+    { value: "extension", label: "Brauzer kengaytmasi", action: "integrations.tab.extension", icon: <Puzzle />, detail: "uzum.uz ustida tahlil", connected: false },
+    { value: "ai", label: "AI yordamchilar", action: "integrations.tab.ai", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: aiConfigured > aiBroken },
+    ...PLATFORM_ORDER.map((platform) => {
+      const mine = accounts.filter((account) => account.platform === platform);
+      const row = platforms.find((item) => item.platform === platform);
+      return {
+        value: platform, label: PLATFORM_LABEL[platform], action: "integrations.tab.socials", icon: <NetworkIcon platform={platform} colored />,
+        detail: mine.length ? `${mine.length} ta akkaunt` : row?.unavailable ? "Hozircha mavjud emas" : accountsKnown ? "Akkaunt ulanmagan" : "Holati noma’lum",
+        connected: mine.length > 0,
+      };
+    }),
+  ];
+
+  const actions = useActions();
+  const allowedSet = React.useMemo(() => (actions ? new Set(actions) : null), [actions]);
+  const visibleServices = React.useMemo(() => {
+    if (!allowedSet) return services;
+    return services.filter((s) => !s.action || allowedSet.has(s.action));
+  }, [services, allowedSet]);
+
+  const availableValues = React.useMemo(() => visibleServices.map((s) => s.value), [visibleServices]);
+  const defaultTab = availableValues[0] ?? "uzum";
+  const selected = availableValues.includes(tab) ? tab : defaultTab;
   const selectedPlatform = platforms.find((row) => row.platform === selected);
   React.useEffect(() => {
     const navigation = servicesRef.current;
@@ -163,25 +187,6 @@ function IntegrationsWorkspace() {
     observer.observe(navigation);
     return () => observer.disconnect();
   }, [selected]);
-  const attentionCount = accounts.filter((account) => account.tokenExpired || account.tokenExpiresSoon || account.error || account.warning).length;
-  const aiStates = [aiKey, openAiKey].filter((state) => state !== null);
-  const aiConfigured = aiStates.filter((state) => state.configured).length;
-  // Kiritilgan-u ishlamayotgan kalit (mablag' yo'q / yaroqsiz) — "ulangan" belgisi yolg'on bo'lmasin.
-  const aiBroken = aiStates.filter((state) => state.account?.status === "no_credit" || state.account?.status === "invalid").length;
-  const services = [
-    { value: "uzum", label: "Uzum Market", icon: <ShoppingBag />, detail: hasShop ? `${shops.length} ta do‘kon` : "Birinchi do‘konni ulang", connected: hasShop },
-    { value: "extension", label: "Brauzer kengaytmasi", icon: <Puzzle />, detail: "uzum.uz ustida tahlil", connected: false },
-    { value: "ai", label: "AI yordamchilar", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: aiConfigured > aiBroken },
-    ...PLATFORM_ORDER.map((platform) => {
-      const mine = accounts.filter((account) => account.platform === platform);
-      const row = platforms.find((item) => item.platform === platform);
-      return {
-        value: platform, label: PLATFORM_LABEL[platform], icon: <NetworkIcon platform={platform} colored />,
-        detail: mine.length ? `${mine.length} ta akkaunt` : row?.unavailable ? "Hozircha mavjud emas" : accountsKnown ? "Akkaunt ulanmagan" : "Holati noma’lum",
-        connected: mine.length > 0,
-      };
-    }),
-  ];
 
   return (
     <div className={cn(styles.workspace, "space-y-5 sm:space-y-6")}>
@@ -211,7 +216,7 @@ function IntegrationsWorkspace() {
           <div className="xl:sticky xl:top-5">
             <p className="mb-3 hidden px-2 text-[11px] font-semibold uppercase tracking-[.14em] text-muted-foreground xl:block">Xizmatlar</p>
             <nav ref={servicesRef} aria-label="Integratsiya xizmatlari" className={styles.services}>
-              {services.map((service) => (
+              {visibleServices.map((service) => (
                 <button key={service.value} type="button" aria-pressed={selected === service.value} aria-controls="integration-content" disabled={!hasShop && service.value !== "uzum" && service.value !== "extension" && service.value !== "ai"} onClick={() => setTab(service.value)} className={cn(styles.service, selected === service.value && styles.selected)}>
                   <span className={styles.serviceIcon}>{service.icon}</span>
                   <span className="min-w-0 text-left"><span className="block whitespace-nowrap text-sm font-medium">{service.label}</span><span className="mt-1 hidden text-xs text-muted-foreground xl:block">{service.detail}</span></span>
@@ -223,7 +228,7 @@ function IntegrationsWorkspace() {
           </div>
         </aside>
 
-        <section id="integration-content" aria-label={services.find((service) => service.value === selected)?.label} className="min-w-0 space-y-4">
+        <section id="integration-content" aria-label={visibleServices.find((service) => service.value === selected)?.label} className="min-w-0 space-y-4">
           {issues.length > 0 && <div role="alert" className="flex flex-wrap items-start gap-3 rounded-2xl border border-[var(--warn)]/25 bg-[var(--warn)]/5 p-4"><AlertCircle className="mt-0.5 size-5 shrink-0 text-[var(--warn)]" /><div className="min-w-0 flex-1 text-sm"><p className="font-medium">Ayrim holatlarni yangilab bo‘lmadi</p><p className="mt-1 text-muted-foreground">{issues.join(", ")}. Avval yuklangan ma’lumotlar bo‘lsa, saqlanib turibdi.</p></div><Button variant="outline" className="min-h-11 rounded-xl" disabled={refreshing} onClick={() => void load()}>Qayta urinish</Button></div>}
 
           {selected === "uzum" && <div className={cn(styles.panel, "space-y-4")}>
