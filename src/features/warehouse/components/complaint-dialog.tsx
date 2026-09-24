@@ -20,6 +20,8 @@ import { JobProgress, jobIsActive } from "./job-progress";
 interface Props {
   productId: number | null;
   onOpenChange: (open: boolean) => void;
+  job?: ComplaintJob | null;
+  onJobChange?: (job: ComplaintJob | null) => void;
 }
 
 /**
@@ -33,10 +35,16 @@ interface Props {
  * Operatorning JAVOBI ham shu yerda ko'rinadi — Telegramni ochish
  * shart emas.
  */
-export function ComplaintDialog({ productId, onOpenChange }: Props) {
+export function ComplaintDialog({ productId, onOpenChange, job: externalJob, onJobChange }: Props) {
   const [preview, setPreview] = React.useState<ComplaintPreview | null>(null);
   const [text, setText] = React.useState("");
-  const [job, setJob] = React.useState<ComplaintJob | null>(null);
+  const [internalJob, setInternalJob] = React.useState<ComplaintJob | null>(null);
+  const job = externalJob !== undefined ? externalJob : internalJob;
+  const setJob = React.useCallback((next: ComplaintJob | null) => {
+    setInternalJob(next);
+    onJobChange?.(next);
+  }, [onJobChange]);
+
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -56,12 +64,14 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
         ]);
         setPreview(next);
         setText(next.text);
-        setJob(state && state.status !== "idle" ? state : null);
+        if (state && state.status !== "idle") {
+          setJob(state);
+        }
       } catch (err) {
         setError(err instanceof ApiError ? err.message : "Matnni tayyorlab bo'lmadi.");
       }
     })();
-  }, [productId]);
+  }, [productId, setJob]);
 
   // Ish ketayotganda holatni so'rab turamiz. Tugagach ham bir necha
   // daqiqa davom etadi: operator javobi keyinroq keladi.
@@ -79,7 +89,7 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
       }
     }, jobIsActive(job) ? 2000 : 15000);
     return () => clearInterval(timer);
-  }, [productId, job]);
+  }, [productId, job, setJob]);
 
   const onSend = async () => {
     if (productId == null || !text.trim()) return;
@@ -88,7 +98,7 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
     try {
       const started = await sendComplaint(productId, text.trim(), Boolean(preview?.lastSentAt));
       setJob(started);
-      toast.success("Yozish boshlandi — fonda davom etadi, kutib turish shart emas.");
+      toast.success("Yozish boshlandi — fonda davom etadi, pastdagi paneldan kuzatishingiz mumkin.");
     } catch (err) {
       const message = err instanceof ApiError ? err.message : "Boshlab bo'lmadi.";
       setError(message);
@@ -151,7 +161,16 @@ export function ComplaintDialog({ productId, onOpenChange }: Props) {
         )}
 
         <DialogFooter>
-          <Button size="sm" variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              onOpenChange(false);
+              if (active) {
+                toast.info("Fonda davom etmoqda — holat pastdagi paneldan ko‘rinib turadi.");
+              }
+            }}
+          >
             {active ? "Fonda davom etsin" : "Yopish"}
           </Button>
           {!active && (

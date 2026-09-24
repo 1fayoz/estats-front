@@ -17,6 +17,8 @@ import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
 import { PeriodsCard } from "@/features/warehouse/components/periods-card";
 import { ComplaintDialog } from "@/features/warehouse/components/complaint-dialog";
+import { ComplaintJobTray } from "@/features/warehouse/components/complaint-job-tray";
+import { jobIsActive } from "@/features/warehouse/components/job-progress";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { MarketCard } from "@/features/warehouse/components/market-card";
 import { ReturnsCard } from "@/features/warehouse/components/returns-card";
@@ -40,12 +42,12 @@ import { ProductAiModal } from "@/features/products-ai/components/product-modal"
 import { useAiDrafts } from "@/features/products-ai/use-drafts";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
-import { ApiError, fetchProductDetail, mediaUrl, regenerateProductUzum } from "@/lib/api";
+import { ApiError, fetchComplaintJob, fetchProductDetail, mediaUrl, regenerateProductUzum } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import { useCan, useUserStore } from "@/stores/user-store";
-import type { ProductDetail, WarehouseProduct } from "@/lib/types";
+import type { ComplaintJob, ProductDetail, WarehouseProduct } from "@/lib/types";
 import styles from "@/features/warehouse/components/product-detail.module.css";
 
 const SECTIONS = [
@@ -124,10 +126,55 @@ function ProductDetailPage({ id }: { id: number }) {
   const [intakeFor, setIntakeFor] = React.useState<WarehouseProduct | null>(null);
   const [editingAi, setEditingAi] = React.useState(false);
   const [complaintFor, setComplaintFor] = React.useState<number | null>(null);
+  const [complaintJob, setComplaintJob] = React.useState<ComplaintJob | null>(null);
   // «Bir xil tovar» — Uzum'da ikki marta qo'yilgan e'lonni bog'lash oynasi.
   const [linkOpen, setLinkOpen] = React.useState(false);
   const requestVersion = React.useRef(0);
   const navigationRef = React.useRef<HTMLElement>(null);
+
+  // Tovarga oid Telegram operator so'rovi (mavjud bo'lsa)
+  React.useEffect(() => {
+    let active = true;
+    void fetchComplaintJob(id)
+      .then((res) => {
+        if (active && res && res.status !== "idle") {
+          setComplaintJob(res);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  // Fonda bajarilayotgan operator so'rovini kuzatib borish
+  React.useEffect(() => {
+    if (!complaintJob) return;
+    const active = jobIsActive(complaintJob);
+    const waitingReply = complaintJob.status === "done" && !complaintJob.replyText;
+    if (!active && !waitingReply) return;
+
+    const intervalMs = active ? 1500 : 8000;
+    const timer = setInterval(async () => {
+      try {
+        const next = await fetchComplaintJob(id);
+        if (next && next.status !== "idle") {
+          setComplaintJob((prev) => {
+            if (!prev?.replyText && next.replyText) {
+              toast.success("Operator javob berdi!", {
+                description: next.replyText.slice(0, 100),
+              });
+            }
+            return next;
+          });
+        }
+      } catch {
+        // tarmoq uzilishi
+      }
+    }, intervalMs);
+
+    return () => clearInterval(timer);
+  }, [complaintJob, id]);
 
   const load = React.useCallback(async () => {
     if (!Number.isSafeInteger(id) || id <= 0) {
@@ -344,7 +391,7 @@ function ProductDetailPage({ id }: { id: number }) {
       <section id="product-detail-content" key={section} aria-label={SECTIONS.find((item) => item.value === section)?.label} className={cn(styles.content, "min-w-0 space-y-5")}>
         {section === "umumiy" && <>
           {group && <StockGroupCard group={group} canEdit={canControlWarehouse} onChanged={load} onAddMore={() => setLinkOpen(true)} />}
-          <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} />
+          <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} complaintJob={complaintJob} />
           {data.uzumCard && <UzumCardContent card={data.uzumCard} />}
           <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
           <DetailIntakes intakes={data.intakes} onAdd={() => setIntakeFor(product)} sharedListings={group?.members.length ?? 1} />
@@ -378,7 +425,7 @@ function ProductDetailPage({ id }: { id: number }) {
         {section === "tarix" && <ChangeHistoryCard productId={id} changeLogs={data.changeLogs ?? []} draftTextPushedAt={data.draftTextPushedAt ?? null} onReverted={load} />}
       </section>
 
-      <ComplaintDialog productId={complaintFor} onOpenChange={(open) => { if (!open) setComplaintFor(null); }} />
+      <ComplaintDialog productId={complaintFor} onOpenChange={(open) => { if (!open) setComplaintFor(null); }} job={complaintJob} onJobChange={setComplaintJob} />
       <IntakeDialog product={intakeFor} onOpenChange={(open) => { if (!open) setIntakeFor(null); }} onSaved={load} sharedListings={group?.members.length ?? 1} />
       <LinkDuplicateDialog productId={id} open={linkOpen} onOpenChange={setLinkOpen} onLinked={load} />
       {canSeeAi && (
@@ -391,6 +438,15 @@ function ProductDetailPage({ id }: { id: number }) {
         />
       )}
       {canSeeAi && <AiGenerationTray rows={drafts.trayRows} onOpen={(draftId) => openAi(draftId)} />}
+      {complaintJob && complaintFor === null && (
+        <ComplaintJobTray
+          job={complaintJob}
+          title={product.title}
+          hasAiTray={canSeeAi && drafts.trayRows.length > 0}
+          onOpen={() => setComplaintFor(product.id)}
+          onDismiss={() => setComplaintJob(null)}
+        />
+      )}
     </div>
   );
 }

@@ -31,8 +31,10 @@ import type {
   ProductFixResult,
   ProductValidationFinding,
   WarehouseProduct,
+  ComplaintJob,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { jobIsActive } from "./job-progress";
 
 type Tone = "neutral" | "success" | "warning" | "error";
 type Action = "check" | "auto" | "reason";
@@ -44,6 +46,7 @@ interface ProductModerationCardProps {
   onOpenAi: (draftId: number) => void;
   onComplaint: () => void;
   canSeeAi: boolean;
+  complaintJob?: ComplaintJob | null;
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -125,7 +128,15 @@ function fixFeedback(result: ProductFixResult, automatic: boolean): { message: s
   return { message: messages.join(" "), tone: manual.length || result.uzumPush?.ok === false ? "warning" : "neutral" };
 }
 
-export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onComplaint, canSeeAi }: ProductModerationCardProps) {
+export function ProductModerationCard({
+  data,
+  onReload,
+  onUpdated,
+  onOpenAi,
+  onComplaint,
+  canSeeAi,
+  complaintJob,
+}: ProductModerationCardProps) {
   const [busy, setBusy] = React.useState<Action | null>(null);
   const [feedback, setFeedback] = React.useState<{ message: string; tone: Tone } | null>(null);
   const busyRef = React.useRef(false);
@@ -689,9 +700,73 @@ export function ProductModerationCard({ data, onReload, onUpdated, onOpenAi, onC
               {busy === "reason" ? "Sabab aniqlanmoqda…" : "Uzum sababini aniqlash"}
             </Button>
           )}
-          <Button type="button" variant="ghost" disabled={busy !== null || applyingFix} className={cn(ACTION_CLASS, "text-muted-foreground sm:ml-auto")} onClick={onComplaint}>
-            <MessageSquare aria-hidden="true" />Operatorga yozish
-          </Button>
+          {complaintJob && jobIsActive(complaintJob) ? (
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                ACTION_CLASS,
+                "gap-2 border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 sm:ml-auto font-medium",
+              )}
+              onClick={onComplaint}
+            >
+              <span className="relative flex size-3 shrink-0">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/60" />
+                <span className="relative inline-flex size-3 rounded-full bg-primary" />
+              </span>
+              <span>Operatorga yozilmoqda · {complaintJob.percent}% ({complaintJob.step})</span>
+            </Button>
+          ) : complaintJob?.replyText ? (
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                ACTION_CLASS,
+                "gap-2 border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 sm:ml-auto font-medium",
+              )}
+              onClick={onComplaint}
+            >
+              <MessageSquare className="size-4 shrink-0" aria-hidden="true" />
+              <span>Operator javob berdi · Ko‘rish</span>
+            </Button>
+          ) : complaintJob?.status === "done" ? (
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                ACTION_CLASS,
+                "gap-2 border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 sm:ml-auto font-medium",
+              )}
+              onClick={onComplaint}
+            >
+              <CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              <span>Operatorga yuborilgan · Javob kutilmoqda</span>
+            </Button>
+          ) : complaintJob?.status === "failed" ? (
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                ACTION_CLASS,
+                "gap-2 border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/15 sm:ml-auto font-medium",
+              )}
+              onClick={onComplaint}
+            >
+              <AlertCircle className="size-4 shrink-0 text-destructive" aria-hidden="true" />
+              <span>To‘xtadi ({complaintJob.step}) · Qayta yozish</span>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={busy !== null || applyingFix}
+              className={cn(ACTION_CLASS, "text-muted-foreground sm:ml-auto")}
+              onClick={onComplaint}
+            >
+              <MessageSquare aria-hidden="true" />
+              <span>Operatorga yozish</span>
+            </Button>
+          )}
         </div>
       </div>
     </Card>
