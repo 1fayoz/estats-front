@@ -6,7 +6,7 @@ const CASES = [
     badge: "Vaqt tejash",
     title: "2 soatlik tahlil — 10 soniyada",
     desc:
-      "Mahsulotni qo'lda tekshirish 2 soat oladi. Photo Search bilan 10 soniyada Uzum kataloglaridan o'xshashlarni topib, raqobatchi narxlar va sotuvlarini ko'rasiz.",
+      "Mahsulotni qo'lda tekshirish 2 soat oladi. Photo Search bilan 10 soniyada bozor kataloglaridan o'xshashlarni topib, raqobatchi narxlar va sotuvlarini ko'rasiz.",
     metric: "−99%",
     metricLabel: "vaqt",
     color: "from-cyan-500/15 to-card",

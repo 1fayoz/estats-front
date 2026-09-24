@@ -59,7 +59,7 @@ const FEATURES = [
   {
     icon: ScanSearch,
     title: "Rasm bo'yicha qidiruv",
-    desc: "1688, WB va boshqa saytlardan rasmni Uzumda 10 soniyada toping",
+    desc: "1688, Taobao va boshqa saytlardan rasmni bozorlarda 10 soniyada toping",
     color: "from-cyan-500/15 text-cyan-600 dark:text-cyan-400",
   },
   {
@@ -83,7 +83,7 @@ const FEATURES = [
   {
     icon: Wallet,
     title: "Komissiya va foyda",
-    desc: "Uzum komissiyasi, reklama, QQS va sof foyda kalkulyatori",
+    desc: "Bozor komissiyasi, reklama, QQS va sof foyda kalkulyatori",
     color: "from-teal-500/15 text-teal-600 dark:text-teal-400",
   },
 ];

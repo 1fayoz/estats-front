@@ -12,7 +12,8 @@ export default function PrivacyPage() {
       <p>Oxirgi yangilanish: 2026-yil 23-avgust</p>
 
       <p>
-        eStats — Uzum Market sotuvchilari uchun tan narx va foyda hisobi xizmati.
+        eStats — marketpleyslar (Uzum Market, Yandex Market, Wildberries, Ozon va boshqalar)
+        sotuvchilari uchun tan narx, ombor va foyda hisobi tahlil platformasi.
         Quyida qanday ma&apos;lumot olishimiz, nima uchun va qanday saqlashimiz
         tushuntirilgan.
       </p>
@@ -25,12 +26,12 @@ export default function PrivacyPage() {
           va saqlamaymiz.
         </li>
         <li>
-          <strong>Uzum Seller API tokeni:</strong> siz kiritgan token serverda saqlanadi
+          <strong>Marketpleys API tokeni:</strong> siz kiritgan API kaliti yoki token serverda saqlanadi
           va faqat sizning do&apos;koningiz ma&apos;lumotini (tovarlar, sotuvlar, moliya)
-          Uzum&apos;dan olish uchun ishlatiladi. Token brauzerga qaytarilmaydi.
+          tegishli marketpleysdan olish uchun ishlatiladi. Token brauzerga qaytarilmaydi.
         </li>
         <li>
-          <strong>Do&apos;kon ma&apos;lumoti:</strong> Uzum&apos;dan olingan tovarlar,
+          <strong>Do&apos;kon ma&apos;lumoti:</strong> marketpleyslardan olingan tovarlar,
           sotuvlar, komissiya va yetkazib berish summalari.
         </li>
         <li>
@@ -56,7 +57,7 @@ export default function PrivacyPage() {
       <ul>
         <li>Barcha aloqa HTTPS orqali shifrlangan.</li>
         <li>Ma&apos;lumot Germaniyadagi serverda saqlanadi, kunlik zaxira olinadi.</li>
-        <li>Uzum tokeni faqat serverda; brauzerda sessiya kalitidan boshqa narsa yo&apos;q.</li>
+        <li>API tokenlar faqat serverda; brauzerda sessiya kalitidan boshqa narsa yo&apos;q.</li>
       </ul>
 
       <h2>O&apos;chirish</h2>

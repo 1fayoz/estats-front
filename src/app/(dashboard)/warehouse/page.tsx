@@ -331,9 +331,9 @@ function WarehouseContent() {
           <div className="flex items-center gap-3">
             <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
             <div>
-              <div className="font-semibold">Uzum do&apos;kon tokeni ulanmagan</div>
+              <div className="font-semibold">Do&apos;kon API ulanmagan</div>
               <div className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                Tovarlarni Uzum bilan avtomatik sinxronizatsiya qilish uchun tokenni ulang yoki yangi tovar qo&apos;shing.
+                Tovarlarni bozorlar bilan avtomatik sinxronizatsiya qilish uchun do&apos;koningizni ulang yoki yangi tovar qo&apos;shing.
               </div>
             </div>
           </div>
@@ -343,7 +343,7 @@ function WarehouseContent() {
             variant="outline"
             className="border-amber-300 bg-white hover:bg-amber-100 text-amber-900 dark:border-amber-700 dark:bg-amber-900/40 dark:hover:bg-amber-900/60 dark:text-amber-100 shrink-0"
           >
-            <a href="/integrations">Uzum tokenni ulash &rarr;</a>
+            <a href="/integrations">Do&apos;konni ulash &rarr;</a>
           </Button>
         </div>
       )}

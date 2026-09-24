@@ -122,10 +122,10 @@ export default function PlanPage() {
               <Mini label="Bu oy tovar foydasi" value={plan.thisMonth} tone="positive" />
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              Uzum&apos;da balans endpointi yo&apos;q — bu raqamlar buyurtma satrlaridan
-              hisoblanadi. &quot;To&apos;lovga tayyor&quot; — Uzum to&apos;lashga
-              tayyorlagan summa; &quot;yo&apos;lda&quot; — hali yetkazilmagan va bir
-              qismi bekor bo&apos;lishi mumkin.
+              Marketpleys balans raqamlari buyurtma satrlaridan
+              hisoblanadi. &quot;To&apos;lovga tayyor&quot; — to&apos;lashga
+              tayyorlangan summa; &quot;yo&apos;lda&quot; — hali yetkazilmagan va bir
+              qismi bekor bo&apos;lishi mumkin bo&apos;lgan buyurtmalar.
             </p>
           </CardContent>
         </Card>

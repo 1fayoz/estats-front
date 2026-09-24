@@ -1,7 +1,7 @@
 import { Puzzle, Check, Download, ScanSearch, Rocket } from "lucide-react";
 
 const POINTS = [
-  "Uzum.uz saytida har bir karta yonida real vaqtdagi analitika",
+  "Bozorlar va saytlarida har bir karta yonida real vaqtdagi analitika",
   "Boost TOP kampaniyalarini brauzerdan boshqarish",
   "Kalit so'z pozitsiyalarini bir klikda kuzatish",
   "Rasm bo'yicha qidiruvni o'ng tugma orqali ishga tushirish",
@@ -18,7 +18,7 @@ export function PluginSection() {
             Puzzle / Yandex Browser
           </div>
           <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-            Brauzer kengaytmasi — <span className="gradient-text">to'g'ridan-to'g'ri Uzumda</span>
+            Brauzer kengaytmasi — <span className="gradient-text">to'g'ridan-to'g'ri marketpleyslarda</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
             Saytdan chiqmasdan, har bir kartochka yonida analitik ma'lumotlarni ko'ring. Reklamani

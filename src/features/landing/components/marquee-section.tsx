@@ -4,7 +4,7 @@ const ITEMS = [
   { label: "Raqobatchilar", note: "kim oldingizda" },
   { label: "FIFO tan narx", note: "partiya bo'yicha" },
   { label: "Sof foyda", note: "komissiyadan keyin" },
-  { label: "Uzum yechimlari", note: "jarima, saqlash" },
+  { label: "Bozor yechimlari", note: "komissiya, saqlash" },
   { label: "Doimiy xarajatlar", note: "oylik taqsimot" },
   { label: "Ombor qoldig'i", note: "ogohlantirish bilan" },
   { label: "Instagram · Telegram", note: "bitta tugma bilan" },

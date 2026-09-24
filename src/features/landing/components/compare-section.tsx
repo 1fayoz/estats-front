@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 type Mark = "yes" | "no" | "partly";
 
-const COLUMNS = ["Uzum kabineti", "Analitika servisi", "eStats"] as const;
+const COLUMNS = ["Marketpleys kabineti", "Oddiy tahlil servisi", "eStats"] as const;
 
 const ROWS: { label: string; marks: [Mark, Mark, Mark]; note?: string }[] = [
   { label: "Sotuv va buyurtmalar", marks: ["yes", "no", "yes"] },
@@ -12,7 +12,7 @@ const ROWS: { label: string; marks: [Mark, Mark, Mark]; note?: string }[] = [
   {
     label: "Tan narx bilan sof foyda",
     marks: ["no", "no", "yes"],
-    note: "Uzum sizning tan narxingizni bilmaydi",
+    note: "Bozorlar sizning tan narxingizni bilmaydi",
   },
   { label: "FIFO — partiya bo'yicha tan narx", marks: ["no", "no", "yes"] },
   { label: "Doimiy xarajatlar taqsimoti", marks: ["no", "no", "yes"] },
@@ -38,7 +38,7 @@ export function CompareSection() {
           Ikkita servis o&apos;rniga bitta kabinet
         </h2>
         <p className="mt-4 text-muted-foreground">
-          Bugun sotuvchi sonni Uzum kabinetidan, tahlilni boshqa servisdan oladi.
+          Bugun sotuvchi sonni bozor kabinetlaridan, tahlilni boshqa servisdan oladi.
           Ma&apos;lumot bir-biriga ulanmaydi va haqiqiy foydani hech biri
           ko&apos;rsatmaydi — chunki tan narxni faqat siz bilasiz.
         </p>

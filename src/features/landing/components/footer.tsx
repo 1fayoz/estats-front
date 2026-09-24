@@ -13,7 +13,7 @@ export function LandingFooter() {
       <div className={cn(base.container, styles.footerGrid)}>
         <div className={styles.footerIntro}>
           <Link href="/" className={styles.logo} aria-label="eStats — bosh sahifa"><LogoMark size={34} /><span>{siteConfig.name}</span></Link>
-          <p>Uzum sotuvchisi uchun tovarlar, moliya va o‘sish imkoniyatlari — bir joyda.</p>
+          <p>Marketpleys sotuvchilari uchun tovarlar, moliya va o‘sish imkoniyatlari — bir joyda.</p>
           <a href={siteConfig.botUrl} target="_blank" rel="noopener noreferrer" className={styles.telegramLink}>Telegram botini ochish<ArrowUpRight size={16} aria-hidden="true" /><span className="sr-only"> (yangi oynada)</span></a>
         </div>
 
@@ -35,7 +35,7 @@ export function LandingFooter() {
 
       <div className={cn(base.container, styles.footerBottom)}>
         <span>© {new Date().getFullYear()} {siteConfig.name}.</span>
-        <span>Uzum Market sotuvchilari uchun mustaqil servis.</span>
+        <span>Marketpleys sotuvchilari uchun mustaqil analitika va boshqaruv platformasi.</span>
       </div>
     </footer>
   );

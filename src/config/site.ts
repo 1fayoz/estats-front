@@ -1,10 +1,10 @@
 export const siteConfig = {
   name: "eStats",
-  tagline: "Uzum Market uchun professional analitika",
+  tagline: "Marketpleyslar uchun professional analitika va boshqaruv",
   description:
-    "Uzum Market sotuvchilari uchun tan narx, FIFO bo'yicha foyda va zarar, " +
-    "doimiy xarajatlar va Instagram reklamasi — bitta joyda. Komissiya va " +
-    "logistikadan keyingi haqiqiy foydani ko'ring.",
+    "Marketpleys sotuvchilari uchun yagona ekotizim: Uzum Market, Yandex Market, " +
+    "Wildberries, Ozon va boshqalar. Tan narx, FIFO bo'yicha sof foyda, " +
+    "doimiy xarajatlar va ko'p kanalli savdo boshqaruvi — bitta joyda.",
   url: "https://estats.uz",
   locale: "uz",
   // Ilgari sayt shu manzilda turgan. Eski havolalar 301 bilan yangisiga

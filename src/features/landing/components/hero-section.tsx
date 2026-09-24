@@ -12,17 +12,17 @@ export function HeroSection() {
     <section className={styles.hero} aria-labelledby="landing-title">
       <div className={`${base.container} ${styles.layout}`}>
         <div className={styles.copy}>
-          <p className={styles.kicker}><span /> Uzum Market sotuvchilari uchun</p>
+          <p className={styles.kicker}><span /> Marketpleys sotuvchilari uchun · Uzum, Yandex, WB, Ozon</p>
           <h1 id="landing-title">Sotuvlar ko‘p.<br /><span>Foyda</span> qancha?</h1>
           <p className={styles.description}>
-            Ombor, tan narx, SEO va ijtimoiy tarmoqlar — bitta ish maydonida.
+            Ombor, tan narx, bozor tahlili, SEO va ijtimoiy tarmoqlar — bitta ish maydonida.
             Tushum ortidagi haqiqiy foydani ko‘ring va keyingi qadamingizni aniq belgilang.
           </p>
           <div className={styles.actions}>
             <Link href="/login" className={base.primaryButton}>Bepul boshlash <ArrowRight /></Link>
             <a href="#imkoniyatlar" className={base.secondaryButton}>Ichkarida nima bor? <ArrowDown /></a>
           </div>
-          <p className={styles.reassurance}><Check /> Avval tanishing. Keyin do‘koningizni ulang.</p>
+          <p className={styles.reassurance}><Check /> Avval tanishing. Keyin do‘konlaringizni ulang.</p>
           <div className={styles.heroTopics}>
             <span><Layers3 /> Ombor va FIFO</span>
             <span><Sparkles /> SEO va AI</span>
@@ -84,13 +84,14 @@ export function LandingConnections() {
   return (
     <section className={styles.connections} aria-label="Integratsiyalar">
       <div className={`${base.container} ${styles.connectionsInner}`}>
-        <p>Siz ishlatadigan vositalar.<br /><strong>Endi bir-biriga bog‘langan.</strong></p>
+        <p>Marketpleyslar va tarmoqlar.<br /><strong>Barchasi bir-biriga bog‘langan.</strong></p>
         <div className={styles.connectionNames}>
           <span className={styles.market}><Store /><strong>Uzum Market</strong></span>
-          <span><NetworkIcon platform="instagram" /><strong>Instagram</strong></span>
+          <span style={{ color: "#fc3f1d" }}><Store /><strong>Yandex Market</strong></span>
+          <span style={{ color: "#cb11ab" }}><Store /><strong>Wildberries</strong></span>
+          <span style={{ color: "#005bff" }}><Store /><strong>Ozon</strong></span>
           <span><NetworkIcon platform="telegram" /><strong>Telegram</strong></span>
-          <span><NetworkIcon platform="tiktok" /><strong>TikTok</strong></span>
-          <span><NetworkIcon platform="linkedin" /><strong>LinkedIn</strong></span>
+          <span><NetworkIcon platform="instagram" /><strong>Instagram</strong></span>
         </div>
       </div>
     </section>

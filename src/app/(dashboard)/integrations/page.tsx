@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, CircleCheck, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
+import { AlertCircle, CircleCheck, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
 import { toast } from "sonner";
 import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
@@ -148,7 +148,10 @@ function IntegrationsWorkspace() {
 
   const services = [
     { value: "uzum", label: "Uzum Market", action: "integrations.tab.uzum", icon: <ShoppingBag />, detail: hasShop ? `${shops.length} ta do‘kon` : "Birinchi do‘konni ulang", connected: hasShop },
-    { value: "extension", label: "Brauzer kengaytmasi", action: "integrations.tab.extension", icon: <Puzzle />, detail: "uzum.uz ustida tahlil", connected: false },
+    { value: "yandex", label: "Yandex Market", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
+    { value: "wb", label: "Wildberries", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
+    { value: "ozon", label: "Ozon", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
+    { value: "extension", label: "Brauzer kengaytmasi", action: "integrations.tab.extension", icon: <Puzzle />, detail: "Bozorlar ustida tahlil", connected: false },
     { value: "ai", label: "AI yordamchilar", action: "integrations.tab.ai", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: aiConfigured > aiBroken },
     ...PLATFORM_ORDER.map((platform) => {
       const mine = accounts.filter((account) => account.platform === platform);
@@ -199,7 +202,7 @@ function IntegrationsWorkspace() {
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         {[
-          { label: "Do‘konlar", value: shops.length, detail: "Uzum Market", icon: ShoppingBag },
+          { label: "Do‘konlar", value: shops.length, detail: "Marketpleyslar", icon: ShoppingBag },
           { label: "Akkauntlar", value: accountsKnown ? accounts.length : "—", detail: attentionCount ? `${attentionCount} ta e’tibor talab qiladi` : "Ijtimoiy tarmoqlar", icon: Link2 },
           { label: "AI kalitlari", value: aiStates.length ? `${aiConfigured}/${aiStates.length}` : "—", detail: aiBroken ? `${aiBroken} ta e’tibor talab qiladi` : "Matn va rasmlar", icon: Sparkles },
         ].map((item) => (
@@ -217,7 +220,7 @@ function IntegrationsWorkspace() {
             <p className="mb-3 hidden px-2 text-[11px] font-semibold uppercase tracking-[.14em] text-muted-foreground xl:block">Xizmatlar</p>
             <nav ref={servicesRef} aria-label="Integratsiya xizmatlari" className={styles.services}>
               {visibleServices.map((service) => (
-                <button key={service.value} type="button" aria-pressed={selected === service.value} aria-controls="integration-content" disabled={!hasShop && service.value !== "uzum" && service.value !== "extension" && service.value !== "ai"} onClick={() => setTab(service.value)} className={cn(styles.service, selected === service.value && styles.selected)}>
+                <button key={service.value} type="button" aria-pressed={selected === service.value} aria-controls="integration-content" disabled={!hasShop && service.value !== "uzum" && service.value !== "yandex" && service.value !== "wb" && service.value !== "ozon" && service.value !== "extension" && service.value !== "ai"} onClick={() => setTab(service.value)} className={cn(styles.service, selected === service.value && styles.selected)}>
                   <span className={styles.serviceIcon}>{service.icon}</span>
                   <span className="min-w-0 text-left"><span className="block whitespace-nowrap text-sm font-medium">{service.label}</span><span className="mt-1 hidden text-xs text-muted-foreground xl:block">{service.detail}</span></span>
                   {service.connected && <CircleCheck aria-label="Ulangan" className="ml-auto hidden size-4 shrink-0 text-[var(--ok)] xl:block" />}
@@ -237,9 +240,28 @@ function IntegrationsWorkspace() {
             {hasShop && <><UzumSyncCard /><div className="grid min-w-0 gap-4 2xl:grid-cols-2"><UzumSellerLoginCard /><MarketAccountLoginCard /></div><MarketTokenCard collapsible /></>}
           </div>}
 
+          {(selected === "yandex" || selected === "wb" || selected === "ozon") && (
+            <div className={cn(styles.panel, "space-y-4")}>
+              <div className="rounded-2xl border bg-card p-8 text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Store className="h-7 w-7" />
+                </div>
+                <h3 className="mt-4 text-xl font-semibold">
+                  {selected === "yandex" ? "Yandex Market" : selected === "wb" ? "Wildberries" : "Ozon"} integratsiyasi
+                </h3>
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                  Ushbu marketpleys bilan tovarlar va buyurtmalarni avtomatik sinxronizatsiya qilish ustida ish olib borilmoqda. Tez orada to‘liq API ulanishi taqdim etiladi.
+                </p>
+                <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary">
+                  ⏳ Tez kunda ishga tushiriladi
+                </div>
+              </div>
+            </div>
+          )}
+
           {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard /></div>}
 
-          {selected === "extension" ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
+          {(selected === "extension" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
             <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
             <AiCostCard />
             <div className="grid min-w-0 gap-4 2xl:grid-cols-2">{aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}{openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}</div>
@@ -250,7 +272,7 @@ function IntegrationsWorkspace() {
               {socialApps.filter((app) => app.platform === selected).map((app) => <AppKeysCard key={app.platform} app={app} onSaved={load} />)}
               {selected === "telegram" && <TelegramAccountCard />}
             </NetworkPanel>
-          </div> : selected !== "uzum" && <div className="rounded-2xl border bg-card p-6 text-center"><Link2 className="mx-auto size-8 text-primary" /><h2 className="mt-4 text-lg font-semibold">{PLATFORM_LABEL[selected]} ulanishi</h2><p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">{(restricted.includes("Xizmatlar") || restricted.includes("Akkauntlar")) ? "Bu xizmatni boshqarish uchun sizga ruxsat kerak." : "Xizmat holatini yuklab bo‘lmadi. Ulanishlarni yangilab ko‘ring."}</p><Button variant="outline" className="mt-4 min-h-11 rounded-xl" onClick={() => void load()} disabled={refreshing}>Yangilash</Button></div>}
+          </div> : selected !== "uzum" && selected !== "yandex" && selected !== "wb" && selected !== "ozon" && <div className="rounded-2xl border bg-card p-6 text-center"><Link2 className="mx-auto size-8 text-primary" /><h2 className="mt-4 text-lg font-semibold">{PLATFORM_LABEL[selected as keyof typeof PLATFORM_LABEL]} ulanishi</h2><p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">{(restricted.includes("Xizmatlar") || restricted.includes("Akkauntlar")) ? "Bu xizmatni boshqarish uchun sizga ruxsat kerak." : "Xizmat holatini yuklab bo‘lmadi. Ulanishlarni yangilab ko‘ring."}</p><Button variant="outline" className="mt-4 min-h-11 rounded-xl" onClick={() => void load()} disabled={refreshing}>Yangilash</Button></div>}
         </section>
       </div>
       <TelegramDialog open={telegramOpen} onOpenChange={setTelegramOpen} onConnected={load} />

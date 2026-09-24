@@ -156,8 +156,8 @@ export default function IntakesPage() {
           <InventoryStat icon={ShoppingBag} label="Jami sotildi" value={`${formatNumber(moneyTotals.soldQuantity)} dona`} hint={soldHint(moneyTotals.inTransitQuantity, moneyTotals.uncoveredQuantity)} />
           <InventoryStat icon={Package} label="Qoldi" value={`${formatNumber(moneyTotals.onHand)} dona`} hint={`Tan narx bo'yicha qiymati ${formatSum(moneyTotals.stockValue)}`} />
           <InventoryStat icon={Wallet} label="Jami sarflangan" value={formatSum(moneyTotals.intakeCost)} hint={`Sotilganlarining tan narxi ${formatSum(moneyTotals.cogs)}`} />
-          <InventoryStat icon={Banknote} label="Sotilgan summa" value={formatSum(moneyTotals.gross)} hint={`Uzum to'lovi ${formatSum(moneyTotals.revenue)}`} />
-          <InventoryStat icon={TrendingUp} label="Sof foyda" value={formatSum(moneyTotals.profit)} hint={moneyTotals.uncoveredQuantity ? `Kirimsiz ${formatNumber(moneyTotals.uncoveredQuantity)} dona hisobga olinmagan` : "Uzum to'lovi − tan narx"} tone={moneyTotals.uncoveredQuantity ? "warning" : "default"} />
+          <InventoryStat icon={Banknote} label="Sotilgan summa" value={formatSum(moneyTotals.gross)} hint={`Bozor to'lovi ${formatSum(moneyTotals.revenue)}`} />
+          <InventoryStat icon={TrendingUp} label="Sof foyda" value={formatSum(moneyTotals.profit)} hint={moneyTotals.uncoveredQuantity ? `Kirimsiz ${formatNumber(moneyTotals.uncoveredQuantity)} dona hisobga olinmagan` : "Bozor to'lovi − tan narx"} tone={moneyTotals.uncoveredQuantity ? "warning" : "default"} />
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

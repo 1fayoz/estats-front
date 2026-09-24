@@ -58,7 +58,7 @@ export default function LoginPage() {
             </span>
             <span className={styles.brandCopy}>
               <strong>{siteConfig.name}</strong>
-              <span>Seller analytics</span>
+              <span>Marketplace analytics</span>
             </span>
           </Link>
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
         <section className={styles.intro} aria-labelledby="login-heading">
           <div className={styles.eyebrow}>
             <span className={styles.eyebrowLine} />
-            Uzum sotuvchilari uchun
+            Marketpleys sotuvchilari uchun · Uzum, Yandex, WB, Ozon
           </div>
           <h1 id="login-heading" className={styles.title}>
             Savdoni taxmin bilan emas, <span>aniq raqamlar bilan</span> boshqaring.

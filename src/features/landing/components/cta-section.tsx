@@ -12,9 +12,9 @@ export function CtaSection() {
           <div className={styles.ctaContent}>
             <p className={styles.ctaEyebrow}>Keyingi qadam — sizniki</p>
             <h2 id="cta-heading">Keyingi qarorni taxmin bilan emas, <span>raqam bilan qiling.</span></h2>
-            <p className={styles.ctaDescription}>Do&apos;koningizni ulang. Savdo, xarajat va foydani bir joyda ko&apos;ring.</p>
+            <p className={styles.ctaDescription}>Marketpleys do&apos;konlaringizni ulang yoki tizim imkoniyatlarini sinab ko&apos;ring. Savdo, ombor va sof foydani bir joyda boshqaring.</p>
             <div className={styles.ctaActions}>
-              <Link href="/login" className={styles.ctaButton}>Do&apos;konni ulash <ArrowRight aria-hidden="true" /></Link>
+              <Link href="/login" className={styles.ctaButton}>Boshlash <ArrowRight aria-hidden="true" /></Link>
               <a href="#imkoniyatlar" className={styles.ctaLink}>Imkoniyatlarni ko&apos;rish <ArrowUpRight aria-hidden="true" /></a>
             </div>
           </div>

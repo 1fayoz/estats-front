@@ -31,7 +31,7 @@ const PLANS = [
       "Do'konlar va sotuvchilar profili",
       "SEO kalit so'zlar va pozitsiyalar",
       "Rasm qidiruvi (cheklanmagan)",
-      "Uzum / Kaspi / Teez ulash mumkin",
+      "Barcha marketpleyslarni (Uzum, Yandex, WB, Ozon) ulash mumkin",
     ],
     cta: "Tanlash",
     highlighted: false,

@@ -8,15 +8,15 @@ import styles from "./landing-chrome.module.css";
 const FAQ = [
   {
     question: "Ishni nimadan boshlayman?",
-    answer: "Hisobingizga kiring va Integratsiyalar bo‘limida Uzum do‘koningizni ulang. Sotuvchi kabinetidagi API tokeni orqali tovarlar, sotuvlar va moliya ma’lumotlari yuklanadi. Qo‘shimcha imkoniyatlar uchun kerakli ulanishlar shu bo‘limda ko‘rsatiladi.",
+    answer: "Hisobingizga kiring va Integratsiyalar bo‘limida marketpleys do‘konlaringizni (Uzum Market, Yandex Market, Wildberries, Ozon) ulang. API tokenlari orqali tovarlar, sotuvlar va moliya ma’lumotlari yuklanadi. Xohlasangiz do'kon ulamasdan ham Bozor tahlili va mahsulot qidiruvidan darhol foydalanishingiz mumkin.",
   },
   {
     question: "Sof foyda qanday hisoblanadi?",
     answer: "Tovar tan narxini kirim qo‘shayotganda partiya bo‘yicha kiritasiz. Hisob FIFO usulida yuritiladi: avval kelgan partiya avval sotiladi. Tushum, tan narx, komissiya, logistika va kiritilgan doimiy xarajatlar foyda hisobida alohida ko‘rinadi.",
   },
   {
-    question: "AI kartochkani Uzum’ga ham joylaydimi?",
-    answer: "AI avval nom, tavsif, rasmlar va boshqa ma’lumotlardan qoralama tayyorlaydi. Uni tekshirib, tahrirlab, tasdiqlaysiz. Uzum kabinetining brauzer ulanishi sozlangach, joylashni boshlashingiz mumkin. Mavjud AI kartochkalarining matni va rasmlarini Uzum’da yangilash imkoniyati ham bor.",
+    question: "AI kartochkani marketpleyslarga ham joylaydimi?",
+    answer: "AI avval nom, tavsif, rasmlar va boshqa ma’lumotlardan qoralama tayyorlaydi. Uni tekshirib, tahrirlab, tasdiqlaysiz. Kabinet ulanishi sozlangach, Uzum, Yandex, WB, Ozon kabi platformalarga joylashni boshlashingiz mumkin. Mavjud kartochkalarning matni va rasmlarini yangilash imkoniyati ham bor.",
   },
   {
     question: "O‘zbekcha va ruscha matn bilan ishlaydimi?",

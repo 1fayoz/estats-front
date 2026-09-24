@@ -33,7 +33,7 @@ export default function FinancePage() {
             </span>
             <h1>Pul oqimini aniq boshqaring</h1>
             <p>
-              Uzum hisob-kitoblarini tahlil qiling yoki mahsulot foydasini sotuvdan oldin
+              Bozor hisob-kitoblarini tahlil qiling yoki mahsulot foydasini sotuvdan oldin
               hisoblab ko&apos;ring.
             </p>
           </div>

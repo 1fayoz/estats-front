@@ -10,7 +10,7 @@ const STEPS = [
     icon: PlugZap,
     label: "Ulash",
     title: "Do'koningizni ulang.",
-    description: "Uzum integratsiyasini sozlang. Tovarlar va sotuv ma'lumotlari kabinetingizga yig'iladi.",
+    description: "Marketpleys integratsiyasini sozlang (Uzum, Yandex Market, Wildberries, Ozon). Tovarlar va sotuv ma'lumotlari kabinetingizga yig'iladi.",
     detail: "Boshlanish nuqtasi — Integratsiyalar",
   },
   {

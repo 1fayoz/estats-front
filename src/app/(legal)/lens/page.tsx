@@ -24,7 +24,7 @@ export default async function LensPage() {
     <>
       <h1>eStats Lens — uzum.uz uchun brauzer kengaytmasi</h1>
       <p>
-        Uzum Market sotuvchisi uchun bozor tahlili — to&apos;g&apos;ridan-to&apos;g&apos;ri uzum.uz sahifalarida, eStats hisobingiz bilan.
+        Bozor tahlili — to&apos;g&apos;ridan-to&apos;g&apos;ri brauzer sahifalarida, eStats hisobingiz bilan.
       </p>
       <p>
         {release?.storeUrl ? (
