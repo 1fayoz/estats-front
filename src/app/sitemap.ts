@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 
 import { siteConfig } from "@/config/site";
 
+export const revalidate = 0;
+
 /**
  * Faqat ochiq sahifalar. Kabinet ichidagi yo'llar bu yerga tushmaydi —
  * ular sessiyaga bog'liq va qidiruv uchun ma'nosiz.
