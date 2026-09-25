@@ -690,7 +690,13 @@ export function ProductModerationCard({
         {reasonJob && showReasonJob && (
           <div role="status" aria-live="polite" className="rounded-xl border bg-card/60 p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="text-sm font-medium">Uzum sababi aniqlanmoqda</p>
+              <p className="text-sm font-medium">
+                {reasonActive
+                  ? "Uzum sababi aniqlanmoqda"
+                  : reasonJob.status === "failed"
+                    ? "Uzum sababini aniqlab bo'lmadi"
+                    : "Uzum sababi aniqlandi"}
+              </p>
               {!reasonActive && (
                 <button
                   type="button"
