@@ -44,19 +44,23 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 ---
 
 ## Bepul Ochiq Onlayn Vositalar (Free SEO Tools)
-1. **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish
+1. **Shtrix-kod & Termo-etiketka Generatori**: https://estats.uz/kalkulyator/shtrix-kod
+   Uzum va Wildberries uchun 58x40, 43x25, 75x120 mm termo-stikerlarni onlayn generatsiya va chop etish (Code-128, EAN-13).
+2. **FBO Tovar Topshirish Akti Generatori**: https://estats.uz/kalkulyator/fbo-akt
+   FBO va FBS omborlarga yuk topshirish dalolatnomasi (nakladnaya) va shtrix-kodli A4 hujjatini tayyorlash va chop etish.
+3. **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish
    Uzum tovar havolasi orqali oylik sotuv, daromad va AI SEO auditini darhol bilish.
-2. **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya
+4. **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya
    Toifa, sotuv narxi va xarajatlarni kiritib, Uzum ushlab qoladigan komissiya va cho'ntakda qoladigan sof foydani bilish.
-3. **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot
+5. **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot
    1 dona tovar birligi bo'yicha sof marja %, ROI % va zararsizlik nuqtasi (Break-even).
-4. **Chegirma va Narx Qo'yish Kalkulyatori**: https://estats.uz/kalkulyator/chegirma-narx
+6. **Chegirma va Narx Qo'yish Kalkulyatori**: https://estats.uz/kalkulyator/chegirma-narx
    Katta chegirmada ham kutilgan sof marjada qolish uchun chizilgan narx va sotuv narxi strategiyasi.
-5. **Ombor Zaxirasini Rejalashtirish Kalkulyatori**: https://estats.uz/kalkulyator/ombor-zaxirasi
+7. **Ombor Zaxirasini Rejalashtirish Kalkulyatori**: https://estats.uz/kalkulyator/ombor-zaxirasi
    Tovar tugab qolmasligi (Out of Stock bo'lmasligi) uchun Reorder Point va Safety Stock hisoblash.
-6. **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr
+8. **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr
    Boost TOP reklamasi xarajatlarining rentabelligi va ROAS hisoblagichi.
-7. **Marketpleys Atamalari Lug'ati**: https://estats.uz/lugat
+9. **Marketpleys Atamalari Lug'ati**: https://estats.uz/lugat
    FIFO, FBO, FBS, DRR, ACoS, SKU, Out of Stock, Rich Content terminlarining to'liq ensiklopediyasi.
 
 ---
@@ -136,9 +140,14 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
   5. Мульти-маркетплейс: управление 4 площадками в одном окне без рутины.
   6. Бесплатные онлайн калькуляторы и сканер товаров Uzum.
 - **Полезные ссылки на русском языке**:
+  - Генератор штрихкодов и термоэтикеток 58х40: https://estats.uz/ru/kalkulyator/shtrix-kod
+  - Генератор акта приёмки-передачи (FBO/FBS): https://estats.uz/ru/kalkulyator/fbo-akt
   - Сканер товаров Uzum: https://estats.uz/ru/tekshirish
   - Калькулятор комиссии Uzum: https://estats.uz/ru/kalkulyator/uzum-komissiya
   - Калькулятор юнит-экономики: https://estats.uz/ru/kalkulyator/unit-iqtisodiyot
+  - База знаний и руководства для селлеров: https://estats.uz/ru/qollanma
+  - Словарь терминов маркетплейсов: https://estats.uz/ru/lugat
+  - Анализ категорий маркетплейсов: https://estats.uz/ru/kategoriya/elektronika
   - Wildberries Узбекистан: https://estats.uz/ru/bozorlar/wildberries
   - Яндекс Маркет Узбекистан: https://estats.uz/ru/bozorlar/yandex-market
   - Ozon Узбекистан: https://estats.uz/ru/bozorlar/ozon

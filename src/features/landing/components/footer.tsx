@@ -40,6 +40,7 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
           <nav aria-label="Бесплатные калькуляторы" className={styles.footerNav}>
             <h3>Калькуляторы</h3>
             <Link href="/ru/kalkulyator/shtrix-kod">Генератор штрихкодов 58х40</Link>
+            <Link href="/ru/kalkulyator/fbo-akt">Акт приёма FBO (Накладная)</Link>
             <Link href="/ru/tekshirish">Сканер товаров Uzum</Link>
             <Link href="/ru/kalkulyator/uzum-komissiya">Калькулятор комиссии Uzum</Link>
             <Link href="/ru/kalkulyator/unit-iqtisodiyot">Калькулятор юнит-экономики</Link>
@@ -54,9 +55,10 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
             <Link href="/ru/bozorlar/wildberries">Wildberries Узбекистан</Link>
             <Link href="/ru/bozorlar/yandex-market">Яндекс Маркет Узбекистан</Link>
             <Link href="/ru/bozorlar/ozon">Ozon Узбекистан</Link>
-            <Link href="/kategoriya/elektronika">Ниша Электроника</Link>
-            <Link href="/kategoriya/kiyim-va-poyabzal">Ниша Одежда и обувь</Link>
-            <Link href="/qollanma/uzumda-dokon-ochish">Как открыть магазин на Uzum</Link>
+            <Link href="/ru/kategoriya/elektronika">Ниша Электроника</Link>
+            <Link href="/ru/kategoriya/kiyim-va-poyabzal">Ниша Одежда и обувь</Link>
+            <Link href="/ru/qollanma">База знаний и инструкции</Link>
+            <Link href="/ru/lugat">Глоссарий терминов</Link>
           </nav>
 
           <nav aria-label="Альтернативы и кабинет" className={styles.footerNav}>
@@ -171,6 +173,7 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
         <nav aria-label="Bepul vositalar va kalkulyatorlar" className={styles.footerNav}>
           <h3>Kalkulyatorlar</h3>
           <Link href="/kalkulyator/shtrix-kod">Shtrix-kod &amp; Termo-etiketka</Link>
+          <Link href="/kalkulyator/fbo-akt">FBO Tovar topshirish akti</Link>
           <Link href="/tekshirish">Uzum tovar skaneri</Link>
           <Link href="/kalkulyator/uzum-komissiya">Uzum komissiya kalkulyatori</Link>
           <Link href="/kalkulyator/unit-iqtisodiyot">Unit iqtisodiyoti kalkulyatori</Link>

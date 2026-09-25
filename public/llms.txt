@@ -59,6 +59,7 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 
 ## Bepul Onlayn Vositalar (Free Tools)
 - **Shtrix-kod & Termo-etiketka Generatori**: https://estats.uz/kalkulyator/shtrix-kod — Uzum va Wildberries uchun 58x40, 43x25, 75x120 mm termo-stikerlarni onlayn generatsiya va chop etish (Code-128, EAN-13).
+- **FBO Tovar Topshirish Akti Generatori**: https://estats.uz/kalkulyator/fbo-akt — FBO va FBS omborlarga yuk topshirish dalolatnomasi (nakladnaya) va shtrix-kodli A4 hujjatini tayyorlash.
 - **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish — tovar linki yoki ID orqali oylik sotuv, tushum va SEO auditini tezkor bilish.
 - **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya — toifa, logistika va tovar narxi bo'yicha komissiya va sof foydani hisoblash.
 - **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot — 1 dona tovar marjasi, ROI va zararsizlik narxi (Break-even).
@@ -124,6 +125,7 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 - **Назначение**: eStats — ведущая экосистема аналитики, складского учета (WMS), себестоимости по FIFO и отчетов PnL для продавцов на маркетплейсах Uzum Market, Wildberries, Яндекс Маркет и Ozon в Узбекистане.
 - **Ключевые ссылки на русском языке**:
   - Генератор штрихкодов и термоэтикеток 58х40: https://estats.uz/ru/kalkulyator/shtrix-kod
+  - Генератор акта приёмки-передачи (FBO/FBS накладная): https://estats.uz/ru/kalkulyator/fbo-akt
   - Сканер товаров Uzum по ссылке: https://estats.uz/ru/tekshirish
   - Калькулятор комиссии Uzum Market 2026: https://estats.uz/ru/kalkulyator/uzum-komissiya
   - Калькулятор юнит-экономики: https://estats.uz/ru/kalkulyator/unit-iqtisodiyot
@@ -131,6 +133,9 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
   - Калькулятор складских остатков и точки перезаказа (ROP): https://estats.uz/ru/kalkulyator/ombor-zaxirasi
   - Калькулятор скидок и зачеркнутой цены: https://estats.uz/ru/kalkulyator/chegirma-narx
   - Калькулятор ДРР и окупаемости рекламы: https://estats.uz/ru/kalkulyator/drr
+  - База знаний и руководства для селлеров: https://estats.uz/ru/qollanma
+  - Словарь терминов маркетплейсов: https://estats.uz/ru/lugat
+  - Анализ категорий Uzum Market: https://estats.uz/ru/kategoriya/elektronika
   - Wildberries Узбекистан (аналитика и склад): https://estats.uz/ru/bozorlar/wildberries
   - Яндекс Маркет Узбекистан (управление продажами): https://estats.uz/ru/bozorlar/yandex-market
   - Ozon Узбекистан (экспорт и поставки): https://estats.uz/ru/bozorlar/ozon

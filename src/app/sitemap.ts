@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Bepul Kalkulyatorlar va Skanerlar (Eng yuqori qidiruv trafigi)
     { url: `${siteConfig.url}/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/shtrix-kod`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/kalkulyator/fbo-akt`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/unit-iqtisodiyot`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/kalkulyator/vozvrat-zarari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
@@ -69,12 +70,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteConfig.url}/ru`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/shtrix-kod`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/ru/kalkulyator/fbo-akt`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/unit-iqtisodiyot`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/ru/kalkulyator/vozvrat-zarari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/ru/kalkulyator/ombor-zaxirasi`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/ru/kalkulyator/chegirma-narx`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/ru/kalkulyator/drr`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+
+    // Категории товаров (RU)
+    { url: `${siteConfig.url}/ru/kategoriya/elektronika`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/kategoriya/kiyim-va-poyabzal`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/kategoriya/gozallik-va-parvarish`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/kategoriya/uy-rozgor`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/kategoriya/avtotovarlar`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/kategoriya/bolalar-tovarlari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+
+    // База знаний и инструкции (RU)
+    { url: `${siteConfig.url}/ru/qollanma`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/ru/qollanma/uzumda-dokon-ochish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/qollanma/kartochka-toldirish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/qollanma/fbo-fbs-farqi`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/ru/qollanma/boost-top-sozlash`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/ru/qollanma/top-nishalar`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+
+    // Глоссарий (RU)
+    { url: `${siteConfig.url}/ru/lugat`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+
+    // Маркетплейсы и альтернативы (RU)
     { url: `${siteConfig.url}/ru/bozorlar/wildberries`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/ru/bozorlar/yandex-market`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/ru/bozorlar/ozon`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
