@@ -29,7 +29,7 @@ import type { WarehouseProduct } from "@/lib/types";
 type StatusTab =
   | "all" | "selling" | "ending" | "not_selling"
   | "blocked" | "moderation" | "resubmitted" | "re_moderation"
-  | "attrs" | "archived";
+  | "attrs" | "archived" | "removed";
 
 const STATUS_TABS: { key: StatusTab; label: string; action: string }[] = [
   { key: "all", label: "Barchasi", action: "warehouse.tab.all" },
@@ -46,6 +46,10 @@ const STATUS_TABS: { key: StatusTab; label: string; action: string }[] = [
   { key: "re_moderation", label: "Tahrirlandi → qayta moderatsiyada", action: "warehouse.tab.re_moderation" },
   { key: "attrs", label: "Xususiyat to'ldirilmagan", action: "warehouse.tab.attrs" },
   { key: "archived", label: "Arxiv", action: "warehouse.tab.archived" },
+  // Uzum'da o'chirilgan variantlar: Uzum ro'yxatida yo'q, lekin sotuv,
+  // kirim, SEO tarixi saqlangan. Arxiv bilan bir xil turdagi ko'rinish —
+  // alohida ruxsat emas.
+  { key: "removed", label: "Uzum'dan olib tashlangan", action: "warehouse.tab.archived" },
 ];
 
 //: "Tugayapti" — Uzum ham shunga o'xshash kam qoldiqni ajratadi.
@@ -69,6 +73,7 @@ function matchesTab(i: WarehouseProduct, tab: StatusTab): boolean {
   switch (tab) {
     case "all":
     case "archived":
+    case "removed":
       return true;
     case "selling":
       // Uzum "Sotuvdagi": sotuvda + moderatsiyadan o'tган + bloklanmagan.
@@ -171,39 +176,47 @@ function WarehouseContent() {
     }
   }, [visibleStatusTabs, tab]);
 
-  const view = tab === "archived" ? "archived" : "active";
-  const [archivedItems, setArchivedItems] = React.useState<WarehouseProduct[]>([]);
-  const [archivedCount, setArchivedCount] = React.useState<number | null>(null);
+  // Faol ro'yxatdan tashqari ikki ko'rinish — alohida so'rov bilan.
+  const view: "active" | "archived" | "removed" =
+    tab === "archived" || tab === "removed" ? tab : "active";
+  const [offItems, setOffItems] = React.useState<Record<"archived" | "removed", WarehouseProduct[] | null>>({
+    archived: null, removed: null,
+  });
+  const [offCounts, setOffCounts] = React.useState<Record<"archived" | "removed", number | null>>({
+    archived: null, removed: null,
+  });
   const [archivedLoading, setArchivedLoading] = React.useState(false);
   const [archivedError, setArchivedError] = React.useState<string | null>(null);
   const [archiveAttempt, setArchiveAttempt] = React.useState(0);
   // Son har doim ko'rinsin — tab ochilmasa ham. Bitta yengil so'rov.
   React.useEffect(() => {
-    fetchProducts({ archived: true, size: 1 })
-      .then((page) => setArchivedCount(page.count))
-      .catch(() => setArchivedCount(null));
+    for (const kind of ["archived", "removed"] as const) {
+      fetchProducts({ [kind]: true, size: 1, sync: false })
+        .then((page) => setOffCounts((c) => ({ ...c, [kind]: page.count })))
+        .catch(() => setOffCounts((c) => ({ ...c, [kind]: null })));
+    }
   }, []);
   React.useEffect(() => {
-    if (view !== "archived" || archivedItems.length) return;
+    if (view === "active" || offItems[view]) return;
     let cancelled = false;
     setArchivedLoading(true);
     setArchivedError(null);
-    fetchProducts({ archived: true, size: 500 })
+    fetchProducts({ [view]: true, size: 500, sync: false })
       .then((page) => {
         if (cancelled) return;
-        setArchivedItems(page.results);
-        setArchivedCount(page.count);
+        setOffItems((c) => ({ ...c, [view]: page.results }));
+        setOffCounts((c) => ({ ...c, [view]: page.count }));
         setArchivedLoading(false);
       })
       .catch((reason: unknown) => {
         if (!cancelled) {
-          setArchivedError(reason instanceof Error ? reason.message : "Arxivni yuklab bo‘lmadi");
+          setArchivedError(reason instanceof Error ? reason.message : "Ro‘yxatni yuklab bo‘lmadi");
           setArchivedLoading(false);
         }
       });
     return () => { cancelled = true; };
-  }, [view, archivedItems.length, archiveAttempt]);
-  const items = view === "archived" ? archivedItems : activeItems;
+  }, [view, offItems, archiveAttempt]);
+  const items = view === "active" ? activeItems : offItems[view] ?? [];
 
   // ── Tovar qo'shish (AI) ────────────────────────────────────
   // Alohida sahifa emas, shu yerdagi oyna: tovar qo'shish —
@@ -250,7 +263,8 @@ function WarehouseContent() {
     const c: Record<StatusTab, number> = {
       all: activeItems.length, selling: 0, ending: 0, not_selling: 0,
       blocked: 0, moderation: 0, resubmitted: 0, re_moderation: 0, attrs: 0,
-      archived: archivedCount ?? archivedItems.length,
+      archived: offCounts.archived ?? offItems.archived?.length ?? 0,
+      removed: offCounts.removed ?? offItems.removed?.length ?? 0,
     };
     for (const it of activeItems) {
       for (const t of [
@@ -261,7 +275,7 @@ function WarehouseContent() {
       }
     }
     return c;
-  }, [activeItems, archivedItems.length, archivedCount]);
+  }, [activeItems, offItems, offCounts]);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -302,7 +316,7 @@ function WarehouseContent() {
     };
   }, [items]);
   const loading = view === "active" ? status === "idle" || isInitialLoading : archivedLoading && items.length === 0;
-  const visibleError = view === "archived" ? archivedError : error;
+  const visibleError = view === "active" ? error : archivedError;
   const hasFilters = query.trim().length > 0 || onlyNoCost || tab !== "all";
   const clearFilters = () => {
     setQuery("");
@@ -549,7 +563,7 @@ function WarehouseContent() {
       {visibleError && (
         <div role="alert" className="flex flex-col gap-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between">
           <span>{visibleError}</span>
-          <Button variant="outline" className="min-h-11 shrink-0 rounded-xl" onClick={() => view === "archived" ? setArchiveAttempt((attempt) => attempt + 1) : refresh()}><RefreshCw className="h-4 w-4" /> Qayta urinish</Button>
+          <Button variant="outline" className="min-h-11 shrink-0 rounded-xl" onClick={() => view !== "active" ? setArchiveAttempt((attempt) => attempt + 1) : refresh()}><RefreshCw className="h-4 w-4" /> Qayta urinish</Button>
         </div>
       )}
 

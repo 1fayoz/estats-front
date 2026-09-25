@@ -43,7 +43,7 @@ import { useAiDrafts } from "@/features/products-ai/use-drafts";
 import { useDraftParam } from "@/features/products-ai/use-draft-param";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { ApiError, fetchComplaintJob, fetchProductDetail, mediaUrl, regenerateProductUzum } from "@/lib/api";
-import { formatNumber, formatSum } from "@/lib/format";
+import { formatDate, formatNumber, formatSum } from "@/lib/format";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import { useCan, useUserStore } from "@/stores/user-store";
@@ -274,6 +274,8 @@ function ProductDetailPage({ id }: { id: number }) {
     ? cardImages
     : (product.images?.length ? product.images : product.image ? [product.image] : []).map(mediaUrl);
   const profitPositive = data.totalProfit >= 0;
+  // Uzum'da o'chirilgan variant: sahifa ochiladi, hamma tarix joyida.
+  const removedFromUzum = product.isActive === false;
   const salesRows = period === "monthly" ? data.monthly : period === "yearly" ? data.yearly : data.daily;
 
   return (
@@ -282,13 +284,30 @@ function ProductDetailPage({ id }: { id: number }) {
 
       {error && <div role="alert" className="flex items-start gap-3 rounded-2xl border border-[var(--warn)]/30 bg-[var(--warn)]/5 p-4 text-sm"><AlertCircle className="mt-0.5 size-5 shrink-0 text-[var(--warn)]" /><div><p className="font-medium">Ma’lumotlar yangilanmadi</p><p className="mt-1 text-muted-foreground">{error} Avvalgi ma’lumotlar ko‘rsatilmoqda.</p></div></div>}
 
+      {removedFromUzum && (
+        <div role="status" className="flex items-start gap-3 rounded-2xl border border-dashed bg-muted/40 p-4 text-sm">
+          <AlertCircle className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+          <div>
+            <p className="font-medium">
+              {product.uzumRemovedAt
+                ? `Bu variant Uzum'dan olib tashlangan (oxirgi marta ${formatDate(product.uzumRemovedAt)} ko'ringan)`
+                : "Bu variant Uzum'dan olib tashlangan"}
+            </p>
+            <p className="mt-1 text-muted-foreground">
+              Uzum kabinetida endi yo&apos;q, shuning uchun ombor ro&apos;yxatida ko&apos;rinmaydi. Sotuv, kirim, qoldiq,
+              SEO va o&apos;zgarishlar tarixi saqlangan. Qoldig&apos;i bo&apos;lsa, kirimni yangi variantga o&apos;tkazing.
+            </p>
+          </div>
+        </div>
+      )}
+
       <section aria-label="Tovar haqida" className="grid min-w-0 gap-5 rounded-2xl border bg-card p-4 sm:gap-7 sm:p-6 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)]">
         <ProductGallery images={images} title={product.title} uzumUrl={product.uzumUrl} />
         <div className="flex min-w-0 flex-col">
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary"><Package className="size-3.5" />{product.source === "uzum" ? "Uzum Market" : "Ombor tovari"}</span>
             <span className={cn("rounded-full border px-3 py-1.5 font-medium", product.uzumBlocked ? "border-destructive/20 bg-destructive/5 text-destructive" : "text-muted-foreground")}>
-              {product.uzumBlocked ? "Bloklangan" : product.uzumModerationTitle || product.uzumStatusTitle || "Holat noma’lum"}
+              {removedFromUzum ? "Uzum'dan olib tashlangan" : product.uzumBlocked ? "Bloklangan" : product.uzumModerationTitle || product.uzumStatusTitle || "Holat noma’lum"}
             </span>
           </div>
           <h1 className="mt-4 break-words text-xl font-semibold leading-snug tracking-tight sm:text-2xl xl:text-[1.7rem]">{product.title}</h1>

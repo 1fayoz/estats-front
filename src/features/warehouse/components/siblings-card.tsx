@@ -6,7 +6,7 @@ import { Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CardHead, CardList, CardStats, DataCard } from "@/components/dashboard/data-cards";
-import { formatNumber, formatSum } from "@/lib/format";
+import { formatDate, formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ProductTempo, SiblingSku } from "@/lib/types";
 
@@ -29,26 +29,39 @@ export function SiblingsCard({
 
   const sold = siblings.reduce((sum, row) => sum + row.soldQuantity, 0);
   const stock = siblings.reduce((sum, row) => sum + row.onHand, 0);
+  const removed = siblings.filter((row) => row.removedAt).length;
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Layers className="h-4 w-4" /> Kartochka variantlari ({siblings.length})
+          <Layers className="h-4 w-4" />
+          {removed
+            ? `Kartochka variantlari (${siblings.length - removed} · olib tashlangan ${removed})`
+            : `Kartochka variantlari (${siblings.length})`}
         </CardTitle>
         <CardDescription>
           {`Oxirgi ${tempo.days} kunda ${formatNumber(sold)} dona sotildi, omborda ${formatNumber(stock)} dona. `}
           Bitta Uzum kartochkasidagi barcha o&apos;lcham va ranglar.
+          {removed > 0 &&
+            " Uzum'dan olib tashlangan variantlar ham shu yerda — ularning sotuvi, kirimi va SEO tarixi saqlanadi."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <CardList>
           {siblings.map((row) => (
-            <DataCard key={row.id} className={cn(row.isCurrent && "border-primary/50 bg-primary/5")}>
+            <DataCard
+              key={row.id}
+              className={cn(row.isCurrent && "border-primary/50 bg-primary/5", row.removedAt && "opacity-75")}
+            >
               <CardHead
                 image={row.image ?? undefined}
                 title={row.variantName || row.title}
-                note={row.skuCode ?? undefined}
+                note={
+                  row.removedAt
+                    ? `${row.skuCode ?? ""} · Uzum'dan olib tashlangan (${formatDate(row.removedAt)})`
+                    : row.skuCode ?? undefined
+                }
                 right={
                   row.isCurrent ? (
                     <Badge variant="secondary">shu tovar</Badge>
@@ -91,6 +104,7 @@ export function SiblingsCard({
                   className={cn(
                     "transition-colors hover:bg-muted/30",
                     row.isCurrent && "bg-primary/5",
+                    row.removedAt && "text-muted-foreground",
                   )}
                 >
                   <td className="px-3 py-2">
@@ -100,6 +114,11 @@ export function SiblingsCard({
                       <Link href={`/warehouse/${row.id}`} className="font-medium hover:underline">
                         {row.variantName || row.title}
                       </Link>
+                    )}
+                    {row.removedAt && (
+                      <Badge variant="outline" className="ml-2 border-dashed" title={`Uzum'da oxirgi marta: ${formatDate(row.removedAt)}`}>
+                        {`olib tashlangan · ${formatDate(row.removedAt)}`}
+                      </Badge>
                     )}
                   </td>
                   <td className="px-3 py-2 text-xs text-muted-foreground">{row.skuCode ?? "—"}</td>

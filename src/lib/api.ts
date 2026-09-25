@@ -247,7 +247,11 @@ export const deleteShop = (id: number) =>
 // ── ombor (goods) ────────────────────────────────────────────────────────────
 
 export const fetchProducts = (
-  params: { search?: string; page?: number; size?: number; sync?: boolean; archived?: boolean } = {},
+  params: {
+    search?: string; page?: number; size?: number; sync?: boolean; archived?: boolean;
+    /** Faqat Uzum'dan olib tashlangan variantlar (tarixi saqlangan). */
+    removed?: boolean;
+  } = {},
 ) => request<Paginated<WarehouseProduct>>(`/warehouse/products${qs({ ...params, size: params.size ?? 200 })}`);
 
 /**

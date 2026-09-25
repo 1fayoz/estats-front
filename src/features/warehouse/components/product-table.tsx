@@ -15,7 +15,7 @@ import {
 } from "@/components/dashboard/data-cards";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { Pagination, usePagination } from "@/components/ui/pagination";
-import { formatNumber, formatSum } from "@/lib/format";
+import { formatDate, formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AiDraftRow, WarehouseProduct } from "@/lib/types";
 
@@ -192,6 +192,13 @@ export function ProductTable({
 
   const statusBadge = (item: WarehouseProduct) => {
     const summary = item.uzumValidation?.summary;
+    if (item.isActive === false) {
+      return (
+        <Badge variant="outline" className="max-w-full gap-1 whitespace-normal border-dashed text-left">
+          {item.uzumRemovedAt ? `Uzum'dan olib tashlangan · ${formatDate(item.uzumRemovedAt)}` : "Uzum'dan olib tashlangan"}
+        </Badge>
+      );
+    }
     const label = item.uzumBlocked
       ? "Bloklangan"
       : item.uzumModerationTitle || item.uzumStatusTitle || "Holati noma’lum";
@@ -541,7 +548,11 @@ export function ProductTable({
                         </div>
                       </td>
                       <td className="px-3 py-2">
-                        {v.uzumBlocked ? (
+                        {v.isActive === false ? (
+                          <span className="text-xs text-muted-foreground">
+                            {v.uzumRemovedAt ? `olib tashlangan · ${formatDate(v.uzumRemovedAt)}` : "olib tashlangan"}
+                          </span>
+                        ) : v.uzumBlocked ? (
                           <Badge variant="destructive" className="gap-1">
                             <XCircle className="h-3 w-3" /> Bloklangan
                           </Badge>

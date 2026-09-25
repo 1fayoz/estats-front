@@ -160,6 +160,10 @@ export interface WarehouseProduct {
   uzumHadBlock: boolean;
   /** Bir marta tasdiqlangan bo'lsa — "o'zgartirilib qayta moderatsiyaga tushdi"ni ajratish uchun. */
   uzumWasModerated: boolean;
+  /** `false` — Uzum'da bu variant olib tashlangan; tarixi saqlanadi. Eski backendda yo'q. */
+  isActive?: boolean;
+  /** Uzum'dan qachon olib tashlangan (oxirgi marta ko'ringan payt). */
+  uzumRemovedAt?: string | null;
   uzumValidation: ProductValidation | null;
   uzumValidatedAt: string | null;
   /** Butun davr bo'yicha — qoldiq = keldi − sotildi ekani ko'rinib tursin. */
@@ -619,6 +623,8 @@ export interface SiblingSku {
   /** Kartochka savdosidagi ulushi, foizda. */
   share: number;
   isCurrent: boolean;
+  /** Uzum'dan olib tashlangan bo'lsa — qachon. */
+  removedAt?: string | null;
 }
 
 /** Bitta kun: sotuv va o'sha kundagi o'rinlar. */
