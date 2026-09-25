@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ProductDialog } from "@/features/products-ai/components/product-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropZone } from "@/features/products-ai/components/dropzone";
+import { ImageSettingsPanel } from "@/features/products-ai/components/image-settings-panel";
 import {
   DraftFields,
   DraftTabs,
@@ -449,6 +450,7 @@ export function ProductAiModal({
                     disabled={busy === "start"}
                   />
                 </div>
+                <ImageSettingsPanel disabled={busy === "start"} />
               </div>
             ) : form ? (
               <DraftFields

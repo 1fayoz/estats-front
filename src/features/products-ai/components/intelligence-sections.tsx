@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Check, ExternalLink, Info, X } from "lucide-react";
+import { AlertTriangle, Check, ExternalLink, Info, Loader2, Sparkles, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -395,46 +397,71 @@ const GROUP_LABEL: Record<string, string> = {
 };
 
 function KeywordChip({ k }: { k: AiKeyword }) {
+  const irrelevant = k.relevant === false;
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px]",
-        k.covered
-          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-500"
-          : "bg-black/[.05] text-[color:var(--air-head)]",
+        irrelevant
+          ? "bg-black/[.03] text-muted-foreground line-through decoration-1"
+          : k.covered
+            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-500"
+            : "bg-amber-500/10 text-amber-800 dark:text-amber-400",
       )}
       title={
+        (irrelevant ? `tegishli emas: ${k.reason || "tovarga mos emas"} · ` : "") +
         `og'irlik ${k.weight.toFixed(2)}` +
         (k.demand ? ` · talab ${formatNumber(k.demand)}` : "") +
         (k.suggest_rank !== null ? ` · avtotaklif #${k.suggest_rank + 1}` : "")
       }
     >
-      {k.covered && <Check className="h-3 w-3" />}
-      {k.phrase}
+      {k.covered && !irrelevant && <Check className="h-3 w-3" />}
+      {k.spelled || k.phrase}
     </span>
   );
 }
 
-export function SeoSection({ data }: { data: AiSeoPlan }) {
+export function SeoSection({
+  data,
+  onFill,
+  locked,
+}: {
+  data: AiSeoPlan;
+  /** «Kamchiliklarni to'ldirish» — yetishmagan tegishli iboralarni matnga to'qiydi. */
+  onFill?: () => Promise<void>;
+  locked?: boolean;
+}) {
+  const [filling, setFilling] = React.useState(false);
   const coverage = Math.round(data.coverage * 100);
   const missed = Math.round(data.missed_coverage * 100);
+  const irrelevant = data.irrelevant ?? data.keywords.filter((k) => k.relevant === false);
+  const relevantCount = data.keywords.length - irrelevant.length;
+
+  const fill = async () => {
+    if (!onFill) return;
+    setFilling(true);
+    try {
+      await onFill();
+    } finally {
+      setFilling(false);
+    }
+  };
 
   return (
-    <Section title="Kalit so'zlar va qamrov" hint={`${data.keywords.length} ta so'z`}>
+    <Section title="Kalit so'zlar va qamrov" hint={`${relevantCount} ta tegishli so'z`}>
       <div className="grid grid-cols-2 gap-2">
         <Stat label="Qamrab olindi" value={`${coverage}%`} accent={coverage >= 60} />
         {/*
-          "Qo'ldan ketayotgan qamrov" — tashqi xizmat auditining
-          asosiy ko'rsatkichi: matnda YO'Q, lekin talabi BOR
-          so'zlarning og'irligi. Oddiy "qamrov" foizidan foydaliroq,
-          chunki u nima YUTQAZILAYOTGANINI aytadi.
+          "Qo'ldan ketayotgan qamrov" — matnda YO'Q, lekin talabi BOR
+          va tovarga TEGISHLI so'zlarning og'irligi. Tegishli bo'lmaganlari
+          (raqamlar, raqobatchi to'plamidagi boshqa buyum) hisobga kirmaydi.
         */}
         <Stat label="Qo'ldan ketyapti" value={`${missed}%`} />
       </div>
 
       {data.missing_top?.length > 0 && (
-        <div className="mt-3">
-          <div className="mb-1.5 text-[11px] font-semibold text-[color:var(--air-head)]">
+        <div className="mt-3 space-y-2 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
+          <div className="text-[11px] font-semibold text-[color:var(--air-head)]">
             Eng foydali, lekin matnda YO&apos;Q
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -442,11 +469,28 @@ export function SeoSection({ data }: { data: AiSeoPlan }) {
               <KeywordChip key={k.phrase} k={k} />
             ))}
           </div>
+          {onFill && !locked && (
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <Button type="button" size="sm" className="rounded-lg" disabled={filling} onClick={() => void fill()}>
+                {filling ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                {filling ? "To'ldirilmoqda…" : "Kamchiliklarni to'ldirish (100%)"}
+              </Button>
+              <span className="text-[11px] text-muted-foreground">
+                {"AI yetishmagan iboralarni tavsif va qisqacha tavsifga tabiiy qo'shadi (~$0.002). Nom tegilmaydi."}
+              </span>
+            </div>
+          )}
         </div>
+      )}
+      {coverage >= 100 && relevantCount > 0 && (
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-[color:var(--ok)]">
+          <Check className="size-3.5" /> {"Tovarga tegishli hamma kalit so'z matnda bor."}
+        </p>
       )}
 
       <div className="mt-3 space-y-2">
         {Object.entries(data.grouped ?? {})
+          .map(([group, list]) => [group, list.filter((k) => k.relevant !== false)] as const)
           .filter(([, list]) => list.length > 0)
           .map(([group, list]) => (
             <div key={group}>
@@ -461,6 +505,22 @@ export function SeoSection({ data }: { data: AiSeoPlan }) {
             </div>
           ))}
       </div>
+
+      {irrelevant.length > 0 && (
+        <details className="mt-3 rounded-lg border px-3 py-2">
+          <summary className="cursor-pointer text-[11px] text-muted-foreground">
+            {`Tovarga tegishli emas — ${irrelevant.length} ta (qamrovga kirmaydi)`}
+          </summary>
+          <ul className="mt-2 space-y-1 text-[11px] text-muted-foreground">
+            {irrelevant.map((k) => (
+              <li key={k.phrase}>
+                <span className="line-through">{k.spelled || k.phrase}</span>
+                {k.reason ? ` — ${k.reason}` : ""}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </Section>
   );
 }

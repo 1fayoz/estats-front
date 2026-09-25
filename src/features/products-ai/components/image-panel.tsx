@@ -5,7 +5,9 @@ import { Check, Loader2, Palette, Plus, Sparkles, Target, X } from "lucide-react
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
-import { ImageStudio, ImageTile, type StudioItem } from "@/features/products-ai/components/image-studio";
+import { ImageStudio, ImageTile, type StudioItem, type StudioPlace } from "@/features/products-ai/components/image-studio";
+import { ImageSettingsPanel } from "@/features/products-ai/components/image-settings-panel";
+import { VariantsPanel } from "@/features/products-ai/components/variants-panel";
 import { ApiError, excludeAiImage, mediaUrl, patchAiDraft, redoAiImages, revertAiImage } from "@/lib/api";
 import type { AiDraft } from "@/lib/types";
 
@@ -33,16 +35,40 @@ const TYPE_LABEL: Record<string, string> = {
   bolim_yoriqnoma: "Yoʻriqnoma",
 };
 
-/** Joy → shu joy kadrlarining slot nomlari (backend `card_content.IMAGE_SLOTS` tartibida). */
-const CONTENT_PLACES: { key: "description" | "size" | "composition" | "usage"; label: string; slots: string[] }[] = [
-  { key: "description", label: "Tavsif uchun", slots: ["tavsif_sifat", "tavsif_xususiyat", "tavsif_foyda", "tavsif_afzallik"] },
-  { key: "size", label: "Oʻlchamli setka", slots: ["bolim_setka"] },
-  { key: "composition", label: "Tarkib", slots: ["bolim_tarkib"] },
-  { key: "usage", label: "Foydalanish yoʻriqnomasi", slots: ["bolim_yoriqnoma"] },
+/** Joy → shu joy kadrlarining asos turlari (backend `card_content.PLACE_SLOTS` tartibida). */
+const CONTENT_PLACES: {
+  key: "description" | "size" | "composition" | "usage";
+  label: string;
+  kinds: string[];
+  setting: "description" | "size" | "composition" | "usage";
+}[] = [
+  { key: "description", label: "Tavsif uchun", kinds: ["tavsif_sifat", "tavsif_xususiyat", "tavsif_foyda", "tavsif_afzallik"], setting: "description" },
+  { key: "size", label: "Oʻlchamli setka", kinds: ["bolim_setka"], setting: "size" },
+  { key: "composition", label: "Tarkib", kinds: ["bolim_tarkib"], setting: "composition" },
+  { key: "usage", label: "Foydalanish yoʻriqnomasi", kinds: ["bolim_yoriqnoma"], setting: "usage" },
 ];
 
+/** Joyning birinchi `count` ta slot kaliti — backend `card_content.slot_keys` bilan bir xil. */
+function slotKeys(kinds: string[], count: number): string[] {
+  return Array.from({ length: Math.max(0, count) }, (_, i) => {
+    const base = kinds[i % kinds.length];
+    const turn = Math.floor(i / kinds.length) + 1;
+    return turn === 1 ? base : `${base}_${turn}`;
+  });
+}
+
+function slotBase(key: string): string {
+  const match = key.match(/^(.+?)_(\d+)$/);
+  return match && TYPE_LABEL[match[1]] ? match[1] : key;
+}
+
+function slotRound(key: string): number {
+  const match = key.match(/^(.+?)_(\d+)$/);
+  return match && TYPE_LABEL[match[1]] ? Number(match[2]) : 1;
+}
+
 const GALLERY_FILE = /\/ai-(\d+)-([a-z_]+?)(?:-[0-9a-f]{6})?\.jpe?g$/i;
-const CONTENT_FILE = /\/aic-([a-z_]+)-[0-9a-f]+\.jpe?g$/i;
+const CONTENT_FILE = /\/aic-([a-z0-9_]+)-[0-9a-f]+\.jpe?g$/i;
 
 /**
  * Rasmlar paneli.
@@ -121,24 +147,32 @@ export function ImagePanel({
     });
     if (!intelligencePlan) return gallery;
 
-    const contentPlan = new Map((plan?.content_images ?? []).map((p) => [p.type, p]));
+    const contentPlan = new Map((plan?.content_images ?? []).map((p) => [p.slot || p.type, p]));
+    const settings = draft.imageSettings;
+    const bySlotAll = new Map(Object.entries(draft.contentImages ?? {}));
     const content: StudioItem[] = CONTENT_PLACES.flatMap((place) => {
       const urls = [...(draft.sectionImages?.[place.key] ?? [])];
       const bySlot = new Map<string, string>();
+      for (const [slot, url] of bySlotAll) if (place.kinds.includes(slotBase(slot)) && urls.includes(url)) bySlot.set(slot, url);
       for (const url of urls) {
         const slot = url.match(CONTENT_FILE)?.[1];
-        if (slot && place.slots.includes(slot) && !bySlot.has(slot)) bySlot.set(slot, url);
+        if (slot && place.kinds.includes(slotBase(slot)) && !bySlot.has(slot)) bySlot.set(slot, url);
       }
+      // Sozlamadagi slotlar (bo'shlari «Yasash» bo'lib turadi) + qo'shimcha qo'shilganlari.
+      const wanted = settings ? slotKeys(place.kinds, settings[place.setting]) : place.kinds;
+      const slots = [...new Set([...wanted, ...bySlot.keys()])].sort((a, b) =>
+        slotRound(a) - slotRound(b) || place.kinds.indexOf(slotBase(a)) - place.kinds.indexOf(slotBase(b)));
       // Nomidan slot o'qilmagan rasm (Uzum'dan olingan) — bo'sh slotlarga tartib bilan.
       const rest = urls.filter((url) => ![...bySlot.values()].includes(url));
-      for (const slot of place.slots) if (!bySlot.has(slot) && rest.length) bySlot.set(slot, rest.shift()!);
-      return place.slots.map((slot) => {
+      for (const slot of slots) if (!bySlot.has(slot) && rest.length) bySlot.set(slot, rest.shift()!);
+      const tiles: StudioItem[] = slots.map((slot) => {
         const url = bySlot.get(slot) ?? null;
+        const round = slotRound(slot);
         return {
           id: `s:${slot}`,
           url,
           group: place.label,
-          label: TYPE_LABEL[slot] ?? slot,
+          label: `${TYPE_LABEL[slotBase(slot)] ?? slot}${round > 1 ? ` ${round}` : ""}`,
           purpose: contentPlan.get(slot)?.goal || undefined,
           kind: { type: "slot", slot },
           removed: url ? removed.has(url) : false,
@@ -146,25 +180,88 @@ export function ImagePanel({
           canRevert: false,
         } satisfies StudioItem;
       });
+      if (tiles.length < 8) {
+        tiles.push({
+          id: `a:${place.key}`, url: null, group: place.label, label: "Yana bitta",
+          purpose: `«${place.label}» joyiga qo'shimcha kadr — mavjudlaridan farqli.`,
+          kind: { type: "add", place: place.key }, removed: false, check: null, canRevert: false,
+        });
+      }
+      return tiles;
     });
     return [...gallery, ...content];
-  }, [draft.images, draft.imageChecks, draft.imageHistoryIndexes, draft.sectionImages, plan, intelligencePlan, removed]);
+  }, [draft.images, draft.imageChecks, draft.imageHistoryIndexes, draft.sectionImages, draft.contentImages,
+    draft.imageSettings, plan, intelligencePlan, removed]);
 
-  const gallery = items.filter((item) => item.kind.type === "gallery");
-  const content = items.filter((item) => item.kind.type === "slot");
-  const removedCount = items.filter((item) => item.removed).length;
-  const missingCount = content.filter((item) => !item.url).length;
+  // Variantlar: har rang/dizaynning o'z kadrlari (Uzum rang galereyasi).
+  const visualAxis = React.useMemo(() => {
+    if (draft.variants?.needsChoice) return undefined;
+    return (draft.variants?.axes ?? []).find((a) => a.visual && a.values.length >= 2);
+  }, [draft.variants]);
+  const variantItems = React.useMemo<StudioItem[]>(() => {
+    if (!visualAxis || !intelligencePlan) return [];
+    const perVariant = draft.imageSettings?.per_variant ?? 1;
+    return visualAxis.values.flatMap((value) => {
+      const urls = draft.variantImages?.[value.key] ?? [];
+      const count = Math.max(perVariant, urls.length);
+      const tiles: StudioItem[] = Array.from({ length: count }, (_, order) => {
+        const url = urls[order] || null;
+        const check = draft.imageChecks.find((c) => c.index === 2000 + visualAxis.values.indexOf(value) * 10 + order);
+        return {
+          id: `v:${value.key}:${order}`,
+          url,
+          group: `«${value.nameUz}» varianti`,
+          label: order === 0 ? "Muqova" : `${order + 1}-rasm`,
+          purpose: order === 0 ? `Uzum'da «${value.nameUz}» tanlanganda ko'rinadigan muqova.` : undefined,
+          kind: { type: "variant", key: value.key, order },
+          removed: url ? removed.has(url) : false,
+          check: check && url ? { accepted: check.accepted, score: check.score, marketFit: check.marketFit, problems: check.problems } : null,
+          canRevert: false,
+        } satisfies StudioItem;
+      });
+      if (count < 10) {
+        tiles.push({
+          id: `av:${value.key}`, url: null, group: `«${value.nameUz}» varianti`, label: "Yana bitta",
+          purpose: `«${value.nameUz}» variantiga qo'shimcha kadr.`,
+          kind: { type: "add", place: "variant", variant: value.key }, removed: false, check: null, canRevert: false,
+        });
+      }
+      return tiles;
+    });
+  }, [visualAxis, intelligencePlan, draft.variantImages, draft.imageSettings, draft.imageChecks, removed]);
+
+  const allItems = React.useMemo(() => {
+    if (!intelligencePlan) return items;
+    const galleryAdd: StudioItem = {
+      id: "a:gallery", url: null, group: "Galereya", label: "Yana bitta",
+      purpose: "Galereyaga qo'shimcha kadr — mavjudlarini takrorlamaydi.",
+      kind: { type: "add", place: "gallery" }, removed: false, check: null, canRevert: false,
+    };
+    const gallery = items.filter((item) => item.kind.type === "gallery");
+    const rest = items.filter((item) => item.kind.type !== "gallery");
+    return [...gallery, ...(gallery.length < 10 ? [galleryAdd] : []), ...variantItems, ...rest];
+  }, [items, variantItems, intelligencePlan]);
+
+  const gallery = allItems.filter((item) => item.group === "Galereya" || item.kind.type === "gallery");
+  const content = allItems.filter((item) => item.kind.type === "slot" || (item.kind.type === "add" && item.kind.place !== "gallery" && item.kind.place !== "variant"));
+  const removedCount = allItems.filter((item) => item.removed).length;
+  const missingCount = allItems.filter((item) => !item.url && item.kind.type !== "add").length;
 
   const regenerate = async (item: StudioItem, prompt: string): Promise<boolean> => {
     try {
-      const next = await redoAiImages(draft.id, {
-        prompt,
-        ...(item.kind.type === "gallery" ? { index: item.kind.index } : { slot: item.kind.slot }),
-      });
+      const kind = item.kind;
+      const target =
+        kind.type === "gallery" ? { index: kind.index }
+          : kind.type === "slot" ? { slot: kind.slot }
+            : kind.type === "variant" ? { variant: kind.key, order: kind.order }
+              : { add: kind.place as StudioPlace, ...(kind.variant ? { variant: kind.variant } : {}) };
+      const next = await redoAiImages(draft.id, { prompt, ...target });
       pending.current = { id: item.id, at: draft.intelligence?.partial?.at };
       setBusyId(item.id);
       onChange(next);
-      toast.success(`«${item.label}» yasalmoqda — tugagach shu yerda ko'rinadi.`);
+      toast.success(item.kind.type === "add"
+        ? `${item.group}: mavjud kadrlar tahlil qilinib, yangisi yasalmoqda.`
+        : `«${item.label}» yasalmoqda — tugagach shu yerda ko'rinadi.`);
       return true;
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
@@ -238,6 +335,9 @@ export function ImagePanel({
         </span>
       </div>
 
+      {intelligencePlan && <VariantsPanel draft={draft} onChange={onChange} locked={locked} />}
+      {intelligencePlan && !locked && <ImageSettingsPanel draft={draft} onChange={onChange} disabled={working} />}
+
       {working && (
         <p className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs">
           <Loader2 className="size-3.5 animate-spin" /> Rasm yasalmoqda — oynani yopsangiz ham davom etadi.
@@ -248,7 +348,7 @@ export function ImagePanel({
         <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <Sparkles className="size-3.5" /> Galereya
           <span className="font-normal normal-case tracking-normal">
-            {`· ${gallery.filter((item) => !item.removed).length} ta Uzum'ga ketadi`}
+            {`· ${gallery.filter((item) => item.kind.type === "gallery" && !item.removed).length} ta Uzum'ga ketadi`}
           </span>
         </p>
         {gallery.length > 0 ? (
@@ -264,6 +364,36 @@ export function ImagePanel({
         )}
       </section>
 
+      {variantItems.length > 0 && visualAxis && (
+        <section className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {`${visualAxis.titleUz} bo'yicha — har variantning o'z rasmi (Uzum rang galereyasi)`}
+          </p>
+          {visualAxis.values.map((value) => {
+            const tiles = variantItems.filter((item) => item.group === `«${value.nameUz}» varianti`);
+            return (
+              <div key={value.key} className="space-y-1.5">
+                <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {value.hex && <span className="size-3 rounded-full border" style={{ background: value.hex }} />}
+                  <b className="text-foreground">{value.nameUz}</b>
+                  {value.images.length === 0 && <span className="air-warn">{"· namuna surat yo'q"}</span>}
+                </p>
+                <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-5">
+                  {value.images[0] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={mediaUrl(value.images[0])} alt={`${value.nameUz} — namuna`}
+                      className="aspect-[3/4] w-full rounded-xl border object-cover opacity-70" title="Namuna (asl surat)" />
+                  )}
+                  {tiles.map((item) => (
+                    <ImageTile key={item.id} item={item} busy={busyId === item.id} onOpen={() => setOpenId(item.id)} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
+
       {content.length > 0 && (
         <section className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -274,7 +404,8 @@ export function ImagePanel({
             return (
               <div key={place.key} className="space-y-1.5">
                 <p className="text-xs text-muted-foreground">
-                  {place.label} · {placeItems.filter((item) => item.url && !item.removed).length}/{place.slots.length}
+                  {place.label} · {placeItems.filter((item) => item.url && !item.removed).length}/
+                  {placeItems.filter((item) => item.kind.type === "slot").length}
                 </p>
                 <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-5">
                   {placeItems.map((item) => (
@@ -310,7 +441,7 @@ export function ImagePanel({
         </p>
       )}
 
-      {!locked && (
+      {!locked && !intelligencePlan && (
         <div className="space-y-1.5 rounded-xl border bg-muted/20 p-3">
           <div className="flex items-center gap-1.5 text-xs font-medium">
             <Palette className="h-3.5 w-3.5" /> Ranglar
@@ -324,7 +455,7 @@ export function ImagePanel({
       )}
 
       <ImageStudio
-        items={items}
+        items={allItems}
         openId={openId}
         onOpenId={setOpenId}
         busyId={busyId}

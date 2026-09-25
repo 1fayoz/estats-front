@@ -20,9 +20,10 @@ import {
 } from "@/features/products-ai/components/intelligence-sections";
 import { CategoryPicker } from "@/features/products-ai/components/category-picker";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
+import { VariantsPanel } from "@/features/products-ai/components/variants-panel";
 import { MarketPanel } from "@/features/products-ai/components/market-panel";
 import { PricePanel } from "@/features/products-ai/components/price-panel";
-import { ApiError, fetchAiDraft, mediaUrl, rewriteAiTexts } from "@/lib/api";
+import { ApiError, fetchAiDraft, fillAiKeywords, mediaUrl, rewriteAiTexts } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiContentKey, AiDraft, AiDraftPatch } from "@/lib/types";
 
@@ -270,9 +271,23 @@ export function DraftFields({
 
   if (tab === "keywords") {
     if (ai.seo) {
+      const fill = async () => {
+        try {
+          const result = await fillAiKeywords(draft.id);
+          onChange(result.draft);
+          const added = result.woven.length + result.tail.length;
+          toast.success(
+            `Qamrov ${Math.round(result.before * 100)}% → ${Math.round(result.after * 100)}%` +
+              (added ? ` · ${added} ta ibora qo'shildi` : "") +
+              (result.irrelevant.length ? ` · ${result.irrelevant.length} ta tegishli emas deb chiqarildi` : ""),
+          );
+        } catch (err) {
+          toast.error(err instanceof ApiError ? err.message : "To'ldirib bo'lmadi.");
+        }
+      };
       return (
         <div className="space-y-3">
-          <SeoSection data={ai.seo} />
+          <SeoSection data={ai.seo} onFill={fill} locked={locked} />
         </div>
       );
     }
@@ -332,7 +347,9 @@ export function DraftFields({
       {/* Tovar tahlili va rang — matndan OLDIN: ular matnning
           nimaga tayanganini ko'rsatadi. */}
       {uz && ai.understanding && <UnderstandingSection data={ai.understanding} />}
-      {uz && ai.colors && <ColorsSection data={ai.colors} />}
+      {uz && (draft.variants?.axes?.length ? (
+        <VariantsPanel draft={draft} onChange={onChange} locked={locked} />
+      ) : ai.colors ? <ColorsSection data={ai.colors} /> : null)}
       {/*
         Turkum ENG TEPADA va faqat o'zbekcha tabda: u kartochkaning
         matnidan oldin keladigan qaror — noto'g'ri turkum matn

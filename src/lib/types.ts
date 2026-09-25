@@ -2276,6 +2276,14 @@ export interface AiDraft extends AiDraftRow {
   sectionImages?: Partial<Record<"description" | "size" | "composition" | "usage", string[]>>;
   /** Sotuvchi «Olib tashlash» bosgan rasmlar — chizilgan holda turadi, Uzum'ga ketmaydi. */
   removedImages?: string[];
+  /** Xaridor tanlaydigan variantlar (rang, o'lcham …). */
+  variants?: AiVariants;
+  /** Har ko'rinadigan variant uchun yasalgan kadrlar: `{kalit: [url]}`. */
+  variantImages?: Record<string, string[]>;
+  /** Qaysi joyga nechta kadr. */
+  imageSettings?: AiImageSettings;
+  /** Tavsif/bo'lim rasmlari slot kaliti bilan. */
+  contentImages?: Record<string, string>;
   /** Uzum 2-bosqichidagi «SKU» — tovar nomidan. */
   sku?: string;
   updatedAt: string;
@@ -2459,8 +2467,82 @@ export interface AiImageRedo {
   prompt?: string;
   /** Galereyadagi qaysi rasm (faqat shu bittasi qayta yasaladi). */
   index?: number | null;
-  /** Faqat shu tavsif/bo'lim kadrini qayta yasaydi (`bolim_tarkib` …) — galereyaga tegmaydi. */
+  /** Faqat shu tavsif/bo'lim kadrini qayta yasaydi (`bolim_tarkib`, `bolim_tarkib_2` …). */
   slot?: string;
+  /** Variant kadri: qiymat kaliti va tartibi (0 — muqova). */
+  variant?: string;
+  order?: number;
+  /** Joyga QO'SHIMCHA kadr — mavjudlari tahlil qilinib, takrorlanmaydigani yasaladi. */
+  add?: "gallery" | "description" | "size" | "composition" | "usage" | "variant";
+}
+
+/** Variant qiymati (rang, o'lcham …) — backend `intelligence/variants.py`. */
+export interface AiVariantValue {
+  key: string;
+  nameUz: string;
+  nameRu: string;
+  hex: string;
+  /** Shu qiymat ko'rinadigan namuna suratlar. */
+  images: string[];
+  description: string;
+}
+
+export type AiVariantKind = "color" | "design" | "size" | "other";
+
+export interface AiVariantAxis {
+  key: string;
+  titleUz: string;
+  titleRu: string;
+  kind: AiVariantKind;
+  /** Rasmi alohida chiziladimi (rang, dizayn). */
+  visual: boolean;
+  values: AiVariantValue[];
+}
+
+export interface AiVariants {
+  axes?: AiVariantAxis[];
+  /** "seller" | "uzum" | "warehouse" | "vision" */
+  source?: string;
+  /** Aniqlab bo'lmadi — sotuvchi tanlashi kerak. */
+  needsChoice?: boolean;
+  question?: string;
+  confidence?: number;
+  detectedAt?: string;
+}
+
+export interface AiVariantType {
+  titleUz: string;
+  titleRu: string;
+  kind: AiVariantKind;
+  visual: boolean;
+  /** Bazadagi nechta kartochkada uchragan (0 — standart ro'yxatdan). */
+  count: number;
+}
+
+export interface AiImageSettings {
+  /** 0 — avtomatik (5-8). */
+  gallery: number;
+  per_variant: number;
+  description: number;
+  size: number;
+  composition: number;
+  usage: number;
+}
+
+export interface AiImageSettingsState {
+  settings: AiImageSettings;
+  limits: Record<keyof AiImageSettings, [number, number]>;
+  imagePriceUsd: number;
+  setPriceUsd: number;
+}
+
+export interface AiKeywordFillResult {
+  before: number;
+  after: number;
+  woven: string[];
+  tail: string[];
+  irrelevant: string[];
+  draft: AiDraft;
 }
 
 export interface AiPackage {
@@ -2582,6 +2664,12 @@ export interface AiKeyword {
   group: string;
   covered: boolean;
   weight: number;
+  /** Tovarga tegishlimi — tegishli emasi qamrovga kirmaydi. */
+  relevant?: boolean;
+  /** Nega tegishli emas. */
+  reason?: string;
+  /** To'g'ri imlodagi shakli (`phrase` normallashtirilgan). */
+  spelled?: string;
 }
 
 export interface AiSeoPlan {
@@ -2591,6 +2679,10 @@ export interface AiSeoPlan {
   keywords: AiKeyword[];
   grouped: Record<string, AiKeyword[]>;
   missing_top: AiKeyword[];
+  /** Tegishlilik AI bilan tekshirilganmi. */
+  reviewed?: boolean;
+  /** Tovarga tegishli bo'lmagan iboralar (sababi bilan). */
+  irrelevant?: AiKeyword[];
 }
 
 export interface AiTextIssue {
@@ -2710,6 +2802,10 @@ export interface AiPlannedImage {
   background: string;
   text: string;
   props: string[];
+  /** Tavsif/bo'lim kaliti (`bolim_tarkib_2`). */
+  slot?: string;
+  /** "" | "*" (hammasi) | qiymat kaliti. */
+  variant?: string;
 }
 
 export interface AiImagePlan {
@@ -2723,6 +2819,8 @@ export interface AiImagePlan {
   images: AiPlannedImage[];
   /** Tavsif va bo'limlar uchun alohida kadrlar (`position` 100+). */
   content_images?: AiPlannedImage[];
+  /** Har ko'rinadigan variant uchun kadrlar (`position` 2000+). */
+  variant_images?: AiPlannedImage[];
   provider: string;
   model: string;
 }

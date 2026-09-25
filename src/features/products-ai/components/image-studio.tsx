@@ -22,7 +22,14 @@ import { cn } from "@/lib/utils";
  * ketmaydi.
  */
 
-export type StudioKind = { type: "gallery"; index: number } | { type: "slot"; slot: string };
+export type StudioPlace = "gallery" | "description" | "size" | "composition" | "usage" | "variant";
+
+export type StudioKind =
+  | { type: "gallery"; index: number }
+  | { type: "slot"; slot: string }
+  | { type: "variant"; key: string; order: number }
+  /** QO'SHIMCHA kadr — mavjudlari tahlil qilinib, takrorlanmaydigani yasaladi. */
+  | { type: "add"; place: StudioPlace; variant?: string };
 
 export interface StudioItem {
   id: string;
@@ -81,7 +88,7 @@ export function ImageTile({
           <span className="flex size-8 items-center justify-center rounded-full border border-dashed">
             <Plus className="size-4" />
           </span>
-          <span className="text-[11px] font-medium">Yasash</span>
+          <span className="text-[11px] font-medium">{item.kind.type === "add" ? "Yana bitta" : "Yasash"}</span>
         </span>
       )}
 
@@ -91,9 +98,11 @@ export function ImageTile({
         </svg>
       )}
 
-      <span className="absolute left-1.5 top-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
-        {item.label}
-      </span>
+      {item.kind.type !== "add" && (
+        <span className="absolute left-1.5 top-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+          {item.label}
+        </span>
+      )}
 
       {item.removed ? (
         <span className="absolute inset-x-1.5 bottom-1.5 rounded-md bg-destructive/90 px-1.5 py-0.5 text-center text-[10px] font-medium text-white">
@@ -325,7 +334,7 @@ export function ImageStudio({
 
                   <div className="space-y-2.5 rounded-xl border bg-muted/20 p-3.5">
                     <p className="flex items-center gap-1.5 text-sm font-medium">
-                      <Wand2 className="size-4" /> {missing ? "Kadrni yasash" : "Qayta yasash"}
+                      <Wand2 className="size-4" /> {item.kind.type === "add" ? "Yangi kadr qo'shish" : missing ? "Kadrni yasash" : "Qayta yasash"}
                     </p>
                     <textarea
                       className="air-input min-h-[84px] w-full resize-y text-sm"
@@ -339,8 +348,9 @@ export function ImageStudio({
                       }}
                     />
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      Faqat shu kadr yasaladi — «{item.label}» vazifasi, tovar belgilari va raqobatchilar tahlili
-                      saqlanadi. Taxminan {formatUsd(priceUsd)}.
+                      {item.kind.type === "add"
+                        ? `Shu joydagi mavjud kadrlar AI bilan ko'rib chiqiladi va ulardan FARQLI yangi kadr yasaladi (boshqa tomon, boshqa bosqich). Taxminan ${formatUsd(priceUsd)}.`
+                        : `Faqat shu kadr yasaladi — «${item.label}» vazifasi, tovar belgilari va raqobatchilar tahlili saqlanadi. Taxminan ${formatUsd(priceUsd)}.`}
                     </p>
                     {working && !busy && (
                       <p className="text-xs air-warn">Boshqa rasm yasalmoqda — tugashini kuting.</p>

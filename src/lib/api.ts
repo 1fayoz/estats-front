@@ -71,6 +71,10 @@ import type {
   AiDraftPatch,
   AiDraftRow,
   AiImageRedo,
+  AiImageSettings,
+  AiImageSettingsState,
+  AiKeywordFillResult,
+  AiVariantType,
   AiPackage,
   AiUzumShops,
   OpenAiKeyState,
@@ -1195,6 +1199,43 @@ export const deleteAiDraft = (id: number) =>
  * Fonda ketadi: bitta rasm o'ttiz soniyagacha yasaladi. Javob
  * darhol qaytadi va `stage` vaqtincha "rasm" bo'ladi.
  */
+/** Variant o'qi tanlovi — bazadagi kartochkalarda uchragan hamma o'q + standartlar. */
+export const fetchAiVariantTypes = () => request<AiVariantType[]>(`/product-ai/variant-types`);
+
+/** Sotuvchi tanlovi: variantlar nima bo'yicha farq qiladi va qiymatlari. */
+export const saveAiVariants = (id: number, axes: {
+  titleUz: string; titleRu?: string; kind?: string;
+  values: { key?: string; nameUz: string; nameRu?: string; hex?: string; images?: string[]; description?: string }[];
+}[]) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/variants`, { method: "PUT", body: JSON.stringify({ axes }) });
+
+/** Variantlarni qayta aniqlash (Uzum → suratlar tahlili). */
+export const detectAiVariants = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/variants/detect`, { method: "POST" });
+
+/** Do'kon sukuti — yangi tovar shu sozlama bilan yasaladi. */
+export const fetchAiImageSettings = () => request<AiImageSettingsState>(`/product-ai/image-settings`);
+
+export const saveAiImageSettings = (settings: Partial<AiImageSettings>) =>
+  request<AiImageSettingsState>(`/product-ai/image-settings`, {
+    method: "PUT", body: JSON.stringify(imageSettingsBody(settings)),
+  });
+
+/** Shu kartochka sozlamasi; `asDefault` — keyingi tovarlar uchun ham. */
+export const saveAiDraftImageSettings = (id: number, settings: Partial<AiImageSettings>, asDefault = false) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/image-settings`, {
+    method: "PUT", body: JSON.stringify({ ...imageSettingsBody(settings), asDefault }),
+  });
+
+function imageSettingsBody(settings: Partial<AiImageSettings>) {
+  const { per_variant, ...rest } = settings;
+  return per_variant === undefined ? rest : { ...rest, perVariant: per_variant };
+}
+
+/** Kalit so'zlar: yetishmagan tegishli iboralarni matnga to'qib 100% qiladi. */
+export const fillAiKeywords = (id: number) =>
+  request<AiKeywordFillResult>(`/product-ai/drafts/${id}/keywords/fill`, { method: "POST" });
+
 export const redoAiImages = (id: number, body: AiImageRedo) =>
   request<AiDraft>(`/product-ai/drafts/${id}/images`, {
     method: "POST",
