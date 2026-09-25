@@ -306,7 +306,7 @@ function ProductDetailPage({ id }: { id: number }) {
         <div className="flex min-w-0 flex-col">
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary"><Package className="size-3.5" />{product.source === "uzum" ? "Uzum Market" : "Ombor tovari"}</span>
-            <span className={cn("rounded-full border px-3 py-1.5 font-medium", product.uzumBlocked ? "border-destructive/20 bg-destructive/5 text-destructive" : "text-muted-foreground")}>
+            <span className={cn("rounded-full border px-3 py-1.5 font-medium", product.uzumBlocked && !removedFromUzum ? "border-destructive/20 bg-destructive/5 text-destructive" : "text-muted-foreground", removedFromUzum && "border-dashed")}>
               {removedFromUzum ? "Uzum'dan olib tashlangan" : product.uzumBlocked ? "Bloklangan" : product.uzumModerationTitle || product.uzumStatusTitle || "Holat noma’lum"}
             </span>
           </div>

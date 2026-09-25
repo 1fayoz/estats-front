@@ -190,11 +190,17 @@ function WarehouseContent() {
   const [archiveAttempt, setArchiveAttempt] = React.useState(0);
   // Son har doim ko'rinsin — tab ochilmasa ham. Bitta yengil so'rov.
   React.useEffect(() => {
-    for (const kind of ["archived", "removed"] as const) {
-      fetchProducts({ [kind]: true, size: 1, sync: false })
-        .then((page) => setOffCounts((c) => ({ ...c, [kind]: page.count })))
-        .catch(() => setOffCounts((c) => ({ ...c, [kind]: null })));
-    }
+    fetchProducts({ archived: true, size: 1, sync: false })
+      .then((page) => setOffCounts((c) => ({ ...c, archived: page.count })))
+      .catch(() => setOffCounts((c) => ({ ...c, archived: null })));
+    // Olib tashlanganlar ro'yxati kichik va darhol kerak: ulardagi qoldiq
+    // jismonan omborda — yuqoridagi «Ombordagi qoldiq»dan tushib qolmasin.
+    fetchProducts({ removed: true, size: 500, sync: false })
+      .then((page) => {
+        setOffItems((c) => ({ ...c, removed: page.results }));
+        setOffCounts((c) => ({ ...c, removed: page.count }));
+      })
+      .catch(() => setOffCounts((c) => ({ ...c, removed: null })));
   }, []);
   React.useEffect(() => {
     if (view === "active" || offItems[view]) return;
@@ -300,21 +306,30 @@ function WarehouseContent() {
     const counted = new Set<number>();
     let onHand = 0;
     let stockValue = 0;
-    for (const item of items) {
+    let removedOnHand = 0;
+    const add = (item: WarehouseProduct) => {
       if (item.stockGroupId != null) {
-        if (counted.has(item.stockGroupId)) continue;
+        if (counted.has(item.stockGroupId)) return 0;
         counted.add(item.stockGroupId);
       }
       onHand += item.stockQuantity;
       stockValue += item.stockValue;
+      return item.stockQuantity;
+    };
+    for (const item of items) add(item);
+    // Faol ko'rinishda: Uzum'dan olib tashlangan variantlardagi kirim ham
+    // omborda turibdi (pul sarflangan) — qoldiq va zaxiraga qo'shiladi.
+    if (view === "active") {
+      for (const item of offItems.removed ?? []) removedOnHand += add(item);
     }
     return {
       goods: items.length,
       onHand,
+      removedOnHand,
       stockValue,
       withoutCost: items.filter((i) => !i.lastCost && !i.averageCost).length,
     };
-  }, [items]);
+  }, [items, view, offItems.removed]);
   const loading = view === "active" ? status === "idle" || isInitialLoading : archivedLoading && items.length === 0;
   const visibleError = view === "active" ? error : archivedError;
   const hasFilters = query.trim().length > 0 || onlyNoCost || tab !== "all";
@@ -364,7 +379,7 @@ function WarehouseContent() {
 
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 sm:gap-3">
         <InventoryStat loading={loading} icon={Boxes} label="Jami tovarlar" value={formatNumber(totals.goods)} hint="Katalogdagi SKUlar" />
-        <InventoryStat loading={loading} icon={Package} label="Ombordagi qoldiq" value={`${formatNumber(totals.onHand)} dona`} hint="Kirim va sotuvlar bo‘yicha" />
+        <InventoryStat loading={loading} icon={Package} label="Ombordagi qoldiq" value={`${formatNumber(totals.onHand)} dona`} hint={totals.removedOnHand ? `Shundan ${formatNumber(totals.removedOnHand)} dona Uzum'dan olib tashlangan variantlarda` : "Kirim va sotuvlar bo‘yicha"} />
         <InventoryStat loading={loading} icon={Wallet} label="Zaxira qiymati" value={formatSum(totals.stockValue)} hint="Tan narx bo‘yicha" />
         <InventoryStat
           loading={loading}
