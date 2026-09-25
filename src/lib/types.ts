@@ -2014,7 +2014,7 @@ export interface SeoAuditRow {
  * (taxminiy), `status === "no_credit"` bo'lsa esa o'lchangan nol.
  */
 export interface AiAccountState {
-  status: "active" | "rate_limited" | "no_credit" | "invalid" | "error" | "missing";
+  status: "active" | "rate_limited" | "spend_cap" | "no_credit" | "invalid" | "error" | "missing";
   statusMessage: string | null;
   checkedAt: string | null;
   billingUrl: string;
@@ -2024,6 +2024,8 @@ export interface AiAccountState {
   balanceUsd: number | null;
   balanceSetAt: string | null;
   remainingUsd: number | null;
+  /** Kiritilgan balansdan keyingi sarf undan oshgan, kalit esa ishlaydi — balansni yangilang. */
+  balanceStale?: boolean;
 }
 
 export interface AiKeyState {

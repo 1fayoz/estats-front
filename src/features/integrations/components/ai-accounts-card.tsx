@@ -37,6 +37,7 @@ const STATUS: Record<AiAccountState["status"], { label: string; variant: "succes
   active: { label: "Faol", variant: "success" },
   rate_limited: { label: "Faol · limitda", variant: "warning" },
   no_credit: { label: "Mablag‘ tugagan", variant: "destructive" },
+  spend_cap: { label: "Oylik chegara to‘lgan", variant: "warning" },
   invalid: { label: "Kalit yaroqsiz", variant: "destructive" },
   error: { label: "Tekshirib bo‘lmadi", variant: "secondary" },
   missing: { label: "Kalit yo‘q", variant: "secondary" },
@@ -124,7 +125,13 @@ function AccountTile({ provider, account, onChanged }: {
   let caption = "Provayder qoldiqni API orqali bermaydi — hisobingizdagi balansni kiriting.";
   if (missing) { amount = "—"; caption = "Kalit kiritilmagan."; }
   else if (account.status === "no_credit") { amount = formatUsd(0); caption = account.statusMessage ?? "Hisobda mablag‘ qolmagan."; }
-  else if (account.remainingUsd !== null) {
+  else if (account.status === "spend_cap") {
+    // Pul bor — AI Studio'dagi oylik xarajat chegarasi to'lgan (Google javobi).
+    amount = account.remainingUsd !== null ? `≈ ${formatUsd(account.remainingUsd)}` : "Noma’lum";
+    caption = account.statusMessage ?? "Oylik xarajat chegarasi to‘lgan — AI Studio’da oshiring.";
+  } else if (account.balanceStale) {
+    caption = `${formatUsd(account.balanceUsd ?? 0)} ${when(account.balanceSetAt)} kiritilgan edi, shundan beri ko‘proq sarflandi — kalit esa ishlayapti, ya’ni hisob to‘ldirilgan. Joriy balansni kiriting.`;
+  } else if (account.remainingUsd !== null) {
     amount = `≈ ${formatUsd(account.remainingUsd)}`;
     caption = `${formatUsd(account.balanceUsd ?? 0)} kiritilgan (${when(account.balanceSetAt)}) — undan eStats sarfi ayriladi.`;
   } else if (account.status !== "active" && account.statusMessage) {

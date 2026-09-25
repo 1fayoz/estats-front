@@ -28,6 +28,7 @@ export function AiProviderCard({ provider, state, onSaved }: Props) {
   const bad = account?.status === "no_credit" || account?.status === "invalid";
   const badge = !state.configured ? "Kalit kerak"
     : account?.status === "no_credit" ? "Mablag‘ tugagan"
+    : account?.status === "spend_cap" ? "Oylik chegara to‘lgan"
     : account?.status === "invalid" ? "Kalit yaroqsiz"
     : account?.status === "active" || account?.status === "rate_limited" ? "Faol"
     : "Kalit kiritilgan";
