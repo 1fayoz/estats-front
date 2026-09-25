@@ -53,9 +53,16 @@ export const metadata: Metadata = {
     "Instagram marketpleys",
   ],
   authors: [{ name: siteConfig.name, url: siteConfig.url }],
-  creator: siteConfig.name,
   // Har sahifa o'z kanonik manzilini oladi; ildizda apex turadi.
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    languages: {
+      "uz": "/",
+      "ru": "/ru",
+      "en": "/en",
+      "x-default": "/",
+    },
+  },
   other: {
     "geo.region": "UZ",
     "geo.placename": "Tashkent, Uzbekistan",

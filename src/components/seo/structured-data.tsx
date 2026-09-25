@@ -117,6 +117,8 @@ export function FaqSchema({
   );
 }
 
+export const FAQSchema = FaqSchema;
+
 export function BreadcrumbSchema({
   items,
 }: {

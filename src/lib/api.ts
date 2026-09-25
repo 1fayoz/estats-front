@@ -78,6 +78,7 @@ import type {
   SeoAuditRow,
   SeoJob,
   ModerationJob,
+  SupportEmail,
   SeoPositionsTable,
   SeoRival,
   SocialAccount,
@@ -582,6 +583,18 @@ export const disconnectTelegramAccount = () =>
   request<TelegramAccountStatus>("/telegram-operator/account", { method: "DELETE" });
 
 /** Operatorga yuboriladigan matnni tuzib beradi — hech nima yubormaydi. */
+/**
+ * Uzum operatoriga yuboriladigan pochta (Uzum KABINETIGA ulangani — eStats
+ * hisobidagi Google pochtasi emas). `allShops` — barcha do'konlaringizga.
+ */
+export const fetchSupportEmail = () => request<SupportEmail>("/telegram-operator/support-email");
+
+export const saveSupportEmail = (email: string, allShops = false) =>
+  request<SupportEmail>("/telegram-operator/support-email", {
+    method: "PUT",
+    body: JSON.stringify({ email, allShops }),
+  });
+
 export const fetchComplaintPreview = (productId: number) =>
   request<ComplaintPreview>(`/telegram-operator/complaint/${productId}`);
 

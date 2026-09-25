@@ -2864,3 +2864,14 @@ export interface ModerationJob {
   error: string | null;
   reasons: string[];
 }
+
+/** Uzum operatoriga yuboriladigan pochta va manbasi (backend §9.39). */
+export interface SupportEmail {
+  email: string;
+  /** `shop` — saqlangan; `cabinet_login` — kabinet logini; `account` — eStats hisobi; "" — yo'q. */
+  source: "shop" | "cabinet_login" | "account" | "";
+  /** Shu do'konga alohida saqlangan qiymat. */
+  saved: string;
+  /** Foydalanuvchining do'konlari soni. */
+  shops: number;
+}

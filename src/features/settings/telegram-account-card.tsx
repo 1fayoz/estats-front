@@ -19,6 +19,7 @@ import {
   submitTelegramAccountPassword,
 } from "@/lib/api";
 import type { TelegramAccountStatus } from "@/lib/types";
+import { SupportEmailField } from "@/features/warehouse/components/support-email-field";
 
 type Step = "phone" | "code" | "password" | "connected";
 
@@ -282,6 +283,7 @@ export function TelegramAccountCard() {
               </div>
             </div>
             <p className="text-sm leading-relaxed text-muted-foreground">Ombordagi bloklangan tovar sahifasida «Operatorga yozish» tugmasi orqali murojaat yuborishingiz mumkin.</p>
+            <SupportEmailField />
             <div className="border-t pt-4"><Button variant="outline" className="min-h-11 w-full rounded-xl text-muted-foreground hover:text-destructive sm:w-auto" onClick={() => setConfirmDisconnect(true)} disabled={busy}><LogOut className="size-4" /> Hisobni uzish</Button></div>
           </>
         )}

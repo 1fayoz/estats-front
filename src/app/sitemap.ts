@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   return [
+    // --- 1. O'ZBEKCHA ASOSIY VA BO'LIM SAHIFALARI (Default / UZ) ---
     { url: siteConfig.url, lastModified: now, changeFrequency: "daily", priority: 1.0 },
 
     // Bepul Kalkulyatorlar va Skanerlar (Eng yuqori qidiruv trafigi)
@@ -59,6 +60,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // Ensiklopediya va Lug'at
     { url: `${siteConfig.url}/lugat`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+
+    // --- 2. RUSSIAN LOCALIZED PAGES (/ru) ---
+    { url: `${siteConfig.url}/ru`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/ru/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/ru/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/ru/kalkulyator/unit-iqtisodiyot`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/bozorlar/wildberries`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/bozorlar/yandex-market`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/bozorlar/ozon`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${siteConfig.url}/ru/muqobil/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/muqobil/1c`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/ru/yechimlar/ombor`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/ru/yechimlar/moliya`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/ru/yechimlar/tovar-seo`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+
+    // --- 3. ENGLISH LOCALIZED PAGES (/en) ---
+    { url: `${siteConfig.url}/en`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/en/tools/product-checker`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/en/tools/commission-calculator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/en/solutions/marketplace-analytics`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/en/solutions/inventory-management`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/en/solutions/ai-seo`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/en/alternatives/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
 
     // Huquqiy va boshqa sahifalar
     { url: `${siteConfig.url}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },

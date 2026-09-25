@@ -21,6 +21,7 @@ import {
 } from "@/lib/api";
 import type { ComplaintJob, ShopRequestPreview } from "@/lib/types";
 import { JobProgress, jobIsActive } from "./job-progress";
+import { SupportEmailField, swapEmail } from "./support-email-field";
 
 /**
  * Uzum qo'llab-quvvatlashiga DO'KON darajasidagi savol.
@@ -170,6 +171,10 @@ export function SupportRequestDialog({
           <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Matn tayyorlanmoqda…
           </div>
+        )}
+
+        {preview && !active && (
+          <SupportEmailField onSaved={(previous, next) => setText((t) => swapEmail(t, previous, next))} />
         )}
 
         {preview && !active && (

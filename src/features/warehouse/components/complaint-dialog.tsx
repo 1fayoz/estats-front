@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError, fetchComplaintJob, fetchComplaintPreview, sendComplaint } from "@/lib/api";
 import type { ComplaintJob, ComplaintPreview } from "@/lib/types";
 import { JobProgress, jobIsActive } from "./job-progress";
+import { SupportEmailField, swapEmail } from "./support-email-field";
 
 interface Props {
   productId: number | null;
@@ -143,6 +144,10 @@ export function ComplaintDialog({ productId, onOpenChange, job: externalJob, onJ
             Bu tovar bo&apos;yicha oxirgi marta {alreadySent.toLocaleString("uz-UZ")} da
             yozilgan.
           </p>
+        )}
+
+        {preview && !active && (
+          <SupportEmailField onSaved={(previous, next) => setText((t) => swapEmail(t, previous, next))} />
         )}
 
         {preview && !active && (

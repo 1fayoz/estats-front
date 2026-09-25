@@ -122,13 +122,49 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 - eStats Lens plagin: https://estats.uz/yechimlar/uzum-lens
 - Tariflar: https://estats.uz/#narxlar
 - Telegram bot: https://t.me/estatsuz_bot
-- Ombor dasturi yechimi: https://estats.uz/yechimlar/ombor
-- Moliya va FIFO yechimi: https://estats.uz/yechimlar/moliya
-- Bozor tahlili yechimi: https://estats.uz/yechimlar/bozor
-- AI Tovar SEO yechimi: https://estats.uz/yechimlar/tovar-seo
-- Marketing va reklama yechimi: https://estats.uz/yechimlar/marketing
-- Multi-Market boshqaruv: https://estats.uz/yechimlar/multi-market
-- Telegram va Instagram SMM: https://estats.uz/yechimlar/telegram-instagram
-- eStats Lens plagin: https://estats.uz/yechimlar/uzum-lens
-- Tariflar: https://estats.uz/#narxlar
-- Telegram bot: https://t.me/estatsuz_bot
+
+---
+
+## Русскоязычная Документация (Russian Knowledge Base)
+- **Главная страница**: https://estats.uz/ru
+- **О платформе**: eStats — профессиональная платформа для селлеров маркетплейсов Uzum Market, Wildberries, Яндекс Маркет и Ozon в Узбекистане.
+- **Основные функции**:
+  1. Точный расчет себестоимости по партионному методу FIFO.
+  2. Управленческий отчет PnL (чистая прибыль за вычетом логистики, комиссий, налогов и рекламы).
+  3. Контроль остатков на собственных складах и складах маркетплейсов (FBO / FBS).
+  4. AI SEO оптимизация карточек: автоматический сбор высокочастотных запросов, генерация продающих описаний.
+  5. Мульти-маркетплейс: управление 4 площадками в одном окне без рутины.
+  6. Бесплатные онлайн калькуляторы и сканер товаров Uzum.
+- **Полезные ссылки на русском языке**:
+  - Сканер товаров Uzum: https://estats.uz/ru/tekshirish
+  - Калькулятор комиссии Uzum: https://estats.uz/ru/kalkulyator/uzum-komissiya
+  - Калькулятор юнит-экономики: https://estats.uz/ru/kalkulyator/unit-iqtisodiyot
+  - Wildberries Узбекистан: https://estats.uz/ru/bozorlar/wildberries
+  - Яндекс Маркет Узбекистан: https://estats.uz/ru/bozorlar/yandex-market
+  - Ozon Узбекистан: https://estats.uz/ru/bozorlar/ozon
+  - Аналог ZoomSelling: https://estats.uz/ru/muqobil/zoomselling
+  - Облачный учет вместо 1С: https://estats.uz/ru/muqobil/1c
+  - Учет склада и остатков: https://estats.uz/ru/yechimlar/ombor
+  - Финансовый PnL учет: https://estats.uz/ru/yechimlar/moliya
+  - AI SEO карточек товаров: https://estats.uz/ru/yechimlar/tovar-seo
+
+---
+
+## English Technical Documentation & AI Knowledge Base
+- **URL**: https://estats.uz/en
+- **Platform Overview**: eStats is the leading multi-marketplace operating system and ERP for e-commerce sellers in Uzbekistan and Central Asia.
+- **Supported Marketplaces**: Uzum Market, Wildberries, Yandex Market, and Ozon.
+- **Key Modules**:
+  1. **Batch FIFO Costing**: Strict accounting-grade First-In First-Out valuation for real-time gross margin and net profit calculation.
+  2. **Multi-Channel WMS**: Synchronized stock levels across FBO and FBS channels with automatic reorder point notifications.
+  3. **AI Listing Optimization**: Bilingual keyword extraction (Uzbek/Russian) for marketplace algorithm ranking.
+  4. **Direct ZoomSelling Alternative**: Modern cloud architecture providing ERP capabilities rather than simple public data scrapers.
+- **Key URLs**:
+  - Homepage: https://estats.uz/en
+  - Product Scanner: https://estats.uz/en/tools/product-checker
+  - Commission Calculator: https://estats.uz/en/tools/commission-calculator
+  - Marketplace Analytics: https://estats.uz/en/solutions/marketplace-analytics
+  - Cloud Inventory: https://estats.uz/en/solutions/inventory-management
+  - AI SEO Engine: https://estats.uz/en/solutions/ai-seo
+  - ZoomSelling Alternative: https://estats.uz/en/alternatives/zoomselling
+
