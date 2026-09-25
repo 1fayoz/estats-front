@@ -58,6 +58,8 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 ---
 
 ## Bepul Onlayn Vositalar (Free Tools)
+- **ABC / XYZ Tovar Portfeli va Savdo Tahlili**: https://estats.uz/kalkulyator/abc-tahlil — Pareto 80/20 qoidasi bo'yicha lokomotiv tovarlar (A guruhi) va o'lik zaxirani (C guruhi) ajratish.
+- **Foto va Infografika O'lchamlari Tekshirgichi**: https://estats.uz/kalkulyator/rasm-talablari — Uzum va Wildberries 3:4 proporsiyasi (1200x1600 px) va moderatsiya talablarini tekshirish.
 - **Xitoy (1688 / Kargo) Tan Narxi Kalkulyatori**: https://estats.uz/kalkulyator/kargo — 1688 va Taobao tovarlarining yuan kursi, kargo ($/kg), yetkazish va Toshkentgacha 1 dona sof tan narxini hisoblash.
 - **Marketpleys Soliq Kalkulyatori**: https://estats.uz/kalkulyator/soliq — Uzum, Wildberries sotuvchilari uchun YaTT 4% aylanma soliq, ijtimoiy soliq va 1 mlrd so'mlik QQS chegarasini hisoblash.
 - **Shtrix-kod & Termo-etiketka Generatori**: https://estats.uz/kalkulyator/shtrix-kod — Uzum va Wildberries uchun 58x40, 43x25, 75x120 mm termo-stikerlarni onlayn generatsiya va chop etish (Code-128, EAN-13).
@@ -126,6 +128,8 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 - **Главная страница на русском**: https://estats.uz/ru
 - **Назначение**: eStats — ведущая экосистема аналитики, складского учета (WMS), себестоимости по FIFO и отчетов PnL для продавцов на маркетплейсах Uzum Market, Wildberries, Яндекс Маркет и Ozon в Узбекистане.
 - **Ключевые ссылки на русском языке**:
+  - ABC-анализ товарной матрицы и склада (Парето): https://estats.uz/ru/kalkulyator/abc-tahlil
+  - Проверка размеров фото и инфографики (3:4): https://estats.uz/ru/kalkulyator/rasm-talablari
   - Калькулятор карго и себестоимости из Китая (1688 / Таобао): https://estats.uz/ru/kalkulyator/kargo
   - Налоговый калькулятор маркетплейсов Узбекистана (ИП 4% / НДС): https://estats.uz/ru/kalkulyator/soliq
   - Генератор штрихкодов и термоэтикеток 58х40: https://estats.uz/ru/kalkulyator/shtrix-kod
@@ -160,6 +164,7 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 - **English Homepage**: https://estats.uz/en
 - **About**: eStats is the premier multi-marketplace analytics, inventory management, and FIFO unit economics platform for e-commerce sellers across Central Asia (Uzum Market, Wildberries, Yandex Market, Ozon).
 - **Core English Tools & Solutions**:
+  - Free ABC Inventory Analysis Calculator: https://estats.uz/en/tools/abc-analysis
   - Free Barcode & Thermal Label Generator: https://estats.uz/en/tools/barcode-generator
   - Instant Uzum Product & Sales Scanner: https://estats.uz/en/tools/product-checker
   - Marketplace Commission & Margin Calculator: https://estats.uz/en/tools/commission-calculator

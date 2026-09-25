@@ -39,6 +39,8 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
           <nav aria-label="Бесплатные калькуляторы" className={styles.footerNav}>
             <h3>Калькуляторы</h3>
+            <Link href="/ru/kalkulyator/abc-tahlil">ABC-анализ склада (Парето)</Link>
+            <Link href="/ru/kalkulyator/rasm-talablari">Размеры фото и инфографики</Link>
             <Link href="/ru/kalkulyator/kargo">Карго и себестоимость Китая</Link>
             <Link href="/ru/kalkulyator/soliq">Налоговый калькулятор (ИП/ООО)</Link>
             <Link href="/ru/kalkulyator/shtrix-kod">Генератор штрихкодов 58х40</Link>
@@ -114,6 +116,7 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
           <nav aria-label="Free Tools" className={styles.footerNav}>
             <h3>Free Tools</h3>
+            <Link href="/en/tools/abc-analysis">ABC Inventory Analysis</Link>
             <Link href="/en/tools/barcode-generator">Barcode &amp; Thermal Labels</Link>
             <Link href="/en/tools/product-checker">Uzum Product Scanner</Link>
             <Link href="/en/tools/commission-calculator">Uzum Commission Calculator</Link>
@@ -174,6 +177,8 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
         <nav aria-label="Bepul vositalar va kalkulyatorlar" className={styles.footerNav}>
           <h3>Kalkulyatorlar</h3>
+          <Link href="/kalkulyator/abc-tahlil">ABC tovar tahlili (Pareto)</Link>
+          <Link href="/kalkulyator/rasm-talablari">Foto va Infografika o&apos;lchamlari</Link>
           <Link href="/kalkulyator/kargo">Xitoy &amp; Kargo tan narxi</Link>
           <Link href="/kalkulyator/soliq">Marketpleys soliq kalkulyatori</Link>
           <Link href="/kalkulyator/shtrix-kod">Shtrix-kod &amp; Termo-etiketka</Link>

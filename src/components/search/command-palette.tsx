@@ -16,6 +16,22 @@ interface SearchItem {
 const ITEMS_UZ: SearchItem[] = [
   // Calculators
   {
+    id: "calc-abc",
+    title: "ABC / XYZ Tovar Portfeli va Savdo Tahlili",
+    description: "Pareto 80/20 bo'yicha lokomotiv tovarlar va o'lik zaxirani aniqlash",
+    category: "calc",
+    href: "/kalkulyator/abc-tahlil",
+    keywords: ["abc", "xyz", "pareto", "matritsa", "lokomotiv", "tovar tahlili"],
+  },
+  {
+    id: "calc-img",
+    title: "Foto va Infografika O'lchamlari Tekshirgichi",
+    description: "3:4 proporsiya, 1200x1600 px va Uzum moderatsiya qoidalari",
+    category: "calc",
+    href: "/kalkulyator/rasm-talablari",
+    keywords: ["foto", "rasm", "infografika", "proporsiya", "3:4", "moderatsiya", "1200x1600"],
+  },
+  {
     id: "calc-cargo",
     title: "Xitoy (1688 / Kargo) Tan Narxi Kalkulyatori",
     description: "Yuan kursi, kargo ($/kg), qadoq va 1 dona tovar sof tan narxi",
@@ -233,6 +249,22 @@ const ITEMS_UZ: SearchItem[] = [
 
 const ITEMS_RU: SearchItem[] = [
   // Calculators
+  {
+    id: "calc-abc-ru",
+    title: "ABC-Анализ товарной матрицы и склада",
+    description: "Правило Парето 80/20: выявление локомотивов и неликвида",
+    category: "calc",
+    href: "/ru/kalkulyator/abc-tahlil",
+    keywords: ["abc", "xyz", "парето", "матрица", "неликвид", "анализ склада"],
+  },
+  {
+    id: "calc-img-ru",
+    title: "Проверка размеров фото и инфографики",
+    description: "Пропорция 3:4, разрешение 1200х1600 и правила модерации Uzum",
+    category: "calc",
+    href: "/ru/kalkulyator/rasm-talablari",
+    keywords: ["фото", "инфографика", "размеры", "3:4", "модерация", "1200х1600"],
+  },
   {
     id: "calc-cargo-ru",
     title: "Калькулятор карго и себестоимости из Китая",

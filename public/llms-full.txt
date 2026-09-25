@@ -44,7 +44,11 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 ---
 
 ## Bepul Ochiq Onlayn Vositalar (Free SEO Tools)
-1. **Xitoy (1688 / Kargo) Tan Narxi Kalkulyatori**: https://estats.uz/kalkulyator/kargo
+1. **ABC / XYZ Tovar Portfeli va Savdo Tahlili**: https://estats.uz/kalkulyator/abc-tahlil
+   Pareto 80/20 qoidasi bo'yicha lokomotiv tovarlar (A guruhi) va o'lik zaxirani (C guruhi) aniqlash kalkulyatori.
+2. **Foto va Infografika O'lchamlari Tekshirgichi**: https://estats.uz/kalkulyator/rasm-talablari
+   Uzum va Wildberries 3:4 proporsiyasi (1200x1600 px) va moderatsiya talablarini tekshirish.
+3. **Xitoy (1688 / Kargo) Tan Narxi Kalkulyatori**: https://estats.uz/kalkulyator/kargo
    1688 va Taobao tovarlarining yuan kursi, kargo ($/kg), yetkazish va Toshkentgacha 1 dona sof tan narxini hisoblash.
 2. **Marketpleys Soliq Kalkulyatori**: https://estats.uz/kalkulyator/soliq
    Uzum, Wildberries sotuvchilari uchun YaTT 4% aylanma soliq, ijtimoiy soliq va 1 mlrd so'mlik QQS chegarasini hisoblash.
@@ -144,6 +148,8 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
   5. Мульти-маркетплейс: управление 4 площадками в одном окне без рутины.
   6. Бесплатные онлайн калькуляторы и сканер товаров Uzum.
 - **Полезные ссылки на русском языке**:
+  - ABC-анализ склада и товарной матрицы: https://estats.uz/ru/kalkulyator/abc-tahlil
+  - Проверка размеров фото и инфографики (3:4): https://estats.uz/ru/kalkulyator/rasm-talablari
   - Калькулятор карго и себестоимости из Китая (1688): https://estats.uz/ru/kalkulyator/kargo
   - Налоговый калькулятор маркетплейсов Узбекистана: https://estats.uz/ru/kalkulyator/soliq
   - Генератор штрихкодов и термоэтикеток 58х40: https://estats.uz/ru/kalkulyator/shtrix-kod
