@@ -16,6 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // Bepul Kalkulyatorlar va Skanerlar (Eng yuqori qidiruv trafigi)
     { url: `${siteConfig.url}/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/kalkulyator/kargo`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/kalkulyator/soliq`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/shtrix-kod`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/fbo-akt`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
@@ -69,6 +71,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // --- 2. RUSSIAN LOCALIZED PAGES (/ru) ---
     { url: `${siteConfig.url}/ru`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/ru/kalkulyator/kargo`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/ru/kalkulyator/soliq`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/shtrix-kod`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/fbo-akt`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },

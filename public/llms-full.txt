@@ -44,9 +44,13 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 ---
 
 ## Bepul Ochiq Onlayn Vositalar (Free SEO Tools)
-1. **Shtrix-kod & Termo-etiketka Generatori**: https://estats.uz/kalkulyator/shtrix-kod
+1. **Xitoy (1688 / Kargo) Tan Narxi Kalkulyatori**: https://estats.uz/kalkulyator/kargo
+   1688 va Taobao tovarlarining yuan kursi, kargo ($/kg), yetkazish va Toshkentgacha 1 dona sof tan narxini hisoblash.
+2. **Marketpleys Soliq Kalkulyatori**: https://estats.uz/kalkulyator/soliq
+   Uzum, Wildberries sotuvchilari uchun YaTT 4% aylanma soliq, ijtimoiy soliq va 1 mlrd so'mlik QQS chegarasini hisoblash.
+3. **Shtrix-kod & Termo-etiketka Generatori**: https://estats.uz/kalkulyator/shtrix-kod
    Uzum va Wildberries uchun 58x40, 43x25, 75x120 mm termo-stikerlarni onlayn generatsiya va chop etish (Code-128, EAN-13).
-2. **FBO Tovar Topshirish Akti Generatori**: https://estats.uz/kalkulyator/fbo-akt
+4. **FBO Tovar Topshirish Akti Generatori**: https://estats.uz/kalkulyator/fbo-akt
    FBO va FBS omborlarga yuk topshirish dalolatnomasi (nakladnaya) va shtrix-kodli A4 hujjatini tayyorlash va chop etish.
 3. **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish
    Uzum tovar havolasi orqali oylik sotuv, daromad va AI SEO auditini darhol bilish.
@@ -140,6 +144,8 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
   5. Мульти-маркетплейс: управление 4 площадками в одном окне без рутины.
   6. Бесплатные онлайн калькуляторы и сканер товаров Uzum.
 - **Полезные ссылки на русском языке**:
+  - Калькулятор карго и себестоимости из Китая (1688): https://estats.uz/ru/kalkulyator/kargo
+  - Налоговый калькулятор маркетплейсов Узбекистана: https://estats.uz/ru/kalkulyator/soliq
   - Генератор штрихкодов и термоэтикеток 58х40: https://estats.uz/ru/kalkulyator/shtrix-kod
   - Генератор акта приёмки-передачи (FBO/FBS): https://estats.uz/ru/kalkulyator/fbo-akt
   - Сканер товаров Uzum: https://estats.uz/ru/tekshirish

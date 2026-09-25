@@ -7,6 +7,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 import { siteConfig } from "@/config/site";
 import { LanguageSwitcher } from "@/components/seo/language-switcher";
+import { CommandPalette } from "@/components/search/command-palette";
 import { cn } from "@/lib/utils";
 import base from "./landing.module.css";
 import styles from "./landing-chrome.module.css";
@@ -89,6 +90,7 @@ export function LandingHeader({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
         </nav>
 
         <div className={styles.headerActions}>
+          <CommandPalette locale={locale} />
           <LanguageSwitcher className="mr-1" />
           <Link href="/login" className={styles.loginLink}>{t.login}</Link>
           <Link href="/login" className={cn(base.primaryButton, styles.headerCta)}>{t.cta}<ArrowRight size={15} aria-hidden="true" /></Link>

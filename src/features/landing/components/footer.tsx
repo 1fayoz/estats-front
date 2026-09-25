@@ -39,6 +39,8 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
           <nav aria-label="Бесплатные калькуляторы" className={styles.footerNav}>
             <h3>Калькуляторы</h3>
+            <Link href="/ru/kalkulyator/kargo">Карго и себестоимость Китая</Link>
+            <Link href="/ru/kalkulyator/soliq">Налоговый калькулятор (ИП/ООО)</Link>
             <Link href="/ru/kalkulyator/shtrix-kod">Генератор штрихкодов 58х40</Link>
             <Link href="/ru/kalkulyator/fbo-akt">Акт приёма FBO (Накладная)</Link>
             <Link href="/ru/tekshirish">Сканер товаров Uzum</Link>
@@ -172,6 +174,8 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
         <nav aria-label="Bepul vositalar va kalkulyatorlar" className={styles.footerNav}>
           <h3>Kalkulyatorlar</h3>
+          <Link href="/kalkulyator/kargo">Xitoy &amp; Kargo tan narxi</Link>
+          <Link href="/kalkulyator/soliq">Marketpleys soliq kalkulyatori</Link>
           <Link href="/kalkulyator/shtrix-kod">Shtrix-kod &amp; Termo-etiketka</Link>
           <Link href="/kalkulyator/fbo-akt">FBO Tovar topshirish akti</Link>
           <Link href="/tekshirish">Uzum tovar skaneri</Link>

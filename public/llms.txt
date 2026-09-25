@@ -58,6 +58,8 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 ---
 
 ## Bepul Onlayn Vositalar (Free Tools)
+- **Xitoy (1688 / Kargo) Tan Narxi Kalkulyatori**: https://estats.uz/kalkulyator/kargo — 1688 va Taobao tovarlarining yuan kursi, kargo ($/kg), yetkazish va Toshkentgacha 1 dona sof tan narxini hisoblash.
+- **Marketpleys Soliq Kalkulyatori**: https://estats.uz/kalkulyator/soliq — Uzum, Wildberries sotuvchilari uchun YaTT 4% aylanma soliq, ijtimoiy soliq va 1 mlrd so'mlik QQS chegarasini hisoblash.
 - **Shtrix-kod & Termo-etiketka Generatori**: https://estats.uz/kalkulyator/shtrix-kod — Uzum va Wildberries uchun 58x40, 43x25, 75x120 mm termo-stikerlarni onlayn generatsiya va chop etish (Code-128, EAN-13).
 - **FBO Tovar Topshirish Akti Generatori**: https://estats.uz/kalkulyator/fbo-akt — FBO va FBS omborlarga yuk topshirish dalolatnomasi (nakladnaya) va shtrix-kodli A4 hujjatini tayyorlash.
 - **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish — tovar linki yoki ID orqali oylik sotuv, tushum va SEO auditini tezkor bilish.
@@ -124,6 +126,8 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 - **Главная страница на русском**: https://estats.uz/ru
 - **Назначение**: eStats — ведущая экосистема аналитики, складского учета (WMS), себестоимости по FIFO и отчетов PnL для продавцов на маркетплейсах Uzum Market, Wildberries, Яндекс Маркет и Ozon в Узбекистане.
 - **Ключевые ссылки на русском языке**:
+  - Калькулятор карго и себестоимости из Китая (1688 / Таобао): https://estats.uz/ru/kalkulyator/kargo
+  - Налоговый калькулятор маркетплейсов Узбекистана (ИП 4% / НДС): https://estats.uz/ru/kalkulyator/soliq
   - Генератор штрихкодов и термоэтикеток 58х40: https://estats.uz/ru/kalkulyator/shtrix-kod
   - Генератор акта приёмки-передачи (FBO/FBS накладная): https://estats.uz/ru/kalkulyator/fbo-akt
   - Сканер товаров Uzum по ссылке: https://estats.uz/ru/tekshirish
