@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 import { siteConfig } from "@/config/site";
 import Script from "next/script";
 import { TelegramWebApp } from "@/features/telegram/telegram-webapp";
-import { OrganizationSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
+import { OrganizationSchema, SoftwareApplicationSchema, WebSiteSchema } from "@/components/seo/structured-data";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -106,6 +106,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground font-sans">
+        <WebSiteSchema />
         <OrganizationSchema />
         <SoftwareApplicationSchema />
         {/* Telegram WebApp SDK. `beforeInteractive` — `initData`

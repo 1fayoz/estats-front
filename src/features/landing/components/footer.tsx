@@ -39,12 +39,14 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
           <nav aria-label="Бесплатные калькуляторы" className={styles.footerNav}>
             <h3>Калькуляторы</h3>
+            <Link href="/ru/kalkulyator/shtrix-kod">Генератор штрихкодов 58х40</Link>
             <Link href="/ru/tekshirish">Сканер товаров Uzum</Link>
             <Link href="/ru/kalkulyator/uzum-komissiya">Калькулятор комиссии Uzum</Link>
             <Link href="/ru/kalkulyator/unit-iqtisodiyot">Калькулятор юнит-экономики</Link>
-            <Link href="/kalkulyator/chegirma-narx">Расчет скидок и наценки</Link>
-            <Link href="/kalkulyator/ombor-zaxirasi">Расчет страхового запаса</Link>
-            <Link href="/kalkulyator/drr">Калькулятор ДРР и ROAS</Link>
+            <Link href="/ru/kalkulyator/vozvrat-zarari">Калькулятор возвратов</Link>
+            <Link href="/ru/kalkulyator/ombor-zaxirasi">Расчет остатков (ROP)</Link>
+            <Link href="/ru/kalkulyator/chegirma-narx">Расчет скидок и наценки</Link>
+            <Link href="/ru/kalkulyator/drr">Калькулятор ДРР и ROAS</Link>
           </nav>
 
           <nav aria-label="Маркетплейсы" className={styles.footerNav}>
@@ -61,9 +63,9 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
             <h3>Альтернативы</h3>
             <Link href="/ru/muqobil/zoomselling">Аналог ZoomSelling</Link>
             <Link href="/ru/muqobil/1c">Вместо 1С и МойСклад</Link>
-            <Link href="/muqobil/mpstats">Аналог MPStats</Link>
-            <Link href="/terms">Условия сервиса</Link>
-            <Link href="/privacy">Конфиденциальность</Link>
+            <Link href="/ru/muqobil/mpstats">Аналог MPSTATS</Link>
+            <Link href="/ru/muqobil/huntersales">Аналог HunterSales</Link>
+            <Link href="/ru/muqobil/sellerfox">Аналог SellerFox</Link>
             <Link href="/login">Вход в кабинет</Link>
           </nav>
         </div>
@@ -108,6 +110,7 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
           <nav aria-label="Free Tools" className={styles.footerNav}>
             <h3>Free Tools</h3>
+            <Link href="/en/tools/barcode-generator">Barcode &amp; Thermal Labels</Link>
             <Link href="/en/tools/product-checker">Uzum Product Scanner</Link>
             <Link href="/en/tools/commission-calculator">Uzum Commission Calculator</Link>
             <Link href="/kalkulyator/unit-iqtisodiyot">Unit Economics Tool</Link>
@@ -167,11 +170,13 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
 
         <nav aria-label="Bepul vositalar va kalkulyatorlar" className={styles.footerNav}>
           <h3>Kalkulyatorlar</h3>
+          <Link href="/kalkulyator/shtrix-kod">Shtrix-kod &amp; Termo-etiketka</Link>
           <Link href="/tekshirish">Uzum tovar skaneri</Link>
           <Link href="/kalkulyator/uzum-komissiya">Uzum komissiya kalkulyatori</Link>
           <Link href="/kalkulyator/unit-iqtisodiyot">Unit iqtisodiyoti kalkulyatori</Link>
+          <Link href="/kalkulyator/vozvrat-zarari">Vozvrat va zarar kalkulyatori</Link>
           <Link href="/kalkulyator/chegirma-narx">Chegirma va narx kalkulyatori</Link>
-          <Link href="/kalkulyator/ombor-zaxirasi">Ombor zaxirasi kalkulyatori</Link>
+          <Link href="/kalkulyator/ombor-zaxirasi">Ombor zaxirasi (ROP)</Link>
           <Link href="/kalkulyator/drr">DRR va reklama kalkulyatori</Link>
         </nav>
 
@@ -193,8 +198,9 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
           <Link href="/bozorlar/ozon">Ozon O&apos;zbekiston</Link>
           <Link href="/muqobil/zoomselling">ZoomSelling muqobili</Link>
           <Link href="/muqobil/1c">1C &amp; MoySklad muqobili</Link>
-          <Link href="/terms">Foydalanish shartlari</Link>
-          <Link href="/privacy">Maxfiylik siyosati</Link>
+          <Link href="/muqobil/mpstats">MPStats muqobili</Link>
+          <Link href="/muqobil/huntersales">HunterSales muqobili</Link>
+          <Link href="/muqobil/sellerfox">SellerFox muqobili</Link>
           <Link href="/login">Hisobga kirish</Link>
         </nav>
       </div>

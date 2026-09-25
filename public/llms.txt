@@ -58,9 +58,11 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 ---
 
 ## Bepul Onlayn Vositalar (Free Tools)
+- **Shtrix-kod & Termo-etiketka Generatori**: https://estats.uz/kalkulyator/shtrix-kod — Uzum va Wildberries uchun 58x40, 43x25, 75x120 mm termo-stikerlarni onlayn generatsiya va chop etish (Code-128, EAN-13).
 - **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish — tovar linki yoki ID orqali oylik sotuv, tushum va SEO auditini tezkor bilish.
 - **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya — toifa, logistika va tovar narxi bo'yicha komissiya va sof foydani hisoblash.
 - **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot — 1 dona tovar marjasi, ROI va zararsizlik narxi (Break-even).
+- **Qaytgan Tovarlar (Vozvrat) Zarari Kalkulyatori**: https://estats.uz/kalkulyator/vozvrat-zarari — qaytarilgan tovarlar logistikasi, brak va zararlarini hisoblash.
 - **Chegirma va Narx Qo'yish Kalkulyatori**: https://estats.uz/kalkulyator/chegirma-narx — katta chegirmada ham kutilgan sof marjada qolish uchun narx strategiyasi.
 - **Ombor Zaxirasini Rejalashtirish Kalkulyatori**: https://estats.uz/kalkulyator/ombor-zaxirasi — tovar tugab qolmasligi (Out of Stock bo'lmasligi) uchun Reorder Point va Safety Stock.
 - **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr — Uzum Boost TOP xarajatlarining rentabelligi va ROAS.
@@ -121,14 +123,22 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 - **Главная страница на русском**: https://estats.uz/ru
 - **Назначение**: eStats — ведущая экосистема аналитики, складского учета (WMS), себестоимости по FIFO и отчетов PnL для продавцов на маркетплейсах Uzum Market, Wildberries, Яндекс Маркет и Ozon в Узбекистане.
 - **Ключевые ссылки на русском языке**:
+  - Генератор штрихкодов и термоэтикеток 58х40: https://estats.uz/ru/kalkulyator/shtrix-kod
   - Сканер товаров Uzum по ссылке: https://estats.uz/ru/tekshirish
   - Калькулятор комиссии Uzum Market 2026: https://estats.uz/ru/kalkulyator/uzum-komissiya
   - Калькулятор юнит-экономики: https://estats.uz/ru/kalkulyator/unit-iqtisodiyot
+  - Калькулятор убытков от возвратов: https://estats.uz/ru/kalkulyator/vozvrat-zarari
+  - Калькулятор складских остатков и точки перезаказа (ROP): https://estats.uz/ru/kalkulyator/ombor-zaxirasi
+  - Калькулятор скидок и зачеркнутой цены: https://estats.uz/ru/kalkulyator/chegirma-narx
+  - Калькулятор ДРР и окупаемости рекламы: https://estats.uz/ru/kalkulyator/drr
   - Wildberries Узбекистан (аналитика и склад): https://estats.uz/ru/bozorlar/wildberries
   - Яндекс Маркет Узбекистан (управление продажами): https://estats.uz/ru/bozorlar/yandex-market
   - Ozon Узбекистан (экспорт и поставки): https://estats.uz/ru/bozorlar/ozon
   - Лучший аналог ZoomSelling в Узбекистане: https://estats.uz/ru/muqobil/zoomselling
   - Замена 1С и МойСклад для маркетплейсов: https://estats.uz/ru/muqobil/1c
+  - Аналог MPSTATS для Uzum и Узбекистана: https://estats.uz/ru/muqobil/mpstats
+  - Аналог HunterSales для Uzum Market: https://estats.uz/ru/muqobil/huntersales
+  - Аналог SellerFox для рынка Узбекистана: https://estats.uz/ru/muqobil/sellerfox
   - Учет склада и остатков FBO/FBS: https://estats.uz/ru/yechimlar/ombor
   - Финансовый учет PnL и себестоимость FIFO: https://estats.uz/ru/yechimlar/moliya
   - AI SEO оптимизация карточек: https://estats.uz/ru/yechimlar/tovar-seo
@@ -141,6 +151,7 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 - **English Homepage**: https://estats.uz/en
 - **About**: eStats is the premier multi-marketplace analytics, inventory management, and FIFO unit economics platform for e-commerce sellers across Central Asia (Uzum Market, Wildberries, Yandex Market, Ozon).
 - **Core English Tools & Solutions**:
+  - Free Barcode & Thermal Label Generator: https://estats.uz/en/tools/barcode-generator
   - Instant Uzum Product & Sales Scanner: https://estats.uz/en/tools/product-checker
   - Marketplace Commission & Margin Calculator: https://estats.uz/en/tools/commission-calculator
   - Multi-Marketplace Analytics: https://estats.uz/en/solutions/marketplace-analytics
