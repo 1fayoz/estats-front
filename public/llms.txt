@@ -86,6 +86,11 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 - Boost TOP reklama sirlari: https://estats.uz/qollanma/boost-top-sozlash
 - Bo'sh nishalarni topish formulasi: https://estats.uz/qollanma/top-nishalar
 
+## Bozorlar Integratsiyasi (Marketplace Hub)
+- Wildberries O'zbekiston: https://estats.uz/bozorlar/wildberries
+- Yandex Market O'zbekiston: https://estats.uz/bozorlar/yandex-market
+- Ozon O'zbekiston: https://estats.uz/bozorlar/ozon
+
 ---
 
 ## Asosiy Havolalar (Sitemap)

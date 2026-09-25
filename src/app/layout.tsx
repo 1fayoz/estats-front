@@ -56,6 +56,12 @@ export const metadata: Metadata = {
   creator: siteConfig.name,
   // Har sahifa o'z kanonik manzilini oladi; ildizda apex turadi.
   alternates: { canonical: "/" },
+  other: {
+    "geo.region": "UZ",
+    "geo.placename": "Tashkent, Uzbekistan",
+    "geo.position": "41.2995;69.2401",
+    "ICBM": "41.2995, 69.2401",
+  },
   openGraph: {
     type: "website",
     locale: "uz_UZ",

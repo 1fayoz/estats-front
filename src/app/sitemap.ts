@@ -35,6 +35,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteConfig.url}/qollanma/boost-top-sozlash`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteConfig.url}/qollanma/top-nishalar`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
 
+    // Bozorlar (Marketplace Specific Landing Pages)
+    { url: `${siteConfig.url}/bozorlar/wildberries`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/bozorlar/yandex-market`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/bozorlar/ozon`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+
     // Muqobillar (Competitor conquesting)
     { url: `${siteConfig.url}/muqobil/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/muqobil/1c`, lastModified: now, changeFrequency: "daily", priority: 0.95 },

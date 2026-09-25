@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Bot, Check, FileText, Sparkles, Star, TrendingUp } from "lucide-react";
-import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
 
 export const metadata: Metadata = {
   title: "Tovar Kartochkasini To'ldirish va SEO — Qidiruvda 1-O'ringa Chiqish Yo'riqnomasi | eStats",
@@ -31,6 +31,28 @@ export default function CardOptimizationGuidePage() {
           { name: "Bosh sahifa", url: "/" },
           { name: "Qo'llanmalar", url: "/qollanma" },
           { name: "Tovar kartochkasini to'ldirish", url: "/qollanma/kartochka-toldirish" },
+        ]}
+      />
+      <HowToSchema
+        name="Uzumda tovar kartochkasini to'g'ri to'ldirish va SEO"
+        description="Qidiruvda 1-o'ringa chiqish va savdoni oshirish uchun kartochkani to'ldirishning 4 bosqichi."
+        steps={[
+          {
+            name: "SEO Title (Tovar nomi) formulasini tuzish",
+            text: "Tovar turi, brend, asosiy xususiyat va maqsadni qamrab oluvchi to'liq nom yozish.",
+          },
+          {
+            name: "CTR ni oshiruvchi infografika tayyorlash",
+            text: "Asosiy rasmda mahsulotning eng muhim 3 ta foydali tomonini ko'rsatish.",
+          },
+          {
+            name: "Barcha xususiyatlarni (filtrlarni) to'ldirish",
+            text: "O'lcham, rang, material va og'irlik parametrlarini to'liq kiritish.",
+          },
+          {
+            name: "eStats AI orqali optimallashtirish",
+            text: "Sun'iy intellekt orqali qidiruvda eng talabgir kalit so'zlarni tanlash va tavsif yaratish.",
+          },
         ]}
       />
 

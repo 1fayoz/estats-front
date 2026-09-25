@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Check, FileText, Rocket, ShieldCheck, Sparkles } from "lucide-react";
-import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
 
 export const metadata: Metadata = {
   title: "Uzum Marketda Do'kon Ochish — 2026-Yilda Noldan Sotuv Boshlash Bo'yicha To'liq Yo'riqnoma | eStats",
@@ -31,6 +31,28 @@ export default function OpenShopGuidePage() {
           { name: "Bosh sahifa", url: "/" },
           { name: "Qo'llanmalar", url: "/qollanma" },
           { name: "Uzumda do'kon ochish", url: "/qollanma/uzumda-dokon-ochish" },
+        ]}
+      />
+      <HowToSchema
+        name="Uzum Marketda do'kon ochish va savdo boshlash"
+        description="2026-yilda Uzum Marketda rasmiy seller bo'lib savdoni boshlashning 4 ta bosqichi."
+        steps={[
+          {
+            name: "Yuridik maqom olish (YaTT yoki MChJ)",
+            text: "Davlat xizmatlari orqali YaTT ochish, bank hisob raqami ochish va ERI (elektron imzo) olish.",
+          },
+          {
+            name: "Uzum Seller portalida ro'yxatdan o'tish",
+            text: "Anketani to'ldirish, shartnomani elektron imzolash va seller kabinetini faollashtirish.",
+          },
+          {
+            name: "Bozor tahlili va tovar tanlash",
+            text: "eStats analitikasi orqali bo'sh nishalarni topish, tovar marjasi va komissiyalarini hisoblash.",
+          },
+          {
+            name: "Tovarni qadoqlash va omborga topshirish",
+            text: "Barkod chop etish, kirim aktini shakllantirish va tovarni Uzum logistika markaziga topshirish.",
+          },
         ]}
       />
 

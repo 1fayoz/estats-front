@@ -51,11 +51,12 @@ export function LandingFooter() {
         </nav>
 
         <nav aria-label="Taqqoslash va hisob" className={styles.footerNav}>
-          <h3>Muqobillar</h3>
+          <h3>Bozorlar &amp; Muqobil</h3>
+          <Link href="/bozorlar/wildberries">Wildberries O&apos;zbekiston</Link>
+          <Link href="/bozorlar/yandex-market">Yandex Market O&apos;zbekiston</Link>
+          <Link href="/bozorlar/ozon">Ozon O&apos;zbekiston</Link>
           <Link href="/muqobil/zoomselling">ZoomSelling muqobili</Link>
           <Link href="/muqobil/1c">1C &amp; MoySklad muqobili</Link>
-          <Link href="/muqobil/huntersales">HunterSales muqobili</Link>
-          <Link href="/muqobil/mpstats">MPStats muqobili</Link>
           <Link href="/terms">Foydalanish shartlari</Link>
           <Link href="/privacy">Maxfiylik siyosati</Link>
           <Link href="/login">Hisobga kirish</Link>
