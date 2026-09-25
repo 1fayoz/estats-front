@@ -64,6 +64,11 @@ export type ReportMeta = {
   as_of: string | null;
   source: "import" | "estats" | null;
   scope: string;
+  /** Import ko'rsatilganda: o'z o'lchovimiz uzluksiz to'liq kunlari. */
+  own_since?: string | null;
+  own_through?: string;
+  /** Shu kundan boshlab bu davr o'z o'lchovimizdan quriladi. */
+  own_ready_on?: string;
 } | null;
 
 export type PeriodOption = { key: string; label: string };

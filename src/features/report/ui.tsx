@@ -112,17 +112,65 @@ export function Card({
   );
 }
 
-/** Pastki yozuv: raqam qaysi kun holatiga va qayerdan — yashirilmaydi. */
+const dmy = (iso: string) => iso.split("-").reverse().join(".");
+
+/** O'z o'lchovimizdan qurilgan eng uzun sirpanuvchi davr (to'liq kunlar soniga sig'adigani). */
+function ownPeriod(since: string | null | undefined, through: string): { key: string; label: string } | null {
+  if (!since) return null;
+  const days = Math.round((Date.parse(through) - Date.parse(since)) / 86_400_000) + 1;
+  for (const [key, len, label] of [["d7", 7, "7 kun"], ["d3", 3, "3 kun"], ["d1", 1, "1 kun"]] as const) {
+    if (days >= len) return { key, label };
+  }
+  return null;
+}
+
+/**
+ * Pastki yozuv: raqam qaysi kun holatiga va qayerdan — yashirilmaydi.
+ *
+ * Import ko'rsatilgan-u, o'z kunlik o'lchovimiz undan yangiroq bo'lsa (prodda
+ * 2026-09-26: «21.09 · import», o'zimizniki 25.09 gacha) — NEGA import
+ * (bu davr uchun o'z to'liq tarixi hali yetmagan), qachondan o'zimizniki
+ * bo'lishi va hozir o'zimizdan ko'rish mumkin bo'lgan davr aytiladi.
+ */
 export function SourceNote({ meta }: { meta: ReportMeta | undefined }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const search = useSearchParams();
   if (!meta || !meta.as_of) return null;
   const own = meta.source === "estats";
+  const fresher = !own && meta.own_through && meta.own_through > meta.as_of ? meta.own_through : null;
+  const alt = fresher ? ownPeriod(meta.own_since, fresher) : null;
+  const switchTo = (key: string) => {
+    const next = new URLSearchParams(search.toString());
+    next.set("period", key);
+    next.delete("offset");
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  };
   return (
     <div className={s.note}>
       <Database aria-hidden="true" />
-      <span>Ma&apos;lumot {meta.as_of.split("-").reverse().join(".")} holatiga ·{" "}
-      <span className={own ? s.sourceOwn : s.sourceZs}>
-        {own ? "o'z o'lchovimiz" : "import qilingan tarix (import)"}
-      </span></span>
+      <span>
+        Ma&apos;lumot {dmy(meta.as_of)} holatiga ·{" "}
+        <span className={own ? s.sourceOwn : s.sourceZs}>
+          {own ? "o'z o'lchovimiz" : "import qilingan tarix (import)"}
+        </span>
+        {fresher && (
+          <>
+            {` — o'z kunlik o'lchovimiz ${dmy(fresher)} gacha tayyor, lekin «${meta.period_label ?? meta.period}» uchun `}
+            {`to'liq tarix ${meta.own_since ? `${dmy(meta.own_since)} dan` : "hali"} yig'ilyapti`}
+            {meta.own_ready_on ? `; ${dmy(meta.own_ready_on)} dan shu davr ham o'zimizdan ko'rinadi.` : "."}
+            {alt && meta.period !== alt.key && (
+              <>
+                {" "}
+                <button type="button" className={s.sourceOwn} style={{ textDecoration: "underline", cursor: "pointer", background: "none", border: 0, padding: 0 }}
+                  onClick={() => switchTo(alt.key)}>
+                  {`${alt.label}ni o'z o'lchovimizdan (${dmy(fresher)}) ko'rish`}
+                </button>
+              </>
+            )}
+          </>
+        )}
+      </span>
     </div>
   );
 }
