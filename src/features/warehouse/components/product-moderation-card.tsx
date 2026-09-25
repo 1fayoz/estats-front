@@ -22,7 +22,6 @@ import {
   applyProductFix,
   autoFixProductUzum,
   checkProductUzum,
-  syncModerationReasons,
 } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import type {
@@ -34,7 +33,9 @@ import type {
   ComplaintJob,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { isDismissed, moderationJobActive, useModerationJobStore } from "@/stores/moderation-job-store";
 import { jobIsActive } from "./job-progress";
+import { ModerationJobProgress } from "./moderation-job-progress";
 
 type Tone = "neutral" | "success" | "warning" | "error";
 type Action = "check" | "auto" | "reason";
@@ -140,6 +141,25 @@ export function ProductModerationCard({
   const [busy, setBusy] = React.useState<Action | null>(null);
   const [feedback, setFeedback] = React.useState<{ message: string; tone: Tone } | null>(null);
   const busyRef = React.useRef(false);
+  // «Uzum sababini aniqlash» — fon ishi (§9.38). Holat global do'konda:
+  // burchakdagi panel ham xuddi shu ishni ko'rsatadi.
+  const reasonJob = useModerationJobStore((st) => st.jobs.find((j) => j.key === String(data.product.id)));
+  const reasonDismissed = useModerationJobStore((st) => st.dismissed);
+  const startReasonJob = useModerationJobStore((st) => st.start);
+  const dismissReasonJob = useModerationJobStore((st) => st.dismiss);
+  const reasonActive = moderationJobActive(reasonJob);
+  const showReasonJob = Boolean(reasonJob) && !isDismissed(reasonDismissed, reasonJob!);
+  // Ish tugagach sahifa ma'lumoti (sabablar) BIR MARTA yangilansin.
+  const reloadedFor = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!reasonJob || reasonJob.status !== "done" || !reasonJob.finishedAt) return;
+    if (reloadedFor.current === reasonJob.finishedAt) return;
+    const first = reloadedFor.current === null;
+    reloadedFor.current = reasonJob.finishedAt;
+    // Sahifa ochilganda allaqachon tugagan eski ish — qayta yuklash shart emas.
+    if (first && Date.now() - Date.parse(reasonJob.finishedAt) > 60_000) return;
+    void onReload();
+  }, [reasonJob, onReload]);
   const headingId = React.useId();
   const product = data.product;
   const validation = product.uzumValidation;
@@ -667,6 +687,23 @@ export function ProductModerationCard({
       </div>
 
       <div className="space-y-3 border-t bg-muted/15 p-4 sm:p-5">
+        {reasonJob && showReasonJob && (
+          <div role="status" aria-live="polite" className="rounded-xl border bg-card/60 p-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <p className="text-sm font-medium">Uzum sababi aniqlanmoqda</p>
+              {!reasonActive && (
+                <button
+                  type="button"
+                  onClick={() => dismissReasonJob(reasonJob)}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Yopish
+                </button>
+              )}
+            </div>
+            <ModerationJobProgress job={reasonJob} />
+          </div>
+        )}
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {canSeeAi && (
             <Button
@@ -691,13 +728,14 @@ export function ProductModerationCard({
             </Button>
           )}
           {canFindReason && (
-            <Button type="button" variant="outline" disabled={busy !== null || applyingFix} className={ACTION_CLASS} onClick={() => void runAction("reason", async () => {
-              const result = await syncModerationReasons(product.id);
-              setFeedback({ message: result.message, tone: "neutral" });
-              await onReload();
+            <Button type="button" variant="outline" disabled={busy !== null || applyingFix || reasonActive} className={ACTION_CLASS} onClick={() => void runAction("reason", async () => {
+              // Fonda boshlanadi: sahifadan chiqib ketilsa ham davom etadi va
+              // burchakdagi «Fon ishlari» panelida ko'rinadi.
+              await startReasonJob(product.id);
+              setFeedback(null);
             })}>
-              {busy === "reason" ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Search aria-hidden="true" />}
-              {busy === "reason" ? "Sabab aniqlanmoqda…" : "Uzum sababini aniqlash"}
+              {busy === "reason" || reasonActive ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Search aria-hidden="true" />}
+              {reasonActive ? `Sabab aniqlanmoqda · ${reasonJob?.percent ?? 0}%` : busy === "reason" ? "Boshlanmoqda…" : "Uzum sababini aniqlash"}
             </Button>
           )}
           {complaintJob && jobIsActive(complaintJob) ? (

@@ -77,6 +77,7 @@ import type {
   SeoAudit,
   SeoAuditRow,
   SeoJob,
+  ModerationJob,
   SeoPositionsTable,
   SeoRival,
   SocialAccount,
@@ -333,12 +334,19 @@ export const bulkAutoFixProductsUzum = (productIds: number[]) =>
     body: JSON.stringify({ productIds }),
   });
 
-/** Bloklangan tovarlarning aniq moderatsiya sabablarini Uzum kabinetidan ko'chiradi. */
+/**
+ * Bloklangan tovarlarning aniq moderatsiya sabablarini Uzum kabinetidan
+ * ko'chirishni FONDA boshlaydi (brauzer ~1 daqiqa). Darhol ish holatini
+ * qaytaradi; bosqich va foiz — `fetchModerationJobs`/`fetchModerationJob`.
+ */
 export const syncModerationReasons = (productId?: number) =>
-  request<{ checked: number; updated: number; message: string }>(
+  request<ModerationJob>(
     `/warehouse/moderation/sync${productId ? `?product_id=${productId}` : ""}`,
     { method: "POST" },
   );
+
+/** Do'konning «Uzum sababini aniqlash» ishlari (burchakdagi panel uchun). */
+export const fetchModerationJobs = () => request<ModerationJob[]>("/warehouse/moderation/jobs");
 
 /** Bitta matn o'zgarishini oldingi holatiga qaytaradi (qoralamada). */
 export const revertProductChange = (id: number, logId: number) =>

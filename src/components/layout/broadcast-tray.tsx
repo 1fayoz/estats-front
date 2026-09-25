@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { Route } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -12,6 +13,7 @@ import {
   Loader2,
   RotateCw,
   SearchCheck,
+  ShieldAlert,
   Send,
   X,
 } from "lucide-react";
@@ -23,8 +25,10 @@ import { retryBroadcast } from "@/lib/api";
 import { PLATFORM_LABEL } from "@/lib/platforms";
 import { useBroadcastStore, visibleBroadcasts } from "@/stores/broadcast-store";
 import { useSeoJobStore } from "@/stores/seo-job-store";
+import { isDismissed, moderationJobActive, useModerationJobStore } from "@/stores/moderation-job-store";
+import { ModerationJobProgress } from "@/features/warehouse/components/moderation-job-progress";
 import { cn } from "@/lib/utils";
-import type { BroadcastResult, SeoJob as SeoJobRow } from "@/lib/types";
+import type { BroadcastResult, ModerationJob, SeoJob as SeoJobRow } from "@/lib/types";
 
 /**
  * Fonda ketayotgan ishlar paneli.
@@ -50,6 +54,27 @@ export function BroadcastTray() {
   React.useEffect(() => watch(), [watch]);
   React.useEffect(() => watchJobs(), [watchJobs]);
 
+  // «Uzum sababini aniqlash» — uchinchi ish turi (§9.38). O'sha tovarning
+  // sahifasi ochiq bo'lsa ish kartaning O'ZIDA ko'rinadi — panelda
+  // takrorlanmaydi; boshqa sahifaga o'tilsa shu yerga ko'chadi.
+  const watchModeration = useModerationJobStore((s) => s.watch);
+  const moderationAll = useModerationJobStore((s) => s.jobs);
+  const moderationDismissed = useModerationJobStore((s) => s.dismissed);
+  const dismissModeration = useModerationJobStore((s) => s.dismiss);
+  const pathname = usePathname();
+  React.useEffect(() => watchModeration(), [watchModeration]);
+  const moderationJobs = React.useMemo(
+    () =>
+      moderationAll.filter((job) => {
+        if (job.productId != null && pathname === `/warehouse/${job.productId}`) return false;
+        if (isDismissed(moderationDismissed, job)) return false;
+        if (moderationJobActive(job) || job.status === "failed") return true;
+        // Tugagani natijasi ko'rinib tursin, keyin o'zi yo'qoladi.
+        return Date.now() - Date.parse(job.finishedAt ?? "") < 60_000;
+      }),
+    [moderationAll, moderationDismissed, pathname],
+  );
+
   // SEO tahlili — ikkinchi ish turi. Tugagani darhol yo'qoladi:
   // natijasi o'z sahifasida turadi, panelda uni ushlab turishning
   // ma'nosi yo'q.
@@ -60,13 +85,28 @@ export function BroadcastTray() {
   const shown = items.filter(
     (b) => b.active || b.failed > 0 || Date.now() - Date.parse(b.finishedAt ?? "") < 20_000,
   );
-  if (shown.length === 0 && activeJobs.length === 0) return null;
+  if (shown.length === 0 && activeJobs.length === 0 && moderationJobs.length === 0) return null;
 
-  const busy = shown.some((b) => b.active) || activeJobs.length > 0;
+  const busy =
+    shown.some((b) => b.active) || activeJobs.length > 0 || moderationJobs.some(moderationJobActive);
 
   return (
     <div className="pointer-events-none fixed bottom-20 right-4 z-50 flex w-[min(23rem,calc(100vw-2rem))] flex-col items-end gap-2 lg:bottom-6">
       <AnimatePresence initial={false}>
+        {open &&
+          moderationJobs.map((job) => (
+            <motion.div
+              key={`moderation-${job.key}`}
+              layout
+              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.97 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="pointer-events-auto w-full overflow-hidden rounded-xl border bg-card shadow-lg"
+            >
+              <ModerationRow job={job} onDismiss={() => dismissModeration(job)} />
+            </motion.div>
+          ))}
         {open &&
           activeJobs.map((job) => (
             <motion.div
@@ -108,7 +148,7 @@ export function BroadcastTray() {
           <Send className="h-3.5 w-3.5 text-muted-foreground" />
         )}
         <span className="font-medium">
-          {busy ? "Ish ketmoqda" : "Fon ishlari"} · {shown.length + activeJobs.length}
+          {busy ? "Ish ketmoqda" : "Fon ishlari"} · {shown.length + activeJobs.length + moderationJobs.length}
         </span>
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", !open && "rotate-180")} />
       </button>
@@ -288,6 +328,46 @@ function JobRow({ job }: { job: SeoJobRow }) {
           <span className="truncate text-muted-foreground">{item.title}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+
+/** «Uzum sababini aniqlash» — Uzum kabinetidan blok sababi o'qilmoqda. */
+function ModerationRow({ job, onDismiss }: { job: ModerationJob; onDismiss: () => void }) {
+  const active = moderationJobActive(job);
+  const href = (job.productId != null ? `/warehouse/${job.productId}` : "/warehouse") as Route;
+  return (
+    <div className="p-3">
+      <div className="flex items-start gap-2.5">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-muted">
+          <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">Uzum sababi</p>
+          <p className="truncate text-xs text-muted-foreground">{job.title}</p>
+        </div>
+        <Link
+          href={href}
+          className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label="Tovarni ochish"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+        </Link>
+        {!active && (
+          <button
+            type="button"
+            onClick={onDismiss}
+            className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Yopish"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+      <div className="mt-2">
+        <ModerationJobProgress job={job} compact />
+      </div>
     </div>
   );
 }

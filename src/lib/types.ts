@@ -2837,3 +2837,30 @@ export interface Funnel {
   /** Eng zaif bosqich va uni kuchaytirish uchun amaliy yordam. */
   diagnosis: FunnelDiagnosis | null;
 }
+
+/** «Uzum sababini aniqlash» fon ishining bitta bosqichi. */
+export interface ModerationJobStage {
+  key: "prepare" | "cabinet" | "relogin" | "save" | "done" | string;
+  label: string;
+  state: "done" | "active" | "pending" | "failed" | "skipped";
+}
+
+/** «Uzum sababini aniqlash» — fonda ketadigan ish (backend §9.38). */
+export interface ModerationJob {
+  /** Tovar id yoki `all`. */
+  key: string;
+  productId: number | null;
+  title: string;
+  status: "queued" | "running" | "done" | "failed";
+  percent: number;
+  step: string;
+  stages: ModerationJobStage[];
+  startedAt: string | null;
+  updatedAt: string | null;
+  finishedAt: string | null;
+  checked: number;
+  updated: number;
+  message: string;
+  error: string | null;
+  reasons: string[];
+}
