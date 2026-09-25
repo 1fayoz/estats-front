@@ -14,18 +14,21 @@ import styles from "./landing-chrome.module.css";
 
 const NAV_BY_LOCALE = {
   uz: [
+    { href: "/kalkulyator", label: "Kalkulyatorlar" },
     { href: "#imkoniyatlar", label: "Imkoniyatlar" },
     { href: "#mahsulot", label: "Qanday ishlaydi" },
     { href: "#narxlar", label: "Narxlar" },
     { href: "#savollar", label: "Savollar" },
   ],
   ru: [
+    { href: "/ru/kalkulyator", label: "Калькуляторы" },
     { href: "#imkoniyatlar", label: "Возможности" },
     { href: "#mahsulot", label: "Как это работает" },
     { href: "#narxlar", label: "Тарифы" },
     { href: "#savollar", label: "Вопросы" },
   ],
   en: [
+    { href: "/en/tools", label: "Free Tools" },
     { href: "#imkoniyatlar", label: "Features" },
     { href: "#mahsulot", label: "How it works" },
     { href: "#narxlar", label: "Pricing" },

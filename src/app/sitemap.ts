@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteConfig.url, lastModified: now, changeFrequency: "daily", priority: 1.0 },
 
     // Bepul Kalkulyatorlar va Skanerlar (Eng yuqori qidiruv trafigi)
+    { url: `${siteConfig.url}/kalkulyator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/abc-tahlil`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/rasm-talablari`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
@@ -72,6 +73,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // --- 2. RUSSIAN LOCALIZED PAGES (/ru) ---
     { url: `${siteConfig.url}/ru`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/ru/kalkulyator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/abc-tahlil`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/ru/kalkulyator/rasm-talablari`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
@@ -120,10 +122,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // --- 3. ENGLISH LOCALIZED PAGES (/en) ---
     { url: `${siteConfig.url}/en`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/en/tools`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/en/tools/abc-analysis`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/en/tools/barcode-generator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/en/tools/product-checker`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/en/tools/commission-calculator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/en/guides`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/en/guides/how-to-sell-on-uzum-market`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/en/categories/electronics`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/en/solutions/marketplace-analytics`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${siteConfig.url}/en/solutions/inventory-management`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${siteConfig.url}/en/solutions/ai-seo`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
