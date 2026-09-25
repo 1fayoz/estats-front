@@ -31,26 +31,31 @@ export function LandingFooter() {
 
         <nav aria-label="Bepul vositalar va kalkulyatorlar" className={styles.footerNav}>
           <h3>Kalkulyatorlar</h3>
+          <Link href="/tekshirish">Uzum tovar skaneri</Link>
           <Link href="/kalkulyator/uzum-komissiya">Uzum komissiya kalkulyatori</Link>
           <Link href="/kalkulyator/unit-iqtisodiyot">Unit iqtisodiyoti kalkulyatori</Link>
+          <Link href="/kalkulyator/chegirma-narx">Chegirma va narx kalkulyatori</Link>
+          <Link href="/kalkulyator/ombor-zaxirasi">Ombor zaxirasi kalkulyatori</Link>
           <Link href="/kalkulyator/drr">DRR va reklama kalkulyatori</Link>
+        </nav>
+
+        <nav aria-label="Toifalar va Qo'llanmalar" className={styles.footerNav}>
+          <h3>Toifalar &amp; Qo&apos;llanma</h3>
+          <Link href="/kategoriya/elektronika">Elektronika tahlili</Link>
+          <Link href="/kategoriya/kiyim-va-poyabzal">Kiyim va poyabzal</Link>
+          <Link href="/kategoriya/gozallik-va-parvarish">Go&apos;zallik va parvarish</Link>
+          <Link href="/qollanma">Barcha qo&apos;llanmalar</Link>
+          <Link href="/qollanma/uzumda-dokon-ochish">Uzumda do&apos;kon ochish</Link>
+          <Link href="/qollanma/kartochka-toldirish">Tovar kartochkasi SEO</Link>
           <Link href="/lugat">Marketpleys lug&apos;ati</Link>
         </nav>
 
-        <nav aria-label="Taqqoslash va muqobillar" className={styles.footerNav}>
+        <nav aria-label="Taqqoslash va hisob" className={styles.footerNav}>
           <h3>Muqobillar</h3>
           <Link href="/muqobil/zoomselling">ZoomSelling muqobili</Link>
-          <Link href="/muqobil/1c">1C & MoySklad muqobili</Link>
+          <Link href="/muqobil/1c">1C &amp; MoySklad muqobili</Link>
           <Link href="/muqobil/huntersales">HunterSales muqobili</Link>
           <Link href="/muqobil/mpstats">MPStats muqobili</Link>
-          <Link href="/muqobil/sellerfox">SellerFox muqobili</Link>
-        </nav>
-
-        <nav aria-label="Hisob va ma'lumotlar" className={styles.footerNav}>
-          <h3>Ma&apos;lumot</h3>
-          <Link href="/#imkoniyatlar">Imkoniyatlar</Link>
-          <Link href="/#narxlar">Tariflar</Link>
-          <Link href="/#savollar">Savollar</Link>
           <Link href="/terms">Foydalanish shartlari</Link>
           <Link href="/privacy">Maxfiylik siyosati</Link>
           <Link href="/login">Hisobga kirish</Link>

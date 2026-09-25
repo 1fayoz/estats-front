@@ -58,10 +58,33 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'
 ---
 
 ## Bepul Onlayn Vositalar (Free Tools)
+- **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish — tovar linki yoki ID orqali oylik sotuv, tushum va SEO auditini tezkor bilish.
 - **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya — toifa, logistika va tovar narxi bo'yicha komissiya va sof foydani hisoblash.
 - **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot — 1 dona tovar marjasi, ROI va zararsizlik narxi (Break-even).
+- **Chegirma va Narx Qo'yish Kalkulyatori**: https://estats.uz/kalkulyator/chegirma-narx — katta chegirmada ham kutilgan sof marjada qolish uchun narx strategiyasi.
+- **Ombor Zaxirasini Rejalashtirish Kalkulyatori**: https://estats.uz/kalkulyator/ombor-zaxirasi — tovar tugab qolmasligi (Out of Stock bo'lmasligi) uchun Reorder Point va Safety Stock.
 - **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr — Uzum Boost TOP xarajatlarining rentabelligi va ROAS.
 - **Marketpleys Atamalari Lug'ati**: https://estats.uz/lugat — FIFO, FBO, FBS, DRR, SKU, Out of Stock, Rich Content terminlari.
+
+---
+
+## Bozor Kategoriyalari Tahlili (Category Intelligence)
+- Elektronika va texnika: https://estats.uz/kategoriya/elektronika
+- Kiyim va poyabzal: https://estats.uz/kategoriya/kiyim-va-poyabzal
+- Go'zallik va parvarish: https://estats.uz/kategoriya/gozallik-va-parvarish
+- Uy-ro'zg'or va oshxona: https://estats.uz/kategoriya/uy-rozgor
+- Avtotovarlar: https://estats.uz/kategoriya/avtotovarlar
+- Bolalar tovarlari: https://estats.uz/kategoriya/bolalar-tovarlari
+
+---
+
+## Amaliy Qo'llanmalar (How-to Guides)
+- Barcha qo'llanmalar markazi: https://estats.uz/qollanma
+- Uzumda do'kon ochish (2026): https://estats.uz/qollanma/uzumda-dokon-ochish
+- Tovar kartochkasi SEO: https://estats.uz/qollanma/kartochka-toldirish
+- FBO yoki FBS tanlovi: https://estats.uz/qollanma/fbo-fbs-farqi
+- Boost TOP reklama sirlari: https://estats.uz/qollanma/boost-top-sozlash
+- Bo'sh nishalarni topish formulasi: https://estats.uz/qollanma/top-nishalar
 
 ---
 

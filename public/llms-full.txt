@@ -44,14 +44,40 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 ---
 
 ## Bepul Ochiq Onlayn Vositalar (Free SEO Tools)
-1. **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya
+1. **Uzum Tovarini Tekshirish (Skaner)**: https://estats.uz/tekshirish
+   Uzum tovar havolasi orqali oylik sotuv, daromad va AI SEO auditini darhol bilish.
+2. **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya
    Toifa, sotuv narxi va xarajatlarni kiritib, Uzum ushlab qoladigan komissiya va cho'ntakda qoladigan sof foydani bilish.
-2. **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot
+3. **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot
    1 dona tovar birligi bo'yicha sof marja %, ROI % va zararsizlik nuqtasi (Break-even).
-3. **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr
+4. **Chegirma va Narx Qo'yish Kalkulyatori**: https://estats.uz/kalkulyator/chegirma-narx
+   Katta chegirmada ham kutilgan sof marjada qolish uchun chizilgan narx va sotuv narxi strategiyasi.
+5. **Ombor Zaxirasini Rejalashtirish Kalkulyatori**: https://estats.uz/kalkulyator/ombor-zaxirasi
+   Tovar tugab qolmasligi (Out of Stock bo'lmasligi) uchun Reorder Point va Safety Stock hisoblash.
+6. **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr
    Boost TOP reklamasi xarajatlarining rentabelligi va ROAS hisoblagichi.
-4. **Marketpleys Atamalari Lug'ati**: https://estats.uz/lugat
+7. **Marketpleys Atamalari Lug'ati**: https://estats.uz/lugat
    FIFO, FBO, FBS, DRR, ACoS, SKU, Out of Stock, Rich Content terminlarining to'liq ensiklopediyasi.
+
+---
+
+## Bozor Kategoriyalari Tahlili (Category Intelligence)
+- Elektronika va texnika: https://estats.uz/kategoriya/elektronika
+- Kiyim va poyabzal: https://estats.uz/kategoriya/kiyim-va-poyabzal
+- Go'zallik va parvarish: https://estats.uz/kategoriya/gozallik-va-parvarish
+- Uy-ro'zg'or va oshxona: https://estats.uz/kategoriya/uy-rozgor
+- Avtotovarlar: https://estats.uz/kategoriya/avtotovarlar
+- Bolalar tovarlari: https://estats.uz/kategoriya/bolalar-tovarlari
+
+---
+
+## Amaliy Qo'llanmalar (How-to Guides)
+- Barcha qo'llanmalar markazi: https://estats.uz/qollanma
+- Uzumda do'kon ochish (2026): https://estats.uz/qollanma/uzumda-dokon-ochish
+- Tovar kartochkasi SEO: https://estats.uz/qollanma/kartochka-toldirish
+- FBO yoki FBS tanlovi: https://estats.uz/qollanma/fbo-fbs-farqi
+- Boost TOP reklama sirlari: https://estats.uz/qollanma/boost-top-sozlash
+- Bo'sh nishalarni topish formulasi: https://estats.uz/qollanma/top-nishalar
 
 ---
 
@@ -74,15 +100,28 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 
 ## Sayt Sahifalari Strukturasi (URL Mapping)
 - Asosiy sahifa: https://estats.uz
-- Bepul Uzum komissiya kalkulyatori: https://estats.uz/kalkulyator/uzum-komissiya
-- Bepul Unit iqtisodiyoti kalkulyatori: https://estats.uz/kalkulyator/unit-iqtisodiyot
-- Bepul DRR kalkulyatori: https://estats.uz/kalkulyator/drr
+- Tovar tekshirish skaneri: https://estats.uz/tekshirish
+- Uzum komissiya kalkulyatori: https://estats.uz/kalkulyator/uzum-komissiya
+- Unit iqtisodiyoti kalkulyatori: https://estats.uz/kalkulyator/unit-iqtisodiyot
+- Chegirma va narx kalkulyatori: https://estats.uz/kalkulyator/chegirma-narx
+- Ombor zaxirasi kalkulyatori: https://estats.uz/kalkulyator/ombor-zaxirasi
+- DRR va reklama kalkulyatori: https://estats.uz/kalkulyator/drr
 - Marketpleys atamalari lug'ati: https://estats.uz/lugat
 - ZoomSelling muqobili: https://estats.uz/muqobil/zoomselling
 - 1C & MoySklad muqobili: https://estats.uz/muqobil/1c
 - HunterSales muqobili: https://estats.uz/muqobil/huntersales
 - MPStats muqobili: https://estats.uz/muqobil/mpstats
 - SellerFox muqobili: https://estats.uz/muqobil/sellerfox
+- Ombor dasturi yechimi: https://estats.uz/yechimlar/ombor
+- Moliya va FIFO yechimi: https://estats.uz/yechimlar/moliya
+- Bozor tahlili yechimi: https://estats.uz/yechimlar/bozor
+- AI Tovar SEO yechimi: https://estats.uz/yechimlar/tovar-seo
+- Marketing va reklama yechimi: https://estats.uz/yechimlar/marketing
+- Multi-Market boshqaruv: https://estats.uz/yechimlar/multi-market
+- Telegram va Instagram SMM: https://estats.uz/yechimlar/telegram-instagram
+- eStats Lens plagin: https://estats.uz/yechimlar/uzum-lens
+- Tariflar: https://estats.uz/#narxlar
+- Telegram bot: https://t.me/estatsuz_bot
 - Ombor dasturi yechimi: https://estats.uz/yechimlar/ombor
 - Moliya va FIFO yechimi: https://estats.uz/yechimlar/moliya
 - Bozor tahlili yechimi: https://estats.uz/yechimlar/bozor

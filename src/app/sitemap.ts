@@ -11,10 +11,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteConfig.url, lastModified: now, changeFrequency: "daily", priority: 1.0 },
 
-    // Bepul Kalkulyatorlar (Eng yuqori qidiruv trafigi)
+    // Bepul Kalkulyatorlar va Skanerlar (Eng yuqori qidiruv trafigi)
+    { url: `${siteConfig.url}/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${siteConfig.url}/kalkulyator/unit-iqtisodiyot`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kalkulyator/chegirma-narx`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kalkulyator/ombor-zaxirasi`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${siteConfig.url}/kalkulyator/drr`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+
+    // Bozor Kategoriyalari Tahlili (Programmatic Category SEO)
+    { url: `${siteConfig.url}/kategoriya/elektronika`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kategoriya/kiyim-va-poyabzal`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kategoriya/gozallik-va-parvarish`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kategoriya/uy-rozgor`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kategoriya/avtotovarlar`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kategoriya/bolalar-tovarlari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+
+    // Amaliy Qo'llanmalar (How-to Guides)
+    { url: `${siteConfig.url}/qollanma`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/qollanma/uzumda-dokon-ochish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/qollanma/kartochka-toldirish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${siteConfig.url}/qollanma/fbo-fbs-farqi`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/qollanma/boost-top-sozlash`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/qollanma/top-nishalar`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
 
     // Muqobillar (Competitor conquesting)
     { url: `${siteConfig.url}/muqobil/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
