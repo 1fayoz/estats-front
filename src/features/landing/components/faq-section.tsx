@@ -41,6 +41,18 @@ const FAQ = [
     answer: "Ha. AI kartochkada nom va tavsifni o‘zbekcha va ruscha tayyorlash mumkin. SEO auditida ham ikki tildagi matn va qidiruv iboralari alohida ko‘rib chiqiladi. Tayyorlangan matnni qo‘llashdan oldin tekshirib, tahrirlashingiz mumkin.",
   },
   {
+    question: "1C yoki MoySklad o'rniga eStats'dan foydalanish mumkinmi?",
+    answer: "Albatta! 1C o'rnatish uchun qimmat serverlar va doimiy oylik oluvchi 1C dasturchisi talab qilinadi. eStats esa 1 daqiqada brauzerdan ulanadi, 10 barobar arzon va barcha partiyalar, FIFO tan narxi hamda marketpleys komissiyalarini avtomatlashtiradi.",
+  },
+  {
+    question: "Bepul kalkulyatorlar (Uzum komissiyasi, Unit Economics, DRR) bormi?",
+    answer: "Ha! eStats platformasida ro'yxatdan o'tmasdan turib foydalanish mumkin bo'lgan bepul onlayn kalkulyatorlar mavjud: Uzum komissiya kalkulyatori, Unit iqtisodiyoti marja/ROI kalkulyatori va Boost TOP DRR kalkulyatori.",
+  },
+  {
+    question: "HunterSales yoki SellerFox bilan taqqoslaganda qanday farqlar bor?",
+    answer: "HunterSales va SellerFox asosan tovar va nisha skaneri bilan cheklanadi. eStats esa tashqi bozor razvedkasidan tashqari: ombor partiyalari, buxgalteriya darajasidagi FIFO tan narx, sof foyda (PnL), AI tovar kartochkalari va Telegram/Instagram avtopostingni birlashtirgan to'liq ERP ekotizimdir.",
+  },
+  {
     question: "Bir nechta do‘kon bilan ishlash mumkinmi?",
     answer: "Ha. Bitta hisobga bir nechta do‘kon qo‘shishingiz mumkin. Ilovaning yuqori qismidan kerakli do‘konni tanlaysiz; tovarlar va hisobotlar tanlangan do‘kon bo‘yicha ko‘rsatiladi.",
   },

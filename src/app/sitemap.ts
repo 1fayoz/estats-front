@@ -10,14 +10,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   return [
     { url: siteConfig.url, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+
+    // Bepul Kalkulyatorlar (Eng yuqori qidiruv trafigi)
+    { url: `${siteConfig.url}/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteConfig.url}/kalkulyator/unit-iqtisodiyot`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/kalkulyator/drr`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+
     // Muqobillar (Competitor conquesting)
     { url: `${siteConfig.url}/muqobil/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/muqobil/1c`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteConfig.url}/muqobil/huntersales`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${siteConfig.url}/muqobil/mpstats`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${siteConfig.url}/muqobil/sellerfox`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+
     // Yechimlar (SEO domain pages)
+    { url: `${siteConfig.url}/yechimlar/tovar-seo`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${siteConfig.url}/yechimlar/ombor`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteConfig.url}/yechimlar/moliya`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteConfig.url}/yechimlar/bozor`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteConfig.url}/yechimlar/marketing`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/yechimlar/uzum-lens`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/yechimlar/telegram-instagram`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/yechimlar/multi-market`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+
+    // Ensiklopediya va Lug'at
+    { url: `${siteConfig.url}/lugat`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+
     // Huquqiy va boshqa sahifalar
     { url: `${siteConfig.url}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${siteConfig.url}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },

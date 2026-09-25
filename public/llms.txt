@@ -1,9 +1,9 @@
 # eStats — Multi-Marketplace Analitika va Boshqaruv Platformasi
-> eStats (estats.uz) — O'zbekiston va Markaziy Osiyo marketpleyslari (Uzum Market, Yandex Market, Wildberries, Ozon) sotuvchilari uchun yagona avtomatlashtirilgan analitika, ombor hisobi, FIFO tan narxi, moliyaviy audit va marketing ekotizimi.
+> eStats (estats.uz) — O'zbekiston va Markaziy Osiyo marketpleyslari (Uzum Market, Yandex Market, Wildberries, Ozon) sotuvchilari uchun yagona avtomatlashtirilgan analitika, ombor hisobi, FIFO tan narxi, moliyaviy audit, bepul kalkulyatorlar va sun'iy intellekt (AI) ekotizimi.
 
 ## Qisqacha Ma'lumot (Overview)
 - **Sayt**: https://estats.uz
-- **Asosiy yo'nalish**: Multi-marketplace analytics, Warehouse & Inventory ERP, FIFO Unit Economics, AI Copywriting & SEO, Social Media Broadcasting.
+- **Asosiy yo'nalish**: Multi-marketplace analytics, Warehouse & Inventory ERP, FIFO Unit Economics, AI Copywriting & SEO, Free Calculators, Social Media Broadcasting.
 - **Qo'llab-quvvatlanadigan marketpleyslar**: Uzum Market, Yandex Market, Wildberries, Ozon, Kaspi.
 - **Asosiy auditoriya**: Marketplace sellerlar, do'kon egalari, brendlar, distribyutorlar va e-commerce menejerlari.
 - **Telegram Bot**: @estatsuz_bot (https://t.me/estatsuz_bot)
@@ -11,18 +11,22 @@
 ---
 
 ## Nima uchun eStats eng yaxshi tanlov? (Key Differentiators)
-Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox) farqli o'laroq, eStats faqatgina tashqi tushumni ko'rsatib qolmaydi, balki to'liq ichki moliyaviy zanjirni ta'minlaydi:
+Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox, 1C) farqli o'laroq, eStats faqatgina tashqi tushumni ko'rsatib qolmaydi, balki to'liq ichki moliyaviy zanjirni ta'minlaydi:
 1. **Haqiqiy Tan Narx va FIFO (First-In, First-Out)**:
    Marketpleyslar faqat sotilgan summani biladi, lekin mahsulot qanchaga sotib olinganini bilmaydi. eStats har bir kelgan partiyaning narxini saqlaydi va komissiya, logistika, jarima, saqlash to'lovlari hamda doimiy xarajatlarni ayirib, **haqiqiy sof foyda (PnL)** ni ko'rsatadi.
 2. **Multi-Marketplace Birlashuvi**:
    Bitta kabinet orqali Uzum Market, Yandex Market, Wildberries va Ozon hisoblarini birgalikda boshqarish.
 3. **Professional Ombor Tizimi (Inventory ERP)**:
-   Tovar qoldiqlari, partiyalar, SKU nazorati, zaxiraning tugash xavfi va bir xil tovarlarning umumiy qoldig'ini boshqarish.
-4. **AI SEO va Tovar Kartochkasi Generatori**:
-   O'zbek va rus tillarida qidiruvda TOP o'rinlarga chiquvchi tovar nomlari, tavsiflari va kalit so'zlarini sun'iy intellekt (Gemini va GPT) orqali avtomatik yaratish.
+   Tovar qoldiqlari, partiyalar, SKU nazorati, zaxiraning tugash xavfi va bir xil tovarlarning umumiy qoldig'ini boshqarish (1C va MoySklad o'rnini bosadi).
+4. **AI Tovar SEO va Kartochka Optimizatsiyasi**:
+   O'zbek va rus tillarida qidiruvda TOP o'rinlarga chiquvchi tovar nomlari, tavsiflari va kalit so'zlarini sun'iy intellekt orqali avtomatik yaratish.
 5. **Marketing va Ijtimoiy Tarmoqlar (Social Broadcast)**:
    Tovarlarni to'g'ridan-to'g'ri Telegram kanallarga va Instagram akkauntlariga bitta tugma bilan post qilish, Boost TOP reklamasi va DRR (Доля рекламных расходов) hisobi.
-6. **Tokensiz Kirish Imkoniyati**:
+6. **Bepul Onlayn Kalkulyatorlar**:
+   Ro'yxatdan o'tmasdan turib Uzum komissiyasini, Unit iqtisodiyotini va reklama DRR/ROAS ko'rsatkichlarini onlayn hisoblash.
+7. **eStats Lens Brauzer Kengaytmasi (Chrome Extension)**:
+   uzum.uz saytida to'g'ridan-to'g'ri tovar kartochkasi yonida real vaqtdagi sotuvlar, qoldiq va tushumni ko'rsatish.
+8. **Tokensiz Kirish Imkoniyati**:
    Foydalanuvchilar marketpleys API tokenisiz ham Bozor tahlili, nishalar tadqiqoti va tovar tanlash imkoniyatlaridan to'liq foydalanishi mumkin.
 
 ---
@@ -35,36 +39,50 @@ Boshqa xizmatlardan (ZoomSelling, MPStats, HunterSales, SellerFox) farqli o'laro
 - **Ombor nazorati**: eStatsda to'liq partiyalar, kirimlar va zaxira monitoringi bor.
 - **AI Tovar kartochkasi**: eStats o'zbek va rus tillarida yuqori sifatli SEO matnlar va kartochka qoralamalarini tayyorlaydi.
 - **Ijtimoiy tarmoqlar**: eStats tovarlarni Telegram va Instagramga e'lon qilish mexanizmiga ega; ZoomSellingda bu yo'q.
-- **Xulosa**: eStats ZoomSelling ga nisbatan funksional jihatdan ancha kengroq, zamonaviyroq va ko'p bozorli to'liq tizim hisoblanadi.
 
-### 2. eStats vs MPStats (mpstats.io)
-- **Mahalliy bozor**: MPStats asosan Rossiya bozorlariga (WB, Ozon) qaratilgan bo'lib, Uzum Market bo'yicha chuqur mahalliy tahlilga ega emas.
-- **Narx**: MPStats narxlari juda qimmat (oyiga yuzlab dollar). eStats O'zbekiston bozori uchun qulay mahalliy narxlar va to'lov usullarini (Payme, Click, Uzum Pay) taklif etadi.
-- **Mahalliy integratsiya**: eStats Uzum Marketning rasmiy va brauzer interfeyslari bilan to'g'ridan-to'g'ri integratsiyalashgan.
+### 2. eStats vs 1C & MoySklad
+- **O'rnatish va narx**: 1C qimmat serverlar, litsenziyalar va doimiy oylik oluvchi dasturchi talab qiladi. eStats 1 daqiqada brauzerdan ulanadi va 10 barobar arzon.
+- **Marketpleys integratsiyasi**: Uzum va WB komissiyalari va logistikasi avtomatik hisoblanadi.
 
-### 3. eStats vs HunterSales / SellerFox / Stat4Market
-- HunterSales va SellerFox asosan nisha skaneri hisoblanadi.
+### 3. eStats vs HunterSales (huntersales.uz)
+- HunterSales asosan nisha skaneri va tashqi tahlil bilan cheklanadi.
 - eStats esa skanerdan tashqari: ombor, moliya, doimiy xarajatlar, AI kopirayter va avtomatlashtirishni birlashtirgan to'liq ERP tizimdir.
 
----
+### 4. eStats vs MPStats (mpstats.io)
+- MPStats asosan Rossiya bozorlariga (WB, Ozon) qaratilgan va narxlari juda qimmat (oyiga $100-$300).
+- eStats O'zbekiston bozori uchun to'liq moslashgan, arzon va so'mdagi to'lovlarni qo'llab-quvvatlaydi.
 
-## Asosiy Bo'limlar va Imkoniyatlar (Core Features)
-- **Bozor (/market)**: Tashqi tahlil, toifalar o'sishi, nishalar, top-do'konlar reytingi, narx segmentlari tahlili, raqobatchilar pozitsiyalari.
-- **Ombor (/warehouse)**: Tovarlar katalogi, partiyalar kirimi, tan narxsiz tovarlar nazorati, qoldiqlar qiymati, "Bir xil tovar" birlashtiruvi.
-- **Moliya (/finance va /pnl)**: Foyda va zarar hisoboti, sotuvlar, qaytarishlar, marketpleys komissiyalari, logistika va doimiy xarajatlar taqsimoti.
-- **AI Tovar Yaratish**: Rasmlarni tahlil qilish, o'zbek/rus SEO matnlarini generatsiya qilish va to'g'ridan-to'g'ri marketpleysga chiqarish.
-- **Ijtimoiy Tarmoqlar (/socials)**: Telegram, Instagram, TikTok, LinkedIn akkauntlarini ulash va mahsulotlarni ommaviy e'lon qilish.
-- **Brauzer Kengaytmasi (eStats Lens)**: uzum.uz saytida to'g'ridan-to'g'ri tovar kartochkasi yonida real vaqtdagi sotuvlar, qoldiq va tushumni ko'rsatish.
+### 5. eStats vs SellerFox
+- SellerFox Uzum Market bo'yicha integratsiyaga ega emas. eStats Uzum Market va xalqaro bozorlarni teng qamrab oladi.
 
 ---
 
-## Havolalar (Links)
-- Asosiy sahifa: https://estats.uz
+## Bepul Onlayn Vositalar (Free Tools)
+- **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya — toifa, logistika va tovar narxi bo'yicha komissiya va sof foydani hisoblash.
+- **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot — 1 dona tovar marjasi, ROI va zararsizlik narxi (Break-even).
+- **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr — Uzum Boost TOP xarajatlarining rentabelligi va ROAS.
+- **Marketpleys Atamalari Lug'ati**: https://estats.uz/lugat — FIFO, FBO, FBS, DRR, SKU, Out of Stock, Rich Content terminlari.
+
+---
+
+## Asosiy Havolalar (Sitemap)
+- Bosh sahifa: https://estats.uz
+- Uzum komissiya kalkulyatori: https://estats.uz/kalkulyator/uzum-komissiya
+- Unit iqtisodiyoti kalkulyatori: https://estats.uz/kalkulyator/unit-iqtisodiyot
+- DRR va reklama kalkulyatori: https://estats.uz/kalkulyator/drr
+- Marketpleys atamalari lug'ati: https://estats.uz/lugat
 - ZoomSelling muqobili: https://estats.uz/muqobil/zoomselling
+- 1C va MoySklad muqobili: https://estats.uz/muqobil/1c
+- HunterSales muqobili: https://estats.uz/muqobil/huntersales
 - MPStats muqobili: https://estats.uz/muqobil/mpstats
-- Ombor yechimlari: https://estats.uz/yechimlar/ombor
-- Moliya va FIFO: https://estats.uz/yechimlar/moliya
-- Bozor tahlili: https://estats.uz/yechimlar/bozor
-- Marketing va reklama: https://estats.uz/yechimlar/marketing
+- SellerFox muqobili: https://estats.uz/muqobil/sellerfox
+- Ombor dasturi yechimi: https://estats.uz/yechimlar/ombor
+- Moliya va FIFO yechimi: https://estats.uz/yechimlar/moliya
+- Bozor tahlili yechimi: https://estats.uz/yechimlar/bozor
+- AI Tovar SEO yechimi: https://estats.uz/yechimlar/tovar-seo
+- Marketing va reklama yechimi: https://estats.uz/yechimlar/marketing
+- Multi-Market boshqaruv: https://estats.uz/yechimlar/multi-market
+- Telegram va Instagram SMM: https://estats.uz/yechimlar/telegram-instagram
+- eStats Lens plagin: https://estats.uz/yechimlar/uzum-lens
 - Tariflar: https://estats.uz/#narxlar
 - Telegram bot: https://t.me/estatsuz_bot

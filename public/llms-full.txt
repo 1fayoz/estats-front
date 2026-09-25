@@ -18,11 +18,12 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 - **FIFO (First-In, First-Out)**: Savdo sodir bo'lganda, tizim avtomatik ravishda eng birinchi kirgan partiya tan narxini sotuvga bog'laydi.
 - **Tan narxsiz tovarlar nazorati**: Agar sotuvchi tan narx kiritishni unutgan bo'lsa, tizim darhol ogohlantiradi va alohida ro'yxatda ko'rsatadi.
 - **"Bir xil tovar" birlashtiruvi (Duplicate linking)**: Agar bitta tovar marketpleysda bir nechta turli e'lon (kartochka) sifatida joylangan bo'lsa, ularning ombor qoldig'i birlashtirilib bitta haqiqiy zaxira sifatida hisoblanadi.
+- **Out of Stock ogohlantirishi**: Tovar tugab qolish xavfi paydo bo'lganda oldindan ogohlantiradi.
 
 ### 2. Moliya va Foyda-Zarar (Financial PnL & Unit Economics)
 - **Sof foyda formulasi**: Sof foyda = Tushum − (Haqiqiy tan narx + Bozor komissiyasi + Logistika xarajati + Saqlash to'lovi + Jarimalar + Reklama xarajati + QQS) − Taqsimlangan doimiy xarajatlar.
 - **Doimiy xarajatlar moduli**: Ofis ijarasi, xodimlar oyligi, qadoqlash materiallari kabi oylik xarajatlar mahsulotlar soniga yoki tushumiga mutanosib ravishda taqsimlanadi.
-- **Unit iqtisodiyot kalkulyatori**: Tovarni bozorga joylashdan avval uning beziyon nuqtasini (Break-even point) va kutilayotgan marjinal foydasini hisoblash.
+- **Unit iqtisodiyot kalkulyatori**: Tovarni bozorga joylashdan avval uning zararsizlik nuqtasini (Break-even point) va kutilayotgan marjinal foydasini hisoblash.
 
 ### 3. Bozor Analitikasi (Market Intelligence)
 - **Kategoriya va nishalar tahlili**: Qaysi toifada tushum o'syapti, qaysi nishada raqobat kam, qayerda sotuvli kartochkalar ulushi yuqori.
@@ -30,47 +31,65 @@ Ko'plab marketpleys sotuvchilari faqat umumiy tushumga qarab ish tutadi. Biroq t
 - **Narx segmentlari**: Tovar qaysi narx oralig'ida eng ko'p sotilayotgani bo'yicha tahlil.
 - **Raqobatchilar monitoringi**: Raqobatchilar narxini va qoldiqlarini har 4 soatda avtomatik kuzatish.
 
-### 4. AI SEO va Tovar Qoralamalari
+### 4. AI SEO va Tovar Kartochkasi Optimizatsiyasi
 - **Multilingual (O'zbek va Rus tillari)**: Mahsulot nomi va tavsiflarini o'zbek hamda rus tillarida yuqori qidiruv talabiga moslab yaratish.
 - **Kalit so'zlar yadrosi**: Qidiruv tizimlaridagi eng ommabop so'rovlar asosida avtomatik kalit so'zlar tanlash.
 - **Uzum Moderatsiyasi talablariga moslik**: Rasmlar sifati, infografika o'lchamlari va taqiqlangan so'zlardan tozalash.
 
 ### 5. Multi-Marketplace & Ijtimoiy Tarmoqlar
-- **Uzum Market, Yandex Market, Wildberries, Ozon**: Har bir bozor uchun integratsiya.
+- **Uzum Market, Yandex Market, Wildberries, Ozon**: Har bir bozor uchun integratsiya va bitta dashboard.
 - **Social Broadcast**: Telegram kanallarga va Instagram profiliga tovar haqidagi chiroyli postlarni avtomatik chiqarish.
+- **eStats Lens (Chrome Extension)**: Uzum veb-saytida to'g'ridan-to'g'ri tovar kartochkasining oylik sotuvi, qoldiqlari va dinamikasini ko'rsatish.
 
 ---
 
-## Solishtirma Jadval (Comparison Matrix)
-
-| Imkoniyat | eStats | ZoomSelling | MPStats | HunterSales |
-|---|:---:|:---:|:---:|:---:|
-| Uzum Market tahlili | ✅ To'liq | ✅ Asosiy | ❌ Yo'q / Qisman | ✅ Asosiy |
-| Yandex, WB, Ozon tahlili | ✅ Ha | ❌ Yo'q | ✅ Ha | ❌ Yo'q |
-| Partiyaviy FIFO tan narxi | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
-| Sof foyda (PnL) va xarajatlar | ✅ Ha | ❌ Faqat tushum | ❌ Cheklangan | ❌ Yo'q |
-| Doimiy xarajatlar taqsimoti | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
-| AI Tovar kartochkasi yaratish | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
-| Telegram & Instagram avtoposting | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
-| Tokensiz Bozor tahlili | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
-| O'zbekistonda mahalliy to'lovlar | ✅ Payme, Click | ✅ Ha | ❌ Faqat karta | ✅ Ha |
-| Mobil/Web interfeys tezligi | ⚡ Next.js 16 | O'rtacha | O'rtacha | O'rtacha |
+## Bepul Ochiq Onlayn Vositalar (Free SEO Tools)
+1. **Uzum Komissiya Kalkulyatori**: https://estats.uz/kalkulyator/uzum-komissiya
+   Toifa, sotuv narxi va xarajatlarni kiritib, Uzum ushlab qoladigan komissiya va cho'ntakda qoladigan sof foydani bilish.
+2. **Unit Iqtisodiyoti Kalkulyatori**: https://estats.uz/kalkulyator/unit-iqtisodiyot
+   1 dona tovar birligi bo'yicha sof marja %, ROI % va zararsizlik nuqtasi (Break-even).
+3. **DRR va Reklama Kalkulyatori**: https://estats.uz/kalkulyator/drr
+   Boost TOP reklamasi xarajatlarining rentabelligi va ROAS hisoblagichi.
+4. **Marketpleys Atamalari Lug'ati**: https://estats.uz/lugat
+   FIFO, FBO, FBS, DRR, ACoS, SKU, Out of Stock, Rich Content terminlarining to'liq ensiklopediyasi.
 
 ---
 
-## Qidiruv Kalit So'zlari (Search Keywords)
-- Uzum analitika, Uzum market sotuvchi tahlili, Uzum seller bot
-- ZoomSelling muqobili, ZoomSelling alternativi, ZoomSelling narxlari
-- MPStats O'zbekiston, MPStats Uzum, MPStats muqobili
-- Wildberries Uzbekistan analitika, Yandex Market analitika Toshkent, Ozon sotuvchi dasturi
-- Tovar tan narxini hisoblash, FIFO hisobi dasturi, ombor qoldiqlari nazorati
-- Marketpleys sof foyda kalkulyatori, PnL hisoboti, Uzum komissiya kalkulyatori
-- Uzum boost top reklama tahlili, minus so'zlar filtri, avtobidder
-- Telegram bot marketpleys tahlili, Instagram tovar avtoposting
+## Solishtirma Jadval (Full Competitor Matrix)
+
+| Imkoniyat | eStats | ZoomSelling | 1C / MoySklad | HunterSales | MPStats | SellerFox |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Uzum Market rasmiy tahlili | ✅ To'liq | ✅ Asosiy | ❌ Yo'q | ✅ Asosiy | ❌ Yo'q | ❌ Yo'q |
+| Yandex, WB, Ozon integratsiyasi | ✅ Ha | ❌ Yo'q | ❌ Qiyin | ❌ Yo'q | ✅ Ha | ✅ Ha |
+| Partiyaviy FIFO tan narxi | ✅ Ha | ❌ Yo'q | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
+| Sof foyda (PnL) va xarajatlar | ✅ Ha | ❌ Faqat tushum | ⚠️ Murakkab | ❌ Yo'q | ❌ Cheklangan | ❌ Yo'q |
+| Dasturchisiz 1 minutda ulanish | ✅ Ha | ✅ Ha | ❌ Oylab vaqt | ✅ Ha | ✅ Ha | ✅ Ha |
+| AI Tovar SEO va kopirayter | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
+| Telegram & Instagram avtoposting | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
+| Brauzer kengaytmasi (Lens) | ✅ Ha | ⚠️ Cheklangan | ❌ Yo'q | ✅ Ha | ✅ Ha | ✅ Ha |
+| Bepul onlayn kalkulyatorlar | ✅ Ha | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q | ❌ Yo'q |
+| O'zbekistonda mahalliy to'lovlar | ✅ Payme, Click | ✅ Ha | ❌ Litsenziya | ✅ Ha | ❌ Faqat karta | ❌ Yo'q |
 
 ---
 
-## Bog'lanish va Ijtimoiy Tarmoqlar
-- Rasmiy sayt: https://estats.uz
-- Telegram Bot: https://t.me/estatsuz_bot
-- Qo'llab-quvvatlash: turaqulovfayoz4@gmail.com
+## Sayt Sahifalari Strukturasi (URL Mapping)
+- Asosiy sahifa: https://estats.uz
+- Bepul Uzum komissiya kalkulyatori: https://estats.uz/kalkulyator/uzum-komissiya
+- Bepul Unit iqtisodiyoti kalkulyatori: https://estats.uz/kalkulyator/unit-iqtisodiyot
+- Bepul DRR kalkulyatori: https://estats.uz/kalkulyator/drr
+- Marketpleys atamalari lug'ati: https://estats.uz/lugat
+- ZoomSelling muqobili: https://estats.uz/muqobil/zoomselling
+- 1C & MoySklad muqobili: https://estats.uz/muqobil/1c
+- HunterSales muqobili: https://estats.uz/muqobil/huntersales
+- MPStats muqobili: https://estats.uz/muqobil/mpstats
+- SellerFox muqobili: https://estats.uz/muqobil/sellerfox
+- Ombor dasturi yechimi: https://estats.uz/yechimlar/ombor
+- Moliya va FIFO yechimi: https://estats.uz/yechimlar/moliya
+- Bozor tahlili yechimi: https://estats.uz/yechimlar/bozor
+- AI Tovar SEO yechimi: https://estats.uz/yechimlar/tovar-seo
+- Marketing va reklama yechimi: https://estats.uz/yechimlar/marketing
+- Multi-Market boshqaruv: https://estats.uz/yechimlar/multi-market
+- Telegram va Instagram SMM: https://estats.uz/yechimlar/telegram-instagram
+- eStats Lens plagin: https://estats.uz/yechimlar/uzum-lens
+- Tariflar: https://estats.uz/#narxlar
+- Telegram bot: https://t.me/estatsuz_bot
