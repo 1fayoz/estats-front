@@ -1140,8 +1140,19 @@ export const retryAiDraft = (id: number) =>
  * (agar tovar Uzum'da tirik bo'lsa) AVTOMATIK Uzum'ga — faqat
  * o'zgargan qismi — ko'chadi. Fonda ketadi, javob DARHOL qaytadi.
  */
-export const regenerateAiDraft = (id: number) =>
-  request<AiDraft>(`/product-ai/drafts/${id}/regenerate`, { method: "POST" });
+export const regenerateAiDraft = (id: number, opts: { images?: boolean } = {}) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/regenerate${opts.images ? "?images=true" : ""}`, { method: "POST" });
+
+/** Asl suratlarni tanlash (tartib — AI namunasi tartibi). AI rasmi tanlanmaydi. */
+export const saveAiSources = (id: number, urls: string[]) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/sources`, { method: "PUT", body: JSON.stringify({ urls }) });
+
+/** Yangi asl suratlar qo'shish. */
+export function uploadAiSources(id: number, files: File[]) {
+  const form = new FormData();
+  for (const file of files) form.append("files", file);
+  return request<AiDraft>(`/product-ai/drafts/${id}/sources`, { method: "POST", body: form });
+}
 
 /**
  * FAQAT matnlarni qayta yozadi — nom, qisqacha tavsif, tavsif,

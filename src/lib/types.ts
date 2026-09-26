@@ -2286,6 +2286,10 @@ export interface AiDraft extends AiDraftRow {
   imageSettings?: AiImageSettings;
   /** Tavsif/bo'lim rasmlari slot kaliti bilan. */
   contentImages?: Record<string, string>;
+  /** Asl surat bo'la oladigan rasmlar. */
+  sourceCandidates?: AiSourceCandidate[];
+  /** Rejadagi, lekin yasalmagan galereya o'rinlari. */
+  missingGallery?: { position: number; type: string; goal: string }[];
   /** Uzum 2-bosqichidagi «SKU» — tovar nomidan. */
   sku?: string;
   updatedAt: string;
@@ -2476,6 +2480,21 @@ export interface AiImageRedo {
   order?: number;
   /** Joyga QO'SHIMCHA kadr — mavjudlari tahlil qilinib, takrorlanmaydigani yasaladi. */
   add?: "gallery" | "description" | "size" | "composition" | "usage" | "variant";
+  /** Rejadagi, lekin yasalmagan galereya o'rni. */
+  position?: number;
+  /** Rejadagi hamma yetishmagan kadr birdan. */
+  missing?: boolean;
+}
+
+/** Asl surat nomzodi — backend `product_ai/sources.py`. */
+export interface AiSourceCandidate {
+  url: string;
+  /** "seller" | "uzum" | "uzum_description" | "uzum_cdn" | "generated" | "other" */
+  origin: string;
+  label: string;
+  selected: boolean;
+  /** AI yasagan — asl surat bo'la olmaydi (olib tashlash kerak). */
+  generated: boolean;
 }
 
 /** Variant qiymati (rang, o'lcham …) — backend `intelligence/variants.py`. */

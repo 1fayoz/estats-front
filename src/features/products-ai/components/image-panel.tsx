@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ImageStudio, ImageTile, type StudioItem, type StudioPlace } from "@/features/products-ai/components/image-studio";
 import { ImageSettingsPanel } from "@/features/products-ai/components/image-settings-panel";
 import { VariantsPanel } from "@/features/products-ai/components/variants-panel";
+import { SourcesPanel } from "@/features/products-ai/components/sources-panel";
 import { ApiError, excludeAiImage, mediaUrl, patchAiDraft, redoAiImages, revertAiImage } from "@/lib/api";
 import type { AiDraft } from "@/lib/types";
 
@@ -239,13 +240,20 @@ export function ImagePanel({
     };
     const gallery = items.filter((item) => item.kind.type === "gallery");
     const rest = items.filter((item) => item.kind.type !== "gallery");
-    return [...gallery, ...(gallery.length < 10 ? [galleryAdd] : []), ...variantItems, ...rest];
-  }, [items, variantItems, intelligencePlan]);
+    // Rejadagi, lekin rad etilgan/yasalmagan kadrlar (masalan muqova) — «Yasash».
+    const missing: StudioItem[] = (draft.missingGallery ?? []).map((m) => ({
+      id: `p:${m.position}`, url: null, group: "Galereya",
+      label: TYPE_LABEL[m.type] ?? m.type,
+      purpose: m.goal || "Rejadagi kadr hali yasalmagan.",
+      kind: { type: "position", position: m.position }, removed: false, check: null, canRevert: false,
+    }));
+    return [...missing, ...gallery, ...(gallery.length < 10 ? [galleryAdd] : []), ...variantItems, ...rest];
+  }, [items, variantItems, intelligencePlan, draft.missingGallery]);
 
   const gallery = allItems.filter((item) => item.group === "Galereya" || item.kind.type === "gallery");
+  const missingTotal = allItems.filter((item) => !item.url && item.kind.type !== "add").length;
   const content = allItems.filter((item) => item.kind.type === "slot" || (item.kind.type === "add" && item.kind.place !== "gallery" && item.kind.place !== "variant"));
   const removedCount = allItems.filter((item) => item.removed).length;
-  const missingCount = allItems.filter((item) => !item.url && item.kind.type !== "add").length;
 
   const regenerate = async (item: StudioItem, prompt: string): Promise<boolean> => {
     try {
@@ -253,6 +261,7 @@ export function ImagePanel({
       const target =
         kind.type === "gallery" ? { index: kind.index }
           : kind.type === "slot" ? { slot: kind.slot }
+          : kind.type === "position" ? { position: kind.position }
             : kind.type === "variant" ? { variant: kind.key, order: kind.order }
               : { add: kind.place as StudioPlace, ...(kind.variant ? { variant: kind.variant } : {}) };
       const next = await redoAiImages(draft.id, { prompt, ...target });
@@ -266,6 +275,21 @@ export function ImagePanel({
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
       return false;
+    }
+  };
+
+  const [fillingMissing, setFillingMissing] = React.useState(false);
+  const fillMissing = async () => {
+    setFillingMissing(true);
+    try {
+      const next = await redoAiImages(draft.id, { missing: true });
+      pending.current = { id: "missing", at: draft.intelligence?.partial?.at };
+      onChange(next);
+      toast.success("Yetishmagan kadrlar yasalmoqda — tugagach shu yerda ko'rinadi.");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Bajarilmadi.");
+    } finally {
+      setFillingMissing(false);
     }
   };
 
@@ -327,14 +351,25 @@ export function ImagePanel({
               {removedCount} ta olib tashlangan
             </span>
           )}
-          {missingCount > 0 && (
+          {missingTotal > 0 && (
             <span className="rounded-full bg-amber-500/10 px-2 py-0.5 font-medium air-warn">
-              {missingCount} ta kadr yasalmagan
+              {missingTotal} ta kadr yasalmagan
             </span>
+          )}
+          {missingTotal > 0 && intelligencePlan && !locked && (
+            <button
+              type="button"
+              disabled={working || fillingMissing}
+              onClick={() => void fillMissing()}
+              className="rounded-full bg-primary px-2.5 py-0.5 font-medium text-primary-foreground disabled:opacity-60"
+            >
+              {fillingMissing ? "Boshlanmoqda…" : `Yetishmaganlarni yasash (~$${(draft.imagePriceUsd * missingTotal).toFixed(2)})`}
+            </button>
           )}
         </span>
       </div>
 
+      {intelligencePlan && !locked && <SourcesPanel draft={draft} onChange={onChange} working={working} />}
       {intelligencePlan && <VariantsPanel draft={draft} onChange={onChange} locked={locked} />}
       {intelligencePlan && !locked && <ImageSettingsPanel draft={draft} onChange={onChange} disabled={working} />}
 
@@ -418,22 +453,22 @@ export function ImagePanel({
         </section>
       )}
 
-      {draft.sourceImages.length > 0 && (
+      {(!intelligencePlan || locked) && draft.sourceImages.length > 0 ? (
         <section className="space-y-1.5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Siz yuklagan asl rasmlar</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Asl suratlar</p>
           <div className="flex flex-wrap gap-2">
             {draft.sourceImages.map((url, index) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={url}
                 src={mediaUrl(url)}
-                alt={`Yuklangan rasm ${index + 1}`}
+                alt={`Asl surat ${index + 1}`}
                 className="h-20 w-16 rounded-lg border object-cover opacity-80"
               />
             ))}
           </div>
         </section>
-      )}
+      ) : null}
 
       {draft.imageNote && (
         <p className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-muted-foreground">

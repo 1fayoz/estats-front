@@ -28,6 +28,8 @@ export type StudioKind =
   | { type: "gallery"; index: number }
   | { type: "slot"; slot: string }
   | { type: "variant"; key: string; order: number }
+  /** Rejadagi, lekin yasalmagan galereya o'rni. */
+  | { type: "position"; position: number }
   /** QO'SHIMCHA kadr — mavjudlari tahlil qilinib, takrorlanmaydigani yasaladi. */
   | { type: "add"; place: StudioPlace; variant?: string };
 
