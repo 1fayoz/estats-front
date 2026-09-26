@@ -114,8 +114,19 @@ export default function DynamicsPage() {
         </Card>
       ) : null}
 
-      {!series.length && !monthly.length ? (
-        <Card><Empty>Bu turkum uchun hali hech qanday qator yo&apos;q</Empty></Card>
+      {!series.length && !monthly.length && data ? (
+        <Card>
+          <Empty>
+            {/* Ikki xil holat: tanlangan oraliqda ma'lumot yo'q (lekin boshqa kunlarda bor)
+                va bu tovar turida UMUMAN ma'lumot yo'q — Uzum katalogida bor, lekin
+                ichida tovar yo'q; tashqi hisobot ro'yxatida ham bunday tur yo'q
+                (masalan «asalarichilik uchun, asalarichilik», 2026-09-26). */}
+            {data.first_day
+              ? `Tanlangan oraliqda ma'lumot yo'q — bu tovar turida ma'lumot ${label(data.first_day)} dan bor.`
+              : "Bu tovar turida hozircha birorta ham tovar va sotuv yo'q — tashqi hisobotda ham ma'lumot yo'q. "
+                + "Qo'shni tovar turini tanlang."}
+          </Empty>
+        </Card>
       ) : null}
 
       {!series.length && monthly.length ? (
