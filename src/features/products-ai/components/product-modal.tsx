@@ -333,13 +333,15 @@ export function ProductAiModal({
               toast.success("Tasdiqlandi — Uzumga ko'chirishga tayyor.");
             })
           }
-          onPublish={(categoryManualPath) =>
+          onPublish={(categoryManualPath, resume) =>
             act("publish", async () => {
               if (!draft) return;
               const resuming = draft.uzumPublish?.status === "stopped";
-              apply(await publishAiDraftUzum(draft.id, categoryManualPath));
+              apply(await publishAiDraftUzum(draft.id, categoryManualPath, resume));
               toast.success(
-                categoryManualPath?.length
+                resume
+                  ? `Uzum'dagi chala tovar ${draft.uzumPublish?.productId} davom ettirilmoqda — yangi tovar yaratilmaydi.`
+                  : categoryManualPath?.length
                   ? `"${categoryManualPath.join(" → ")}" bilan davom etilmoqda.`
                   : resuming
                     ? "To'xtagan joydan davom etilmoqda."
@@ -677,7 +679,7 @@ function Footer({
   onSave: () => void;
   onCopy: () => void;
   onApprove: () => void;
-  onPublish: (categoryManualPath?: string[]) => void;
+  onPublish: (categoryManualPath?: string[], resume?: boolean) => void;
   onStopPublish: () => void;
   onLinked: (draft: AiDraft) => void;
   onUnlink: () => void;
@@ -922,6 +924,22 @@ function Footer({
             qayta ishga tushishi, yoki tovar keyinroq Uzum
             tomonidan o'chirilishi). Sotuvchi bir bosishda
             tekshiradi, natija shu yerda — tugma yonida — qoladi. */}
+        {/* Uzum'da CHALA qolgan tovar (1-bosqich saqlangan, yakunlanmagan) —
+            yangi tovar yaratmasdan o'sha joyidan: variantlar, SKU, yakunlash.
+            Prodda #21: birinchi urinish 3414568 ni 0 SKU bilan qoldirgan edi. */}
+        {locked && isLiveOnUzum && !publishing &&
+          !["published", "queued", "running"].includes(draft?.uzumPublish?.status ?? "") && (
+          <button
+            type="button"
+            className="air-btn-flat"
+            onClick={() => onPublish(undefined, true)}
+            disabled={busy === "publish"}
+            title="Uzum'da yakunlanmay qolgan tovarni shu joyidan davom ettiradi: variantlar (rang, model …), SKU jadvali va yakunlash. Yangi tovar yaratilmaydi."
+          >
+            {spin("publish") ?? <Upload className="mr-1.5 inline h-3.5 w-3.5" />}
+            Chala tovarni davom ettirish
+          </button>
+        )}
         {locked && isLiveOnUzum && (
           <button
             type="button"

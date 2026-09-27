@@ -1321,10 +1321,11 @@ export const fetchAiPackage = (id: number) =>
  * o'zgartirilmagan, avtomatika o'zi tanlagani qoladi). Bo'lsa,
  * keyingi urinishda shu darajalarda ballashsiz aynan shu bosiladi.
  */
-export const publishAiDraftUzum = (id: number, categoryManualPath?: string[]) => {
-  const qs = (categoryManualPath || [])
-    .map((name) => `category_manual_path=${encodeURIComponent(name)}`)
-    .join("&");
+export const publishAiDraftUzum = (id: number, categoryManualPath?: string[], resume = false) => {
+  const qs = [
+    ...(categoryManualPath || []).map((name) => `category_manual_path=${encodeURIComponent(name)}`),
+    ...(resume ? ["resume=true"] : []),
+  ].join("&");
   return request<AiDraft>(
     `/product-ai/drafts/${id}/publish-uzum${qs ? `?${qs}` : ""}`,
     { method: "POST" },
