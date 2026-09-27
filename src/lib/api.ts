@@ -613,6 +613,28 @@ export const sendComplaint = (productId: number, text: string, force = false) =>
     body: JSON.stringify({ text, force }),
   });
 
+export interface AutoResolveState {
+  enabled: boolean;
+  connected: boolean;
+  status: string;
+  step: string;
+  reason: string;
+  fixSummary: string;
+  error: string;
+  lastAskedAt?: string | null;
+  updatedAt?: string | null;
+  transcript: { role: "me" | "op" | "bot"; text: string; at: string }[];
+}
+
+/** «Avto hal qilish» — kartochka bloklansa Uzum botiga o'zi yozadi, sababini bilib tuzatadi. */
+export const fetchAutoResolve = (productId: number) =>
+  request<AutoResolveState>(`/telegram-operator/auto-resolve/${productId}`);
+
+export const setAutoResolve = (productId: number, enabled: boolean) =>
+  request<AutoResolveState>(`/telegram-operator/auto-resolve/${productId}`, {
+    method: "PUT", body: JSON.stringify({ enabled }),
+  });
+
 export const fetchComplaintJob = (productId: number) =>
   request<ComplaintJob>(`/telegram-operator/complaint/${productId}/job`);
 

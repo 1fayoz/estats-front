@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { isDismissed, moderationJobActive, useModerationJobStore } from "@/stores/moderation-job-store";
 import { jobIsActive } from "./job-progress";
 import { ModerationJobProgress } from "./moderation-job-progress";
+import { AutoResolvePanel } from "./auto-resolve-panel";
 
 type Tone = "neutral" | "success" | "warning" | "error";
 type Action = "check" | "auto" | "reason";
@@ -812,6 +813,7 @@ export function ProductModerationCard({
             </Button>
           )}
         </div>
+        <AutoResolvePanel productId={data.product.id} blocked={Boolean(data.product.uzumBlocked)} />
       </div>
     </Card>
   );
