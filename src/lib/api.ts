@@ -1355,3 +1355,26 @@ export const verifyAiDraftUzum = (id: number) =>
  */
 export const syncProductFunnel = (productId: number) =>
   request<Funnel>(`/warehouse/products/${productId}/funnel/sync`, { method: "POST" });
+
+/** Fondagi rasm yasash — har kadr holati va ETA uchun o'rtacha kadr vaqti. */
+export interface AiImageJobFrame {
+  status: "queued" | "running" | "done" | "failed";
+  slot?: string;
+  variant?: string;
+  type?: string;
+  startedAt?: string;
+  finishedAt?: string;
+}
+export interface AiImageJob {
+  running: boolean;
+  frames: Record<string, AiImageJobFrame>;
+  startedAt?: string;
+  finishedAt?: string;
+  current?: string;
+  detail?: string;
+  progress?: number;
+  frameSeconds?: number;
+  concurrency?: number;
+  serverTime?: string;
+}
+export const fetchAiImageJob = (id: number) => request<AiImageJob>(`/product-ai/drafts/${id}/image-job`);

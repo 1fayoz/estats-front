@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { mediaUrl } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiDraftRow } from "@/lib/types";
+import { formatEta, useImageJob } from "@/features/products-ai/use-image-job";
 
 /**
  * O'ng-pastki burchakdagi suzuvchi panel — AI fonda qanday
@@ -114,7 +115,9 @@ export function AiGenerationTray({
                         row.error ? "text-destructive" : "text-muted-foreground",
                       )}
                     >
-                      {row.error ?? row.stageLabel}
+                      {row.error ?? (isRunning && row.stage === "images"
+                        ? <ImageJobLine draftId={row.id} fallback={row.stageLabel} />
+                        : row.stageLabel)}
                     </div>
                     {isRunning && (
                       <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
@@ -141,4 +144,11 @@ export function AiGenerationTray({
       </div>
     </div>
   );
+}
+
+/** Rasm yasalayotgan qoralama: «Rasmlar 2/4 · ~1 daq qoldi». */
+function ImageJobLine({ draftId, fallback }: { draftId: number; fallback: string }) {
+  const job = useImageJob(draftId, true);
+  if (!job.total) return <>{fallback}</>;
+  return <>{`Rasmlar ${job.done}/${job.total}${job.etaSeconds ? ` · ${formatEta(job.etaSeconds)}` : ""}`}</>;
 }

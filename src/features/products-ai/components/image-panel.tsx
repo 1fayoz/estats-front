@@ -5,7 +5,8 @@ import { Check, Loader2, Palette, Plus, Sparkles, Target, X } from "lucide-react
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
-import { ImageStudio, ImageTile, type StudioItem, type StudioPlace } from "@/features/products-ai/components/image-studio";
+import { ImageStudio, ImageTile, type StudioItem, type StudioPlace, type TileFrame } from "@/features/products-ai/components/image-studio";
+import { formatEta, useImageJob } from "@/features/products-ai/use-image-job";
 import { ImageSettingsPanel } from "@/features/products-ai/components/image-settings-panel";
 import { VariantsPanel } from "@/features/products-ai/components/variants-panel";
 import { SourcesPanel } from "@/features/products-ai/components/sources-panel";
@@ -97,6 +98,13 @@ export function ImagePanel({
   const pending = React.useRef<{ id: string; at: string | undefined } | null>(null);
 
   const working = draft.stage === "images";
+  const [kicked, setKicked] = React.useState(0);
+  const imageJob = useImageJob(draft.id, working || kicked > 0);
+  React.useEffect(() => {
+    if (!kicked) return;
+    const id = setTimeout(() => setKicked(0), 15000);
+    return () => clearTimeout(id);
+  }, [kicked]);
   const plan = draft.intelligence?.image_plan;
   const intelligencePlan = Boolean(plan?.images?.length);
   const removed = React.useMemo(() => new Set(draft.removedImages ?? []), [draft.removedImages]);
@@ -255,6 +263,28 @@ export function ImagePanel({
   const content = allItems.filter((item) => item.kind.type === "slot" || (item.kind.type === "add" && item.kind.place !== "gallery" && item.kind.place !== "variant"));
   const removedCount = allItems.filter((item) => item.removed).length;
 
+  // Plitka ↔ fondagi kadr: reja o'rni (galereya fayl nomida `ai-5-…`), bo'lim
+  // kaliti yoki variant kaliti + tartibi (o'rin = 2000 + variant·10 + tartib).
+  const frameFor = (item: StudioItem): TileFrame | null => {
+    if (!imageJob.total) return null;
+    const entries = Object.entries(imageJob.frames);
+    const kind = item.kind;
+    let hit: [string, (typeof entries)[number][1]] | undefined;
+    if (kind.type === "position") hit = entries.find(([pos]) => Number(pos) === kind.position);
+    else if (kind.type === "slot") hit = entries.find(([, f]) => f.slot === kind.slot);
+    else if (kind.type === "variant") hit = entries.find(([pos, f]) => f.variant === kind.key && Number(pos) % 10 === kind.order);
+    else if (kind.type === "gallery" && item.url) {
+      const pos = /\/ai-(\d+)-/.exec(item.url)?.[1];
+      hit = pos ? entries.find(([p, f]) => p === pos && !f.slot && (!f.variant || f.variant === "*")) : undefined;
+    }
+    if (!hit) return null;
+    const [, frame] = hit;
+    // Tayyor bo'lgan kadr — rasm yangilanguncha ko'rsatilmaydi (plitka o'zi yangilanadi).
+    if (frame.status === "done") return null;
+    if (frame.status === "failed" && !imageJob.running && item.url) return null;
+    return { status: frame.status, percent: imageJob.percentOf(frame) };
+  };
+
   const regenerate = async (item: StudioItem, prompt: string): Promise<boolean> => {
     try {
       const kind = item.kind;
@@ -267,6 +297,7 @@ export function ImagePanel({
       const next = await redoAiImages(draft.id, { prompt, ...target });
       pending.current = { id: item.id, at: draft.intelligence?.partial?.at };
       setBusyId(item.id);
+      setKicked(Date.now());
       onChange(next);
       toast.success(item.kind.type === "add"
         ? `${item.group}: mavjud kadrlar tahlil qilinib, yangisi yasalmoqda.`
@@ -284,6 +315,7 @@ export function ImagePanel({
     try {
       const next = await redoAiImages(draft.id, { missing: true });
       pending.current = { id: "missing", at: draft.intelligence?.partial?.at };
+      setKicked(Date.now());
       onChange(next);
       toast.success("Yetishmagan kadrlar yasalmoqda — tugagach shu yerda ko'rinadi.");
     } catch (err) {
@@ -373,10 +405,42 @@ export function ImagePanel({
       {intelligencePlan && <VariantsPanel draft={draft} onChange={onChange} locked={locked} />}
       {intelligencePlan && !locked && <ImageSettingsPanel draft={draft} onChange={onChange} disabled={working} />}
 
-      {working && (
-        <p className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs">
-          <Loader2 className="size-3.5 animate-spin" /> Rasm yasalmoqda — oynani yopsangiz ham davom etadi.
-        </p>
+      {(working || imageJob.running) && (
+        <div className="space-y-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs">
+          <p className="flex flex-wrap items-center gap-2">
+            <Loader2 className="size-3.5 animate-spin" />
+            <b>Rasm yasalmoqda</b>
+            {imageJob.total > 0 ? (
+              <span className="tabular-nums text-muted-foreground">
+                {`${imageJob.done}/${imageJob.total} tayyor`}
+                {imageJob.runningCount ? ` · ${imageJob.runningCount} ta yasalmoqda` : ""}
+                {imageJob.queued ? ` · ${imageJob.queued} ta navbatda` : ""}
+                {imageJob.failed ? ` · ${imageJob.failed} ta yasalmadi` : ""}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">tayyorlanmoqda (reja va namuna suratlar)…</span>
+            )}
+            {imageJob.etaSeconds > 0 && (
+              <span className="ml-auto font-medium tabular-nums">{formatEta(imageJob.etaSeconds)}</span>
+            )}
+          </p>
+          {imageJob.total > 0 && (
+            <div className="h-1.5 overflow-hidden rounded-full bg-primary/15">
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-1000"
+                style={{
+                  width: `${Math.round(
+                    (Object.values(imageJob.frames).reduce((sum, f) => sum + imageJob.percentOf(f), 0)
+                      / (imageJob.total * 100)) * 100,
+                  )}%`,
+                }}
+              />
+            </div>
+          )}
+          <p className="text-muted-foreground">
+            {"Yasalayotgan kadrlar pastda o'z joyida belgilangan. Oynani yopsangiz ham davom etadi."}
+          </p>
+        </div>
       )}
 
       <section className="space-y-2">
@@ -389,7 +453,7 @@ export function ImagePanel({
         {gallery.length > 0 ? (
           <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-5">
             {gallery.map((item) => (
-              <ImageTile key={item.id} item={item} busy={busyId === item.id} onOpen={() => setOpenId(item.id)} />
+              <ImageTile key={item.id} item={item} busy={busyId === item.id} frame={frameFor(item)} onOpen={() => setOpenId(item.id)} />
             ))}
           </div>
         ) : (
@@ -420,7 +484,7 @@ export function ImagePanel({
                       className="aspect-[3/4] w-full rounded-xl border object-cover opacity-70" title="Namuna (asl surat)" />
                   )}
                   {tiles.map((item) => (
-                    <ImageTile key={item.id} item={item} busy={busyId === item.id} onOpen={() => setOpenId(item.id)} />
+                    <ImageTile key={item.id} item={item} busy={busyId === item.id} frame={frameFor(item)} onOpen={() => setOpenId(item.id)} />
                   ))}
                 </div>
               </div>
@@ -444,7 +508,7 @@ export function ImagePanel({
                 </p>
                 <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-5">
                   {placeItems.map((item) => (
-                    <ImageTile key={item.id} item={item} busy={busyId === item.id} onOpen={() => setOpenId(item.id)} />
+                    <ImageTile key={item.id} item={item} busy={busyId === item.id} frame={frameFor(item)} onOpen={() => setOpenId(item.id)} />
                   ))}
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  AlertTriangle, ChevronLeft, ChevronRight, Loader2, Plus, RefreshCw, RotateCcw, Trash2, Undo2, Wand2, ZoomIn,
+  AlertTriangle, ChevronLeft, ChevronRight, Clock, Loader2, Plus, RefreshCw, RotateCcw, Trash2, Undo2, Wand2, ZoomIn,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -49,14 +49,22 @@ export interface StudioItem {
   canRevert: boolean;
 }
 
+/** Fondagi yasashda shu kadrning holati (`useImageJob`). */
+export interface TileFrame {
+  status: "queued" | "running" | "done" | "failed";
+  percent: number;
+}
+
 export function ImageTile({
   item,
   busy,
+  frame,
   onOpen,
   className,
 }: {
   item: StudioItem;
   busy: boolean;
+  frame?: TileFrame | null;
   onOpen: () => void;
   className?: string;
 }) {
@@ -129,7 +137,27 @@ export function ImageTile({
         </span>
       )}
 
-      {busy && (
+      {frame?.status === "queued" && (
+        <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/45 text-white">
+          <Clock className="size-5" />
+          <span className="text-[11px] font-medium">Navbatda</span>
+        </span>
+      )}
+      {frame?.status === "running" && (
+        <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/55 text-white">
+          <Loader2 className="size-5 animate-spin" />
+          <span className="text-[11px] font-medium tabular-nums">{`Yasalmoqda · ${frame.percent}%`}</span>
+          <span className="absolute inset-x-0 bottom-0 h-1 bg-white/20">
+            <span className="block h-full bg-primary transition-[width] duration-1000" style={{ width: `${frame.percent}%` }} />
+          </span>
+        </span>
+      )}
+      {frame?.status === "failed" && (
+        <span className="absolute inset-x-1.5 bottom-1.5 rounded-md bg-destructive/90 px-1.5 py-0.5 text-center text-[10px] font-medium text-white">
+          Yasalmadi
+        </span>
+      )}
+      {busy && !frame && (
         <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/55 text-white">
           <Loader2 className="size-5 animate-spin" />
           <span className="text-[11px] font-medium">Yasalmoqda…</span>
