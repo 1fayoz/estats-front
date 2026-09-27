@@ -18,6 +18,7 @@ import {
 } from "@/features/products-ai/components/draft-fields";
 import { DraftSide } from "@/features/products-ai/components/draft-side";
 import { LinkProductDialog } from "@/features/products-ai/components/link-product-dialog";
+import { SplitDialog, tooManySkus } from "@/features/products-ai/components/split-dialog";
 import {
   EDIT_STAGE_LABEL,
   PUBLISH_PHASES,
@@ -139,6 +140,8 @@ export function ProductAiModal({
   // HAQIQIY tovarga ko'chiradi. Yaratishdan OLDINGI (hali joylanmagan)
   // tasdiqlangan qoralamada bu tugma yo'q — u hali ham to'liq qulf.
   const [editMode, setEditMode] = React.useState(false);
+  // 100+ SKU'da Uzum xususiyatlarni saqlamaydi — amal o'rniga «bo'lamizmi?» oynasi.
+  const [splitOpen, setSplitOpen] = React.useState(false);
 
   // Oyna har ochilganda toza holatdan boshlanadi: oldingi
   // qoralamaning matni yangi tovarga qo'shilib qolmasin.
@@ -285,6 +288,8 @@ export function ProductAiModal({
         </>
       }
       footer={
+        <>
+        {draft && <SplitDialog draft={draft} open={splitOpen} onOpenChange={setSplitOpen} onDone={apply} />}
         <Footer
           draft={draft}
           locked={Boolean(locked)}
@@ -327,14 +332,14 @@ export function ProductAiModal({
             })
           }
           onApprove={() =>
-            act("approve", async () => {
+            tooManySkus(draft) ? setSplitOpen(true) : act("approve", async () => {
               if (!draft) return;
               apply(await approveAiDraft(draft.id));
               toast.success("Tasdiqlandi — Uzumga ko'chirishga tayyor.");
             })
           }
           onPublish={(categoryManualPath, resume) =>
-            act("publish", async () => {
+            tooManySkus(draft) ? setSplitOpen(true) : act("publish", async () => {
               if (!draft) return;
               const resuming = draft.uzumPublish?.status === "stopped";
               apply(await publishAiDraftUzum(draft.id, categoryManualPath, resume));
@@ -357,7 +362,7 @@ export function ProductAiModal({
             })
           }
           onEditUzum={(replaceImages) =>
-            act("editUzum", async () => {
+            tooManySkus(draft) ? setSplitOpen(true) : act("editUzum", async () => {
               if (!draft) return;
               apply(await editAiDraftUzum(draft.id, replaceImages));
               setEditMode(false);
@@ -404,6 +409,7 @@ export function ProductAiModal({
             })
           }
         />
+        </>
       }
     >
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_290px] xl:gap-6">

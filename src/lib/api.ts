@@ -1224,6 +1224,20 @@ export const saveAiVariants = (id: number, axes: {
 export const detectAiVariants = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/variants/detect`, { method: "POST" });
 
+/** Uzum 99 tadan ortiq SKU'ni saqlamaydi — kartochkani qanday bo'lish rejasi. */
+export interface AiSplitChunk { keys: string[]; names: string[]; label: string; skus: number }
+export interface AiSplitPlan {
+  needed: boolean; axis?: string; title?: string; total?: number; limit?: number;
+  chunks?: AiSplitChunk[]; keep?: number;
+}
+export const fetchAiSplitPlan = (id: number) =>
+  request<AiSplitPlan>(`/product-ai/drafts/${id}/variants/split-plan`);
+
+/** Kartochkani bo'ladi: shu qoralamada bitta bo'lak, qolganlari yangi qoralama. */
+export const splitAiVariants = (id: number) =>
+  request<{ draft: AiDraft; kept: AiSplitChunk; created: { id: number; label: string; skus: number }[] }>(
+    `/product-ai/drafts/${id}/variants/split`, { method: "POST" });
+
 /** Do'kon sukuti — yangi tovar shu sozlama bilan yasaladi. */
 export const fetchAiImageSettings = () => request<AiImageSettingsState>(`/product-ai/image-settings`);
 

@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Check, Layers, Loader2, Plus, RefreshCw, Sparkles, Trash2, X } from "lucide-react";
+import { AlertTriangle, Check, Layers, Loader2, Plus, RefreshCw, Scissors, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MAX_SKUS, SplitDialog } from "@/features/products-ai/components/split-dialog";
 import { ApiError, detectAiVariants, fetchAiVariantTypes, mediaUrl, saveAiVariants } from "@/lib/api";
 import type { AiDraft, AiVariantAxis, AiVariantKind, AiVariantSuggestion, AiVariantType } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -39,8 +40,6 @@ const SOURCE_LABEL: Record<string, string> = {
 
 /** Uzum formasi: rangdan tashqari ko'pi bilan 3 ta o'q. */
 const MAX_CUSTOM = 3;
-/** Uzum 100 va undan ortiq SKU'li tovarda xususiyatlarni saqlamaydi (prodda #21 o'lchangan). */
-const MAX_SKUS = 99;
 
 interface EditValue {
   key?: string;
@@ -94,6 +93,7 @@ export function VariantsPanel({
   const axes = React.useMemo(() => variants.axes ?? [], [variants.axes]);
   const pending = variants.pending ?? [];
   const [editing, setEditing] = React.useState(false);
+  const [splitOpen, setSplitOpen] = React.useState(false);
   const [types, setTypes] = React.useState<AiVariantType[]>([]);
   const [form, setForm] = React.useState<EditAxis[] | null>(null);
   const [busy, setBusy] = React.useState<"save" | "detect" | string | null>(null);
@@ -230,10 +230,17 @@ export function VariantsPanel({
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
           <span>
             {`${variants.skuCount} ta SKU — Uzum 100 va undan ortiq SKU'li tovarda xususiyatlarni saqlamaydi. `}
-            {"Ranglar yoki modellar sonini kamaytiring (masalan faqat mavjud modellar) yoki kartochkani ikkiga bo'ling."}
+            {"Tizim kartochkani o'zi bo'lib beradi (masalan iPhone 11–14 va 15–17 alohida)."}
+            {!locked && (
+              <Button type="button" variant="outline" size="sm" className="ml-2 h-7 rounded-lg px-2 text-xs"
+                onClick={() => setSplitOpen(true)}>
+                <Scissors className="size-3.5" /> Kartochkani bo&apos;lish
+              </Button>
+            )}
           </span>
         </p>
       )}
+      <SplitDialog draft={draft} open={splitOpen} onOpenChange={setSplitOpen} onDone={onChange} />
 
       {needsChoice && (
         <p className="flex items-start gap-2 text-xs">
