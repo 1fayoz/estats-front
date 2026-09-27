@@ -39,6 +39,8 @@ const SOURCE_LABEL: Record<string, string> = {
 
 /** Uzum formasi: rangdan tashqari ko'pi bilan 3 ta o'q. */
 const MAX_CUSTOM = 3;
+/** Uzum 100 va undan ortiq SKU'li tovarda xususiyatlarni saqlamaydi (prodda #21 o'lchangan). */
+const MAX_SKUS = 99;
 
 interface EditValue {
   key?: string;
@@ -223,6 +225,16 @@ export function VariantsPanel({
         )}
       </div>
 
+      {(variants.skuCount ?? 0) > MAX_SKUS && !needsChoice && (
+        <p className="flex items-start gap-2 text-xs text-destructive">
+          <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+          <span>
+            {`${variants.skuCount} ta SKU — Uzum 100 va undan ortiq SKU'li tovarda xususiyatlarni saqlamaydi. `}
+            {"Ranglar yoki modellar sonini kamaytiring (masalan faqat mavjud modellar) yoki kartochkani ikkiga bo'ling."}
+          </span>
+        </p>
+      )}
+
       {needsChoice && (
         <p className="flex items-start gap-2 text-xs">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-600" />
@@ -253,7 +265,9 @@ export function VariantsPanel({
               <Plus /> Yana o&apos;q qo&apos;shish
             </Button>
             <span className="text-[11px] text-muted-foreground">
-              {formSkus > 1 ? `Uzum'da ${formSkus} ta SKU bo'ladi (har kombinatsiya — alohida SKU). ` : ""}
+              {formSkus > MAX_SKUS
+                ? `${formSkus} ta SKU — Uzum 99 tadan ko'pini qabul qilmaydi, kamaytiring. `
+                : formSkus > 1 ? `Uzum'da ${formSkus} ta SKU bo'ladi (har kombinatsiya — alohida SKU). ` : ""}
               Rangdan tashqari ko&apos;pi bilan {MAX_CUSTOM} ta o&apos;q.
             </span>
           </div>
