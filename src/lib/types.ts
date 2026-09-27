@@ -2508,7 +2508,7 @@ export interface AiVariantValue {
   description: string;
 }
 
-export type AiVariantKind = "color" | "design" | "size" | "other";
+export type AiVariantKind = "color" | "design" | "size" | "model" | "other";
 
 export interface AiVariantAxis {
   key: string;
@@ -2529,6 +2529,24 @@ export interface AiVariants {
   question?: string;
   confidence?: number;
   detectedAt?: string;
+  /** Uzum'da nechta SKU bo'ladi (o'qlar ko'paytmasi). */
+  skuCount?: number;
+  /** Bozorda bor, bu tovarda hali javob berilmagan o'qlar (masalan chexolda «Model»). */
+  pending?: AiVariantSuggestion[];
+  dismissed?: string[];
+}
+
+/** Raqobatchilarda uchragan o'q — sotuvchi o'z qiymatlarini tanlaydi. */
+export interface AiVariantSuggestion {
+  key: string;
+  titleUz: string;
+  titleRu: string;
+  kind: AiVariantKind;
+  /** Nechta raqobatchida / nechtasi tekshirildi. */
+  count: number;
+  total: number;
+  share: number;
+  values: { nameUz: string; nameRu: string }[];
 }
 
 export interface AiVariantType {

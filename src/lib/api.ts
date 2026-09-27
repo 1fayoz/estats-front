@@ -1217,8 +1217,8 @@ export const fetchAiVariantTypes = () => request<AiVariantType[]>(`/product-ai/v
 export const saveAiVariants = (id: number, axes: {
   titleUz: string; titleRu?: string; kind?: string;
   values: { key?: string; nameUz: string; nameRu?: string; hex?: string; images?: string[]; description?: string }[];
-}[]) =>
-  request<AiDraft>(`/product-ai/drafts/${id}/variants`, { method: "PUT", body: JSON.stringify({ axes }) });
+}[], dismissed: string[] = []) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/variants`, { method: "PUT", body: JSON.stringify({ axes, dismissed }) });
 
 /** Variantlarni qayta aniqlash (Uzum → suratlar tahlili). */
 export const detectAiVariants = (id: number) =>
