@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Scissors } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2, RotateCw, Scissors } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ApiError, fetchAiSplitPlan, splitAiVariants, type AiSplitPlan } from "@/lib/api";
+import { ApiError, fetchAiSplitPlan, retryAiSplitPublish, splitAiVariants, type AiSplitPlan } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
 
@@ -63,7 +63,7 @@ export function SplitDialog({
       const others = res.created.map((c) => `#${c.id} (${c.label})`).join(", ");
       toast.success(
         `Bo'lindi: shu kartochkada «${res.kept.label}» (${res.kept.skus} SKU), yangi qoralama: ${others}. `
-          + "Matnlar har biriga moslab yozilmoqda — tugagach «Uzumda yangilash» yoki «Uzumga joylash»ni bosing.",
+          + "Endi hammasi o'zi: matn har biriga moslab yoziladi, Uzum'dagi tovar yangilanadi, yangisi joylanadi.",
         { duration: 12000 },
       );
     } catch (err) {
@@ -134,5 +134,77 @@ export function SplitDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+const SPLIT_STEPS = [
+  { key: "texts", label: "Matn" },
+  { key: "publishing", label: "Uzum" },
+  { key: "done", label: "Tayyor" },
+] as const;
+
+/**
+ * Bo'lingan kartochkaning Uzum'ga o'zi borish holati — oynaning tepasida.
+ * Navbatda → matn shu variantlarga moslab yozilmoqda → Uzum'ga joylanmoqda
+ * (yoki Uzum'dagisi yangilanmoqda) → tayyor. Uzum bosqichining o'zi pastdagi
+ * joylash chizig'ida (`PublishProgress`) batafsil ko'rinadi.
+ */
+export function SplitProgress({ draft, onChange }: { draft: AiDraft; onChange: (draft: AiDraft) => void }) {
+  const auto = draft.split?.auto;
+  const [busy, setBusy] = React.useState(false);
+  if (!auto) return null;
+  const order = auto.status === "waiting" ? -1 : SPLIT_STEPS.findIndex((s) => s.key === auto.status);
+  const failed = auto.status === "error";
+  const running = !failed && auto.status !== "done";
+  const other = draft.split?.from ?? draft.split?.into?.[0];
+
+  async function retry() {
+    setBusy(true);
+    try {
+      onChange(await retryAiSplitPublish(draft.id));
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Qayta urinib bo'lmadi");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={cn("mt-2 rounded-lg border px-3 py-2 text-xs",
+      failed ? "border-destructive/40 bg-destructive/5" : "border-primary/30 bg-primary/5")}>
+      <div className="flex flex-wrap items-center gap-2">
+        {running ? <Loader2 className="size-3.5 animate-spin" />
+          : failed ? <AlertTriangle className="size-3.5 text-destructive" />
+            : <CheckCircle2 className="size-3.5 text-emerald-600" />}
+        <span className="font-medium">{`Bo'lingan kartochka · ${auto.step || ""}`}</span>
+        {typeof auto.percent === "number" && running && <span className="text-muted-foreground">{`${auto.percent}%`}</span>}
+        <span className="ml-auto flex items-center gap-1">
+          {SPLIT_STEPS.map((step, index) => (
+            <span key={step.key}
+              className={cn("rounded px-1.5 py-0.5",
+                index < order || auto.status === "done" ? "bg-emerald-600/15 text-emerald-700"
+                  : index === order ? (failed ? "bg-destructive/15 text-destructive" : "bg-primary/15")
+                    : "bg-muted text-muted-foreground")}>
+              {step.label}
+            </span>
+          ))}
+        </span>
+      </div>
+      {other && (
+        <p className="mt-1 text-muted-foreground">
+          {`${draft.split?.from ? "Bo'lingan" : "Ikkinchi qism"}: qoralama #${other.draftId} — ${other.label}`}
+        </p>
+      )}
+      {failed && (
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <span className="text-destructive">{auto.error}</span>
+          <Button type="button" size="sm" variant="outline" className="h-6 rounded-md px-2 text-xs"
+            disabled={busy} onClick={() => void retry()}>
+            {busy ? <Loader2 className="size-3 animate-spin" /> : <RotateCw className="size-3" />}
+            Qayta urinish
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

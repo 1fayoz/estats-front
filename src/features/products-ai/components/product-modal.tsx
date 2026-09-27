@@ -18,7 +18,7 @@ import {
 } from "@/features/products-ai/components/draft-fields";
 import { DraftSide } from "@/features/products-ai/components/draft-side";
 import { LinkProductDialog } from "@/features/products-ai/components/link-product-dialog";
-import { SplitDialog, tooManySkus } from "@/features/products-ai/components/split-dialog";
+import { SplitDialog, SplitProgress, tooManySkus } from "@/features/products-ai/components/split-dialog";
 import {
   EDIT_STAGE_LABEL,
   PUBLISH_PHASES,
@@ -196,7 +196,8 @@ export function ProductAiModal({
     draft !== null &&
     ((draft.progress < 100 && !draft.error) ||
       draft.uzumPublish?.status === "queued" ||
-      draft.uzumPublish?.status === "running");
+      draft.uzumPublish?.status === "running" ||
+      ["waiting", "texts", "publishing"].includes(draft.split?.auto?.status ?? ""));
   React.useEffect(() => {
     if (!open || !running || draft === null) return;
     const id = window.setInterval(async () => {
@@ -284,6 +285,7 @@ export function ProductAiModal({
           ) : (
             <StageStrip draft={draft} />
           )}
+          {draft?.split?.auto && <SplitProgress draft={draft} onChange={apply} />}
           {draft && <DraftTabs draft={draft} tab={tab} onTab={setTab} />}
         </>
       }

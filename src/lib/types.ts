@@ -2278,6 +2278,15 @@ export interface AiDraft extends AiDraftRow {
   sectionImages?: Partial<Record<"description" | "size" | "composition" | "usage", string[]>>;
   /** Sotuvchi «Olib tashlash» bosgan rasmlar — chizilgan holda turadi, Uzum'ga ketmaydi. */
   removedImages?: string[];
+  /** Kartochka bo'lingan bo'lsa: qayerdan/qayerga va Uzum'ga o'zi olib borish holati. */
+  split?: {
+    from?: { draftId: number; label: string } | null;
+    into: { draftId: number; label: string }[];
+    auto?: {
+      status: "waiting" | "texts" | "publishing" | "done" | "error";
+      step?: string; percent?: number; error?: string | null; productId?: string | null; at?: string;
+    } | null;
+  } | null;
   /** Xaridor tanlaydigan variantlar (rang, o'lcham …). */
   variants?: AiVariants;
   /** Har ko'rinadigan variant uchun yasalgan kadrlar: `{kalit: [url]}`. */

@@ -1238,6 +1238,10 @@ export const splitAiVariants = (id: number) =>
   request<{ draft: AiDraft; kept: AiSplitChunk; created: { id: number; label: string; skus: number }[] }>(
     `/product-ai/drafts/${id}/variants/split`, { method: "POST" });
 
+/** Bo'lingan kartochkani Uzum'ga olib borishni qayta urinish. */
+export const retryAiSplitPublish = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/variants/split/publish`, { method: "POST" });
+
 /** Do'kon sukuti — yangi tovar shu sozlama bilan yasaladi. */
 export const fetchAiImageSettings = () => request<AiImageSettingsState>(`/product-ai/image-settings`);
 
