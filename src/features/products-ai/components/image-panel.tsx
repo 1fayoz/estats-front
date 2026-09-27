@@ -12,6 +12,7 @@ import { VariantsPanel } from "@/features/products-ai/components/variants-panel"
 import { SourcesPanel } from "@/features/products-ai/components/sources-panel";
 import { ApiError, excludeAiImage, mediaUrl, patchAiDraft, redoAiImages, revertAiImage } from "@/lib/api";
 import type { AiDraft } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 /** Kadr turi → sotuvchi tushunadigan nom (backend `strategy.IMAGE_TYPES`, `card_content.IMAGE_SLOTS`). */
 const TYPE_LABEL: Record<string, string> = {
@@ -395,15 +396,13 @@ export function ImagePanel({
               onClick={() => void fillMissing()}
               className="rounded-full bg-primary px-2.5 py-0.5 font-medium text-primary-foreground disabled:opacity-60"
             >
-              {fillingMissing ? "Boshlanmoqda…" : `Yetishmaganlarni yasash (~$${(draft.imagePriceUsd * missingTotal).toFixed(2)})`}
+              {fillingMissing ? "Boshlanmoqda…"
+                : working || imageJob.running ? `Yasalmoqda · ${imageJob.done}/${imageJob.total || missingTotal}`
+                  : `Yetishmaganlarni yasash (~$${(draft.imagePriceUsd * missingTotal).toFixed(2)})`}
             </button>
           )}
         </span>
       </div>
-
-      {intelligencePlan && !locked && <SourcesPanel draft={draft} onChange={onChange} working={working} />}
-      {intelligencePlan && <VariantsPanel draft={draft} onChange={onChange} locked={locked} />}
-      {intelligencePlan && !locked && <ImageSettingsPanel draft={draft} onChange={onChange} disabled={working} />}
 
       {(working || imageJob.running) && (
         <div className="space-y-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs">
@@ -437,11 +436,38 @@ export function ImagePanel({
               />
             </div>
           )}
+          {imageJob.total > 0 && (
+            <ul className="flex flex-wrap gap-1.5">
+              {Object.entries(imageJob.frames)
+                .sort(([a], [b]) => Number(a) - Number(b))
+                .map(([pos, f]) => {
+                  const variantName = f.variant && f.variant !== "*"
+                    ? (draft.variants?.axes ?? []).flatMap((a) => a.values).find((v) => v.key === f.variant)?.nameUz
+                    : undefined;
+                  const what = f.slot ? (TYPE_LABEL[f.slot.replace(/_\d+$/, "")] ?? f.slot) : TYPE_LABEL[f.type ?? ""] ?? f.type;
+                  const state = f.status === "running" ? `${imageJob.percentOf(f)}%`
+                    : f.status === "queued" ? "navbatda" : f.status === "done" ? "tayyor" : "yasalmadi";
+                  return (
+                    <li key={pos} className={cn("rounded-full border px-2 py-0.5 tabular-nums",
+                      f.status === "running" && "border-primary bg-primary/10",
+                      f.status === "done" && "border-[color:var(--ok)] text-[color:var(--ok)]",
+                      f.status === "failed" && "border-destructive text-destructive")}>
+                      {`${variantName ? `${variantName} · ` : ""}${what} — ${state}`}
+                    </li>
+                  );
+                })}
+            </ul>
+          )}
           <p className="text-muted-foreground">
-            {"Yasalayotgan kadrlar pastda o'z joyida belgilangan. Oynani yopsangiz ham davom etadi."}
+            {"Har kadr pastda o'z joyida ham belgilangan. Oynani yopsangiz ham davom etadi."}
           </p>
         </div>
       )}
+
+      {intelligencePlan && !locked && <SourcesPanel draft={draft} onChange={onChange} working={working} />}
+      {intelligencePlan && <VariantsPanel draft={draft} onChange={onChange} locked={locked} />}
+      {intelligencePlan && !locked && <ImageSettingsPanel draft={draft} onChange={onChange} disabled={working} />}
+
 
       <section className="space-y-2">
         <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
