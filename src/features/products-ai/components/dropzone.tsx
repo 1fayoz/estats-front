@@ -5,6 +5,7 @@ import { Check, ImagePlus, Plus, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/lib/format";
 
 export const MAX_FILES = 6;
 const MAX_MB = 10;
@@ -21,6 +22,9 @@ const MAX_MB = 10;
  * asosiy amal har doim o'sha yerda bo'lishi kerak, forma ichida
  * yana bitta "Boshlash" tugmasi ikkilanish tug'diradi.
  */
+/** Backend chegarasi bilan bir xil (`router.HINT_MAX`). */
+const HINT_MAX = 10_000;
+
 export function DropZone({
   files,
   onFiles,
@@ -37,6 +41,17 @@ export function DropZone({
   const [dragging, setDragging] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const hintId = React.useId();
+  const hintRef = React.useRef<HTMLTextAreaElement>(null);
+
+  // Maydon matn bilan birga o'sadi — uzun izoh (o'lchamlar jadvali,
+  // yo'riqnoma) kichik qutichada aylantirib o'qilmasin. Ekranning
+  // 60% idan keyin ichida aylanadi.
+  React.useLayoutEffect(() => {
+    const el = hintRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight + 2, window.innerHeight * 0.6)}px`;
+  }, [hint]);
   const [previews, setPreviews] = React.useState<{ name: string; url: string }[]>([]);
 
   // Ob'ekt URL'lari qo'lda bo'shatiladi — aks holda modal ochilgan
@@ -180,18 +195,19 @@ export function DropZone({
         </div>
         <textarea
           id={hintId}
-          className="air-input min-h-28 resize-y"
-          rows={3}
+          ref={hintRef}
+          className="air-input min-h-32 resize-y overflow-y-auto leading-relaxed"
+          rows={5}
           value={hint}
           onChange={(e) => onHint(e.target.value)}
           disabled={disabled}
-          maxLength={500}
-          placeholder="Masalan: 500 ml, zanglamas po'lat, to'plamda 2 ta. Rang: oq."
+          maxLength={HINT_MAX}
+          placeholder={"Masalan: 500 ml, zanglamas po'lat, to'plamda 2 ta. Rang: oq.\nO'lchamlar jadvali, tarkibi, ishlatish tartibi — qancha ko'p yozsangiz, shuncha yaxshi."}
           aria-describedby={`${hintId}-help`}
         />
         <div className="mt-2 flex items-start justify-between gap-3 text-[11px] text-muted-foreground">
-          <p id={`${hintId}-help`} className="leading-relaxed">O'lchami, materiali va komplektini yozsangiz, tavsif aniqroq bo'ladi.</p>
-          <span className="shrink-0 tabular-nums">{hint.length}/500</span>
+          <p id={`${hintId}-help`} className="leading-relaxed">O'lchami, materiali, komplekti, tarkibi va ishlatish tartibini yozing — AI hammasini tavsif va bo'limlarga to'liq kiritadi.</p>
+          <span className="shrink-0 tabular-nums">{formatNumber(hint.length)}/{formatNumber(HINT_MAX)}</span>
         </div>
       </div>
     </div>
