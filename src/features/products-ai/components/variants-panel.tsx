@@ -309,10 +309,9 @@ function SuggestionCard({
       <p className="flex items-start gap-2 text-xs">
         <Sparkles className="mt-0.5 size-3.5 shrink-0 text-amber-600" />
         <span>
-          Raqobatchilar bu tovarni <b>«{suggestion.titleUz}»</b> bo&apos;yicha ham sotadi
-          {suggestion.total ? ` (${suggestion.count}/${suggestion.total} ta kartochkada)` : ""}
-          {` — xaridor rangdan tashqari ${suggestion.titleUz.toLowerCase()}ni ham tanlaydi. `}
-          Sizda qaysilari bor? Belgilang yoki yozing.
+          {"Raqobatchilar bu tovarni "}<b>{`«${suggestion.titleUz}»`}</b>
+          {` bo'yicha ham sotadi${suggestion.total ? ` (${suggestion.count}/${suggestion.total} ta kartochkada)` : ""}`}
+          {` — xaridor rangdan tashqari ${suggestion.titleUz.toLowerCase()}ni ham tanlaydi. Sizda qaysilari bor? Belgilang yoki yozing.`}
         </span>
       </p>
       {values.length > 0 && (
