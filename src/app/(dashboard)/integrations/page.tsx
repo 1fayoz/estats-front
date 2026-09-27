@@ -18,7 +18,6 @@ import { TelegramDialog } from "@/features/social/components/telegram-dialog";
 import { InstagramConnectCard } from "@/features/instagram/components/connect-card";
 import { MarketTokenCard } from "@/features/settings/market-token-card";
 import { MarketAccountLoginCard } from "@/features/settings/market-account-login-card";
-import { ZsAccountCard } from "@/features/settings/zs-account-card";
 import { ShopsCard } from "@/features/settings/shops-card";
 import { TelegramAccountCard } from "@/features/settings/telegram-account-card";
 import { UzumSellerLoginCard } from "@/features/settings/uzum-seller-login-card";
@@ -238,7 +237,7 @@ function IntegrationsWorkspace() {
           {selected === "uzum" && <div className={cn(styles.panel, "space-y-4")}>
 
             <ShopsCard />
-            {hasShop && <><UzumSyncCard /><div className="grid min-w-0 gap-4 2xl:grid-cols-2"><UzumSellerLoginCard /><MarketAccountLoginCard /></div><ZsAccountCard /><MarketTokenCard collapsible /></>}
+            {hasShop && <><UzumSyncCard /><div className="grid min-w-0 gap-4 2xl:grid-cols-2"><UzumSellerLoginCard /><MarketAccountLoginCard /></div><MarketTokenCard collapsible /></>}
           </div>}
 
           {(selected === "yandex" || selected === "wb" || selected === "ozon") && (

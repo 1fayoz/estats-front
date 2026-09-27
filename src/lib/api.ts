@@ -38,7 +38,6 @@ import type {
   MarketTokenStatus,
   MarketUploader,
   MarketAutoRefresh,
-  ZsSync,
   MarketLoginSession,
   TelegramOperatorStatus,
   TelegramAccountStatus,
@@ -538,20 +537,6 @@ export const fetchMarketLoginStatus = () =>
 
 export const fetchMarketAutoRefresh = () =>
   request<MarketAutoRefresh>("/market/token/auto-refresh", { shopScoped: false });
-
-// ZoomSelling (tashqi hisobot) — Google hisobiga VNC orqali bir marta kirish,
-// keyin «Bozor» sahifalari kuniga bir marta o'zi yangilanadi. Ekran bozor
-// hisobi bilan bir xil, shuning uchun VNC manzili ham o'sha.
-export const startZsLogin = () =>
-  request<UzumLoginStart>("/market/zs-login/start", { method: "POST", shopScoped: false });
-
-export const completeZsLogin = () =>
-  request<{ status: string }>("/market/zs-login/complete", { method: "POST", shopScoped: false });
-
-export const fetchZsSync = () => request<ZsSync>("/market/zs-sync", { shopScoped: false });
-
-export const runZsSync = () =>
-  request<{ started: boolean }>("/market/zs-sync/run", { method: "POST", shopScoped: false });
 
 /** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz. */
 export function marketLoginVncUrl(): string {

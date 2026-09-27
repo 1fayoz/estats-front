@@ -92,11 +92,6 @@ export default function DynamicsPage() {
                       dateLabel={label} />
           <TwoLines data={series} left="shops" right="cards" leftName="Do'konlar" rightName="Kartochkalar"
                     height={230} dateLabel={label} />
-          <div className={styles.note}>
-            Manba: {series.some((s) => s.source === "import") ? "import qilingan tarix" : ""}
-            {series.some((s) => s.source === "import") && series.some((s) => s.source === "estats") ? " + " : ""}
-            {series.some((s) => s.source === "estats") ? "o'z o'lchovimiz" : ""}
-          </div>
         </Card>
       ) : null}
 

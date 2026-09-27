@@ -73,12 +73,6 @@ export default function CardPage() {
           </div>
         </Card>
       ) : null}
-      {data?.sources?.length ? (
-        <div className={styles.note}>
-          Kunlik qatorlar: {data.sources.map((s) => (s === "import" ? "import qilingan tarix" : "o'z o'lchovimiz"))
-            .join(" + ")}
-        </div>
-      ) : null}
     </ReportPage>
   );
 }

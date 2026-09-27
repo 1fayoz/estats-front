@@ -25,17 +25,10 @@ export function MarketVncDialog({
   open,
   onOpenChange,
   onConnected,
-  title = "Uzum mijoz hisobiga kirish",
-  description,
-  save,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConnected?: (state: MarketAutoRefresh) => void;
-  /** Boshqa hisob uchun (masalan ZoomSelling — Google) — ekran o'sha, saqlash boshqa. */
-  title?: string;
-  description?: React.ReactNode;
-  save?: () => Promise<string>;
+  onConnected: (state: MarketAutoRefresh) => void;
 }) {
   const targetRef = React.useRef<HTMLDivElement>(null);
   const rfbRef = React.useRef<RFB | null>(null);
@@ -93,13 +86,9 @@ export function MarketVncDialog({
   const onDone = async () => {
     setSaving(true);
     try {
-      if (save) {
-        toast.success(await save());
-      } else {
-        const state = await completeMarketLogin();
-        toast.success("Sessiya saqlandi — bozor tokeni endi avtomatik yangilanadi.");
-        onConnected?.(state);
-      }
+      const state = await completeMarketLogin();
+      toast.success("Sessiya saqlandi — bozor tokeni endi avtomatik yangilanadi.");
+      onConnected(state);
       onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Saqlanmadi.");
@@ -112,13 +101,11 @@ export function MarketVncDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>Uzum mijoz hisobiga kirish</DialogTitle>
           <DialogDescription>
-            {description ?? <>
             Quyidagi oynada uzum.uz&apos;ga O&apos;ZINGIZ kiring (telefon raqamingiz bilan,
             SMS kod). Katalog ko&apos;ringach &quot;Kirdim, saqlash&quot;ni bosing — shundan
             keyin bozor tokeni har {"~3"} daqiqada o&apos;zi yangilanadi.
-            </>}
           </DialogDescription>
         </DialogHeader>
 
