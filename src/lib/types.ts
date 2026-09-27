@@ -3012,3 +3012,21 @@ export interface SupportEmail {
   /** Foydalanuvchining do'konlari soni. */
   shops: number;
 }
+
+/** ZoomSelling kunlik sinxronizatsiyasi (`estats-market` `zs_sync_state`). */
+export interface ZsSyncState {
+  status?: "running" | "done" | "partial" | "error" | "needs_login" | "busy";
+  started_at?: string;
+  finished_at?: string;
+  stage?: string;
+  as_of?: string;
+  files?: number;
+  seconds?: number;
+  error?: string | null;
+  csv_failed?: string[];
+}
+
+export interface ZsSync {
+  state: ZsSyncState;
+  sync_hour: number;
+}
