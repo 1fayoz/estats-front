@@ -3,14 +3,10 @@
 import * as React from "react";
 import {
   Bot,
-  Check,
   CheckCircle2,
-  ExternalLink,
-  Globe,
-  KeyRound,
   Loader2,
   MessageSquare,
-  Pencil,
+  MonitorSmartphone,
   RefreshCw,
   Send,
   ShieldCheck,
@@ -29,18 +25,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ApiError,
   deleteAiWebAccount,
-  saveAiWebAccount,
+  startAiWebLogin,
   setAiProviderMode,
   testAiWebChat,
   verifyAiWebAccount,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/stores/user-store";
+import { AiWebVncDialog } from "./ai-web-vnc-dialog";
 import type { AiProviderMode, AiTestChatResult, AiWebAccountState } from "@/lib/types";
 
 interface Props {
@@ -57,14 +54,11 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
     : "ChatGPT akkauntingiz orqali har bir tovar vazifasi uchun alohida sessiyada bepul chat scrapingdan foydalaning.";
   const siteUrl = isGemini ? "https://gemini.google.com" : "https://chatgpt.com";
 
-  const [authMethod, setAuthMethod] = React.useState<"credentials" | "cookie">("credentials");
-  const [login, setLogin] = React.useState(account.login || "");
-  const [password, setPassword] = React.useState("");
-  const [payloadText, setPayloadText] = React.useState("");
-  const [editing, setEditing] = React.useState(false);
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   const [testChatOpen, setTestChatOpen] = React.useState(false);
-  const [busy, setBusy] = React.useState<"" | "save" | "verify" | "delete">("");
+  const [busy, setBusy] = React.useState<"" | "vnc" | "verify" | "delete">("");
+  const [vncOpen, setVncOpen] = React.useState(false);
+  const shopId = useUserStore((s) => s.activeShopId);
   const [note, setNote] = React.useState<string | null>(null);
 
   // Test chat holati
@@ -80,46 +74,27 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
   const isConnected = account.status === "active";
   const connectedAt = account.connectedAt || account.lastCheckedAt;
 
-  React.useEffect(() => {
-    if (account.login) setLogin(account.login);
-  }, [account.login]);
-
-  const onSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onVnc = async () => {
     if (busy) return;
-
-    if (authMethod === "credentials") {
-      if (!login.trim()) {
-        toast.error("Telefon yoki pochtani kiriting.");
-        return;
-      }
-      if (!password.trim() && !isSaved) {
-        toast.error("Parolni kiriting.");
-        return;
-      }
-    } else {
-      if (!payloadText.trim() && !isSaved) {
-        toast.error("Cookie yoki sessiya tokenini kiriting.");
-        return;
-      }
+    if (!shopId) {
+      toast.error("Avval do'konni tanlang.");
+      return;
     }
-
-    setBusy("save");
+    setBusy("vnc");
     setNote(null);
     try {
-      await saveAiWebAccount(account.provider, {
-        login: login.trim() || undefined,
-        password: password.trim() || undefined,
-        payload: payloadText.trim() || undefined,
-        name: login.trim() || undefined,
-      });
-      setPassword("");
-      setPayloadText("");
-      setEditing(false);
-      toast.success("Kirish ma'lumotlari saqlandi.");
-      await onChanged();
+      const result = await startAiWebLogin(account.provider);
+      if (result.status === "busy") {
+        toast.error("Kirish oynasi hozir boshqa ulanish bilan band — biroz kutib qayta urining.");
+        return;
+      }
+      if (result.status !== "ready") {
+        toast.error(result.message || "Oynani ochib bo'lmadi.");
+        return;
+      }
+      setVncOpen(true);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Saqlab bo'lmadi.");
+      toast.error(err instanceof ApiError ? err.message : "Oynani ochib bo'lmadi.");
     } finally {
       setBusy("");
     }
@@ -160,10 +135,6 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
     setBusy("delete");
     try {
       await deleteAiWebAccount(account.provider);
-      setLogin("");
-      setPassword("");
-      setPayloadText("");
-      setEditing(false);
       setConfirmDelete(false);
       setNote(null);
       toast.success("Kirish ma'lumotlari o'chirildi.");
@@ -226,142 +197,13 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
           </div>
         )}
 
-        {isSaved && !editing ? (
-          <div className="flex flex-col justify-between gap-3 rounded-xl border bg-muted/20 p-4 sm:flex-row sm:items-center">
-            <div className="min-w-0 space-y-1">
-              <p className="text-xs text-muted-foreground">Saqlangan hisob</p>
-              <p className="break-words text-sm font-medium [overflow-wrap:anywhere]">
-                {account.login || account.accountEmail || account.name || "Kirish ma'lumotlari saqlangan"}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              className="min-h-11 rounded-xl"
-              disabled={Boolean(busy)}
-              onClick={() => setEditing(true)}
-            >
-              <Pencil className="size-4" />
-              Tahrirlash
-            </Button>
-          </div>
-        ) : (
-          <form className="space-y-4 rounded-xl border bg-muted/15 p-4" onSubmit={onSave}>
-            <div className="flex items-center justify-between pb-2 border-b">
-              <span className="text-xs font-medium text-muted-foreground">Ulanish usuli:</span>
-              <div className="inline-flex rounded-lg border bg-background p-0.5 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setAuthMethod("credentials")}
-                  className={cn(
-                    "rounded-md px-2.5 py-1 font-medium transition-colors",
-                    authMethod === "credentials" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Pochta va parol
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAuthMethod("cookie")}
-                  className={cn(
-                    "rounded-md px-2.5 py-1 font-medium transition-colors",
-                    authMethod === "cookie" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Cookie / Sessiya
-                </button>
-              </div>
-            </div>
-
-            {authMethod === "credentials" ? (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="min-w-0 space-y-2">
-                  <Label htmlFor={`${account.provider}-login`}>Telefon yoki pochta</Label>
-                  <Input
-                    id={`${account.provider}-login`}
-                    value={login}
-                    onChange={(e) => setLogin(e.target.value)}
-                    placeholder={isGemini ? "fayoz@gmail.com" : "user@openai.com"}
-                    autoComplete="username"
-                    className="h-11 rounded-xl bg-background"
-                    disabled={Boolean(busy)}
-                  />
-                </div>
-                <div className="min-w-0 space-y-2">
-                  <Label htmlFor={`${account.provider}-password`}>Parol</Label>
-                  <Input
-                    id={`${account.provider}-password`}
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={isSaved ? "Yangi parolni kiriting" : "Akkaunt parolingiz"}
-                    autoComplete="current-password"
-                    className="h-11 rounded-xl bg-background"
-                    disabled={Boolean(busy)}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor={`${account.provider}-cookie`}>Cookie yoki Sessiya tokeni</Label>
-                  <a
-                    href={siteUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    {siteUrl.replace("https://", "")} <ExternalLink className="size-3" />
-                  </a>
-                </div>
-                <Textarea
-                  id={`${account.provider}-cookie`}
-                  rows={3}
-                  value={payloadText}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPayloadText(e.target.value)}
-                  placeholder={
-                    isGemini
-                      ? "__Secure-1PSID=...; __Secure-1PSIDTS=..."
-                      : "__Secure-next-auth.session-token=..."
-                  }
-                  className="font-mono text-xs rounded-xl bg-background"
-                  disabled={Boolean(busy)}
-                />
-              </div>
-            )}
-
-            <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
-              <ShieldCheck className="mt-0.5 size-3.5 shrink-0" />
-              Parol va sessiya ma&apos;lumotlari serverda shifrlangan holda saqlanadi.
+        {isSaved && (
+          <div className="min-w-0 space-y-1 rounded-xl border bg-muted/20 p-4">
+            <p className="text-xs text-muted-foreground">Saqlangan hisob</p>
+            <p className="break-words text-sm font-medium [overflow-wrap:anywhere]">
+              {account.accountEmail || account.login || account.name}
             </p>
-
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                type="submit"
-                variant="outline"
-                className="min-h-11 rounded-xl"
-                disabled={Boolean(busy)}
-              >
-                {busy === "save" && <Loader2 className="size-4 animate-spin mr-1.5" />}
-                Ma&apos;lumotlarni saqlash
-              </Button>
-              {isSaved && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="min-h-11 rounded-xl"
-                  disabled={Boolean(busy)}
-                  onClick={() => {
-                    setEditing(false);
-                    setPassword("");
-                    setPayloadText("");
-                    setLogin(account.login || "");
-                  }}
-                >
-                  Bekor qilish
-                </Button>
-              )}
-            </div>
-          </form>
+          </div>
         )}
 
         {note && (
@@ -424,18 +266,25 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
 
         {/* Pastki Harakatlar qatori */}
         <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:flex-wrap">
-          <Button
-            className="min-h-11 rounded-xl"
-            onClick={onVerify}
-            disabled={Boolean(busy) || !isSaved || editing}
-          >
-            {busy === "verify" ? (
+          <Button className="min-h-11 rounded-xl" onClick={onVnc} disabled={Boolean(busy)}>
+            {busy === "vnc" ? (
               <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
             ) : (
-              <KeyRound className="mr-1.5 h-3.5 w-3.5" />
+              <MonitorSmartphone className="mr-1.5 h-3.5 w-3.5" />
             )}
-            Kabinetga kirish
+            {isSaved ? "Oyna orqali qayta kirish" : "Oyna orqali kirish"}
           </Button>
+
+          {isSaved && (
+            <Button variant="outline" className="min-h-11 rounded-xl" onClick={onVerify} disabled={Boolean(busy)}>
+              {busy === "verify" ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              Tekshirish
+            </Button>
+          )}
 
           <Button
             variant="outline"
@@ -468,7 +317,23 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
             </Button>
           )}
         </div>
+
+        <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
+          <ShieldCheck className="mt-0.5 size-3.5 shrink-0" />
+          {siteUrl.replace("https://", "")} oynada ochiladi — hisobingizga o&apos;zingiz kirasiz, parol eStats&apos;da saqlanmaydi.
+        </p>
       </CardContent>
+
+      {shopId && (
+        <AiWebVncDialog
+          open={vncOpen}
+          onOpenChange={setVncOpen}
+          provider={account.provider}
+          title={title}
+          shopId={shopId}
+          onConnected={() => void onChanged()}
+        />
+      )}
 
       {/* Hisobni unutish dialogi */}
       <Dialog open={confirmDelete} onOpenChange={(open) => { if (!busy) setConfirmDelete(open); }}>
@@ -476,7 +341,7 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
           <DialogHeader>
             <DialogTitle className="pr-10 leading-snug">Saqlangan hisobni unutish</DialogTitle>
             <DialogDescription className="leading-relaxed">
-              Login va kirish ma&apos;lumotlari o&apos;chiriladi. Avtomatik chat scraping uchun ularni qayta kiritishingiz kerak bo&apos;ladi.
+              Saqlangan sessiya o&apos;chiriladi. Qayta ishlatish uchun «Oyna orqali kirish» bilan yana kirishingiz kerak bo&apos;ladi.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -1135,13 +1135,18 @@ export const clearOpenAiKey = () =>
 export const fetchAiWebAccounts = () =>
   request<AiWebAccountState[]>("/product-ai/web-ai/accounts", { shopScoped: false });
 
-export const saveAiWebAccount = (
-  provider: string,
-  payload: { payload?: string; login?: string; password?: string; name?: string }
-) =>
-  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${provider}`, {
+// Gemini / ChatGPT hisobiga kirish — FAQAT oyna orqali (sotuvchi kabinetidagi
+// «Oyna orqali kirish» kabi): ekran `estats-publish`da ochiladi, sotuvchi VNC
+// oynasida o'zi kiradi, «Kirdim, saqlash» sessiyani saqlaydi.
+export const startAiWebLogin = (provider: string) =>
+  request<{ status: "ready" | "busy" | string; message?: string | null }>(
+    `/product-ai/web-ai/accounts/${provider}/login/start`,
+    { method: "POST", shopScoped: false },
+  );
+
+export const completeAiWebLogin = (provider: string) =>
+  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${provider}/login/complete`, {
     method: "POST",
-    body: JSON.stringify(payload),
     shopScoped: false,
   });
 
