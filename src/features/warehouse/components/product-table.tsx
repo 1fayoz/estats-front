@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  Coins,
   AlertTriangle, CheckCircle2, ChevronRight, Clock3, Layers, Loader2,
   PackagePlus, PackageX, Pencil, Truck, XCircle,
 } from "lucide-react";
@@ -15,7 +16,7 @@ import {
 } from "@/components/dashboard/data-cards";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { Pagination, usePagination } from "@/components/ui/pagination";
-import { formatDate, formatNumber, formatSum } from "@/lib/format";
+import { formatDate, formatNumber, formatSum, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AiDraftRow, WarehouseProduct } from "@/lib/types";
 
@@ -49,6 +50,26 @@ interface ProductTableProps {
   regeneratingByProduct?: Map<string, AiDraftRow>;
   onOpenAiDraft?: (draftId: number) => void;
   onEditProduct?: (item: WarehouseProduct) => void | Promise<void>;
+  /**
+   * Uzum tovar ID'si → shu kartochkaga AI'ga ketgan pul (USD, hamma
+   * qoralamalari). Tovarning o'z qatorida ko'rinadi; batafsili —
+   * tovar sahifasidagi «AI sarfi» kartasida.
+   */
+  aiCostByProduct?: Record<string, number>;
+}
+
+/** Qatordagi kichik «AI $0,42» belgisi — sarf bo'lmasa chizilmaydi. */
+function AiCostChip({ usd }: { usd?: number }) {
+  if (!usd) return null;
+  return (
+    <span
+      title="Shu tovar kartochkasi uchun AI'ga ketgan pul (hamma qoralamalari)"
+      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-[11px] font-medium tabular-nums text-primary"
+    >
+      <Coins className="size-3" />
+      {`AI ${formatUsd(usd)}`}
+    </span>
+  );
 }
 
 // ── Kartochka bo'yicha guruhlash (Uzum kabinetidagi kabi) ──────
@@ -143,6 +164,7 @@ export function ProductTable({
   regeneratingByProduct,
   onOpenAiDraft,
   onEditProduct,
+  aiCostByProduct,
 }: ProductTableProps) {
   const router = useRouter();
   const groups = React.useMemo(() => groupByCard(items), [items]);
@@ -163,6 +185,9 @@ export function ProductTable({
 
   const aiDraftId = (item: WarehouseProduct): number | null =>
     (item.externalProductId && aiDraftByProduct?.get(item.externalProductId)) || null;
+
+  const aiCost = (item: WarehouseProduct): number | undefined =>
+    (item.externalProductId && aiCostByProduct?.[item.externalProductId]) || undefined;
 
   const regenerating = (item: WarehouseProduct): AiDraftRow | undefined =>
     (item.externalProductId && regeneratingByProduct?.get(item.externalProductId)) || undefined;
@@ -355,6 +380,9 @@ export function ProductTable({
                     label: "Uzum qoldig'i",
                     value: formatNumber(sum(g.variants, (v) => v.marketplaceStock ?? 0)),
                   },
+                  ...(aiCost(item)
+                    ? [{ label: "AI sarfi", value: formatUsd(aiCost(item) ?? 0) }]
+                    : []),
                 ]}
               />
               <div className="mt-4 flex flex-wrap gap-2">
@@ -507,6 +535,7 @@ export function ProductTable({
                   onEdit={handleEdit}
                   editBusy={editingIds.has(g.card.id)}
                   regenerating={regenerating(g.card)}
+                  aiCostUsd={aiCost(g.card)}
                 />
                 {/* ── Variantlar (ochilganda) ── */}
                 {g.isGroup && open &&
@@ -630,10 +659,11 @@ function ProductRow(props: {
   onEdit: (item: WarehouseProduct) => void;
   editBusy: boolean;
   regenerating?: AiDraftRow;
+  aiCostUsd?: number;
 }) {
   const {
     item, group: g, open, onToggleOpen, router, statusBadge, groupStatusItem,
-    onIntake, onEdit, editBusy, regenerating,
+    onIntake, onEdit, editBusy, regenerating, aiCostUsd,
   } = props;
 
   const hasCost = costOf(item) != null;
@@ -846,6 +876,7 @@ function ProductRow(props: {
       </td>
       <td className="px-4 py-3 text-right">
         <div className="flex items-center justify-end gap-2">
+          <AiCostChip usd={aiCostUsd} />
           <Button
             size="sm"
             variant="ghost"

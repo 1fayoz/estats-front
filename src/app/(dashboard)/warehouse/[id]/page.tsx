@@ -16,6 +16,7 @@ import { TopbarSlot } from "@/components/layout/topbar-slot";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
 import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
 import { PeriodsCard } from "@/features/warehouse/components/periods-card";
+import { ProductAiCostCard } from "@/features/warehouse/components/product-ai-cost-card";
 import { ComplaintDialog } from "@/features/warehouse/components/complaint-dialog";
 import { ComplaintJobTray } from "@/features/warehouse/components/complaint-job-tray";
 import { jobIsActive } from "@/features/warehouse/components/job-progress";
@@ -413,6 +414,7 @@ function ProductDetailPage({ id }: { id: number }) {
           <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} complaintJob={complaintJob} />
           {data.uzumCard && <UzumCardContent card={data.uzumCard} />}
           <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
+          <ProductAiCostCard productId={id} onOpenDraft={canSeeAi ? openAi : undefined} />
           <DetailIntakes intakes={data.intakes} onAdd={() => setIntakeFor(product)} sharedListings={group?.members.length ?? 1} />
         </>}
         {section === "savdo" && <>

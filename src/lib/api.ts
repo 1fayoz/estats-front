@@ -63,7 +63,7 @@ import type {
   AiKeyState,
   AiDraft,
   AiCost,
-  AiCostList,
+  CardAiCost,
   ProductPeriods,
   ProductPeriodCompare,
   ProductPeriodEvent,
@@ -81,7 +81,6 @@ import type {
   AiWebAccountState,
   AiProviderMode,
   AiChatSession,
-  AiTestChatResult,
   SeoAudit,
   SeoAuditRow,
   SeoJob,
@@ -1169,18 +1168,46 @@ export const deleteAiWebAccount = (provider: string) =>
     shopScoped: false,
   });
 
-export const fetchAiWebSessions = (params?: { provider?: string; task_type?: string; limit?: number; offset?: number }) =>
-  request<AiChatSession[]>(`/product-ai/web-ai/sessions${qs(params ?? {})}`, { shopScoped: false });
+// Sessiyalar do'kon bo'yicha (X-Shop-Id) — boshqa do'kon suhbatlari ko'rinmaydi.
+// Bitta vazifa = bitta sessiya = bitta suhbat; javob FONDA keladi (`pending`),
+// sessiya so'rab turiladi.
+export const fetchAiWebSessions = (params?: {
+  provider?: string;
+  task_type?: string;
+  status?: string;
+  draft_id?: number;
+  limit?: number;
+  offset?: number;
+}) => request<AiChatSession[]>(`/product-ai/web-ai/sessions${qs(params ?? {})}`);
 
 export const fetchAiWebSessionDetail = (sessionId: string) =>
-  request<AiChatSession>(`/product-ai/web-ai/sessions/${sessionId}`, { shopScoped: false });
+  request<AiChatSession>(`/product-ai/web-ai/sessions/${sessionId}`);
 
-export const testAiWebChat = (provider: "gemini_web" | "chatgpt_web", prompt: string) =>
-  request<AiTestChatResult>("/product-ai/web-ai/sessions/test-chat", {
+function chatForm(prompt: string, files: File[], provider?: string) {
+  const form = new FormData();
+  if (provider) form.append("provider", provider);
+  form.append("prompt", prompt);
+  for (const f of files) form.append("files", f);
+  return form;
+}
+
+/** Yangi vazifa (sinov suhbati) — o'z sessiyasi, birinchi savol fonda. */
+export const startAiWebSession = (provider: string, prompt: string, files: File[] = []) =>
+  request<AiChatSession>("/product-ai/web-ai/sessions", {
     method: "POST",
-    body: JSON.stringify({ provider, prompt }),
-    shopScoped: false,
+    body: chatForm(prompt, files, provider),
   });
+
+/** Xuddi shu vazifa suhbatida keyingi savol. */
+export const continueAiWebSession = (sessionId: string, prompt: string, files: File[] = []) =>
+  request<AiChatSession>(`/product-ai/web-ai/sessions/${sessionId}/messages`, {
+    method: "POST",
+    body: chatForm(prompt, files),
+  });
+
+/** Vazifani yakunlash — sessiyaga boshqa yozilmaydi. */
+export const closeAiWebSession = (sessionId: string) =>
+  request<AiChatSession>(`/product-ai/web-ai/sessions/${sessionId}/close`, { method: "POST" });
 
 export const fetchAiDrafts = () => request<AiDraftRow[]>("/product-ai/drafts");
 
@@ -1377,8 +1404,12 @@ export const excludeAiImage = (id: number, url: string, removed: boolean) =>
 export const fetchAiDraftCost = (id: number) => request<AiCost>(`/product-ai/drafts/${id}/ai-cost`);
 
 /** Do'konning kartochkalar bo'yicha AI sarfi — eng qimmatidan, sahifalab. */
-export const fetchAiCosts = (offset = 0, limit = 15) =>
-  request<AiCostList>(`/product-ai/ai-cost?offset=${offset}&limit=${limit}`);
+/** Tovar (Uzum kartochkasi) bo'yicha AI sarfi — hamma qoralamalari bilan. */
+export const fetchProductAiCost = (productId: number) =>
+  request<CardAiCost>(`/warehouse/products/${productId}/ai-cost`);
+
+/** `{Uzum productId: usd}` — ombor ro'yxatida har tovar qatorida. */
+export const fetchWarehouseAiCosts = () => request<Record<string, number>>("/warehouse/ai-costs");
 
 /** Shu kadrni oxirgi "qayta yasash"dan oldingi holatiga qaytaradi — pulsiz, darhol. */
 export const revertAiImage = (id: number, index: number) =>

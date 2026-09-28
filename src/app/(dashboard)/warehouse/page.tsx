@@ -21,6 +21,7 @@ import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { formatNumber, formatSum } from "@/lib/format";
 import {
   ApiError, bulkAutoFixProductsUzum, bulkCheckProductsUzum, fetchProducts, regenerateProductUzum,
+  fetchWarehouseAiCosts,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { WarehouseProduct } from "@/lib/types";
@@ -231,6 +232,19 @@ function WarehouseContent() {
   const canSeeAi = useCan("products_ai.view");
   const canAddAi = useCan("products_ai.control") && useCan("warehouse.create_product");
   const drafts = useAiDrafts(canSeeAi);
+
+  // Har tovar qatorida — shu kartochkaga AI'ga ketgan pul (bitta so'rov).
+  // Eski backend yoki ruxsat yo'q bo'lsa jimgina bo'sh qoladi.
+  const [aiCosts, setAiCosts] = React.useState<Record<string, number> | undefined>();
+  React.useEffect(() => {
+    let alive = true;
+    fetchWarehouseAiCosts()
+      .then((data) => alive && setAiCosts(data))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [shop?.id]);
 
   // Oyna holati URL'DA turadi (`?draft=12`/`?draft=new`) — endi
   // `useDraftParam()`da, `/warehouse/[id]` sahifasi bilan BIR XIL
@@ -600,6 +614,7 @@ function WarehouseContent() {
           regeneratingByProduct={canSeeAi ? drafts.runningByProduct : undefined}
           onOpenAiDraft={openAi}
           onEditProduct={canSeeAi ? handleEditProduct : undefined}
+          aiCostByProduct={aiCosts}
         />
       )}
 

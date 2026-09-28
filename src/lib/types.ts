@@ -2054,7 +2054,7 @@ export interface AiWebAccountState {
   id: number;
   provider: "gemini_web" | "chatgpt_web";
   name: string;
-  status: "active" | "needs_auth" | "expired" | "rate_limited" | "error";
+  status: "active" | "needs_auth" | "expired" | "rate_limited" | "captcha" | "error";
   mode: AiProviderMode;
   isActive: boolean;
   saved?: boolean;
@@ -2068,40 +2068,50 @@ export interface AiWebAccountState {
   lastError: string | null;
 }
 
+export interface AiChatImage {
+  url?: string;
+  mime_type?: string;
+  name?: string;
+  role?: "input" | "generated" | string;
+  width?: number;
+  height?: number;
+}
+
 export interface AiChatMessage {
   id: number;
   role: "user" | "assistant" | "system";
   content: string;
-  images: Array<{
-    url?: string;
-    path?: string;
-    mime_type?: string;
-    name?: string;
-    role?: string;
-  }>;
+  images: AiChatImage[];
   durationMs?: number | null;
   error?: string | null;
+  /** ok | needs_auth | captcha | chat_lost | error | rejected */
+  status?: string | null;
   createdAt: string;
 }
 
+/** Bitta vazifa = bitta sessiya = bitta tashqi suhbat. */
 export interface AiChatSession {
   id: string;
-  provider: string;
+  provider: "gemini_web" | "chatgpt_web" | string;
   taskType: string;
   taskId: string;
   title: string;
   status: "active" | "completed" | "failed" | "closed";
+  /** done | manual | failed | chat_lost | idle | ... */
+  closeReason: string | null;
   turnCount: number;
+  messageCount: number;
+  imageCount: number;
+  draftId: number | null;
+  chatUrl: string | null;
   createdAt: string;
+  lastTurnAt: string | null;
   closedAt: string | null;
+  /** Fonda javob kutilyapti — `pendingSince` dan beri, taxminan `etaSeconds`. */
+  pending: boolean;
+  pendingSince: string | null;
+  etaSeconds: number | null;
   messages: AiChatMessage[];
-}
-
-export interface AiTestChatResult {
-  sessionId: string;
-  provider: string;
-  userMessage: AiChatMessage;
-  assistantMessage: AiChatMessage;
 }
 
 export interface AiDraftRow {
@@ -2473,9 +2483,7 @@ export interface AiCost {
 export interface AiCostDraftRow {
   draftId: number;
   title: string;
-  cover: string | null;
   stage: string;
-  productId: string | null;
   totalUsd: number;
   geminiUsd: number;
   openaiUsd: number;
@@ -2484,13 +2492,8 @@ export interface AiCostDraftRow {
   lastAt: string | null;
 }
 
-/** Do'konning kartochkalar bo'yicha AI sarfi (eng qimmatidan). */
-export interface AiCostList {
-  totalUsd: number;
-  services: AiCostPart[];
-  /** Kartochkaga bog'lanmagan chaqiruvlar (kalit tekshiruvi, SEO auditi…). */
-  unassignedUsd: number;
-  total: number;
+/** Tovar (Uzum kartochkasi) — hamma qoralamalari bo'yicha AI sarfi. */
+export interface CardAiCost extends AiCost {
   drafts: AiCostDraftRow[];
 }
 

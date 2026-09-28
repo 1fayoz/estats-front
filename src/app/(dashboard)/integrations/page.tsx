@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
-import { AiCostCard } from "@/features/integrations/components/ai-cost-card";
 import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
 import { AiWebProviderCard } from "@/features/integrations/components/ai-web-provider-card";
 import { AiSessionsDialog } from "@/features/integrations/components/ai-sessions-dialog";
@@ -56,6 +55,12 @@ function IntegrationsWorkspace() {
   const [openAiKey, setOpenAiKey] = React.useState<OpenAiKeyState | null>(null);
   const [webAccounts, setWebAccounts] = React.useState<AiWebAccountState[]>([]);
   const [sessionsOpen, setSessionsOpen] = React.useState(false);
+  // «Sinov suhbati» — sessiyalar oynasi shu provayder bilan yangi suhbat holatida.
+  const [newChatProvider, setNewChatProvider] = React.useState<"gemini_web" | "chatgpt_web" | null>(null);
+  const openSessions = (provider: "gemini_web" | "chatgpt_web" | null) => {
+    setNewChatProvider(provider);
+    setSessionsOpen(true);
+  };
   const [issues, setIssues] = React.useState<string[]>([]);
   const [restricted, setRestricted] = React.useState<string[]>([]);
   const [telegramOpen, setTelegramOpen] = React.useState(false);
@@ -292,7 +297,7 @@ function IntegrationsWorkspace() {
                   variant="outline"
                   size="sm"
                   className="rounded-xl text-xs min-h-9"
-                  onClick={() => setSessionsOpen(true)}
+                  onClick={() => openSessions(null)}
                 >
                   <Layers className="size-3.5 mr-1" />
                   Sessiyalar tarixi
@@ -331,15 +336,13 @@ function IntegrationsWorkspace() {
                   };
                   return (
                     <>
-                      <AiWebProviderCard account={geminiWeb} onChanged={load} onOpenHistory={() => setSessionsOpen(true)} />
-                      <AiWebProviderCard account={chatgptWeb} onChanged={load} onOpenHistory={() => setSessionsOpen(true)} />
+                      <AiWebProviderCard account={geminiWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("gemini_web")} />
+                      <AiWebProviderCard account={chatgptWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("chatgpt_web")} />
                     </>
                   );
                 })()}
               </div>
             </div>
-
-            <AiCostCard />
 
             {/* Rasmiy API Kalitlari bo'limi */}
             <div className="space-y-3 pt-2">
@@ -360,7 +363,7 @@ function IntegrationsWorkspace() {
         </section>
       </div>
       <TelegramDialog open={telegramOpen} onOpenChange={setTelegramOpen} onConnected={load} />
-      <AiSessionsDialog open={sessionsOpen} onOpenChange={setSessionsOpen} />
+      <AiSessionsDialog open={sessionsOpen} onOpenChange={setSessionsOpen} newChatProvider={newChatProvider} />
     </div>
   );
 }

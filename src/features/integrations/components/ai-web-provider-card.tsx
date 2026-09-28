@@ -8,7 +8,6 @@ import {
   MessageSquare,
   MonitorSmartphone,
   RefreshCw,
-  Send,
   ShieldCheck,
   Sparkles,
   Trash2,
@@ -25,28 +24,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   ApiError,
   deleteAiWebAccount,
   startAiWebLogin,
   setAiProviderMode,
-  testAiWebChat,
   verifyAiWebAccount,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/stores/user-store";
 import { AiWebVncDialog } from "./ai-web-vnc-dialog";
-import type { AiProviderMode, AiTestChatResult, AiWebAccountState } from "@/lib/types";
+import type { AiProviderMode, AiWebAccountState } from "@/lib/types";
 
 interface Props {
   account: AiWebAccountState;
   onChanged: () => void | Promise<void>;
   onOpenHistory?: () => void;
+  /** Sessiyalar oynasini shu provayder bilan «Yangi suhbat» holatida ochadi. */
+  onNewChat?: () => void;
 }
 
-export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) {
+export function AiWebProviderCard({ account, onChanged, onOpenHistory, onNewChat }: Props) {
   const isGemini = account.provider === "gemini_web";
   const title = isGemini ? "Google Gemini Web" : "ChatGPT Web";
   const desc = isGemini
@@ -55,20 +53,10 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
   const siteUrl = isGemini ? "https://gemini.google.com" : "https://chatgpt.com";
 
   const [confirmDelete, setConfirmDelete] = React.useState(false);
-  const [testChatOpen, setTestChatOpen] = React.useState(false);
   const [busy, setBusy] = React.useState<"" | "vnc" | "verify" | "delete">("");
   const [vncOpen, setVncOpen] = React.useState(false);
   const shopId = useUserStore((s) => s.activeShopId);
   const [note, setNote] = React.useState<string | null>(null);
-
-  // Test chat holati
-  const [testPrompt, setTestPrompt] = React.useState(
-    isGemini
-      ? "Uzum Market uchun erkaklar futbolkasi sarlavhasi yozing."
-      : "Tovar uchun qisqa va jozibador reklama matni yozing."
-  );
-  const [testResult, setTestResult] = React.useState<AiTestChatResult | null>(null);
-  const [testing, setTesting] = React.useState(false);
 
   const isSaved = Boolean(account.saved || (account.id > 0 && account.status !== "needs_auth"));
   const isConnected = account.status === "active";
@@ -146,23 +134,6 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
     }
   };
 
-  const onRunTest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!testPrompt.trim() || testing) return;
-    setTesting(true);
-    setTestResult(null);
-    try {
-      const res = await testAiWebChat(account.provider, testPrompt.trim());
-      setTestResult(res);
-      toast.success("AI javob qaytardi!");
-      await onChanged();
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Test xabari bajarilmadi.");
-    } finally {
-      setTesting(false);
-    }
-  };
-
   return (
     <Card className="rounded-2xl shadow-none">
       <CardHeader>
@@ -204,6 +175,18 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
               {account.accountEmail || account.login || account.name}
             </p>
           </div>
+        )}
+
+        {account.status === "captcha" && (
+          <p role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm leading-relaxed">
+            Sayt «robot emasligingizni» tekshirdi va avtomatik o‘tib bo‘lmadi (kutildi, kesh tozalandi, brauzer qayta
+            ochildi). «Oyna orqali qayta kirish»ni bosib tekshiruvdan bir marta o‘zingiz o‘ting — keyin avtomatika davom etadi.
+          </p>
+        )}
+        {account.status !== "captcha" && account.lastError && !isConnected && isSaved && (
+          <p role="status" className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm leading-relaxed">
+            {account.lastError}
+          </p>
         )}
 
         {note && (
@@ -289,8 +272,9 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
           <Button
             variant="outline"
             className="min-h-11 rounded-xl"
-            onClick={() => setTestChatOpen(true)}
-            disabled={Boolean(busy)}
+            onClick={onNewChat}
+            disabled={Boolean(busy) || !isConnected || !onNewChat}
+            title={isConnected ? undefined : "Avval «Oyna orqali kirish» bilan ulang"}
           >
             <MessageSquare className="size-4 mr-1.5" />
             Sinov suhbati
@@ -366,65 +350,6 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
         </DialogContent>
       </Dialog>
 
-      {/* Sinab ko'rish modal dialogi */}
-      <Dialog open={testChatOpen} onOpenChange={setTestChatOpen}>
-        <DialogContent className="max-w-lg rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="size-5 text-primary" />
-              {title} bilan sinov suhbati
-            </DialogTitle>
-            <DialogDescription>
-              Ushbu sinov uchun yangi alohida <strong>Task Chat Session</strong> ochiladi va AI
-              javobi darhol ko‘rsatiladi.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={onRunTest} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor={`${account.provider}-test-prompt`}>Sinov prompti:</Label>
-              <Textarea
-                id={`${account.provider}-test-prompt`}
-                rows={3}
-                required
-                className="rounded-xl text-sm"
-                value={testPrompt}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTestPrompt(e.target.value)}
-              />
-            </div>
-
-            {testResult && (
-              <div className="space-y-2 rounded-xl border bg-muted/20 p-3 text-xs">
-                <div className="flex items-center justify-between text-muted-foreground pb-2 border-b">
-                  <span>Sessiya ID: <code className="text-foreground">{testResult.sessionId.slice(0, 8)}...</code></span>
-                  <span>Tezlik: {testResult.assistantMessage.durationMs}ms</span>
-                </div>
-                <div className="pt-1">
-                  <span className="font-semibold block text-primary mb-1">AI Javobi:</span>
-                  <div className="whitespace-pre-wrap leading-relaxed text-foreground bg-card p-3 rounded-lg border max-h-48 overflow-y-auto">
-                    {testResult.assistantMessage.content}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-xl min-h-11"
-                onClick={() => setTestChatOpen(false)}
-              >
-                Yopish
-              </Button>
-              <Button type="submit" className="rounded-xl min-h-11" disabled={testing || !testPrompt.trim()}>
-                {testing ? <Loader2 className="size-4 animate-spin mr-1" /> : <Send className="size-4 mr-1" />}
-                {testing ? "Javob olinmoqda…" : "Yuborish"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </Card>
   );
 }
