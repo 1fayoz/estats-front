@@ -4,7 +4,7 @@ import * as React from "react";
 import { Bot, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { ApiError, fetchAutoResolve, setAutoResolve, type AutoResolveState } from "@/lib/api";
+import { ApiError, answerAutoResolve, fetchAutoResolve, setAutoResolve, type AutoResolveState } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +19,7 @@ const STATUS: Record<string, string> = {
   closed: "Suhbat yopildi — Uzum tekshiruvi kutilmoqda",
   no_reply: "Operator javob bermadi — ertaga qayta yoziladi",
   unblocked: "Tovar blokdan chiqdi ✓",
+  needs_seller: "Operator savol berdi — javobingiz kerak",
   error: "To'xtadi",
 };
 const ACTIVE = new Set(["asking", "asked", "talking", "fixing", "reported"]);
@@ -32,6 +33,7 @@ const WHO: Record<string, string> = { me: "Biz", op: "Operator", bot: "Bot" };
 export function AutoResolvePanel({ productId, blocked }: { productId: number; blocked: boolean }) {
   const [state, setState] = React.useState<AutoResolveState | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [answer, setAnswer] = React.useState("");
 
   React.useEffect(() => {
     let alive = true;
@@ -58,6 +60,21 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
         : "Avto hal qilish o'chirildi.");
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Saqlab bo'lmadi");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendAnswer(e: React.FormEvent) {
+    e.preventDefault();
+    if (!answer.trim()) return;
+    setBusy(true);
+    try {
+      setState(await answerAutoResolve(productId, answer.trim()));
+      setAnswer("");
+      toast.success("Javobingiz operatorga yuboriladi (bir necha daqiqada).");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Yuborib bo'lmadi");
     } finally {
       setBusy(false);
     }
@@ -103,6 +120,38 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
             {!blocked && !state.status && " (hozir bloklanmagan)"}
             {state.updatedAt && <span className="text-muted-foreground">{` · ${formatDate(state.updatedAt)}`}</span>}
           </p>
+          {state.status === "needs_seller" && state.sellerQuestion && (
+            <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5">
+              <p>
+                <span className="font-medium">Operator so&apos;rayapti: </span>
+                {state.sellerQuestion}
+              </p>
+              <p className="text-muted-foreground">
+                Javob kartochkada yo&apos;q — AI taxmin qilmadi (noto&apos;g&apos;ri javob kartochkani yana bloklatadi).
+              </p>
+              {state.sellerAnswer ? (
+                <p><span className="text-muted-foreground">Javobingiz: </span>{state.sellerAnswer}</p>
+              ) : (
+                <form onSubmit={sendAnswer} className="flex gap-2">
+                  <input
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    maxLength={600}
+                    placeholder="Masalan: to'plamda 24 dona"
+                    className="h-9 min-w-0 flex-1 rounded-md border bg-background px-2.5 text-sm"
+                    disabled={busy}
+                  />
+                  <button
+                    type="submit"
+                    disabled={busy || !answer.trim()}
+                    className="h-9 shrink-0 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                  >
+                    Yuborish
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
           {state.reason && <p><span className="text-muted-foreground">Sabab: </span>{state.reason}</p>}
           {state.fixSummary && <p><span className="text-muted-foreground">Tuzatildi: </span>{state.fixSummary}</p>}
           {state.error && <p className="text-destructive">{state.error}</p>}

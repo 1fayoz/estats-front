@@ -627,6 +627,9 @@ export interface AutoResolveState {
   lastAskedAt?: string | null;
   updatedAt?: string | null;
   transcript: { role: "me" | "op" | "bot"; text: string; at: string }[];
+  /** Operator savol bergan, javob kartochkada yo'q — AI taxmin qilmaydi, sotuvchi yozadi. */
+  sellerQuestion?: string;
+  sellerAnswer?: string;
 }
 
 /** «Avto hal qilish» — kartochka bloklansa Uzum botiga o'zi yozadi, sababini bilib tuzatadi. */
@@ -636,6 +639,12 @@ export const fetchAutoResolve = (productId: number) =>
 export const setAutoResolve = (productId: number, enabled: boolean) =>
   request<AutoResolveState>(`/telegram-operator/auto-resolve/${productId}`, {
     method: "PUT", body: JSON.stringify({ enabled }),
+  });
+
+/** Operator savoliga sotuvchining javobi — keyingi aylanishda operatorga yetkaziladi. */
+export const answerAutoResolve = (productId: number, text: string) =>
+  request<AutoResolveState>(`/telegram-operator/auto-resolve/${productId}/answer`, {
+    method: "POST", body: JSON.stringify({ text }),
   });
 
 export const fetchComplaintJob = (productId: number) =>
