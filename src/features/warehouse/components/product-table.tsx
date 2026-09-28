@@ -754,6 +754,11 @@ function ProductRow(props: {
                 </Badge>
               )}
             </div>
+            {aiCostUsd ? (
+              <div className="mt-1">
+                <AiCostChip usd={aiCostUsd} />
+              </div>
+            ) : null}
             {regenerating && (
               <div className="mt-1 flex items-center gap-1.5">
                 <div className="h-1 w-16 shrink-0 overflow-hidden rounded-full bg-primary/15">
@@ -876,7 +881,6 @@ function ProductRow(props: {
       </td>
       <td className="px-4 py-3 text-right">
         <div className="flex items-center justify-end gap-2">
-          <AiCostChip usd={aiCostUsd} />
           <Button
             size="sm"
             variant="ghost"
