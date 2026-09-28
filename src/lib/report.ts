@@ -228,6 +228,7 @@ export type CardData = {
           turnover: number | null }[];
   sku_days: SkuDay[];
   sources: string[];
+  kpi_source?: { kind: "import" | "daily"; period?: string };
   promos: { promo: string; first_day: string; last_day: string }[];
   category_positions: { day: string; level: number; category: string; position: number | null }[];
   keyword_positions: { keyword: string; day: string; position: number | null; is_ad: boolean }[];

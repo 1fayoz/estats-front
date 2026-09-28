@@ -27,13 +27,18 @@ export default function CardPage() {
   const index = useReportIndex();
   const last = index?.as_of ?? new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
   const [params, setParams] = useParams({ id: DEFAULT_CARD_ID, start: "", end: "" });
-  const range = { start: params.start || shift(last, -29), end: params.end || last };
   const id = Number(params.id);
   const [reload, setReload] = React.useState(0);
+  // Sana tanlanmagan bo'lsa oraliqni backend tanlaydi: o'z kunlik tarix hali
+  // qisqa bo'lsa — tashqi hisobotning 30 kunlik davri (raqamlar u bilan bir xil).
   const { data, error } = useLoad(
-    () => (id ? report.card(id, range) : Promise.resolve(null)),
-    [id, range.start, range.end, reload],
+    () => (id ? report.card(id, { start: params.start, end: params.end }) : Promise.resolve(null)),
+    [id, params.start, params.end, reload],
   );
+  const range = {
+    start: params.start || data?.range.start || shift(last, -29),
+    end: params.end || data?.range.end || last,
+  };
 
   return (
     <ReportPage>
