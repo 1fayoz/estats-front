@@ -320,7 +320,7 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory }: Props) 
 
         <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
           <ShieldCheck className="mt-0.5 size-3.5 shrink-0" />
-          {siteUrl.replace("https://", "")} oynada ochiladi — hisobingizga o&apos;zingiz kirasiz, parol eStats&apos;da saqlanmaydi.
+          {`${siteUrl.replace("https://", "")} oynada ochiladi — hisobingizga o'zingiz kirasiz, parol eStats'da saqlanmaydi.`}
         </p>
       </CardContent>
 
