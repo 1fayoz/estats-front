@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, CircleCheck, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
+import { AlertCircle, CircleCheck, Layers, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
 import { toast } from "sonner";
 import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
 import { AiCostCard } from "@/features/integrations/components/ai-cost-card";
 import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
+import { AiWebProviderCard } from "@/features/integrations/components/ai-web-provider-card";
+import { AiSessionsDialog } from "@/features/integrations/components/ai-sessions-dialog";
 import { LensExtensionCard } from "@/features/integrations/components/lens-extension-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import styles from "@/features/integrations/components/integrations.module.css";
@@ -23,7 +25,7 @@ import { TelegramAccountCard } from "@/features/settings/telegram-account-card";
 import { UzumSellerLoginCard } from "@/features/settings/uzum-seller-login-card";
 import { UzumSyncCard } from "@/features/settings/uzum-sync-card";
 import {
-  ApiError, fetchAiKey, fetchInstagramConnectUrl, fetchOpenAiKey, fetchSocialAccounts, fetchSocialApps,
+  ApiError, fetchAiKey, fetchAiWebAccounts, fetchInstagramConnectUrl, fetchOpenAiKey, fetchSocialAccounts, fetchSocialApps,
   fetchSocialConnectUrl, fetchSocialPlatforms,
 } from "@/lib/api";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
@@ -31,7 +33,8 @@ import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useQueryState } from "@/lib/use-query-state";
 import { cn } from "@/lib/utils";
 import { useActions, useShops, useUserStore } from "@/stores/user-store";
-import type { AiKeyState, OpenAiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
+import type { AiKeyState, AiWebAccountState, OpenAiKeyState, SocialAccount, SocialApp, SocialPlatformRow } from "@/lib/types";
+
 
 function IntegrationsSkeleton() {
   return <div className="space-y-4" role="status" aria-label="Integratsiyalar yuklanmoqda"><Skeleton className="h-9 w-56 rounded-xl" /><Skeleton className="h-24 rounded-2xl" /><Skeleton className="h-72 rounded-2xl" /></div>;
@@ -51,6 +54,8 @@ function IntegrationsWorkspace() {
   const [socialApps, setSocialApps] = React.useState<SocialApp[]>([]);
   const [aiKey, setAiKey] = React.useState<AiKeyState | null>(null);
   const [openAiKey, setOpenAiKey] = React.useState<OpenAiKeyState | null>(null);
+  const [webAccounts, setWebAccounts] = React.useState<AiWebAccountState[]>([]);
+  const [sessionsOpen, setSessionsOpen] = React.useState(false);
   const [issues, setIssues] = React.useState<string[]>([]);
   const [restricted, setRestricted] = React.useState<string[]>([]);
   const [telegramOpen, setTelegramOpen] = React.useState(false);
@@ -71,15 +76,17 @@ function IntegrationsWorkspace() {
       hasShop ? fetchSocialApps() : Promise.resolve([]),
       fetchAiKey({ account: true }),
       fetchOpenAiKey({ account: true }),
+      fetchAiWebAccounts(),
     ]);
     if (version !== requestVersion.current) return;
-    const [networks, connections, apps, gemini, openai] = results;
+    const [networks, connections, apps, gemini, openai, web] = results;
     if (networks.status === "fulfilled") setPlatforms(networks.value);
     if (connections.status === "fulfilled") { setAccounts(connections.value); setAccountsKnown(true); }
     if (apps.status === "fulfilled") setSocialApps(apps.value);
     if (gemini.status === "fulfilled") setAiKey(gemini.value);
     if (openai.status === "fulfilled") setOpenAiKey(openai.value);
-    const labels = ["Xizmatlar", "Akkauntlar", "Ilova sozlamalari", "Gemini", "OpenAI"];
+    if (web.status === "fulfilled") setWebAccounts(web.value);
+    const labels = ["Xizmatlar", "Akkauntlar", "Ilova sozlamalari", "Gemini", "OpenAI", "Web AI"];
     const denied: string[] = [];
     const failed: string[] = [];
     results.forEach((result, index) => {
@@ -92,6 +99,7 @@ function IntegrationsWorkspace() {
     if (denied.includes("Ilova sozlamalari")) setSocialApps([]);
     if (denied.includes("Gemini")) setAiKey(null);
     if (denied.includes("OpenAI")) setOpenAiKey(null);
+    if (denied.includes("Web AI")) setWebAccounts([]);
     setIssues(failed);
     setRestricted(denied);
     setRefreshing(false);
@@ -100,13 +108,17 @@ function IntegrationsWorkspace() {
 
   // Kalitlarni keshni chetlab HOZIR tekshiradi (backend kichik haqiqiy so'rov yuboradi).
   const recheckAi = React.useCallback(async () => {
-    const [gemini, openai] = await Promise.allSettled([
-      fetchAiKey({ account: true, refresh: true }), fetchOpenAiKey({ account: true, refresh: true }),
+    const [gemini, openai, web] = await Promise.allSettled([
+      fetchAiKey({ account: true, refresh: true }),
+      fetchOpenAiKey({ account: true, refresh: true }),
+      fetchAiWebAccounts(),
     ]);
     if (gemini.status === "fulfilled") setAiKey(gemini.value);
     if (openai.status === "fulfilled") setOpenAiKey(openai.value);
+    if (web.status === "fulfilled") setWebAccounts(web.value);
     if (gemini.status === "rejected" && openai.status === "rejected") toast.error("AI kalitlarini tekshirib bo‘lmadi.");
   }, []);
+
 
   React.useEffect(() => {
     void load();
@@ -261,11 +273,83 @@ function IntegrationsWorkspace() {
 
           {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard /></div>}
 
-          {(selected === "extension" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-4")}>
+          {(selected === "extension" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-5")}>
             <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
+
+            {/* AI Web Scraping & Sessions bo'limi */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-semibold flex items-center gap-1.5">
+                    <Sparkles className="size-4 text-primary" />
+                    AI Web Sessiyalar & Skreyping (Bepul profil orqali)
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Google Gemini va ChatGPT akkauntingiz bilan ulanib, har bir vazifa (task) uchun alohida chat sessiyasi bilan ishlang.
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl text-xs min-h-9"
+                  onClick={() => setSessionsOpen(true)}
+                >
+                  <Layers className="size-3.5 mr-1" />
+                  Sessiyalar tarixi
+                </Button>
+              </div>
+
+              <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
+                {(() => {
+                  const geminiWeb = webAccounts.find((a) => a.provider === "gemini_web") ?? {
+                    id: 0,
+                    provider: "gemini_web" as const,
+                    name: "Google Gemini Web",
+                    status: "needs_auth" as const,
+                    mode: "web" as const,
+                    isActive: false,
+                    accountEmail: null,
+                    planName: null,
+                    totalSessions: 0,
+                    totalMessages: 0,
+                    lastCheckedAt: null,
+                    lastError: null,
+                  };
+                  const chatgptWeb = webAccounts.find((a) => a.provider === "chatgpt_web") ?? {
+                    id: 0,
+                    provider: "chatgpt_web" as const,
+                    name: "ChatGPT Web",
+                    status: "needs_auth" as const,
+                    mode: "web" as const,
+                    isActive: false,
+                    accountEmail: null,
+                    planName: null,
+                    totalSessions: 0,
+                    totalMessages: 0,
+                    lastCheckedAt: null,
+                    lastError: null,
+                  };
+                  return (
+                    <>
+                      <AiWebProviderCard account={geminiWeb} onChanged={load} onOpenHistory={() => setSessionsOpen(true)} />
+                      <AiWebProviderCard account={chatgptWeb} onChanged={load} onOpenHistory={() => setSessionsOpen(true)} />
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
             <AiCostCard />
-            <div className="grid min-w-0 gap-4 2xl:grid-cols-2">{aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}{openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}</div>
-            {!aiKey && !openAiKey && <div className="rounded-2xl border border-dashed p-6 text-center"><ShieldCheck className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{restricted.some((label) => label === "Gemini" || label === "OpenAI") ? "AI kalitlarini boshqarish uchun hisob egasidan ruxsat so‘rang." : "AI xizmatlari holati yuklanmadi. Qayta urinib ko‘ring."}</p></div>}
+
+            {/* Rasmiy API Kalitlari bo'limi */}
+            <div className="space-y-3 pt-2">
+              <h3 className="text-sm font-semibold">Rasmiy API Kalitlari (Google AI Studio & OpenAI)</h3>
+              <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
+                {aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}
+                {openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}
+              </div>
+              {!aiKey && !openAiKey && <div className="rounded-2xl border border-dashed p-6 text-center"><ShieldCheck className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{restricted.some((label) => label === "Gemini" || label === "OpenAI") ? "AI kalitlarini boshqarish uchun hisob egasidan ruxsat so‘rang." : "AI xizmatlari holati yuklanmadi. Qayta urinib ko‘ring."}</p></div>}
+            </div>
           </div> : selectedPlatform && accountsKnown ? <div key={selected} className={styles.panel}>
             <NetworkPanel row={selectedPlatform} accounts={accounts.filter((account) => account.platform === selected)} connecting={connecting} onConnect={() => onConnect(selected, accounts.some((account) => account.platform === selected))} onChanged={load}>
               {selected === "instagram" && <InstagramConnectCard />}
@@ -276,6 +360,8 @@ function IntegrationsWorkspace() {
         </section>
       </div>
       <TelegramDialog open={telegramOpen} onOpenChange={setTelegramOpen} onConnected={load} />
+      <AiSessionsDialog open={sessionsOpen} onOpenChange={setSessionsOpen} />
     </div>
   );
 }
+

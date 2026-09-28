@@ -78,6 +78,10 @@ import type {
   AiPackage,
   AiUzumShops,
   OpenAiKeyState,
+  AiWebAccountState,
+  AiProviderMode,
+  AiChatSession,
+  AiTestChatResult,
   SeoAudit,
   SeoAuditRow,
   SeoJob,
@@ -1126,7 +1130,55 @@ export const saveOpenAiKey = (apiKey: string) =>
 export const clearOpenAiKey = () =>
   request<void>("/product-ai/key", { method: "DELETE", shopScoped: false });
 
+// ── AI Web Scraping va Chat Sessiyalari ──────────────────────────────────────────
+
+export const fetchAiWebAccounts = () =>
+  request<AiWebAccountState[]>("/product-ai/web-ai/accounts", { shopScoped: false });
+
+export const saveAiWebAccount = (
+  provider: string,
+  payload: { payload?: string; login?: string; password?: string; name?: string }
+) =>
+  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${provider}`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    shopScoped: false,
+  });
+
+export const setAiProviderMode = (provider: string, mode: AiProviderMode) =>
+  request<{ provider: string; mode: string }>(`/product-ai/web-ai/accounts/${provider}/mode`, {
+    method: "POST",
+    body: JSON.stringify({ mode }),
+    shopScoped: false,
+  });
+
+export const verifyAiWebAccount = (provider: string) =>
+  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${provider}/verify`, {
+    method: "POST",
+    shopScoped: false,
+  });
+
+export const deleteAiWebAccount = (provider: string) =>
+  request<void>(`/product-ai/web-ai/accounts/${provider}`, {
+    method: "DELETE",
+    shopScoped: false,
+  });
+
+export const fetchAiWebSessions = (params?: { provider?: string; task_type?: string; limit?: number; offset?: number }) =>
+  request<AiChatSession[]>(`/product-ai/web-ai/sessions${qs(params ?? {})}`, { shopScoped: false });
+
+export const fetchAiWebSessionDetail = (sessionId: string) =>
+  request<AiChatSession>(`/product-ai/web-ai/sessions/${sessionId}`, { shopScoped: false });
+
+export const testAiWebChat = (provider: "gemini_web" | "chatgpt_web", prompt: string) =>
+  request<AiTestChatResult>("/product-ai/web-ai/sessions/test-chat", {
+    method: "POST",
+    body: JSON.stringify({ provider, prompt }),
+    shopScoped: false,
+  });
+
 export const fetchAiDrafts = () => request<AiDraftRow[]>("/product-ai/drafts");
+
 
 export const fetchAiDraft = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}`);

@@ -2046,7 +2046,66 @@ export interface OpenAiKeyState {
   account?: AiAccountState | null;
 }
 
+// ── AI Web Scraping va Chat Sessiyalari ──────────────────────────────────────────
+
+export type AiProviderMode = "web" | "api" | "auto";
+
+export interface AiWebAccountState {
+  id: number;
+  provider: "gemini_web" | "chatgpt_web";
+  name: string;
+  status: "active" | "needs_auth" | "expired" | "rate_limited" | "error";
+  mode: AiProviderMode;
+  isActive: boolean;
+  saved?: boolean;
+  login?: string | null;
+  accountEmail: string | null;
+  connectedAt?: string | null;
+  planName: string | null;
+  totalSessions: number;
+  totalMessages: number;
+  lastCheckedAt: string | null;
+  lastError: string | null;
+}
+
+export interface AiChatMessage {
+  id: number;
+  role: "user" | "assistant" | "system";
+  content: string;
+  images: Array<{
+    url?: string;
+    path?: string;
+    mime_type?: string;
+    name?: string;
+    role?: string;
+  }>;
+  durationMs?: number | null;
+  error?: string | null;
+  createdAt: string;
+}
+
+export interface AiChatSession {
+  id: string;
+  provider: string;
+  taskType: string;
+  taskId: string;
+  title: string;
+  status: "active" | "completed" | "failed" | "closed";
+  turnCount: number;
+  createdAt: string;
+  closedAt: string | null;
+  messages: AiChatMessage[];
+}
+
+export interface AiTestChatResult {
+  sessionId: string;
+  provider: string;
+  userMessage: AiChatMessage;
+  assistantMessage: AiChatMessage;
+}
+
 export interface AiDraftRow {
+
   id: number;
   stage: string;
   stageLabel: string;
