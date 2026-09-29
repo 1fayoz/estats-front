@@ -15,14 +15,16 @@ const STATUS: Record<string, string> = {
   asked: "Sabab so'raldi — operator javobi kutilmoqda",
   talking: "Operator bilan gaplashmoqda",
   fixing: "Sabab bo'yicha tuzatilmoqda",
-  reported: "Tuzatildi — operatorga xabar berildi",
+  fix_pending: "Tuzatish kutmoqda (AI limiti yoki brauzer oflayn) — o'zi davom etadi",
+  report_due: "Tuzatildi — operatorga isbot bilan yozilmoqda",
+  reported: "Tuzatildi — operatorga isbot bilan xabar berildi",
   closed: "Suhbat yopildi — Uzum tekshiruvi kutilmoqda",
   no_reply: "Operator javob bermadi — ertaga qayta yoziladi",
   unblocked: "Tovar blokdan chiqdi ✓",
   needs_seller: "Operator savol berdi — javobingiz kerak",
   error: "To'xtadi",
 };
-const ACTIVE = new Set(["asking", "asked", "talking", "fixing", "reported"]);
+const ACTIVE = new Set(["asking", "asked", "talking", "fixing", "fix_pending", "report_due", "reported"]);
 const WHO: Record<string, string> = { me: "Biz", op: "Operator", bot: "Bot" };
 
 /**
