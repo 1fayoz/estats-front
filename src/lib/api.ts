@@ -1515,3 +1515,44 @@ export interface AiImageJob {
   serverTime?: string;
 }
 export const fetchAiImageJob = (id: number) => request<AiImageJob>(`/product-ai/drafts/${id}/image-job`);
+
+// ── eStats AI — Gemini/ChatGPT vazifalari sotuvchining O'Z brauzerida ────────
+// (backend §9.53). Kengaytma qurilma tokenini shu yerda oladi; holat —
+// brauzer onlaynmi, qaysi saytga kirilgan va limit AYNAN qachon tiklanadi.
+
+export type AiWorkerLimit = {
+  resetsAt: string | null;
+  exact: boolean;
+  source: "usage_page" | "message" | "estimate" | string;
+  kind: string;
+  text: string;
+};
+
+export type AiWorkerProvider = {
+  loggedIn: boolean;
+  email: string | null;
+  usage: {
+    current?: { pct: number | null; resetsAt: string | null };
+    weekly?: { pct: number | null; resetsAt: string | null };
+    at?: string;
+  } | null;
+  imageLimit: AiWorkerLimit | null;
+  limit: AiWorkerLimit | null;
+};
+
+export type AiWorkerStatus = {
+  online: boolean;
+  lastSeenAt: number | null;
+  version: string | null;
+  providers: Record<"gemini_web" | "chatgpt_web", AiWorkerProvider>;
+};
+
+export const fetchAiWorkerStatus = () =>
+  request<AiWorkerStatus>("/product-ai/ai-worker/status", { shopScoped: false });
+
+export const connectAiWorker = (body: { name: string; userAgent: string; version: string | null }) =>
+  request<{ token: string; deviceId: number }>("/product-ai/ai-worker/connect", {
+    method: "POST",
+    body: JSON.stringify({ name: body.name, userAgent: body.userAgent, version: body.version ?? "" }),
+    shopScoped: false,
+  });
