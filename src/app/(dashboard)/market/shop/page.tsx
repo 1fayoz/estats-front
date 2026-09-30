@@ -56,17 +56,23 @@ export default function ShopAnalysisPage() {
   const index = useReportIndex();
   const last = index?.as_of ?? new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
   const [params, setParams] = useParams({ shop_id: DEFAULT_SHOP_ID, shop: "", start: "", end: "", offset: "0" });
-  const range = { start: params.start || shift(last, -29), end: params.end || last };
   const offset = Number(params.offset) || 0;
   const hasShop = Boolean(params.shop_id || params.shop);
   const { data, error } = useLoad(
     () => (hasShop
       ? report.shop({ shop_id: params.shop ? undefined : params.shop_id || undefined,
-                      shop: params.shop || undefined, start: range.start,
-                      end: range.end, offset, limit: 100 })
+                      // Sana tanlanmagan bo'lsa server oynani O'ZI tanlaydi: o'z
+                      // 30 kunlik o'lchovimiz tayyor bo'lguncha — ZS importi oynasi
+                      // (aks holda KPI chala kunlardan yig'ilib ~4 barobar kam chiqardi).
+                      shop: params.shop || undefined, start: params.start || undefined,
+                      end: params.end || undefined, offset, limit: 100 })
       : Promise.resolve(null)),
-    [params.shop_id, params.shop, range.start, range.end, offset],
+    [params.shop_id, params.shop, params.start, params.end, offset],
   );
+  const range = {
+    start: params.start || data?.range.start || shift(last, -29),
+    end: params.end || data?.range.end || last,
+  };
   const days = data?.range.days ?? 30;
   const k = data?.kpis ?? {};
   const compare = `oldingi ${days} kunga`;
