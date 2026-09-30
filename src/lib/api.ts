@@ -1161,16 +1161,18 @@ export const completeAiWebLogin = (provider: string) =>
     shopScoped: false,
   });
 
-export type AiEngine = "api" | "web";
+export type AiEngine = "api" | "web" | "mixed";
+export type AiWay = "web" | "api";
+export type AiEngineState = { engine: AiEngine; providers?: { gemini: AiWay; openai: AiWay } };
 
-/** Butun AI ishlarining yagona rejimi: API kalitlari yoki brauzer (scraping). */
+/** Butun AI ishlarining yagona rejimi: brauzer, API yoki aralash (har AI o'z yo'li). */
 export const fetchAiEngine = () =>
-  request<{ engine: AiEngine }>("/product-ai/web-ai/engine", { shopScoped: false });
+  request<AiEngineState>("/product-ai/web-ai/engine", { shopScoped: false });
 
-export const setAiEngine = (engine: AiEngine) =>
-  request<{ engine: AiEngine }>("/product-ai/web-ai/engine", {
+export const setAiEngine = (engine: AiEngine, providers?: { gemini: AiWay; openai: AiWay }) =>
+  request<AiEngineState>("/product-ai/web-ai/engine", {
     method: "PUT",
-    body: JSON.stringify({ engine }),
+    body: JSON.stringify({ engine, providers }),
     shopScoped: false,
   });
 

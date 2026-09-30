@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
-import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
 import { AiWebProviderCard } from "@/features/integrations/components/ai-web-provider-card";
-import { AiEngineSwitch } from "@/features/integrations/components/ai-engine-switch";
+import { AiEngineSwitch, type AiReadiness } from "@/features/integrations/components/ai-engine-switch";
+import { AiApiKeys } from "@/features/integrations/components/ai-api-keys";
 import { AiSessionsDialog } from "@/features/integrations/components/ai-sessions-dialog";
 import { LensExtensionCard } from "@/features/integrations/components/lens-extension-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
@@ -280,7 +280,7 @@ function IntegrationsWorkspace() {
           {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard /></div>}
 
           {(selected === "extension" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-5")}>
-            <AiEngineSwitch />
+            <AiEngineSwitch readiness={aiReadiness(webAccounts, aiKey, openAiKey)} />
             <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
 
             {/* AI Web Scraping & Sessions bo'limi */}
@@ -344,17 +344,14 @@ function IntegrationsWorkspace() {
                   );
                 })()}
               </div>
+              <AiApiKeys
+                gemini={aiKey}
+                openai={openAiKey}
+                onSaved={load}
+                restricted={restricted.some((label) => label === "Gemini" || label === "OpenAI")}
+              />
             </div>
 
-            {/* Rasmiy API Kalitlari bo'limi */}
-            <div className="space-y-3 pt-2">
-              <h3 className="text-sm font-semibold">Rasmiy API Kalitlari (Google AI Studio & OpenAI)</h3>
-              <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
-                {aiKey && <AiProviderCard provider="gemini" state={aiKey} onSaved={load} />}
-                {openAiKey && <AiProviderCard provider="openai" state={openAiKey} onSaved={load} />}
-              </div>
-              {!aiKey && !openAiKey && <div className="rounded-2xl border border-dashed p-6 text-center"><ShieldCheck className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{restricted.some((label) => label === "Gemini" || label === "OpenAI") ? "AI kalitlarini boshqarish uchun hisob egasidan ruxsat so‘rang." : "AI xizmatlari holati yuklanmadi. Qayta urinib ko‘ring."}</p></div>}
-            </div>
           </div> : selectedPlatform && accountsKnown ? <div key={selected} className={styles.panel}>
             <NetworkPanel row={selectedPlatform} accounts={accounts.filter((account) => account.platform === selected)} connecting={connecting} onConnect={() => onConnect(selected, accounts.some((account) => account.platform === selected))} onChanged={load}>
               {selected === "instagram" && <InstagramConnectCard />}
@@ -370,3 +367,15 @@ function IntegrationsWorkspace() {
   );
 }
 
+
+/** «AI qanday ishlasin» ogohlantirishlari uchun: qaysi yo'l hozir ishlaydi. */
+function aiReadiness(
+  web: AiWebAccountState[],
+  gemini?: { configured?: boolean; account?: { status?: string } | null } | null,
+  openai?: { configured?: boolean; account?: { status?: string } | null } | null,
+): AiReadiness {
+  const webOk = (p: string) => web.some((a) => a.provider === p && (a.status === "active" || a.status === "rate_limited"));
+  const keyOk = (k?: { configured?: boolean; account?: { status?: string } | null } | null) =>
+    !!k?.configured && !["no_credit", "invalid", "spend_cap"].includes(k.account?.status ?? "");
+  return { geminiWeb: webOk("gemini_web"), chatgptWeb: webOk("chatgpt_web"), geminiApi: keyOk(gemini), openaiApi: keyOk(openai) };
+}
