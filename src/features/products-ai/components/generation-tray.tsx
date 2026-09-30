@@ -7,7 +7,7 @@ import { TraySection } from "@/components/layout/tray-slot";
 import { mediaUrl } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiDraftRow } from "@/lib/types";
-import { formatEta, useImageJob } from "@/features/products-ai/use-image-job";
+import { JobLine } from "@/features/products-ai/components/job-progress";
 
 /**
  * O'ng-pastki burchakdagi suzuvchi panel — AI fonda qanday
@@ -113,8 +113,8 @@ export function AiGenerationTray({
                         row.error ? "text-destructive" : "text-muted-foreground",
                       )}
                     >
-                      {row.error ?? (isRunning && row.stage === "images"
-                        ? <ImageJobLine draftId={row.id} fallback={row.stageLabel} />
+                      {row.error ?? (isRunning
+                        ? <JobLine draftId={row.id} fallback={row.stageLabel} />
                         : row.stageLabel)}
                     </div>
                     {isRunning && (
@@ -142,11 +142,4 @@ export function AiGenerationTray({
       </div>
     </TraySection>
   );
-}
-
-/** Rasm yasalayotgan qoralama: «Rasmlar 2/4 · ~1 daq qoldi». */
-function ImageJobLine({ draftId, fallback }: { draftId: number; fallback: string }) {
-  const job = useImageJob(draftId, true);
-  if (!job.total) return <>{fallback}</>;
-  return <>{`Rasmlar ${job.done}/${job.total}${job.etaSeconds ? ` · ${formatEta(job.etaSeconds)}` : ""}`}</>;
 }

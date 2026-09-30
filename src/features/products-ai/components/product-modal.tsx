@@ -27,6 +27,7 @@ import {
   publishPhaseState,
 } from "@/features/products-ai/publish-stages";
 import { StageStrip } from "@/features/products-ai/components/stage-strip";
+import { JobProgress } from "@/features/products-ai/components/job-progress";
 import { UzumShopPicker } from "@/features/products-ai/components/uzum-shop-picker";
 import {
   ApiError,
@@ -285,6 +286,8 @@ export function ProductAiModal({
           ) : (
             <StageStrip draft={draft} />
           )}
+          {/* Qisman yurish (rasm qayta yasash) tayyor qoralamada ham — o'zi yashirinadi. */}
+          {draft && <JobProgress draftId={draft.id} active={open} />}
           {draft?.split?.auto && <SplitProgress draft={draft} onChange={apply} />}
           {draft && <DraftTabs draft={draft} tab={tab} onTab={setTab} />}
         </>

@@ -1554,11 +1554,28 @@ export interface AiImageJob {
   startedAt?: string;
   finishedAt?: string;
   current?: string;
+  currentLabel?: string;
+  stepStartedAt?: string | null;
   detail?: string;
   progress?: number;
+  /** Shu yurishning hamma qadamlari — holati va boshlangan vaqti bilan. */
+  steps?: AiJobStep[];
+  /** Brauzer hisobi band — AYNAN qaysi ish bilan va qachondan beri kutilmoqda. */
+  waiting?: { provider: string; holder: string; since: string } | null;
+  /** Server qayta ishga tushib, checkpoint'dan davom ettirilgan marta. */
+  resumes?: number;
+  /** Taxminiy qolgan vaqt (soniya) — `serverTime` payti uchun. */
+  etaSeconds?: number;
   frameSeconds?: number;
   concurrency?: number;
   serverTime?: string;
+}
+export interface AiJobStep {
+  key: string;
+  label: string;
+  status: "pending" | "running" | "done" | "failed" | "skipped";
+  startedAt?: string | null;
+  error?: string | null;
 }
 export const fetchAiImageJob = (id: number) => request<AiImageJob>(`/product-ai/drafts/${id}/image-job`);
 
