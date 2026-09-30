@@ -1161,6 +1161,19 @@ export const completeAiWebLogin = (provider: string) =>
     shopScoped: false,
   });
 
+export type AiEngine = "api" | "web";
+
+/** Butun AI ishlarining yagona rejimi: API kalitlari yoki brauzer (scraping). */
+export const fetchAiEngine = () =>
+  request<{ engine: AiEngine }>("/product-ai/web-ai/engine", { shopScoped: false });
+
+export const setAiEngine = (engine: AiEngine) =>
+  request<{ engine: AiEngine }>("/product-ai/web-ai/engine", {
+    method: "PUT",
+    body: JSON.stringify({ engine }),
+    shopScoped: false,
+  });
+
 export const setAiProviderMode = (provider: string, mode: AiProviderMode) =>
   request<{ provider: string; mode: string }>(`/product-ai/web-ai/accounts/${provider}/mode`, {
     method: "POST",

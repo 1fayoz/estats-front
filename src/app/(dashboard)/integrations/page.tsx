@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
 import { AiProviderCard } from "@/features/integrations/components/ai-provider-card";
-import { AiWorkerCard } from "@/features/integrations/components/ai-worker-card";
+import { AiWebProviderCard } from "@/features/integrations/components/ai-web-provider-card";
+import { AiEngineSwitch } from "@/features/integrations/components/ai-engine-switch";
 import { AiSessionsDialog } from "@/features/integrations/components/ai-sessions-dialog";
 import { LensExtensionCard } from "@/features/integrations/components/lens-extension-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
@@ -279,6 +280,7 @@ function IntegrationsWorkspace() {
           {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard /></div>}
 
           {(selected === "extension" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-5")}>
+            <AiEngineSwitch />
             <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
 
             {/* AI Web Scraping & Sessions bo'limi */}
@@ -304,9 +306,44 @@ function IntegrationsWorkspace() {
                 </Button>
               </div>
 
-              {/* Gemini/ChatGPT endi sotuvchining O'Z brauzerida (eStats AI kengaytmasi, §9.53) —
-                  serverdagi «Oyna orqali kirish» kerak emas. */}
-              <AiWorkerCard onOpenHistory={() => openSessions(null)} />
+              <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
+                {(() => {
+                  const geminiWeb = webAccounts.find((a) => a.provider === "gemini_web") ?? {
+                    id: 0,
+                    provider: "gemini_web" as const,
+                    name: "Google Gemini Web",
+                    status: "needs_auth" as const,
+                    mode: "web" as const,
+                    isActive: false,
+                    accountEmail: null,
+                    planName: null,
+                    totalSessions: 0,
+                    totalMessages: 0,
+                    lastCheckedAt: null,
+                    lastError: null,
+                  };
+                  const chatgptWeb = webAccounts.find((a) => a.provider === "chatgpt_web") ?? {
+                    id: 0,
+                    provider: "chatgpt_web" as const,
+                    name: "ChatGPT Web",
+                    status: "needs_auth" as const,
+                    mode: "web" as const,
+                    isActive: false,
+                    accountEmail: null,
+                    planName: null,
+                    totalSessions: 0,
+                    totalMessages: 0,
+                    lastCheckedAt: null,
+                    lastError: null,
+                  };
+                  return (
+                    <>
+                      <AiWebProviderCard account={geminiWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("gemini_web")} />
+                      <AiWebProviderCard account={chatgptWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("chatgpt_web")} />
+                    </>
+                  );
+                })()}
+              </div>
             </div>
 
             {/* Rasmiy API Kalitlari bo'limi */}

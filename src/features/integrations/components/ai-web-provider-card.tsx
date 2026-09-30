@@ -28,13 +28,12 @@ import {
   ApiError,
   deleteAiWebAccount,
   startAiWebLogin,
-  setAiProviderMode,
   verifyAiWebAccount,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/stores/user-store";
 import { AiWebVncDialog } from "./ai-web-vnc-dialog";
-import type { AiProviderMode, AiWebAccountState } from "@/lib/types";
+import type { AiWebAccountState } from "@/lib/types";
 
 interface Props {
   account: AiWebAccountState;
@@ -105,16 +104,6 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory, onNewChat
       toast.error(err instanceof ApiError ? err.message : "Kabinetga ulanib bo'lmadi.");
     } finally {
       setBusy("");
-    }
-  };
-
-  const onChangeMode = async (mode: AiProviderMode) => {
-    try {
-      await setAiProviderMode(account.provider, mode);
-      toast.success(`Rejim "${mode.toUpperCase()}" ga o‘zgartirildi`);
-      await onChanged();
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Rejimni o‘zgartirib bo‘lmadi.");
     }
   };
 
@@ -194,58 +183,6 @@ export function AiWebProviderCard({ account, onChanged, onOpenHistory, onNewChat
             {note}
           </p>
         )}
-
-        {/* Rejim tanlash (Web / Auto / API) */}
-        <div className="pt-2 border-t">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-muted-foreground">Ishlash ustuvorligi:</span>
-            <span className="text-[11px] text-muted-foreground">
-              {account.mode === "web"
-                ? "Faqat bepul Web sessiya"
-                : account.mode === "api"
-                ? "Rasmiy API kaliti"
-                : "Avtomatik zaxira"}
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-muted/20 border">
-            <button
-              type="button"
-              onClick={() => onChangeMode("web")}
-              className={cn(
-                "px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-center",
-                account.mode === "web"
-                  ? "bg-background text-foreground shadow-xs border"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              🌐 Web (Bepul)
-            </button>
-            <button
-              type="button"
-              onClick={() => onChangeMode("auto")}
-              className={cn(
-                "px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-center",
-                account.mode === "auto"
-                  ? "bg-background text-foreground shadow-xs border"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              🔄 Avtomatik
-            </button>
-            <button
-              type="button"
-              onClick={() => onChangeMode("api")}
-              className={cn(
-                "px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-center",
-                account.mode === "api"
-                  ? "bg-background text-foreground shadow-xs border"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              ⚡ API Kalit
-            </button>
-          </div>
-        </div>
 
         {/* Pastki Harakatlar qatori */}
         <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:flex-wrap">
