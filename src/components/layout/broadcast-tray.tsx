@@ -29,6 +29,7 @@ import { isDismissed, moderationJobActive, useModerationJobStore } from "@/store
 import { ModerationJobProgress } from "@/features/warehouse/components/moderation-job-progress";
 import { AutoResolveProgress } from "@/features/warehouse/components/auto-resolve-progress";
 import { fetchAutoResolveActive, type AutoResolveActive } from "@/lib/api";
+import { TRAY_CARD, useTrayStore } from "@/components/layout/tray-slot";
 import { cn } from "@/lib/utils";
 import type { BroadcastResult, ModerationJob, SeoJob as SeoJobRow } from "@/lib/types";
 
@@ -51,7 +52,11 @@ export function BroadcastTray() {
   const all = useBroadcastStore((s) => s.items);
   const dismissed = useBroadcastStore((s) => s.dismissed);
   const items = React.useMemo(() => visibleBroadcasts(all, dismissed), [all, dismissed]);
-  const [open, setOpen] = React.useState(true);
+  // Yig'ish holati — sahifa bo'limlari (`TraySection`) bilan UMUMIY.
+  const open = useTrayStore((s) => s.open);
+  const setOpen = useTrayStore((s) => s.setOpen);
+  const setNode = useTrayStore((s) => s.setNode);
+  const sections = useTrayStore((s) => s.sections);
 
   React.useEffect(() => watch(), [watch]);
   React.useEffect(() => watchJobs(), [watchJobs]);
@@ -92,14 +97,20 @@ export function BroadcastTray() {
   const shown = items.filter(
     (b) => b.active || b.failed > 0 || Date.now() - Date.parse(b.finishedAt ?? "") < 20_000,
   );
-  if (shown.length === 0 && activeJobs.length === 0 && moderationJobs.length === 0 && fixes.length === 0) return null;
+  const empty = shown.length === 0 && activeJobs.length === 0 && moderationJobs.length === 0 && fixes.length === 0 &&
+    sections === 0;
 
   const busy =
     shown.some((b) => b.active) || activeJobs.length > 0 || moderationJobs.some(moderationJobActive) ||
     fixes.some((f) => f.status !== "fix_pending");
 
+  // Slot HAR DOIM chiziladi (bo'sh bo'lsa ham) — sahifa bo'limlari unga portal qiladi.
   return (
-    <div className="pointer-events-none fixed bottom-20 right-4 z-50 flex w-[min(23rem,calc(100vw-2rem))] flex-col items-end gap-2 lg:bottom-6">
+    <div className={cn(
+      "pointer-events-none fixed bottom-20 right-4 z-50 flex max-h-[calc(100vh-7rem)] w-[min(23rem,calc(100vw-2rem))] flex-col items-end gap-2 overflow-y-auto lg:bottom-6",
+      empty && "hidden",
+    )}>
+      <div ref={setNode} className="flex w-full flex-col gap-2 empty:hidden" />
       <AnimatePresence initial={false}>
         {open &&
           fixes.map((fix) => (
@@ -110,7 +121,7 @@ export function BroadcastTray() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="pointer-events-auto w-full overflow-hidden rounded-xl border bg-card shadow-lg"
+              className={TRAY_CARD}
             >
               <FixRow fix={fix} />
             </motion.div>
@@ -124,7 +135,7 @@ export function BroadcastTray() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="pointer-events-auto w-full overflow-hidden rounded-xl border bg-card shadow-lg"
+              className={TRAY_CARD}
             >
               <ModerationRow job={job} onDismiss={() => dismissModeration(job)} />
             </motion.div>
@@ -138,7 +149,7 @@ export function BroadcastTray() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="pointer-events-auto w-full overflow-hidden rounded-xl border bg-card shadow-lg"
+              className={TRAY_CARD}
             >
               <JobRow job={job} />
             </motion.div>
@@ -152,7 +163,7 @@ export function BroadcastTray() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="pointer-events-auto w-full overflow-hidden rounded-xl border bg-card shadow-lg"
+              className={TRAY_CARD}
             >
               <BroadcastRow broadcast={broadcast} onDismiss={() => dismiss(broadcast.id)} />
             </motion.div>
@@ -161,7 +172,7 @@ export function BroadcastTray() {
 
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(!open)}
         className="pointer-events-auto inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs shadow-lg transition-colors hover:bg-accent"
       >
         {busy ? (
@@ -170,7 +181,7 @@ export function BroadcastTray() {
           <Send className="h-3.5 w-3.5 text-muted-foreground" />
         )}
         <span className="font-medium">
-          {busy ? "Ish ketmoqda" : "Fon ishlari"} · {shown.length + activeJobs.length + moderationJobs.length + fixes.length}
+          {busy ? "Ish ketmoqda" : "Fon ishlari"} · {shown.length + activeJobs.length + moderationJobs.length + fixes.length + sections}
         </span>
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", !open && "rotate-180")} />
       </button>

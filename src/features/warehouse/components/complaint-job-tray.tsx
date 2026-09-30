@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { TraySection } from "@/components/layout/tray-slot";
 import type { ComplaintJob } from "@/lib/types";
 import { jobIsActive } from "./job-progress";
 
@@ -52,28 +53,9 @@ export function ComplaintJobTray({ job, onOpen, onDismiss, title, hasAiTray }: C
       : "Operator so‘rovi";
 
   return (
-    <div
-      role="region"
-      aria-label="Telegram operator jarayoni"
-      className={cn(
-        "fixed inset-x-3 z-40 animate-slide-up sm:inset-x-auto sm:right-4 sm:w-[380px]",
-        hasAiTray
-          ? "bottom-[calc(4.5rem+env(safe-area-inset-bottom))] lg:bottom-20"
-          : "bottom-3 lg:bottom-4",
-      )}
-    >
-      <div
-        className={cn(
-          "overflow-hidden rounded-2xl border shadow-xl backdrop-blur-xl transition-all duration-300",
-          hasReply
-            ? "border-emerald-500/40 bg-card/95 shadow-emerald-500/10"
-            : isFailed
-            ? "border-destructive/40 bg-card/95 shadow-destructive/10"
-            : active
-            ? "border-primary/40 bg-card/95 shadow-primary/10"
-            : "border-border bg-card/95",
-        )}
-      >
+    // Burchakdagi YAGONA panelga karta (`TraySection`) — o'z `fixed` joyi yo'q.
+    <TraySection className={cn(hasReply ? "border-emerald-500/40" : isFailed ? "border-destructive/40" : active ? "border-primary/40" : "")}>
+      <div role="region" aria-label="Telegram operator jarayoni">
         {/* Sarlavha qatori (Header) */}
         <div className="flex items-center gap-2.5 px-3.5 py-3">
           <div className="relative flex shrink-0 items-center justify-center">
@@ -244,6 +226,6 @@ export function ComplaintJobTray({ job, onOpen, onDismiss, title, hasAiTray }: C
           </div>
         )}
       </div>
-    </div>
+    </TraySection>
   );
 }

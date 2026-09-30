@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 
+import { TraySection } from "@/components/layout/tray-slot";
 import { mediaUrl } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiDraftRow } from "@/lib/types";
@@ -38,18 +39,15 @@ export function AiGenerationTray({
   const ordered = [...attention, ...running];
 
   return (
-    <div
-      className={cn(
-        "fixed inset-x-3 bottom-[calc(3.25rem+env(safe-area-inset-bottom)+0.75rem)] z-40 animate-slide-up",
-        "sm:inset-x-auto sm:right-4 sm:w-80 lg:bottom-4",
-      )}
-    >
-      <div className="air-surface overflow-hidden rounded-2xl border shadow-lg">
+    // Burchakdagi YAGONA panelga karta bo'lib qo'shiladi (`TraySection`) — o'z
+    // `fixed` joyi yo'q, aks holda fon ishlari paneli bilan ustma-ust tushardi.
+    <TraySection>
+      <div>
         <button
           type="button"
           onClick={() => setCollapsed((v) => !v)}
           aria-expanded={!collapsed}
-          className="flex min-h-11 w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm font-medium transition-colors hover:bg-muted/40"
+          className="flex min-h-11 w-full items-center gap-2.5 px-3 py-2.5 text-left text-xs font-medium transition-colors hover:bg-accent/40"
         >
           {running.length > 0 ? (
             <span className="relative flex h-4 w-4 shrink-0">
@@ -142,7 +140,7 @@ export function AiGenerationTray({
           </div>
         )}
       </div>
-    </div>
+    </TraySection>
   );
 }
 
