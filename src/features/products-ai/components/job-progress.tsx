@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 const PROVIDER: Record<string, string> = {
   gemini_web: "Gemini brauzeri",
+  gemini_web_2: "Gemini brauzeri (2-hisob)",
   chatgpt_web: "ChatGPT brauzeri",
 };
 

@@ -308,10 +308,10 @@ function IntegrationsWorkspace() {
 
               <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
                 {(() => {
-                  const geminiWeb = webAccounts.find((a) => a.provider === "gemini_web") ?? {
+                  const blank = (provider: "gemini_web" | "gemini_web_2" | "chatgpt_web", name: string) => ({
                     id: 0,
-                    provider: "gemini_web" as const,
-                    name: "Google Gemini Web",
+                    provider,
+                    name,
                     status: "needs_auth" as const,
                     mode: "web" as const,
                     isActive: false,
@@ -321,24 +321,15 @@ function IntegrationsWorkspace() {
                     totalMessages: 0,
                     lastCheckedAt: null,
                     lastError: null,
-                  };
-                  const chatgptWeb = webAccounts.find((a) => a.provider === "chatgpt_web") ?? {
-                    id: 0,
-                    provider: "chatgpt_web" as const,
-                    name: "ChatGPT Web",
-                    status: "needs_auth" as const,
-                    mode: "web" as const,
-                    isActive: false,
-                    accountEmail: null,
-                    planName: null,
-                    totalSessions: 0,
-                    totalMessages: 0,
-                    lastCheckedAt: null,
-                    lastError: null,
-                  };
+                  });
+                  const geminiWeb = webAccounts.find((a) => a.provider === "gemini_web") ?? blank("gemini_web", "Google Gemini Web");
+                  // Ikkinchi Gemini hisobi — rasm yasash ikki hisobga bo'linadi (tezroq).
+                  const geminiWeb2 = webAccounts.find((a) => a.provider === "gemini_web_2") ?? blank("gemini_web_2", "Google Gemini Web — 2-hisob");
+                  const chatgptWeb = webAccounts.find((a) => a.provider === "chatgpt_web") ?? blank("chatgpt_web", "ChatGPT Web");
                   return (
                     <>
                       <AiWebProviderCard account={geminiWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("gemini_web")} />
+                      <AiWebProviderCard account={geminiWeb2} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("gemini_web")} />
                       <AiWebProviderCard account={chatgptWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("chatgpt_web")} />
                     </>
                   );
@@ -377,5 +368,5 @@ function aiReadiness(
   const webOk = (p: string) => web.some((a) => a.provider === p && (a.status === "active" || a.status === "rate_limited"));
   const keyOk = (k?: { configured?: boolean; account?: { status?: string } | null } | null) =>
     !!k?.configured && !["no_credit", "invalid", "spend_cap"].includes(k.account?.status ?? "");
-  return { geminiWeb: webOk("gemini_web"), chatgptWeb: webOk("chatgpt_web"), geminiApi: keyOk(gemini), openaiApi: keyOk(openai) };
+  return { geminiWeb: webOk("gemini_web") || webOk("gemini_web_2"), chatgptWeb: webOk("chatgpt_web"), geminiApi: keyOk(gemini), openaiApi: keyOk(openai) };
 }

@@ -44,9 +44,12 @@ interface Props {
 }
 
 export function AiWebProviderCard({ account, onChanged, onOpenHistory, onNewChat }: Props) {
-  const isGemini = account.provider === "gemini_web";
-  const title = isGemini ? "Google Gemini Web" : "ChatGPT Web";
-  const desc = isGemini
+  const isGemini = account.provider.startsWith("gemini_web");
+  const second = account.provider === "gemini_web_2";
+  const title = second ? "Google Gemini Web — 2-hisob" : isGemini ? "Google Gemini Web" : "ChatGPT Web";
+  const desc = second
+    ? "Ikkinchi Google hisobi: rasmlar ikkala Gemini hisobiga bo'linib, parallel yasaladi — kartochka tezroq tayyor bo'ladi."
+    : isGemini
     ? "Google Gemini akkauntingiz orqali har bir tovar vazifasi uchun bepul chat scrapingdan foydalaning."
     : "ChatGPT akkauntingiz orqali har bir tovar vazifasi uchun alohida sessiyada bepul chat scrapingdan foydalaning.";
   const siteUrl = isGemini ? "https://gemini.google.com" : "https://chatgpt.com";

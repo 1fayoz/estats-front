@@ -2052,7 +2052,7 @@ export type AiProviderMode = "web" | "api" | "auto";
 
 export interface AiWebAccountState {
   id: number;
-  provider: "gemini_web" | "chatgpt_web";
+  provider: "gemini_web" | "gemini_web_2" | "chatgpt_web";
   name: string;
   status: "active" | "needs_auth" | "expired" | "rate_limited" | "captcha" | "error";
   mode: AiProviderMode;

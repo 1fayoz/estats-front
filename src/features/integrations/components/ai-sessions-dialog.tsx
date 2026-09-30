@@ -52,7 +52,7 @@ import type { AiChatImage, AiChatMessage, AiChatSession } from "@/lib/types";
 type Provider = "gemini_web" | "chatgpt_web";
 type Filter = "all" | "active" | "completed" | "failed";
 
-const PROVIDER_LABEL: Record<string, string> = { gemini_web: "Gemini", chatgpt_web: "ChatGPT" };
+const PROVIDER_LABEL: Record<string, string> = { gemini_web: "Gemini", gemini_web_2: "Gemini (2)", chatgpt_web: "ChatGPT" };
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "all", label: "Hammasi" },
@@ -463,7 +463,7 @@ export function AiSessionsDialog({ open, onOpenChange, newChatProvider }: Props)
                   >
                     <div className="flex items-start justify-between gap-2">
                       <span className="flex min-w-0 items-center gap-1.5 font-semibold">
-                        {s.provider === "gemini_web" ? <Sparkles className="size-3.5 shrink-0 text-primary" /> : <Bot className="size-3.5 shrink-0 text-primary" />}
+                        {s.provider.startsWith("gemini_web") ? <Sparkles className="size-3.5 shrink-0 text-primary" /> : <Bot className="size-3.5 shrink-0 text-primary" />}
                         <span className="truncate">{s.title}</span>
                       </span>
                       {statusBadge(s)}
