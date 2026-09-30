@@ -36,6 +36,7 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
   const [state, setState] = React.useState<AutoResolveState | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [answer, setAnswer] = React.useState("");
+  const [times, setTimes] = React.useState<string[] | null>(null);
 
   React.useEffect(() => {
     let alive = true;
@@ -67,6 +68,21 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
     }
   }
 
+  async function saveTimes(next: string[]) {
+    if (!state) return;
+    setBusy(true);
+    try {
+      const saved = await setAutoResolve(productId, state.enabled, next);
+      setState(saved);
+      setTimes(null);
+      toast.success(`Saqlandi: kuniga ${saved.times?.length ?? next.length} marta — ${(saved.times ?? next).join(", ")}`);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Saqlab bo'lmadi");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function sendAnswer(e: React.FormEvent) {
     e.preventDefault();
     if (!answer.trim()) return;
@@ -90,7 +106,8 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
         <div className="min-w-0 flex-1">
           <p className="font-medium">Avto hal qilish</p>
           <p className="text-xs text-muted-foreground">
-            Bloklansa Uzum botiga o&apos;zi yozadi, sababini bilib tuzatadi va ochilguncha har kuni so&apos;raydi.
+            Bloklansa Uzum botiga o&apos;zi yozadi, sababini bilib tuzatadi, operatorga isbot (tuzatilgan rasm) yuboradi va
+            ochilguncha belgilangan vaqtlarda qayta so&apos;raydi.
           </p>
         </div>
         <button
@@ -157,6 +174,14 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
           {state.reason && <p><span className="text-muted-foreground">Sabab: </span>{state.reason}</p>}
           {state.fixSummary && <p><span className="text-muted-foreground">Tuzatildi: </span>{state.fixSummary}</p>}
           {state.error && <p className="text-destructive">{state.error}</p>}
+          <Schedule
+            times={times ?? state.times ?? ["10:00", "16:00"]}
+            nextSlotAt={state.nextSlotAt}
+            dirty={times !== null}
+            busy={busy}
+            onChange={setTimes}
+            onSave={(t) => void saveTimes(t)}
+          />
           {state.transcript.length > 0 && (
             <details>
               <summary className="cursor-pointer text-muted-foreground">
@@ -174,6 +199,90 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+/**
+ * Kuniga necha marta va soat nechada operatorga YANGI suhbat boshlanadi
+ * (Toshkent vaqti, 09:00–21:00 — bot ish vaqti). Ochiq suhbatdagi javoblar
+ * va tuzatish hisoboti bu jadvalni kutmaydi.
+ */
+function Schedule({ times, nextSlotAt, dirty, busy, onChange, onSave }: {
+  times: string[];
+  nextSlotAt?: string;
+  dirty: boolean;
+  busy: boolean;
+  onChange: (t: string[]) => void;
+  onSave: (t: string[]) => void;
+}) {
+  const next = nextSlotAt ? new Date(nextSlotAt) : null;
+  const label = next
+    ? `${next.toDateString() === new Date().toDateString() ? "bugun" : "ertaga"} ${pad(next.getHours())}:${pad(next.getMinutes())}`
+    : "";
+  return (
+    <div className="space-y-2 rounded-lg border bg-muted/30 p-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="font-medium">{`Operatorga yozish: kuniga ${times.length} marta`}</p>
+        {label && !dirty && <span className="text-muted-foreground">{`keyingisi — ${label}`}</span>}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {times.map((t, i) => (
+          <span key={i} className="flex items-center gap-1">
+            <input
+              type="time"
+              min="09:00"
+              max="20:59"
+              step={300}
+              value={t}
+              disabled={busy}
+              onChange={(e) => onChange(times.map((x, j) => (j === i ? e.target.value : x)))}
+              className="h-8 rounded-md border bg-background px-2 text-sm tabular-nums"
+              aria-label={`${i + 1}-vaqt`}
+            />
+            {times.length > 1 && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => onChange(times.filter((_, j) => j !== i))}
+                className="rounded px-1 text-muted-foreground hover:text-destructive"
+                aria-label="Vaqtni olib tashlash"
+              >
+                ×
+              </button>
+            )}
+          </span>
+        ))}
+        {times.length < 6 && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onChange([...times, "12:00"])}
+            className="h-8 rounded-md border border-dashed px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            + vaqt
+          </button>
+        )}
+        {dirty && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onSave(times)}
+            className="h-8 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground disabled:opacity-50"
+          >
+            Saqlash
+          </button>
+        )}
+      </div>
+      <p className="text-muted-foreground">
+        Toshkent vaqti, 09:00–21:00 oralig&apos;ida (Uzum qo&apos;llab-quvvatlash ish vaqti). Operator suhbat ichida
+        javob yozsa yoki kartochka tuzatilsa — jadvalni kutmasdan darhol javob beriladi.
+      </p>
     </div>
   );
 }

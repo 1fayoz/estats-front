@@ -630,15 +630,18 @@ export interface AutoResolveState {
   /** Operator savol bergan, javob kartochkada yo'q — AI taxmin qilmaydi, sotuvchi yozadi. */
   sellerQuestion?: string;
   sellerAnswer?: string;
+  /** Operatorga yangi suhbat qachon boshlanadi — «HH:MM» (Toshkent), sukut 10:00 va 16:00. */
+  times?: string[];
+  nextSlotAt?: string;
 }
 
 /** «Avto hal qilish» — kartochka bloklansa Uzum botiga o'zi yozadi, sababini bilib tuzatadi. */
 export const fetchAutoResolve = (productId: number) =>
   request<AutoResolveState>(`/telegram-operator/auto-resolve/${productId}`);
 
-export const setAutoResolve = (productId: number, enabled: boolean) =>
+export const setAutoResolve = (productId: number, enabled: boolean, times?: string[]) =>
   request<AutoResolveState>(`/telegram-operator/auto-resolve/${productId}`, {
-    method: "PUT", body: JSON.stringify({ enabled }),
+    method: "PUT", body: JSON.stringify(times ? { enabled, times } : { enabled }),
   });
 
 /** Operator savoliga sotuvchining javobi — keyingi aylanishda operatorga yetkaziladi. */
