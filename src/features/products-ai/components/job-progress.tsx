@@ -92,7 +92,7 @@ export function JobLine({ draftId, fallback }: { draftId: number; fallback: stri
   const parts = [
     `${job.currentLabel}${job.detail ? ` ${job.detail}` : ""}`,
     formatSpan(since(job.stepStartedAt)),
-    wait ? `navbatda: ${wait.holder || "boshqa ish"}` : "",
+    wait ? `navbatda${wait.ahead ? ` (${wait.ahead + 1}-o'rin)` : ""}: ${wait.holder || "boshqa ish"}` : "",
     etaText(eta),
   ].filter(Boolean);
   return <span title={parts.join(" · ")}>{parts.join(" · ")}</span>;
@@ -126,7 +126,7 @@ export function JobProgress({ draftId, active }: { draftId: number; active: bool
       {wait && (
         <p className="mt-2 flex items-start gap-1.5 text-[color:var(--warn)]">
           <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          {`${PROVIDER[wait.provider] ?? "AI hisobi"} band: ${wait.holder || "boshqa AI ishi"} — ${formatSpan(since(wait.since))} dan beri navbatda. Bitta hisob bir vaqtda bitta so'rovni bajaradi.`}
+          {`${PROVIDER[wait.provider] ?? "AI hisobi"} band: ${wait.holder || "boshqa AI ishi"} — ${formatSpan(since(wait.since))} dan beri navbatda${wait.ahead ? `, oldinda yana ${wait.ahead} ta so'rov` : ""}. Bitta hisob bir vaqtda bitta so'rovni bajaradi.`}
         </p>
       )}
       {(job.resumes ?? 0) > 0 && (

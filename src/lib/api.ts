@@ -1561,7 +1561,7 @@ export interface AiImageJob {
   /** Shu yurishning hamma qadamlari — holati va boshlangan vaqti bilan. */
   steps?: AiJobStep[];
   /** Brauzer hisobi band — AYNAN qaysi ish bilan va qachondan beri kutilmoqda. */
-  waiting?: { provider: string; holder: string; since: string } | null;
+  waiting?: { provider: string; holder: string; since: string; ahead?: number } | null;
   /** Server qayta ishga tushib, checkpoint'dan davom ettirilgan marta. */
   resumes?: number;
   /** Taxminiy qolgan vaqt (soniya) — `serverTime` payti uchun. */
