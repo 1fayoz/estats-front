@@ -89,8 +89,11 @@ export function JobLine({ draftId, fallback }: { draftId: number; fallback: stri
   const { job, since, eta } = useDraftJob(draftId, true);
   if (!job?.running || !job.currentLabel) return <>{fallback}</>;
   const wait = job.waiting;
+  const many = (job.runningSteps?.length ?? 0) > 1;
   const parts = [
-    `${job.currentLabel}${job.detail ? ` ${job.detail}` : ""}`,
+    many
+      ? (job.runningSteps ?? []).map((r) => r.label).join(" + ")
+      : `${job.currentLabel}${job.detail ? ` ${job.detail}` : ""}`,
     formatSpan(since(job.stepStartedAt)),
     wait ? `navbatda${wait.ahead ? ` (${wait.ahead + 1}-o'rin)` : ""}: ${wait.holder || "boshqa ish"}` : "",
     etaText(eta),
@@ -104,18 +107,19 @@ export function JobProgress({ draftId, active }: { draftId: number; active: bool
   if (!active || !job?.running) return null;
   const steps = job.steps ?? [];
   const done = steps.filter((s) => s.status === "done").length;
-  const wait = job.waiting;
+  // Eski backend `runningSteps` bermaydi — hozirgi qadamning o'zi.
+  const running = job.runningSteps?.length
+    ? job.runningSteps
+    : [{ key: job.current ?? "", label: job.currentLabel ?? "Tayyorlanmoqda",
+         startedAt: job.stepStartedAt, waiting: job.waiting ?? null }];
 
   return (
     <div className="rounded-xl border bg-card px-3 py-2.5 text-xs" aria-live="polite">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" aria-hidden />
         <span className="min-w-0 flex-1 font-medium">
-          {job.currentLabel || "Tayyorlanmoqda"}
-          {job.detail ? <span className="text-muted-foreground">{` · ${job.detail}`}</span> : null}
-          {job.stepStartedAt ? (
-            <span className="font-normal text-muted-foreground">{` · ${formatSpan(since(job.stepStartedAt))} dan beri`}</span>
-          ) : null}
+          {running.length > 1 ? `Parallel: ${running.length} ta qadam` : (job.currentLabel || "Tayyorlanmoqda")}
+          {running.length <= 1 && job.detail ? <span className="text-muted-foreground">{` · ${job.detail}`}</span> : null}
         </span>
         <span className="shrink-0 tabular-nums text-muted-foreground">
           {`${done}/${steps.length} qadam · `}
@@ -123,12 +127,23 @@ export function JobProgress({ draftId, active }: { draftId: number; active: bool
         </span>
       </div>
 
-      {wait && (
-        <p className="mt-2 flex items-start gap-1.5 text-[color:var(--warn)]">
-          <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          {`${PROVIDER[wait.provider] ?? "AI hisobi"} band: ${wait.holder || "boshqa AI ishi"} — ${formatSpan(since(wait.since))} dan beri navbatda${wait.ahead ? `, oldinda yana ${wait.ahead} ta so'rov` : ""}. Bitta hisob bir vaqtda bitta so'rovni bajaradi.`}
-        </p>
-      )}
+      {/* Har ishlayotgan qadam — o'z qatorida: qancha vaqtdan beri va nimani kutyapti. */}
+      <ul className="mt-2 space-y-1">
+        {running.map((r) => (
+          <li key={r.key} className="flex flex-wrap items-start gap-x-2 gap-y-0.5">
+            <span className="font-medium">{r.label}</span>
+            {r.startedAt ? <span className="text-muted-foreground">{`${formatSpan(since(r.startedAt))} dan beri`}</span> : null}
+            {r.waiting ? (
+              <span className="inline-flex items-start gap-1 text-[color:var(--warn)]">
+                <Clock className="mt-0.5 size-3 shrink-0" aria-hidden />
+                {`${PROVIDER[r.waiting.provider] ?? "AI hisobi"} band: ${r.waiting.holder || "boshqa AI ishi"}${r.waiting.ahead ? `, oldinda yana ${r.waiting.ahead} ta` : ""}`}
+              </span>
+            ) : (
+              <span className="text-[color:var(--ok)]">ishlamoqda</span>
+            )}
+          </li>
+        ))}
+      </ul>
       {(job.resumes ?? 0) > 0 && (
         <p className="mt-2 flex items-start gap-1.5 text-muted-foreground">
           <RotateCcw className="mt-0.5 size-3.5 shrink-0" aria-hidden />
