@@ -27,6 +27,8 @@ import { useBroadcastStore, visibleBroadcasts } from "@/stores/broadcast-store";
 import { useSeoJobStore } from "@/stores/seo-job-store";
 import { isDismissed, moderationJobActive, useModerationJobStore } from "@/stores/moderation-job-store";
 import { ModerationJobProgress } from "@/features/warehouse/components/moderation-job-progress";
+import { AutoResolveProgress } from "@/features/warehouse/components/auto-resolve-progress";
+import { fetchAutoResolveActive, type AutoResolveActive } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { BroadcastResult, ModerationJob, SeoJob as SeoJobRow } from "@/lib/types";
 
@@ -75,6 +77,11 @@ export function BroadcastTray() {
     [moderationAll, moderationDismissed, pathname],
   );
 
+  // «Avto hal qilish» tuzatishlari — to'rtinchi ish turi. Tovar sahifasi ochiq
+  // bo'lsa progress panelning O'ZIDA turadi — bu yerda takrorlanmaydi.
+  const fixesAll = useAutoResolveActive();
+  const fixes = fixesAll.filter((f) => f.productId == null || pathname !== `/warehouse/${f.productId}`);
+
   // SEO tahlili — ikkinchi ish turi. Tugagani darhol yo'qoladi:
   // natijasi o'z sahifasida turadi, panelda uni ushlab turishning
   // ma'nosi yo'q.
@@ -85,14 +92,29 @@ export function BroadcastTray() {
   const shown = items.filter(
     (b) => b.active || b.failed > 0 || Date.now() - Date.parse(b.finishedAt ?? "") < 20_000,
   );
-  if (shown.length === 0 && activeJobs.length === 0 && moderationJobs.length === 0) return null;
+  if (shown.length === 0 && activeJobs.length === 0 && moderationJobs.length === 0 && fixes.length === 0) return null;
 
   const busy =
-    shown.some((b) => b.active) || activeJobs.length > 0 || moderationJobs.some(moderationJobActive);
+    shown.some((b) => b.active) || activeJobs.length > 0 || moderationJobs.some(moderationJobActive) ||
+    fixes.some((f) => f.status !== "fix_pending");
 
   return (
     <div className="pointer-events-none fixed bottom-20 right-4 z-50 flex w-[min(23rem,calc(100vw-2rem))] flex-col items-end gap-2 lg:bottom-6">
       <AnimatePresence initial={false}>
+        {open &&
+          fixes.map((fix) => (
+            <motion.div
+              key={`fix-${fix.uzumId}`}
+              layout
+              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.97 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="pointer-events-auto w-full overflow-hidden rounded-xl border bg-card shadow-lg"
+            >
+              <FixRow fix={fix} />
+            </motion.div>
+          ))}
         {open &&
           moderationJobs.map((job) => (
             <motion.div
@@ -148,7 +170,7 @@ export function BroadcastTray() {
           <Send className="h-3.5 w-3.5 text-muted-foreground" />
         )}
         <span className="font-medium">
-          {busy ? "Ish ketmoqda" : "Fon ishlari"} · {shown.length + activeJobs.length + moderationJobs.length}
+          {busy ? "Ish ketmoqda" : "Fon ishlari"} · {shown.length + activeJobs.length + moderationJobs.length + fixes.length}
         </span>
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", !open && "rotate-180")} />
       </button>
@@ -370,4 +392,42 @@ function ModerationRow({ job, onDismiss }: { job: ModerationJob; onDismiss: () =
       </div>
     </div>
   );
+}
+
+
+/** Do'kondagi ketayotgan avto-tuzatishlar: ish bor — 10 s, tinch — 45 s. */
+function useAutoResolveActive(): AutoResolveActive[] {
+  const [rows, setRows] = React.useState<AutoResolveActive[]>([]);
+  React.useEffect(() => {
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const tick = async () => {
+      let next: AutoResolveActive[] = [];
+      try {
+        next = await fetchAutoResolveActive();
+        if (alive) setRows(next);
+      } catch { /* ruxsat yo'q yoki eski backend — panelda ko'rsatilmaydi */ }
+      if (alive) timer = setTimeout(tick, next.length ? 10_000 : 45_000);
+    };
+    void tick();
+    return () => {
+      alive = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+  return rows;
+}
+
+function FixRow({ fix }: { fix: AutoResolveActive }) {
+  const body = (
+    <div className="space-y-1.5 p-3">
+      <div className="flex items-center gap-2 text-xs">
+        <span className="rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary">Avto tuzatish</span>
+        <span className="min-w-0 truncate font-medium">{fix.title || `Uzum ${fix.uzumId}`}</span>
+      </div>
+      {fix.reason && <p className="line-clamp-2 text-[11px] text-muted-foreground">Operator: «{fix.reason}»</p>}
+      <AutoResolveProgress fix={fix.fix} status={fix.status} compact />
+    </div>
+  );
+  return fix.productId != null ? <Link href={`/warehouse/${fix.productId}`} className="block hover:bg-accent/40">{body}</Link> : body;
 }

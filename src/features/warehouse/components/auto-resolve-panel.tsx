@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { ApiError, answerAutoResolve, fetchAutoResolve, setAutoResolve, type AutoResolveState } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { AutoResolveProgress } from "./auto-resolve-progress";
 import { cn } from "@/lib/utils";
 
 const STATUS: Record<string, string> = {
@@ -40,13 +41,22 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
 
   React.useEffect(() => {
     let alive = true;
-    const load = () =>
-      fetchAutoResolve(productId).then((s) => alive && setState(s)).catch(() => {});
+    let timer: number | undefined;
+    const load = async () => {
+      let next: AutoResolveState | null = null;
+      try {
+        next = await fetchAutoResolve(productId);
+        if (alive) setState(next);
+      } catch { /* keyingi aylanishda */ }
+      if (!alive) return;
+      // Tuzatish ketayotganda tez — bosqichlar joyida ko'rinsin; tinch paytda siyrak.
+      const busy = next && ["asking", "fixing", "report_due"].includes(next.status);
+      timer = window.setTimeout(load, busy ? 8_000 : 30_000);
+    };
     void load();
-    const id = window.setInterval(load, 20_000);
     return () => {
       alive = false;
-      window.clearInterval(id);
+      if (timer) window.clearTimeout(timer);
     };
   }, [productId]);
 
@@ -139,6 +149,9 @@ export function AutoResolvePanel({ productId, blocked }: { productId: number; bl
             {!blocked && !state.status && " (hozir bloklanmagan)"}
             {state.updatedAt && <span className="text-muted-foreground">{` · ${formatDate(state.updatedAt)}`}</span>}
           </p>
+          {state.fix && ["fixing", "fix_pending", "report_due"].includes(state.status) && (
+            <AutoResolveProgress fix={state.fix} status={state.status} />
+          )}
           {state.status === "needs_seller" && state.sellerQuestion && (
             <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5">
               <p>

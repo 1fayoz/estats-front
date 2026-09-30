@@ -633,7 +633,35 @@ export interface AutoResolveState {
   /** Operatorga yangi suhbat qachon boshlanadi — «HH:MM» (Toshkent), sukut 10:00 va 16:00. */
   times?: string[];
   nextSlotAt?: string;
+  /** Tuzatish ketayotganda: bosqich, nima qayta yasalyapti, taxminiy tugash. */
+  fix?: AutoResolveFix | null;
 }
+
+export interface AutoResolveFix {
+  /** prepare · images · texts · uzum */
+  phase: string;
+  label: string;
+  phaseAt?: string | null;
+  startedAt?: string | null;
+  etaAt?: string | null;
+  draftId?: number | null;
+  targets: string[];
+  retryAt?: string | null;
+  error?: string | null;
+}
+
+export interface AutoResolveActive {
+  productId: number | null;
+  uzumId: string;
+  title: string;
+  status: string;
+  reason: string;
+  step: string;
+  fix: AutoResolveFix;
+}
+
+/** Do'kondagi hozir ish ketayotgan avto-tuzatishlar (burchakdagi panel). */
+export const fetchAutoResolveActive = () => request<AutoResolveActive[]>("/telegram-operator/auto-resolve");
 
 /** «Avto hal qilish» — kartochka bloklansa Uzum botiga o'zi yozadi, sababini bilib tuzatadi. */
 export const fetchAutoResolve = (productId: number) =>
