@@ -6,6 +6,11 @@ services:
   front:
     image: ${FRONT_IMAGE:-ghcr.io/1fayoz/estats-front:latest}
     container_name: my-stats-front
+    # Xotira chegarasi (2026-09-30, prodda o'lchangan cho'qqi sarfdan). Serverda
+    # 7,7 GB RAM va besh mahsulot: chegarasiz bitta konteyner hammasini swap'ga
+    # itarardi. Oshsa avval swap'ga o'tadi (memswap), darhol o'ldirilmaydi.
+    mem_limit: 512m
+    memswap_limit: 768m
     ports:
       - "127.0.0.1:8071:3000"
     environment:
