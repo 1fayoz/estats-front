@@ -311,6 +311,11 @@
   box-shadow: 0 -2px 24px rgba(16, 24, 40, 0.08), var(--lift);
 }
 @media (min-width: 1024px) { .bar { bottom: 12px; } }
+/* Shaffof rejimda karta deyarli shaffof — ostidagi matn panel orqali
+   ko'rinib qolardi (prodda topildi). Kanvasning o'zidan zich fon. */
+:global(.air-shell[data-surface="tinted"]) .bar {
+  background: color-mix(in oklab, var(--air-canvas) 94%, transparent);
+}
 
 /* ── Mayda detallar ───────────────────────────────────────────────── */
 .pulse { animation: pulse 1.6s ease-in-out infinite; }

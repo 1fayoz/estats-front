@@ -1247,7 +1247,7 @@ export const fetchAiWebSessions = (params?: {
  * tahlil suhbatlari; har birida `target` (qaysi kadr / qaysi matn).
  */
 export const fetchAiDraftSessions = (draftId: number) =>
-  fetchAiWebSessions({ draft_id: draftId, limit: 100 });
+  fetchAiWebSessions({ draft_id: draftId, limit: 400 });
 
 /** Qoralama sahifasining manzili — `null` yangi tovar. */
 export function draftHref(id: number | null, tab?: string): string {
