@@ -11,7 +11,8 @@ import { ImageSettingsPanel } from "@/features/products-ai/components/image-sett
 import { VariantsPanel } from "@/features/products-ai/components/variants-panel";
 import { SourcesPanel } from "@/features/products-ai/components/sources-panel";
 import { ApiError, excludeAiImage, mediaUrl, patchAiDraft, redoAiImages, revertAiImage } from "@/lib/api";
-import type { AiDraft } from "@/lib/types";
+import { imageCostText, sessionsForImage } from "@/features/products-ai/workspace/lib";
+import type { AiChatSession, AiDraft } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Kadr turi → sotuvchi tushunadigan nom (backend `strategy.IMAGE_TYPES`, `card_content.IMAGE_SLOTS`). */
@@ -88,11 +89,17 @@ export function ImagePanel({
   draft,
   onChange,
   locked,
+  sessions = [],
+  onOpenSession,
 }: {
   draft: AiDraft;
   onChange: (draft: AiDraft) => void;
   locked: boolean;
+  sessions?: AiChatSession[];
+  onOpenSession?: (id: string) => void;
 }) {
+  // Narx FAQAT pulli API'da (2026-10-03) — brauzer hisobi pulsiz.
+  const cost = imageCostText(draft);
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [savingColors, setSavingColors] = React.useState(false);
@@ -376,7 +383,8 @@ export function ImagePanel({
       <div className="flex flex-wrap items-start justify-between gap-2 rounded-xl border bg-muted/20 p-3 text-xs text-muted-foreground">
         <p className="min-w-0 flex-1 leading-relaxed">
           {"Rasmni katta ko'rish, olib tashlash yoki qayta yasash uchun ustiga bosing. Har kadr alohida yasaladi — "}
-          {`taxminan ${draft.imagePriceUsd ? `$${draft.imagePriceUsd.toFixed(3)}` : "bir necha sent"}.`}
+          {cost.paid ? `taxminan ${cost.text}.` : `${cost.text}.`}
+          <span className="block text-[11px] opacity-80">{cost.hint}</span>
         </p>
         <span className="flex flex-wrap gap-1.5">
           {removedCount > 0 && (
@@ -398,7 +406,7 @@ export function ImagePanel({
             >
               {fillingMissing ? "Boshlanmoqda…"
                 : working || imageJob.running ? `Yasalmoqda · ${imageJob.done}/${imageJob.total || missingTotal}`
-                  : `Yetishmaganlarni yasash (~$${(draft.imagePriceUsd * missingTotal).toFixed(2)})`}
+                  : `Yetishmaganlarni yasash${cost.paid ? ` (${imageCostText(draft, missingTotal).text})` : ""}`}
             </button>
           )}
         </span>
@@ -586,7 +594,22 @@ export function ImagePanel({
         busyId={busyId}
         working={working}
         locked={locked}
-        priceUsd={draft.imagePriceUsd}
+        priceText={cost.paid ? `Taxminan ${cost.text}.` : `${cost.hint}`}
+        sessionsFor={(item) => {
+          const kind = item.kind;
+          if (kind.type === "slot") return sessionsForImage(sessions, { slot: kind.slot });
+          if (kind.type === "position") return sessionsForImage(sessions, { position: kind.position });
+          if (kind.type === "variant") {
+            const index = visualAxis?.values.findIndex((v) => v.key === kind.key) ?? -1;
+            return index < 0 ? [] : sessionsForImage(sessions, { variantIndex: index, order: kind.order });
+          }
+          if (kind.type === "gallery" && item.url) {
+            const pos = /\/ai-(\d+)-/.exec(item.url)?.[1];
+            return pos ? sessionsForImage(sessions, { position: Number(pos) }) : [];
+          }
+          return [];
+        }}
+        onOpenSession={onOpenSession}
         onRegenerate={regenerate}
         onToggleRemoved={toggleRemoved}
         onRevert={revert}

@@ -7,8 +7,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { SessionChips } from "@/features/products-ai/workspace/sessions-panel";
 import { mediaUrl } from "@/lib/api";
-import { formatUsd } from "@/lib/format";
+import type { AiChatSession } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -174,7 +175,9 @@ export function ImageStudio({
   busyId,
   working,
   locked,
-  priceUsd,
+  priceText,
+  sessionsFor,
+  onOpenSession,
   onRegenerate,
   onToggleRemoved,
   onRevert,
@@ -186,7 +189,11 @@ export function ImageStudio({
   /** Qoralamada hozir boshqa rasm yasalmoqda. */
   working: boolean;
   locked: boolean;
-  priceUsd: number;
+  /** «Taxminan $0.03.» yoki «Brauzer hisobi — pulsiz.» (2026-10-03: narx faqat pulli API'da). */
+  priceText: string;
+  /** Shu kadr uchun ochilgan AI suhbatlari (yasash + tekshiruv). */
+  sessionsFor?: (item: StudioItem) => AiChatSession[];
+  onOpenSession?: (id: string) => void;
   onRegenerate: (item: StudioItem, prompt: string) => Promise<boolean>;
   onToggleRemoved: (item: StudioItem) => Promise<void>;
   onRevert: (item: StudioItem) => Promise<void>;
@@ -331,9 +338,13 @@ export function ImageStudio({
                 </div>
               )}
 
+              {sessionsFor && onOpenSession && (
+                <SessionChips sessions={sessionsFor(item)} onOpen={onOpenSession} />
+              )}
+
               {locked ? (
                 <p className="rounded-xl border bg-muted/30 p-3 text-xs text-muted-foreground">
-                  {"Kartochka tasdiqlangan — rasmni o'zgartirish uchun oynadagi «Tahrirlash»ni bosing."}
+                  {"Kartochka tasdiqlangan — rasmni o'zgartirish uchun pastdagi «Tahrirlash»ni bosing."}
                 </p>
               ) : (
                 <>
@@ -379,8 +390,8 @@ export function ImageStudio({
                     />
                     <p className="text-xs leading-relaxed text-muted-foreground">
                       {item.kind.type === "add"
-                        ? `Shu joydagi mavjud kadrlar AI bilan ko'rib chiqiladi va ulardan FARQLI yangi kadr yasaladi (boshqa tomon, boshqa bosqich). Taxminan ${formatUsd(priceUsd)}.`
-                        : `Faqat shu kadr yasaladi — «${item.label}» vazifasi, tovar belgilari va raqobatchilar tahlili saqlanadi. Taxminan ${formatUsd(priceUsd)}.`}
+                        ? `Shu joydagi mavjud kadrlar AI bilan ko'rib chiqiladi va ulardan FARQLI yangi kadr yasaladi (boshqa tomon, boshqa bosqich). ${priceText}`
+                        : `Faqat shu kadr yasaladi — «${item.label}» vazifasi, tovar belgilari va raqobatchilar tahlili saqlanadi. ${priceText}`}
                     </p>
                     {working && !busy && (
                       <p className="text-xs air-warn">Boshqa rasm yasalmoqda — tugashini kuting.</p>
@@ -391,7 +402,7 @@ export function ImageStudio({
                           Rostdan ham {missing ? "yasaysizmi" : "qayta yasaysizmi"}?
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {`${missing ? "Yangi kadr" : "Eski variant «Oldingi variant» bilan qaytariladi, yangisi"} shu joyga qo'yiladi. AI sarfi ~${formatUsd(priceUsd)}.`}
+                          {`${missing ? "Yangi kadr" : "Eski variant «Oldingi variant» bilan qaytariladi, yangisi"} shu joyga qo'yiladi. ${priceText}`}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           <Button

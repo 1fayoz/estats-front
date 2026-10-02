@@ -12,9 +12,8 @@ import { ProductTable } from "@/features/warehouse/components/product-table";
 import { SupportRequestDialog } from "@/features/warehouse/components/support-request-dialog";
 import { IntakeDialog } from "@/features/warehouse/components/intake-dialog";
 import { AiGenerationTray } from "@/features/products-ai/components/generation-tray";
-import { ProductAiModal } from "@/features/products-ai/components/product-modal";
 import { useAiDrafts } from "@/features/products-ai/use-drafts";
-import { useDraftParam } from "@/features/products-ai/use-draft-param";
+import { useDraftNav } from "@/features/products-ai/use-draft-nav";
 import { useWarehouseProducts } from "@/features/warehouse/store";
 import { useActiveShop, useActions, useCan } from "@/stores/user-store";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
@@ -226,9 +225,8 @@ function WarehouseContent() {
   const items = view === "active" ? activeItems : offItems[view] ?? [];
 
   // ── Tovar qo'shish (AI) ────────────────────────────────────
-  // Alohida sahifa emas, shu yerdagi oyna: tovar qo'shish —
-  // omborning ICHIDAGI ish. Alohida bo'limda sotuvchi katalogdan
-  // chiqib ketardi va qaytganda qayerda qolgani yo'qolardi.
+  // Alohida sahifa (`/warehouse/ai/new`, 2026-10-03, sotuvchi talabi):
+  // uzun forma, tablar va yon ustun oynaga sig'masdi.
   const canSeeAi = useCan("products_ai.view");
   const canAddAi = useCan("products_ai.control") && useCan("warehouse.create_product");
   const drafts = useAiDrafts(canSeeAi);
@@ -246,10 +244,7 @@ function WarehouseContent() {
     };
   }, [shop?.id]);
 
-  // Oyna holati URL'DA turadi (`?draft=12`/`?draft=new`) — endi
-  // `useDraftParam()`da, `/warehouse/[id]` sahifasi bilan BIR XIL
-  // (izoh o'sha faylda: nega URL'da, nega Next router emas).
-  const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
+  const { openAi } = useDraftNav();
 
   // "Tahrirlash" tugmasi — qoralama hali yo'q tovarda. Yangi
   // qoralama tovarning Uzum'dagi ma'lumotidan (rasm, kategoriya,
@@ -622,14 +617,6 @@ function WarehouseContent() {
         product={intakeFor}
         onOpenChange={(open) => !open && setIntakeFor(null)}
         onSaved={refresh}
-      />
-
-      <ProductAiModal
-        open={aiOpen}
-        draftId={aiDraftId}
-        onClose={() => setDraftParam(null)}
-        onDraft={drafts.upsert}
-        onDeleted={drafts.remove}
       />
 
       {/* Burchakdagi suzuvchi panel — hammadan keyin, DOM tartibi

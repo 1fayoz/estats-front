@@ -603,7 +603,7 @@ export function ProductModerationCard({
                   onClick={() => onOpenAi((fixProposal.draftId || data.aiDraftId)!)}
                   className={cn(ACTION_CLASS, "text-muted-foreground")}
                 >
-                  Tahrirlash modalida ko&apos;rish
+                  AI kartochkasini ochish
                 </Button>
               )}
 

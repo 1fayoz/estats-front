@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import {
   ApiError, fetchAiImageSettings, saveAiDraftImageSettings, saveAiImageSettings,
 } from "@/lib/api";
-import { formatUsd } from "@/lib/format";
-import type { AiDraft, AiImageSettings } from "@/lib/types";
+import { imageCostText } from "@/features/products-ai/workspace/lib";
+import type { AiDraft, AiImageEngine, AiImageSettings } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -57,6 +57,7 @@ export function ImageSettingsPanel({
   const [value, setValue] = React.useState<AiImageSettings>(draft?.imageSettings ?? DEFAULTS);
   const [saved, setSaved] = React.useState<AiImageSettings>(draft?.imageSettings ?? DEFAULTS);
   const [price, setPrice] = React.useState(draft?.imagePriceUsd ?? 0);
+  const [engine, setEngine] = React.useState<AiImageEngine | undefined>(draft?.imageEngine);
   const [asDefault, setAsDefault] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [available, setAvailable] = React.useState(true);
@@ -67,6 +68,7 @@ export function ImageSettingsPanel({
       setValue(next);
       setSaved(next);
       setPrice(draft.imagePriceUsd);
+      setEngine(draft.imageEngine);
       return;
     }
     let alive = true;
@@ -76,6 +78,7 @@ export function ImageSettingsPanel({
         setValue(state.settings);
         setSaved(state.settings);
         setPrice(state.imagePriceUsd);
+        setEngine(state.imageEngine);
       })
       .catch((err) => {
         // Eski backend — panel yashiriladi.
@@ -139,7 +142,7 @@ export function ImageSettingsPanel({
         <Settings2 className="size-3.5 shrink-0" />
         <span className="font-semibold">Rasm sozlamasi</span>
         <span className="min-w-0 flex-1 truncate text-muted-foreground">
-          {`${count} ta kadr · ~${formatUsd(price * count)}`}
+          {`${count} ta kadr · ${imageCostText({ imageEngine: engine, imagePriceUsd: price }, count).text}`}
         </span>
         <span className="text-muted-foreground">{open ? "yopish" : "o'zgartirish"}</span>
       </button>

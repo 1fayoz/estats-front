@@ -79,7 +79,7 @@ const STATUS_HINT: Record<string, string> = {
 
 const MAX_FILES = 6;
 
-function statusBadge(s: AiChatSession) {
+export function statusBadge(s: AiChatSession) {
   if (s.pending) return <Badge variant="secondary" className="gap-1"><Loader2 className="size-3 animate-spin" />javob kutilmoqda</Badge>;
   if (s.status === "active") return <Badge variant="success">faol</Badge>;
   if (s.status === "completed") return <Badge variant="secondary">yakunlangan</Badge>;
@@ -88,7 +88,7 @@ function statusBadge(s: AiChatSession) {
 }
 
 /** Fondagi javob: o'tgan vaqt / o'lchangan o'rtacha → progress va qolgan vaqt. */
-function PendingBubble({ since, eta }: { since: string | null; eta: number | null }) {
+export function PendingBubble({ since, eta }: { since: string | null; eta: number | null }) {
   const [now, setNow] = React.useState(() => Date.now());
   React.useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -122,7 +122,7 @@ function PendingBubble({ since, eta }: { since: string | null; eta: number | nul
   );
 }
 
-function Images({ images }: { images: AiChatImage[] }) {
+export function Images({ images }: { images: AiChatImage[] }) {
   if (!images?.length) return null;
   return (
     <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -145,7 +145,7 @@ function Images({ images }: { images: AiChatImage[] }) {
   );
 }
 
-function Message({ msg, provider }: { msg: AiChatMessage; provider: string }) {
+export function Message({ msg, provider }: { msg: AiChatMessage; provider: string }) {
   if (msg.role === "system") {
     return (
       <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs leading-relaxed">

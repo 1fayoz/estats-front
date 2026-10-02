@@ -2095,6 +2095,23 @@ export interface AiChatMessage {
   createdAt: string;
 }
 
+export type AiImageEngine = "web" | "api" | "none";
+
+/**
+ * Sessiya kartochkaning QAYSI joyi uchun ochilgan (backend
+ * `session_targets.target_of`): kadr sessiyalarida `position` va joy
+ * (`slot` yoki `variantIndex`+`order`), matn/tahlilda faqat tur va nom.
+ */
+export interface AiSessionTarget {
+  kind: "image" | "verify" | "text" | "analysis" | "other";
+  label: string;
+  position?: number;
+  place?: "gallery" | "slot" | "variant";
+  slot?: string;
+  variantIndex?: number;
+  order?: number;
+}
+
 /** Bitta vazifa = bitta sessiya = bitta tashqi suhbat. */
 export interface AiChatSession {
   id: string;
@@ -2117,6 +2134,11 @@ export interface AiChatSession {
   pending: boolean;
   pendingSince: string | null;
   etaSeconds: number | null;
+  /** `pipeline` — quvur ochgan; `chat` yoki bo'sh — qo'lda. */
+  engine?: string | null;
+  /** Kadr suhbatining kaliti (`frame:<qoralama>:<yurish>:<o'rin>`). */
+  frame?: string | null;
+  target?: AiSessionTarget | null;
   messages: AiChatMessage[];
 }
 
@@ -2318,6 +2340,15 @@ export interface AiDraft extends AiDraftRow {
   imagePriceUsd: number;
   /** Butun to'plam (hamma kadr) qancha turadi. */
   imageSetPriceUsd: number;
+  /**
+   * Rasm KIM bilan yasaladi (2026-10-03): `web` — sotuvchining brauzer
+   * hisobi, PULSIZ — narx ko'rsatilmaydi; `api` — pulli, narx ko'rsatiladi;
+   * `none` — yasovchi ulanmagan. Eski backend bermasa `undefined` → `api`.
+   */
+  imageEngine?: AiImageEngine;
+  imageEngineLabel?: string;
+  /** Birinchi yo'l ishlamasa qaysi yo'l (`api` / `web` / bo'sh). */
+  imageFallback?: string;
   /** Bozordagi yetakchilar rasmlaridan chiqarilgan xulosa. */
   marketBrief: string;
   imagePrompt: string | null;
@@ -2650,6 +2681,8 @@ export interface AiImageSettingsState {
   limits: Record<keyof AiImageSettings, [number, number]>;
   imagePriceUsd: number;
   setPriceUsd: number;
+  /** Narx faqat `api` da ko'rsatiladi (`AiDraft.imageEngine` bilan bir xil). */
+  imageEngine?: AiImageEngine;
 }
 
 export interface AiKeywordFillResult {

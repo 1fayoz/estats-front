@@ -1,0 +1,341 @@
+/*
+ * «Tovar qo'shish» sahifasi — Bitrix24 «Создание сделки» ohangida
+ * (kulrang kanvas, oq kartalar, laym «Saqlash»), lekin ALOHIDA sahifa
+ * (2026-10-03, sotuvchi talabi): uzun forma, tablar va yon ustun tor
+ * oynaga sig'masdi.
+ *
+ * Harakatlar FAQAT `transform` va `opacity` bilan — layout va bo'yoqqa
+ * tegmaydi, ya'ni kompozitor qatlamida, sahifa ishlashiga ta'sir
+ * qilmaydi. Hammasi `prefers-reduced-motion` bilan o'chadi. Kartalar
+ * `contain: content` — ichidagi o'zgarish tashqarini qayta hisoblatmaydi.
+ */
+
+.page {
+  --dur: 220ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --lift: 0 1px 2px rgba(16, 24, 40, 0.06), 0 6px 18px rgba(16, 24, 40, 0.06);
+  --lift-hover: 0 2px 4px rgba(16, 24, 40, 0.08), 0 12px 28px rgba(16, 24, 40, 0.1);
+
+  /* Sahifa `.air-surface` oq idishining ichida — kanvas uning
+     chetlarigacha chiqib, oq kartalar kulrang ustida tursin. */
+  margin: calc(-1 * var(--surface-pad, 1rem));
+  padding: var(--surface-pad, 1rem);
+  border-radius: 14px;
+  min-height: calc(100svh - 7.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .page { --surface-pad: 1.5rem; }
+}
+
+/* Mavzu tokenlari `.air-slider` da (globals.css) — rang va
+   shaffof rejim o'sha yerdan. Bu yerda faqat shakl va harakat. */
+
+.card {
+  background: var(--air-card);
+  border: 1px solid var(--air-line);
+  border-radius: 18px;
+  box-shadow: var(--lift);
+  contain: content;
+}
+
+/* ── Kirish animatsiyasi — ketma-ket ko'tarilish ─────────────────── */
+.rise {
+  animation: rise var(--dur) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Tab paneli almashganda — pastdan yengil kirish (`key` o'zgaradi). */
+.panel {
+  animation: panelIn 200ms var(--ease) both;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── Sarlavha ─────────────────────────────────────────────────────── */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px 20px;
+  align-items: center;
+  padding: 18px 20px;
+}
+@media (max-width: 639px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+}
+
+.cover {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: var(--air-canvas);
+  border: 1px solid var(--air-line);
+  flex: none;
+}
+
+.title {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+@media (min-width: 640px) { .title { font-size: 25px; } }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--air-line);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--air-head);
+  white-space: nowrap;
+  transition: background-color 160ms var(--ease), transform 160ms var(--ease);
+}
+.chipOk { color: var(--ok); border-color: color-mix(in oklab, var(--ok) 30%, transparent); background: color-mix(in oklab, var(--ok) 9%, transparent); }
+.chipWarn { color: var(--warn-ink, var(--warn)); border-color: var(--warn-line, color-mix(in oklab, var(--warn) 35%, transparent)); background: var(--warn-bg, color-mix(in oklab, var(--warn) 10%, transparent)); }
+.chipBad { color: var(--bad); border-color: color-mix(in oklab, var(--bad) 30%, transparent); background: color-mix(in oklab, var(--bad) 8%, transparent); }
+.chipInfo { color: var(--primary); border-color: color-mix(in oklab, var(--primary) 30%, transparent); background: color-mix(in oklab, var(--primary) 8%, transparent); }
+
+/* ── Progress halqasi ─────────────────────────────────────────────── */
+.ring {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex: none;
+}
+.ring > svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ringTrack { fill: none; stroke: color-mix(in oklab, var(--air-head) 12%, transparent); stroke-width: 6; }
+.ringBar {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 700ms var(--ease), stroke 300ms;
+}
+.ringBar[data-state="failed"] { stroke: var(--bad); }
+.ringBar[data-state="running"] { stroke: var(--primary); }
+.ringLabel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+/* ── Bosqichlar yo'li ─────────────────────────────────────────────── */
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+  padding: 0 20px 16px;
+}
+@media (max-width: 639px) { .track { padding: 0 16px 14px; } }
+.seg {
+  min-width: 0;
+}
+.segBar {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--air-head) 14%, transparent);
+  overflow: hidden;
+  position: relative;
+  transition: background-color 300ms var(--ease);
+}
+.seg[data-state="done"] .segBar { background: var(--ok); }
+.seg[data-state="failed"] .segBar { background: var(--bad); }
+.seg[data-state="active"] .segBar { background: color-mix(in oklab, var(--primary) 35%, transparent); }
+.seg[data-state="active"] .segBar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  transform: translateX(-100%);
+  animation: sweep 1.4s var(--ease) infinite;
+}
+@keyframes sweep { to { transform: translateX(100%); } }
+.segLabel {
+  margin-top: 7px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--air-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 300ms;
+}
+.seg[data-state="done"] .segLabel, .seg[data-state="active"] .segLabel { color: var(--ok); font-weight: 500; }
+.seg[data-state="active"] .segLabel { color: var(--primary); }
+.seg[data-state="failed"] .segLabel { color: var(--bad); font-weight: 500; }
+@media (max-width: 639px) { .segLabel { display: none; } }
+
+/* ── Tablar ───────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--air-line);
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--air-head);
+  white-space: nowrap;
+  transition: color 160ms var(--ease);
+}
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ok);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 220ms var(--ease);
+}
+.tab:hover { color: var(--foreground); }
+.tab[data-active="true"] { color: var(--ok); }
+.tab[data-active="true"]::after { transform: scaleX(1); }
+.tab:disabled { color: var(--air-label); opacity: 0.6; cursor: default; }
+.tab:focus-visible { outline: 2px solid var(--ring); outline-offset: -4px; border-radius: 8px; }
+.count {
+  display: inline-flex;
+  align-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tab-color, var(--air-head));
+  background: color-mix(in oklab, var(--tab-color, var(--air-head)) 13%, transparent);
+}
+
+/* ── Yon ustun ────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: minmax(0, 1fr) 312px; }
+  .rail { position: sticky; top: 76px; }
+}
+.railCard { padding: 16px; }
+.railHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--air-head);
+}
+
+/* ── Tugmalar ─────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 120ms var(--ease), box-shadow 160ms var(--ease), background-color 160ms var(--ease), color 160ms;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(0) scale(0.985); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.btnPrimary { background: var(--air-success, #00904d); color: #fff; box-shadow: 0 4px 12px color-mix(in oklab, var(--air-success, #00904d) 28%, transparent); }
+.btnPrimary:hover:not(:disabled) { box-shadow: 0 8px 20px color-mix(in oklab, var(--air-success, #00904d) 32%, transparent); }
+.btnFlat { border: 1px solid var(--air-ctl-line); background: var(--air-card); color: var(--air-head); }
+.btnFlat:hover:not(:disabled) { background: color-mix(in oklab, var(--air-head) 7%, var(--air-card)); }
+.btnGhost { color: var(--air-head); }
+.btnGhost:hover:not(:disabled) { background: color-mix(in oklab, var(--air-head) 8%, transparent); }
+.btnDanger { color: var(--bad); border-color: color-mix(in oklab, var(--bad) 35%, transparent); }
+.btnWarn { color: var(--warn-ink, var(--warn)); border-color: var(--warn-line, var(--warn)); background: var(--warn-bg, transparent); }
+
+/* ── Pastki amal paneli ───────────────────────────────────────────── */
+.bar {
+  position: sticky;
+  bottom: 5.5rem;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--air-card) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--air-line);
+  box-shadow: 0 -2px 24px rgba(16, 24, 40, 0.08), var(--lift);
+}
+@media (min-width: 1024px) { .bar { bottom: 12px; } }
+
+/* ── Mayda detallar ───────────────────────────────────────────────── */
+.pulse { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.45; } }
+
+.sessionRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  text-align: left;
+  transition: background-color 140ms var(--ease), transform 140ms var(--ease);
+}
+.sessionRow:hover { background: color-mix(in oklab, var(--air-head) 7%, transparent); transform: translateX(2px); }
+.sessionRow:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.dot { width: 8px; height: 8px; border-radius: 999px; flex: none; }
+
+.fieldNote { font-size: 11.5px; color: var(--air-label); }
+
+@media (prefers-reduced-motion: reduce) {
+  .page *, .page *::before, .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1242,6 +1242,19 @@ export const fetchAiWebSessions = (params?: {
   offset?: number;
 }) => request<AiChatSession[]>(`/product-ai/web-ai/sessions${qs(params ?? {})}`);
 
+/**
+ * Shu qoralama uchun ochilgan AI sessiyalari (2026-10-03) — rasm, matn va
+ * tahlil suhbatlari; har birida `target` (qaysi kadr / qaysi matn).
+ */
+export const fetchAiDraftSessions = (draftId: number) =>
+  fetchAiWebSessions({ draft_id: draftId, limit: 100 });
+
+/** Qoralama sahifasining manzili — `null` yangi tovar. */
+export function draftHref(id: number | null, tab?: string): string {
+  const base = `/warehouse/ai/${id === null ? "new" : id}`;
+  return tab && tab !== "general" ? `${base}?tab=${encodeURIComponent(tab)}` : base;
+}
+
 export const fetchAiWebSessionDetail = (sessionId: string) =>
   request<AiChatSession>(`/product-ai/web-ai/sessions/${sessionId}`);
 

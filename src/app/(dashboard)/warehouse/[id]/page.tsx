@@ -39,9 +39,8 @@ import { ProductInstagramCard } from "@/features/instagram/components/product-in
 import { ProductNetworksCard } from "@/features/social/components/product-networks-card";
 import { AdVerdictCard } from "@/features/social/components/ad-verdict-card";
 import { AiGenerationTray } from "@/features/products-ai/components/generation-tray";
-import { ProductAiModal } from "@/features/products-ai/components/product-modal";
 import { useAiDrafts } from "@/features/products-ai/use-drafts";
-import { useDraftParam } from "@/features/products-ai/use-draft-param";
+import { useDraftNav } from "@/features/products-ai/use-draft-nav";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { ApiError, fetchComplaintJob, fetchProductDetail, mediaUrl, regenerateProductUzum } from "@/lib/api";
 import { formatDate, formatNumber, formatSum } from "@/lib/format";
@@ -95,7 +94,7 @@ function ProductDetailPage({ id }: { id: number }) {
   // Bog'lash/ajratish — ombor amali; faqat ko'ra oladigan jamoa a'zosiga
   // tugmalar ko'rinmaydi (bosganda baribir 403 bo'lardi).
   const canControlWarehouse = useCan("warehouse.control");
-  const { aiOpen, aiDraftId, setDraftParam, openAi } = useDraftParam();
+  const { openAi } = useDraftNav();
   // Burchakdagi panel (`AiGenerationTray`) va bu sahifaning O'Z
   // tovari uchun fonda ishlayotgan qoralama — bir xil manba
   // (ombor jadvalidagi bilan BIR XIL hook), shuning uchun
@@ -449,15 +448,6 @@ function ProductDetailPage({ id }: { id: number }) {
       <ComplaintDialog productId={complaintFor} onOpenChange={(open) => { if (!open) setComplaintFor(null); }} job={complaintJob} onJobChange={setComplaintJob} />
       <IntakeDialog product={intakeFor} onOpenChange={(open) => { if (!open) setIntakeFor(null); }} onSaved={load} sharedListings={group?.members.length ?? 1} />
       <LinkDuplicateDialog productId={id} open={linkOpen} onOpenChange={setLinkOpen} onLinked={load} />
-      {canSeeAi && (
-        <ProductAiModal
-          open={aiOpen}
-          draftId={aiDraftId}
-          onClose={() => setDraftParam(null)}
-          onDraft={(fresh) => { drafts.upsert(fresh); void load(); }}
-          onDeleted={() => { drafts.reload(); setDraftParam(null); void load(); }}
-        />
-      )}
       {canSeeAi && <AiGenerationTray rows={drafts.trayRows} onOpen={(draftId) => openAi(draftId)} />}
       {complaintJob && complaintFor === null && (
         <ComplaintJobTray

@@ -5,6 +5,8 @@ import { AlertTriangle, ExternalLink, Loader2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
+import { SessionChips } from "@/features/products-ai/workspace/sessions-panel";
+import { sessionKind } from "@/features/products-ai/workspace/lib";
 import { AuditPanel } from "@/features/products-ai/components/audit-panel";
 import { ImageLightbox } from "@/features/products-ai/components/image-lightbox";
 import {
@@ -20,12 +22,11 @@ import {
 } from "@/features/products-ai/components/intelligence-sections";
 import { CategoryPicker } from "@/features/products-ai/components/category-picker";
 import { ImagePanel } from "@/features/products-ai/components/image-panel";
-import { VariantsPanel } from "@/features/products-ai/components/variants-panel";
 import { MarketPanel } from "@/features/products-ai/components/market-panel";
 import { PricePanel } from "@/features/products-ai/components/price-panel";
 import { ApiError, fetchAiDraft, fillAiKeywords, mediaUrl, rewriteAiTexts } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import type { AiContentKey, AiDraft, AiDraftPatch } from "@/lib/types";
+import type { AiChatSession, AiContentKey, AiDraft, AiDraftPatch } from "@/lib/types";
 
 /** Uzum nom maydonining chegarasi — undan keyingi harf yozilmaydi. */
 const TITLE_MAX = 90;
@@ -90,122 +91,6 @@ export type DraftTabKey =
   | "audit";
 
 /**
- * Tab qatori — namunadagi «Общие · Товары · Предложения …» kabi.
- *
- * Bo'sh tab ATAYLAB o'chirilgan holda qoladi, yashirilmaydi:
- * quvur hali u yergacha yetmagani ko'rinib tursin. Yashirilsa,
- * tablar quvur ishlagan sayin sakrab paydo bo'lardi va "u yerda
- * nima bor edi" degan savol tug'ilardi.
- */
-export function DraftTabs({
-  draft,
-  tab,
-  onTab,
-}: {
-  draft: AiDraft | null;
-  tab: DraftTabKey;
-  onTab: (tab: DraftTabKey) => void;
-}) {
-  // Har hisoblagichning O'Z rangi bor — hammasi bir xil xira
-  // kulrang bo'lsa, tab qatori "bitta rangda" ko'rinardi.
-  // `audit` alohida: uning soni BLOKLOVCHI kamchilik, shuning
-  // uchun neytral emas, ogohlantirish (`--bad`) rangida.
-  const tabs: { key: DraftTabKey; label: string; count?: number; ready: boolean; color?: string }[] = [
-    { key: "general", label: "Umumiy", ready: true },
-    { key: "ru", label: "Ruscha", ready: Boolean(draft?.titleRu) },
-    {
-      key: "images",
-      label: "Rasmlar",
-      count: (draft?.images.length ?? 0) + (draft?.sourceImages.length ?? 0),
-      ready: Boolean(draft),
-      color: "var(--primary)",
-    },
-    {
-      key: "attrs",
-      label: "Xususiyatlar",
-      count: Object.keys(draft?.attributes ?? {}).length,
-      ready: Object.keys(draft?.attributes ?? {}).length > 0,
-      color: "var(--air-teal)",
-    },
-    {
-      key: "keywords",
-      label: "Kalit so'zlar",
-      count: draft?.keywords.length ?? 0,
-      ready: (draft?.keywords.length ?? 0) > 0,
-      color: "var(--air-pink)",
-    },
-    {
-      key: "market",
-      label: "Bozor",
-      count: draft?.market?.rivals.length ?? 0,
-      ready: (draft?.market?.rivals.length ?? 0) > 0,
-      color: "var(--warn)",
-    },
-    {
-      key: "pricing",
-      label: "Tan narx",
-      ready: Boolean(draft),
-      color: "var(--ok)",
-    },
-    {
-      key: "audit",
-      label: "Tayyorlik",
-      count: draft?.audit ? draft.audit.blocking || undefined : undefined,
-      ready: Boolean(draft?.audit),
-      color: "var(--bad)",
-    },
-  ];
-
-  return (
-    <div
-      role="tablist"
-      aria-label="Tovar ma'lumotlari"
-      className="flex gap-1 overflow-x-auto overscroll-x-contain rounded-xl bg-muted/60 p-1 [scrollbar-width:thin]"
-      onKeyDown={(event) => {
-        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-        event.preventDefault();
-        const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
-        const currentIndex = buttons.indexOf(document.activeElement as HTMLButtonElement);
-        const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + buttons.length) % buttons.length;
-        buttons[nextIndex]?.focus();
-        buttons[nextIndex]?.click();
-      }}
-    >
-      {tabs.map((item) => (
-        <button
-          key={item.key}
-          type="button"
-          role="tab"
-          id={`draft-tab-${item.key}`}
-          aria-controls={`draft-panel-${item.key}`}
-          aria-selected={tab === item.key}
-          tabIndex={tab === item.key || (!tabs.some((candidate) => candidate.key === tab && candidate.ready) && item.key === "general") ? 0 : -1}
-          disabled={!item.ready}
-          onClick={() => onTab(item.key)}
-          className={cn(
-            "inline-flex min-h-10 shrink-0 items-center whitespace-nowrap rounded-lg px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none sm:text-[13px]",
-            tab === item.key
-              ? "bg-[color:var(--air-card)] text-[color:var(--ok)] shadow-sm"
-              : "text-muted-foreground hover:bg-[color:var(--air-card)] hover:text-foreground",
-            !item.ready && "cursor-default text-[color:var(--air-label)] opacity-60 hover:bg-transparent",
-          )}
-        >
-          {item.label}
-          {item.count ? (
-            <span
-              className="ml-1 rounded-full px-1.5 py-px text-[11px] font-semibold tabular-nums"
-              style={{ color: item.color, background: `color-mix(in oklab, ${item.color} 14%, transparent)` }}
-            >
-              {item.count}
-            </span>
-          ) : null}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-/**
  * Tanlangan tabning ichi.
  *
  * AI matni bu yerda TAHRIRLANADI. U yaxshi boshlang'ich nuqta,
@@ -218,6 +103,8 @@ export function DraftFields({
   onForm,
   locked,
   onChange,
+  sessions = [],
+  onOpenSession,
 }: {
   draft: AiDraft;
   tab: DraftTabKey;
@@ -225,6 +112,9 @@ export function DraftFields({
   onForm: React.Dispatch<React.SetStateAction<DraftForm>>;
   locked: boolean;
   onChange: (draft: AiDraft) => void;
+  /** Shu qoralamaning AI sessiyalari — rasm plitkasi va matn yonida ko'rsatiladi. */
+  sessions?: AiChatSession[];
+  onOpenSession?: (id: string) => void;
 }) {
   // AI tadqiqoti qoralama BILAN keladi (alohida so'rov yo'q) —
   // u quvurning o'zi, alohida bo'lim emas.
@@ -233,7 +123,7 @@ export function DraftFields({
   if (tab === "images") {
     return (
       <div className="space-y-3">
-        <ImagePanel draft={draft} onChange={onChange} locked={locked} />
+        <ImagePanel draft={draft} onChange={onChange} locked={locked} sessions={sessions} onOpenSession={onOpenSession} />
         {(ai.image_plan || ai.generated_images) && (
           <ImagesSection plan={ai.image_plan} generated={ai.generated_images} />
         )}
@@ -347,8 +237,10 @@ export function DraftFields({
       {/* Tovar tahlili va rang — matndan OLDIN: ular matnning
           nimaga tayanganini ko'rsatadi. */}
       {uz && ai.understanding && <UnderstandingSection data={ai.understanding} />}
+      {/* Variantlar «Rasmlar» tabida boshqariladi (har rang o'z kadri bilan) —
+          bu yerda faqat xulosa, ikkinchi nusxa panel emas. */}
       {uz && (draft.variants?.axes?.length ? (
-        <VariantsPanel draft={draft} onChange={onChange} locked={locked} />
+        <VariantsSummary draft={draft} />
       ) : ai.colors ? <ColorsSection data={ai.colors} /> : null)}
       {/*
         Turkum ENG TEPADA va faqat o'zbekcha tabda: u kartochkaning
@@ -401,6 +293,13 @@ export function DraftFields({
         </p>
         {!locked && <RewriteTextsButton draft={draft} onChange={onChange} />}
       </div>
+      {uz && onOpenSession && (
+        <SessionChips
+          title="Matn uchun AI suhbatlari"
+          sessions={sessions.filter((s) => sessionKind(s) === "text")}
+          onOpen={onOpenSession}
+        />
+      )}
       <SectionField
         label={`Oʻlchamli setka ${uz ? "(o'zbekcha)" : "(ruscha)"}`}
         value={form[`size_${lang}`]}
@@ -668,6 +567,24 @@ function RewriteTextsButton({ draft, onChange }: { draft: AiDraft; onChange: (dr
       )}
       Matnlarni AI bilan qayta yozish
     </button>
+  );
+}
+
+/** Variantlar xulosasi — o'qlar va qiymatlar soni; boshqaruv «Rasmlar» tabida. */
+function VariantsSummary({ draft }: { draft: AiDraft }) {
+  const axes = draft.variants?.axes ?? [];
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 rounded-xl border bg-muted/20 px-3 py-2 text-xs">
+      <span className="font-medium">Variantlar:</span>
+      {axes.map((axis) => (
+        <span key={axis.key} className="rounded-full border bg-background px-2 py-0.5">
+          {axis.titleUz} · {axis.values.length}
+        </span>
+      ))}
+      {draft.variants?.skuCount ? <span className="text-muted-foreground">= {draft.variants.skuCount} SKU</span> : null}
+      <span className="text-muted-foreground">— «Rasmlar» tabida boshqariladi</span>
+      {draft.variants?.needsChoice && <span className="air-warn">· savol kutilmoqda</span>}
+    </div>
   );
 }
 
