@@ -45,14 +45,15 @@ import {
   mediaUrl,
   startAiWebSession,
 } from "@/lib/api";
+import { aiAccountLabel, aiFamily } from "@/lib/ai-accounts";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AiChatImage, AiChatMessage, AiChatSession } from "@/lib/types";
 
-type Provider = "gemini_web" | "chatgpt_web";
+/** Hisob kaliti (`gemini_web`, `gemini_web_2` …) — oila tanlovida esa oilaning o'zi. */
+type Provider = string;
 type Filter = "all" | "active" | "completed" | "failed";
 
-const PROVIDER_LABEL: Record<string, string> = { gemini_web: "Gemini", gemini_web_2: "Gemini (2)", chatgpt_web: "ChatGPT" };
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "all", label: "Hammasi" },
@@ -158,7 +159,7 @@ function Message({ msg, provider }: { msg: AiChatMessage; provider: string }) {
   return (
     <div className={cn("flex flex-col gap-1.5", isUser ? "items-end" : "items-start")}>
       <div className="flex items-center gap-1.5 px-1 text-[11px] text-muted-foreground">
-        {isUser ? <><span>Siz</span><User className="size-3" /></> : <><Bot className="size-3 text-primary" /><span>{PROVIDER_LABEL[provider] ?? provider}</span></>}
+        {isUser ? <><span>Siz</span><User className="size-3" /></> : <><Bot className="size-3 text-primary" /><span>{aiAccountLabel(provider)}</span></>}
         {msg.durationMs ? <span>{`· ${(msg.durationMs / 1000).toFixed(1)} s`}</span> : null}
         <span>{`· ${formatDate(new Date(msg.createdAt))}`}</span>
       </div>
@@ -226,9 +227,9 @@ function Composer({
               key={p}
               type="button"
               onClick={() => onProvider(p)}
-              className={cn("rounded-md px-3 py-1 font-medium", provider === p ? "bg-background shadow-xs" : "text-muted-foreground")}
+              className={cn("rounded-md px-3 py-1 font-medium", provider && aiFamily(provider) === p ? "bg-background shadow-xs" : "text-muted-foreground")}
             >
-              {PROVIDER_LABEL[p]}
+              {provider && aiFamily(provider) === p ? aiAccountLabel(provider) : aiAccountLabel(p)}
             </button>
           ))}
         </div>
@@ -498,7 +499,7 @@ export function AiSessionsDialog({ open, onOpenChange, newChatProvider }: Props)
                   <div className="min-w-0 space-y-0.5">
                     <p className="truncate text-sm font-semibold">{detail.title}</p>
                     <p className="text-muted-foreground">
-                      {`${PROVIDER_LABEL[detail.provider] ?? detail.provider} · ${detail.taskType} · ${detail.turnCount} savol`}
+                      {`${aiAccountLabel(detail.provider)} · ${detail.taskType} · ${detail.turnCount} savol`}
                       {detail.closeReason ? ` · ${CLOSE_REASON[detail.closeReason] ?? detail.closeReason}` : ""}
                     </p>
                   </div>

@@ -13,14 +13,9 @@
 import * as React from "react";
 import { AlertTriangle, Check, Clock, Loader2, RotateCcw, X } from "lucide-react";
 
+import { aiAccountLabel } from "@/lib/ai-accounts";
 import { fetchAiImageJob, type AiImageJob } from "@/lib/api";
 import { cn } from "@/lib/utils";
-
-const PROVIDER: Record<string, string> = {
-  gemini_web: "Gemini brauzeri",
-  gemini_web_2: "Gemini brauzeri (2-hisob)",
-  chatgpt_web: "ChatGPT brauzeri",
-};
 
 /** Holatni so'rab turadi; vaqtlarni server soatiga moslab har soniya yangilaydi. */
 export function useDraftJob(draftId: number | undefined, active: boolean) {
@@ -137,7 +132,7 @@ export function JobProgress({ draftId, active }: { draftId: number; active: bool
             {r.waiting ? (
               <span className="inline-flex items-start gap-1 text-[color:var(--warn)]">
                 <Clock className="mt-0.5 size-3 shrink-0" aria-hidden />
-                {`${PROVIDER[r.waiting.provider] ?? "AI hisobi"} band: ${r.waiting.holder || "boshqa AI ishi"}${r.waiting.ahead ? `, oldinda yana ${r.waiting.ahead} ta` : ""}`}
+                {`${r.waiting.provider ? `${aiAccountLabel(r.waiting.provider)} brauzeri` : "AI hisobi"} band: ${r.waiting.holder || "boshqa AI ishi"}${r.waiting.ahead ? `, oldinda yana ${r.waiting.ahead} ta` : ""}`}
               </span>
             ) : (
               <span className="text-[color:var(--ok)]">ishlamoqda</span>

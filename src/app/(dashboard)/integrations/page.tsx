@@ -2,14 +2,13 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, CircleCheck, Layers, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
+import { AlertCircle, CircleCheck, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
 import { toast } from "sonner";
 import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
-import { AiAccountsCard } from "@/features/integrations/components/ai-accounts-card";
-import { AiWebProviderCard } from "@/features/integrations/components/ai-web-provider-card";
+import { AiWebAccounts } from "@/features/integrations/components/ai-web-accounts";
 import { AiEngineSwitch, type AiReadiness } from "@/features/integrations/components/ai-engine-switch";
 import { AiApiKeys } from "@/features/integrations/components/ai-api-keys";
 import { AiSessionsDialog } from "@/features/integrations/components/ai-sessions-dialog";
@@ -28,6 +27,7 @@ import {
   ApiError, fetchAiKey, fetchAiWebAccounts, fetchInstagramConnectUrl, fetchOpenAiKey, fetchSocialAccounts, fetchSocialApps,
   fetchSocialConnectUrl, fetchSocialPlatforms,
 } from "@/lib/api";
+import { aiFamily } from "@/lib/ai-accounts";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
 import { useQueryState } from "@/lib/use-query-state";
@@ -57,8 +57,8 @@ function IntegrationsWorkspace() {
   const [webAccounts, setWebAccounts] = React.useState<AiWebAccountState[]>([]);
   const [sessionsOpen, setSessionsOpen] = React.useState(false);
   // «Sinov suhbati» — sessiyalar oynasi shu provayder bilan yangi suhbat holatida.
-  const [newChatProvider, setNewChatProvider] = React.useState<"gemini_web" | "chatgpt_web" | null>(null);
-  const openSessions = (provider: "gemini_web" | "chatgpt_web" | null) => {
+  const [newChatProvider, setNewChatProvider] = React.useState<string | null>(null);
+  const openSessions = (provider: string | null) => {
     setNewChatProvider(provider);
     setSessionsOpen(true);
   };
@@ -162,6 +162,7 @@ function IntegrationsWorkspace() {
   const aiStates = [aiKey, openAiKey].filter((state) => state !== null);
   const aiConfigured = aiStates.filter((state) => state.configured).length;
   // Kiritilgan-u ishlamayotgan kalit (mablag' yo'q / yaroqsiz) — "ulangan" belgisi yolg'on bo'lmasin.
+  const webLive = webAccounts.filter((a) => a.status === "active").length;
   const aiBroken = aiStates.filter((state) => state.account?.status === "no_credit" || state.account?.status === "invalid").length;
 
   const services = [
@@ -170,7 +171,7 @@ function IntegrationsWorkspace() {
     { value: "wb", label: "Wildberries", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
     { value: "ozon", label: "Ozon", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
     { value: "extension", label: "Brauzer kengaytmasi", action: "integrations.tab.extension", icon: <Puzzle />, detail: "Bozorlar ustida tahlil", connected: false },
-    { value: "ai", label: "AI yordamchilar", action: "integrations.tab.ai", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: aiConfigured > aiBroken },
+    { value: "ai", label: "AI", action: "integrations.tab.ai", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : webLive ? `${webLive} ta brauzer hisobi${aiConfigured ? ` · ${aiConfigured} kalit` : ""}` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: webLive > 0 || aiConfigured > aiBroken },
     ...PLATFORM_ORDER.map((platform) => {
       const mine = accounts.filter((account) => account.platform === platform);
       const row = platforms.find((item) => item.platform === platform);
@@ -222,7 +223,7 @@ function IntegrationsWorkspace() {
         {[
           { label: "Do‘konlar", value: shops.length, detail: "Marketpleyslar", icon: ShoppingBag },
           { label: "Akkauntlar", value: accountsKnown ? accounts.length : "—", detail: attentionCount ? `${attentionCount} ta e’tibor talab qiladi` : "Ijtimoiy tarmoqlar", icon: Link2 },
-          { label: "AI kalitlari", value: aiStates.length ? `${aiConfigured}/${aiStates.length}` : "—", detail: aiBroken ? `${aiBroken} ta e’tibor talab qiladi` : "Matn va rasmlar", icon: Sparkles },
+          { label: "AI", value: webLive || aiConfigured ? String(webLive + aiConfigured) : "—", detail: aiBroken ? `${aiBroken} ta kalit e’tibor talab qiladi` : `${webLive} brauzer hisobi · ${aiConfigured} kalit`, icon: Sparkles },
         ].map((item) => (
           <div key={item.label} className="min-w-0 rounded-2xl border bg-card/80 p-3 sm:p-4">
             <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground sm:text-sm"><span>{item.label}</span><item.icon className="hidden size-4 text-primary sm:block" /></div>
@@ -281,68 +282,14 @@ function IntegrationsWorkspace() {
 
           {(selected === "extension" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-5")}>
             <AiEngineSwitch readiness={aiReadiness(webAccounts, aiKey, openAiKey)} />
-            <AiAccountsCard gemini={aiKey} openai={openAiKey} onRecheck={recheckAi} onChanged={load} />
-
-            {/* AI Web Scraping & Sessions bo'limi */}
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <h3 className="text-sm font-semibold flex items-center gap-1.5">
-                    <Sparkles className="size-4 text-primary" />
-                    AI Web Sessiyalar & Skreyping (Bepul profil orqali)
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Google Gemini va ChatGPT akkauntingiz bilan ulanib, har bir vazifa (task) uchun alohida chat sessiyasi bilan ishlang.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl text-xs min-h-9"
-                  onClick={() => openSessions(null)}
-                >
-                  <Layers className="size-3.5 mr-1" />
-                  Sessiyalar tarixi
-                </Button>
-              </div>
-
-              <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
-                {(() => {
-                  const blank = (provider: "gemini_web" | "gemini_web_2" | "chatgpt_web", name: string) => ({
-                    id: 0,
-                    provider,
-                    name,
-                    status: "needs_auth" as const,
-                    mode: "web" as const,
-                    isActive: false,
-                    accountEmail: null,
-                    planName: null,
-                    totalSessions: 0,
-                    totalMessages: 0,
-                    lastCheckedAt: null,
-                    lastError: null,
-                  });
-                  const geminiWeb = webAccounts.find((a) => a.provider === "gemini_web") ?? blank("gemini_web", "Google Gemini Web");
-                  // Ikkinchi Gemini hisobi — rasm yasash ikki hisobga bo'linadi (tezroq).
-                  const geminiWeb2 = webAccounts.find((a) => a.provider === "gemini_web_2") ?? blank("gemini_web_2", "Google Gemini Web — 2-hisob");
-                  const chatgptWeb = webAccounts.find((a) => a.provider === "chatgpt_web") ?? blank("chatgpt_web", "ChatGPT Web");
-                  return (
-                    <>
-                      <AiWebProviderCard account={geminiWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("gemini_web")} />
-                      <AiWebProviderCard account={geminiWeb2} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("gemini_web")} />
-                      <AiWebProviderCard account={chatgptWeb} onChanged={load} onOpenHistory={() => openSessions(null)} onNewChat={() => openSessions("chatgpt_web")} />
-                    </>
-                  );
-                })()}
-              </div>
-              <AiApiKeys
-                gemini={aiKey}
-                openai={openAiKey}
-                onSaved={load}
-                restricted={restricted.some((label) => label === "Gemini" || label === "OpenAI")}
-              />
-            </div>
-
+            <AiWebAccounts accounts={webAccounts} onChanged={load} onOpenSessions={openSessions} />
+            <AiApiKeys
+              gemini={aiKey}
+              openai={openAiKey}
+              onSaved={load}
+              onRecheck={recheckAi}
+              restricted={restricted.some((label) => label === "Gemini" || label === "OpenAI")}
+            />
           </div> : selectedPlatform && accountsKnown ? <div key={selected} className={styles.panel}>
             <NetworkPanel row={selectedPlatform} accounts={accounts.filter((account) => account.platform === selected)} connecting={connecting} onConnect={() => onConnect(selected, accounts.some((account) => account.platform === selected))} onChanged={load}>
               {selected === "instagram" && <InstagramConnectCard />}
@@ -365,8 +312,9 @@ function aiReadiness(
   gemini?: { configured?: boolean; account?: { status?: string } | null } | null,
   openai?: { configured?: boolean; account?: { status?: string } | null } | null,
 ): AiReadiness {
-  const webOk = (p: string) => web.some((a) => a.provider === p && (a.status === "active" || a.status === "rate_limited"));
+  const webCount = (family: string) =>
+    web.filter((a) => aiFamily(a.provider) === family && (a.status === "active" || a.status === "rate_limited")).length;
   const keyOk = (k?: { configured?: boolean; account?: { status?: string } | null } | null) =>
     !!k?.configured && !["no_credit", "invalid", "spend_cap"].includes(k.account?.status ?? "");
-  return { geminiWeb: webOk("gemini_web") || webOk("gemini_web_2"), chatgptWeb: webOk("chatgpt_web"), geminiApi: keyOk(gemini), openaiApi: keyOk(openai) };
+  return { geminiWeb: webCount("gemini_web"), chatgptWeb: webCount("chatgpt_web"), geminiApi: keyOk(gemini), openaiApi: keyOk(openai) };
 }

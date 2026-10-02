@@ -1217,6 +1217,13 @@ export const verifyAiWebAccount = (provider: string) =>
     shopScoped: false,
   });
 
+/** Oilaga yangi hisob joyi (keyingi raqam) — keyin «Oyna orqali kirish». */
+export const addAiWebAccount = (family: "gemini_web" | "chatgpt_web") =>
+  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${family}/add`, {
+    method: "POST",
+    shopScoped: false,
+  });
+
 export const deleteAiWebAccount = (provider: string) =>
   request<void>(`/product-ai/web-ai/accounts/${provider}`, {
     method: "DELETE",

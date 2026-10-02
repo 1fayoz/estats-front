@@ -2052,7 +2052,10 @@ export type AiProviderMode = "web" | "api" | "auto";
 
 export interface AiWebAccountState {
   id: number;
-  provider: "gemini_web" | "gemini_web_2" | "chatgpt_web";
+  /** Hisob kaliti: `gemini_web`, `gemini_web_2` … `chatgpt_web`, `chatgpt_web_2` … */
+  provider: string;
+  family?: "gemini_web" | "chatgpt_web";
+  number?: number;
   name: string;
   status: "active" | "needs_auth" | "expired" | "rate_limited" | "captcha" | "error";
   mode: AiProviderMode;
@@ -2066,6 +2069,9 @@ export interface AiWebAccountState {
   totalMessages: number;
   lastCheckedAt: string | null;
   lastError: string | null;
+  /** Limitda bo'lsa — qachon tiklanadi; `limitExact` — sayt aytgan vaqt. */
+  limitResetsAt?: string | null;
+  limitExact?: boolean;
 }
 
 export interface AiChatImage {
