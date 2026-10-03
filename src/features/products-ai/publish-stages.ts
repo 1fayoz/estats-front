@@ -21,7 +21,9 @@ export interface PublishPhase {
 }
 
 export const PUBLISH_PHASES: PublishPhase[] = [
-  { key: "category", short: "Kategoriya", label: "Kategoriya tanlandi", parts: ["starting", "category"] },
+  // `precheck` — AI tekshiruvi (rasm↔matn, surat qoidalari) FONDA, brauzer
+  // ochilishidan oldin (2026-10-03).
+  { key: "category", short: "Kategoriya", label: "AI tekshiruvi va kategoriya", parts: ["precheck", "starting", "category"] },
   { key: "content", short: "Ma'lumot", label: "Nom, tavsif va rasmlar yuklandi", parts: ["content", "images"] },
   { key: "review", short: "Yakunlash", label: "Uzum'ning o'z tekshiruvidan o'tdi", parts: ["review"] },
 ];
@@ -61,6 +63,7 @@ export const EDIT_STAGE_ORDER = [
 ] as const;
 
 export const EDIT_STAGE_LABEL: Record<string, string> = {
+  precheck: "AI tekshiruvi: rasm va matn mosligi, surat qoidalari",
   opening: "Uzum kabineti ochilmoqda",
   names: "Nom yangilanmoqda",
   descriptions: "Qisqacha tavsif va tavsif (rasmlari bilan) yozilmoqda",
@@ -73,7 +76,7 @@ export const EDIT_STAGE_LABEL: Record<string, string> = {
 
 // Galereya matndan OLDIN (estats-publish: keyin bo'lsa bo'limlar saqlanmaydi).
 const EDIT_PHASES_ALL: PublishPhase[] = [
-  { key: "open", short: "Ochish", label: "Uzum kabinetida tovar ochildi", parts: ["opening"] },
+  { key: "open", short: "Tekshiruv va ochish", label: "AI tekshiruvi, Uzum kabinetida tovar ochildi", parts: ["precheck", "opening"] },
   { key: "gallery", short: "Rasmlar", label: "Galereya rasmlari almashtirildi", parts: ["gallery"] },
   { key: "text", short: "Matn va bo'limlar", label: "Nom, tavsif, setka, tarkib, yo'riqnoma", parts: ["names", "descriptions", "sections"] },
   { key: "save", short: "Saqlash", label: "Saqlandi, xususiyatlar to'ldirildi", parts: ["saving", "attributes", "finishing"] },

@@ -182,9 +182,10 @@ export function WorkspaceHeader({
   onDraft: (draft: AiDraft) => void;
 }) {
   const publishStatus = draft?.uzumPublish?.status || null;
-  const showPublish = Boolean(publishStatus && publishStatus !== "linked");
   const retry = draft?.autoRetry ?? null;
   const running = Boolean(draft && draft.progress < 100 && !draft.error && !retry);
+  // AI quvuri ketayotganda — uning yo'li; aks holda joylash natijasi/fazalari.
+  const showPublish = Boolean(publishStatus && publishStatus !== "linked" && !running);
   const failed = Boolean(draft?.error || draft?.stage === "failed");
   const ringState = failed ? "failed" : running ? "running" : draft?.progress === 100 ? "done" : "idle";
   const cover = draft?.images?.[0] || draft?.sourceImages?.[0] || null;

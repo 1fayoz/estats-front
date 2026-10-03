@@ -19,7 +19,7 @@ export const TAB_TITLE: Record<DraftTabKey, string> = {
 };
 
 /** Sotuvchi harakat qilishi kerak bo'lgan holatlar — "xato" emas, "keyingi qadam". */
-export const FAILED_PUBLISH = new Set(["error", "category_unresolved", "shop_unavailable", "shop_mismatch"]);
+export const FAILED_PUBLISH = new Set(["error", "blocked", "category_unresolved", "shop_unavailable", "shop_mismatch"]);
 
 /** Do'kon bilan bog'liq to'xtashlarda `estats-publish` bergan ANIQ xabar ko'rsatiladi. */
 export const SHOP_PUBLISH_STOPS = new Set(["shop_unavailable", "shop_mismatch"]);
@@ -28,12 +28,14 @@ export const SHOP_PUBLISH_STOPS = new Set(["shop_unavailable", "shop_mismatch"])
 export const EDIT_STATUS_LABEL: Record<string, string> = {
   published: "Uzum'dagi tovar yangilandi ✓",
   error: "Yangilanmadi",
+  blocked: "AI tekshiruvi to'xtatdi — Uzum'ga bormadi",
   needs_manual_step: "Yangilash bir bosqichda to'xtadi — qo'lda tekshirish kerak",
   unknown_final_state: "Yangilash holati noma'lum — qayta bosing",
 };
 
 export const PUBLISH_STATUS_LABEL: Record<string, string> = {
   published: "Uzum'ga joylandi ✓",
+  blocked: "AI tekshiruvi to'xtatdi — Uzum'ga bormadi",
   needs_login: "Uzum sessiyasi yo'q — Sozlamalar → Integratsiyalar'da ulaning",
   captcha: "Uzum CAPTCHA so'radi — qayta urinib ko'ring",
   category_unresolved: "Kategoriya avtomatik topilmadi — qo'lda joylash kerak",
@@ -45,6 +47,7 @@ export const PUBLISH_STATUS_LABEL: Record<string, string> = {
 };
 
 export const PUBLISH_STAGE_LABEL: Record<string, string> = {
+  precheck: "AI tekshiruvi (rasm va matn mosligi)",
   starting: "sahifa ochilmoqda",
   category: "kategoriya aniqlanmoqda",
   content: "nom va tavsif to'ldirilmoqda",
