@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
 
-import { FAILED_PUBLISH, draftShop } from "./lib";
+import { FAILED_PUBLISH, RETRY_REASON_LABEL, draftShop, retryTimeText } from "./lib";
 import styles from "./workspace.module.css";
 
 export interface ActionBarHandlers {
@@ -77,7 +77,10 @@ export function ActionBar({
   const publishStatus = publish?.status || null;
   const publishing = publishStatus === "queued" || publishStatus === "running";
   const linked = Boolean(publish?.linkedManually && publishStatus === "linked");
-  const running = Boolean(draft && draft.progress < 100 && !draft.error);
+  const retry = draft?.autoRetry ?? null;
+  // Avtomatik qayta urinish navbatda — bu «ishlayapti» emas: sotuvchi
+  // kutmasdan hozir davom ettira oladi.
+  const running = Boolean(draft && draft.progress < 100 && !draft.error && !retry);
   const failed = Boolean(draft?.error || draft?.stage === "failed");
   const ready = Boolean(draft && draft.progress >= 95 && !failed);
   const targetShop = draft ? draftShop(draft).title : null;
@@ -131,6 +134,13 @@ export function ActionBar({
     primary = (
       <button type="button" className={cn(styles.btn, styles.btnFlat)} disabled>
         <Loader2 className="size-4 animate-spin" aria-hidden /> Tayyorlanmoqda…
+      </button>
+    );
+  } else if (retry) {
+    status = `${RETRY_REASON_LABEL[retry.reason] ?? retry.reason} — ${retryTimeText(retry.at)} da o'zi davom etadi (${retry.attempt}-urinish)`;
+    primary = (
+      <button type="button" className={cn(styles.btn, styles.btnPrimary)} onClick={h.onRetry} disabled={busy === "retry"}>
+        {spin("retry", RefreshCw)} Hozir davom ettirish
       </button>
     );
   } else if (failed) {

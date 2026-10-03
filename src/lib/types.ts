@@ -2394,6 +2394,12 @@ export interface AiDraft extends AiDraftRow {
     } | null;
   } | null;
   /** Xaridor tanlaydigan variantlar (rang, o'lcham …). */
+  /**
+   * Yiqilgan yurishning avtomatik qayta urinishi navbatda (backend
+   * `auto_retry`): `at` — Unix soniya. Sahifa «HH:MM da o'zi davom etadi»
+   * deb ko'rsatadi, spinner emas.
+   */
+  autoRetry?: { reason: string; at: number; attempt: number; message?: string } | null;
   variants?: AiVariants;
   /** Har ko'rinadigan variant uchun yasalgan kadrlar: `{kalit: [url]}`. */
   variantImages?: Record<string, string[]>;

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, ImagePlus, Loader2, PackagePlus, Sparkles, Store } from "lucide-react";
+import { ArrowLeft, Check, Clock, ImagePlus, Loader2, PackagePlus, Sparkles, Store } from "lucide-react";
 
 import { TopbarSlot } from "@/components/layout/topbar-slot";
 import { Button } from "@/components/ui/button";
@@ -22,8 +22,8 @@ import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
 
 import {
-  EDIT_STATUS_LABEL, FAILED_PUBLISH, PUBLISH_STAGE_LABEL, PUBLISH_STATUS_LABEL, SHOP_PUBLISH_STOPS,
-  draftShop, imageCostText, imageEngineOf,
+  EDIT_STATUS_LABEL, FAILED_PUBLISH, PUBLISH_STAGE_LABEL, PUBLISH_STATUS_LABEL, RETRY_REASON_LABEL, SHOP_PUBLISH_STOPS,
+  draftShop, imageCostText, imageEngineOf, retryTimeText,
 } from "./lib";
 import styles from "./workspace.module.css";
 
@@ -126,13 +126,18 @@ function PublishTrack({ draft }: { draft: AiDraft }) {
       </p>
     );
   } else {
+    // Xabar bo'sh bo'lsa (masalan `needs_manual_step`) — `estats-publish`
+    // yozgan OXIRGI qator sabab (prod #24: «tovar formasi yuklanmadi»).
+    const detail = publish.message || (status !== "published" ? lastLog : "");
     const text = editing && EDIT_STATUS_LABEL[status]
-      ? `${EDIT_STATUS_LABEL[status]}${status !== "published" && publish.message ? ` — ${publish.message}` : ""}`
+      ? `${EDIT_STATUS_LABEL[status]}${status !== "published" && detail ? ` — ${detail}` : ""}`
       : status === "published" && publish.uzumShopTitle
         ? `«${publish.uzumShopTitle}» do'koniga joylandi ✓`
         : SHOP_PUBLISH_STOPS.has(status) && publish.message
           ? publish.message
-          : PUBLISH_STATUS_LABEL[status] ?? publish.message;
+          : PUBLISH_STATUS_LABEL[status]
+            ? `${PUBLISH_STATUS_LABEL[status]}${detail && !PUBLISH_STATUS_LABEL[status].includes(detail) ? ` — ${detail}` : ""}`
+            : detail;
     const total = publish.timings ? Object.values(publish.timings).reduce((a, b) => a + b, 0) / 1000 : 0;
     note = (
       <p className={cn("text-center text-xs", status === "published" ? "air-ok" : FAILED_PUBLISH.has(status) ? "air-bad" : "air-warn")}>
@@ -175,7 +180,8 @@ export function WorkspaceHeader({
 }) {
   const publishStatus = draft?.uzumPublish?.status || null;
   const showPublish = Boolean(publishStatus && publishStatus !== "linked");
-  const running = Boolean(draft && draft.progress < 100 && !draft.error);
+  const retry = draft?.autoRetry ?? null;
+  const running = Boolean(draft && draft.progress < 100 && !draft.error && !retry);
   const failed = Boolean(draft?.error || draft?.stage === "failed");
   const ringState = failed ? "failed" : running ? "running" : draft?.progress === 100 ? "done" : "idle";
   const cover = draft?.images?.[0] || draft?.sourceImages?.[0] || null;
@@ -222,6 +228,12 @@ export function WorkspaceHeader({
                       {running && <Loader2 className="size-3 animate-spin" aria-hidden />}
                       {draft.stageLabel}
                     </span>
+                    {retry && (
+                      <span className={cn(styles.chip, styles.chipWarn)} title={retry.message || undefined}>
+                        <Clock className="size-3" aria-hidden />
+                        {`${RETRY_REASON_LABEL[retry.reason] ?? retry.reason} — ${retryTimeText(retry.at)} da o'zi davom etadi`}
+                      </span>
+                    )}
                     {live && <span className={cn(styles.chip, styles.chipOk)}><Check className="size-3" aria-hidden /> Uzum'da · {draft.uzumPublish?.productId}</span>}
                     {shop?.title && <span className={styles.chip}><Store className="size-3" aria-hidden /> {shop.title}</span>}
                     <span className={cn(styles.chip, imageEngineOf(draft) === "web" && styles.chipOk)} title={cost.hint}>

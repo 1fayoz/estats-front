@@ -92,6 +92,18 @@ export function isDraftBusy(draft: AiDraft | null): boolean {
   );
 }
 
+/** «22:06 da» — avtomatik qayta urinish vaqti (Unix soniya → mahalliy soat). */
+export function retryTimeText(at: number): string {
+  const d = new Date(at * 1000);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+export const RETRY_REASON_LABEL: Record<string, string> = {
+  busy: "AI band edi",
+  limit: "AI limiti tugagan",
+  offline: "brauzer ulanmagan",
+};
+
 /** Rasm yo'li — eski backend maydonni bermasa pulli API deb hisoblanadi. */
 export function imageEngineOf(source: { imageEngine?: AiImageEngine } | null | undefined): AiImageEngine {
   return source?.imageEngine ?? "api";
