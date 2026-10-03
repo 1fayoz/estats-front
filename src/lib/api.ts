@@ -105,7 +105,9 @@ export const API_BASE = (
 export class ApiError extends Error {
   constructor(
     message: string,
-    readonly status: number
+    readonly status: number,
+    /** Server bergan mashina kodi (`detail` obyekt bo'lsa) — masalan "perm_banned". */
+    readonly code?: string
   ) {
     super(message);
     this.name = "ApiError";
@@ -179,11 +181,16 @@ async function request<T>(
 
   const body = await response.json().catch(() => null);
   if (!response.ok) {
-    const detail =
-      (body && (body.detail ?? body.message ?? body.error)) || "So'rov bajarilmadi";
+    const raw = body && (body.detail ?? body.message ?? body.error);
+    // `detail` obyekt bo'lishi mumkin: `{code, message, …}` (masalan
+    // perm_banned). Shunda xabar sifatida `message` olinadi, `code` esa
+    // chaqiruvchiga (confirm oynasi kabi) yetadi.
+    const isObj = raw && typeof raw === "object";
+    const message = isObj ? (raw.message ?? JSON.stringify(raw)) : (raw || "So'rov bajarilmadi");
     throw new ApiError(
-      typeof detail === "string" ? detail : JSON.stringify(detail),
-      response.status
+      typeof message === "string" ? message : JSON.stringify(message),
+      response.status,
+      isObj ? raw.code : undefined,
     );
   }
   return body as T;
@@ -1539,6 +1546,14 @@ export const editAiDraftUzum = (id: number, replaceImages: boolean) =>
     `/product-ai/drafts/${id}/edit-uzum${replaceImages ? "?replace_images=true" : ""}`,
     { method: "POST" },
   );
+
+/**
+ * Uzum ABADIY bloklagan tovarni YANGI e'lon sifatida qaytadan joylaydi (§9.65).
+ * Eski e'lon o'lgani uchun dublikat emas. «Uzum'da yangilash» `perm_banned`
+ * qaytargach, sotuvchi «yangi qilib joylaymi?» ga «ha» desa shu chaqiriladi.
+ */
+export const republishAiDraftNew = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/republish-new`, { method: "POST" });
 
 /**
  * Bizning bazamizdagi holat va Uzum'ning HAQIQIY holati — ikki

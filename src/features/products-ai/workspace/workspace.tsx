@@ -7,6 +7,9 @@ import { toast } from "sonner";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DraftFields,
   formPatch,
   initialForm,
@@ -27,6 +30,7 @@ import {
   patchAiDraft,
   publishAiDraftUzum,
   regenerateAiDraft,
+  republishAiDraftNew,
   retryAiDraft,
   stopAiDraftUzum,
   unlinkAiDraftProduct,
@@ -88,6 +92,8 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
   const [editMode, setEditMode] = React.useState(false);
   const [splitOpen, setSplitOpen] = React.useState(false);
   const [linkOpen, setLinkOpen] = React.useState(false);
+  // Uzum ABADIY bloklagan tovarda «Uzum'da yangilash» → «yangi qilib joylaymi?» (§9.65).
+  const [permBanned, setPermBanned] = React.useState<string | null>(null);
   const [sessionId, setSessionId] = React.useState<string | null>(null);
 
   const setTab = React.useCallback((next: DraftTabKey) => {
@@ -244,13 +250,30 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
       guardSplit(() =>
         act("editUzum", async () => {
           if (!draft) return;
-          apply(await editAiDraftUzum(draft.id, replaceImages));
+          try {
+            apply(await editAiDraftUzum(draft.id, replaceImages));
+          } catch (err) {
+            // Uzum tovarni ABADIY bloklagan — tahrirlab bo'lmaydi. Xato
+            // ko'rsatish o'rniga «yangi qilib joylaymi?» deb so'raymiz.
+            if (err instanceof ApiError && err.code === "perm_banned") {
+              setPermBanned(draft.uzumPublish?.productId ?? "");
+              return;
+            }
+            throw err;
+          }
           setEditMode(false);
           toast.success(replaceImages
             ? "Uzum'da yangilash boshlandi — matn, bo'limlar va rasmlar."
             : "Uzum'da yangilash boshlandi — matn va bo'limlar.");
         }),
       ),
+    onRepublishNew: () =>
+      act("republishNew", async () => {
+        if (!draft) return;
+        apply(await republishAiDraftNew(draft.id));
+        setPermBanned(null);
+        toast.success("Yangi tovar sifatida joylash boshlandi — eski (bloklangan) e'lon tegilmaydi.");
+      }),
     onRegenerate: () =>
       act("regenerate", async () => {
         if (!draft) return;
@@ -365,6 +388,35 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
       {draft && <SplitDialog draft={draft} open={splitOpen} onOpenChange={setSplitOpen} onDone={apply} />}
       {draft && <LinkProductDialog draft={draft} open={linkOpen} onOpenChange={setLinkOpen} onLinked={apply} />}
       <SessionDialog sessionId={sessionId} onClose={() => setSessionId(null)} />
+      <Dialog open={permBanned !== null} onOpenChange={(v) => !v && setPermBanned(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Tovar Uzum&apos;da abadiy bloklangan</DialogTitle>
+            <DialogDescription>
+              {permBanned ? `Uzum «${permBanned}» ` : "Uzum bu "}tovarni abadiy bloklagan —
+              kabinetda tahrirlab bo&apos;lmaydi. Shu kartochkani YANGI tovar sifatida
+              qaytadan joylaymizmi? Eski (bloklangan) e&apos;lon tegilmaydi.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              type="button"
+              className={cn(styles.btn, styles.btnFlat)}
+              onClick={() => setPermBanned(null)}
+            >
+              Yo&apos;q
+            </button>
+            <button
+              type="button"
+              className={cn(styles.btn, styles.btnPrimary)}
+              onClick={handlers.onRepublishNew}
+              disabled={busy === "republishNew"}
+            >
+              Ha, yangi qilib joyla
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
