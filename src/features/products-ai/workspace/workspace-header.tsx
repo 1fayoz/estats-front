@@ -110,7 +110,10 @@ function PublishTrack({ draft }: { draft: AiDraft }) {
   const editing = publish.kind === "edit";
   const phases = editing ? editPhases(publish.replaceImages) : PUBLISH_PHASES;
   const stageLabel = (stage: string) => (editing ? EDIT_STAGE_LABEL[stage] : PUBLISH_STAGE_LABEL[stage]) ?? stage;
-  const lastLog = publish.log?.length ? publish.log[publish.log.length - 1] : "";
+  // Oxirgi MAZMUNLI qator: «To'xtadi: needs_manual_step» yakuniy yorliq, sabab
+  // undan oldingi qatorda («tovar formasi yuklanmadi — skelet holatida»).
+  const lines = (publish.log ?? []).filter((l) => l && !/^(To'xtadi|Tayyor|Xato):?/.test(l));
+  const lastLog = lines.length ? lines[lines.length - 1] : (publish.log?.[publish.log.length - 1] ?? "");
   const stage = publish.stage;
 
   let note: React.ReactNode;
