@@ -37,6 +37,14 @@ export function AiGenerationTray({
   // ishlayotgani" pastda — sotuvchi avval hal qilinishi kerak
   // bo'lganini ko'rsin.
   const ordered = [...attention, ...running];
+  // Tirik Uzum tovarini tahrirlash (`productId` bor) — YANGI qoralama
+  // EMAS: «ko'rib chiqishni kutmoqda» emas, «Uzum'da yangilanishni
+  // kutmoqda». Foydalanuvchi: «tahrirlashni bosib qilingan, lekin yangidek
+  // ko'rsatyapti» (§9.66).
+  const liveWaiting = attention.filter((row) => row.productId && !row.error).length;
+  const idleLabel = liveWaiting === attention.length && attention.length > 0
+    ? `${attention.length} ta kartochka Uzum'da yangilanishni kutmoqda`
+    : `${rows.length} ta kartochka tayyor`;
 
   return (
     // Burchakdagi YAGONA panelga karta bo'lib qo'shiladi (`TraySection`) — o'z
@@ -62,7 +70,7 @@ export function AiGenerationTray({
           <span className="min-w-0 flex-1 truncate">
             {running.length > 0
               ? `AI ${running.length} ta qoralamani tayyorlamoqda`
-              : `${rows.length} ta qoralama ko'rib chiqishni kutmoqda`}
+              : idleLabel}
           </span>
           {collapsed ? (
             <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -75,6 +83,8 @@ export function AiGenerationTray({
           <div className="max-h-[60vh] space-y-1.5 overflow-y-auto border-t p-2">
             {ordered.map((row) => {
               const isRunning = row.progress < 100 && !row.error;
+              // Tirik Uzum tovari tahriri (yakunlangan) — «Uzum'da yangilash» kutyapti.
+              const liveEdit = Boolean(row.productId) && !isRunning && !row.error;
               return (
                 <button
                   key={row.id}
@@ -115,7 +125,9 @@ export function AiGenerationTray({
                     >
                       {row.error ?? (isRunning
                         ? <JobLine draftId={row.id} fallback={row.stageLabel} />
-                        : row.stageLabel)}
+                        : liveEdit
+                          ? `Uzum'da · ${row.productId} — «Uzum'da yangilash» kutilyapti`
+                          : row.stageLabel)}
                     </div>
                     {isRunning && (
                       <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
@@ -129,10 +141,13 @@ export function AiGenerationTray({
                   <span
                     className={cn(
                       "shrink-0 text-[11px] font-semibold tabular-nums",
-                      row.error ? "text-destructive" : isRunning ? "text-primary" : "text-[color:var(--ok)]",
+                      row.error ? "text-destructive"
+                        : isRunning ? "text-primary"
+                          : liveEdit ? "text-amber-600 dark:text-amber-400"
+                            : "text-[color:var(--ok)]",
                     )}
                   >
-                    {row.error ? "Xato" : isRunning ? `${row.progress}%` : "Tayyor"}
+                    {row.error ? "Xato" : isRunning ? `${row.progress}%` : liveEdit ? "Yangilash" : "Tayyor"}
                   </span>
                 </button>
               );
