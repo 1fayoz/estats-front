@@ -304,9 +304,9 @@
   gap: 10px;
   padding: 12px 16px;
   border-radius: 16px;
-  background: color-mix(in oklab, var(--air-card) 88%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* ZICH fon: 88 % shaffof fon + blur bilan ham ostidagi «Variantlar · Rang»
+     qatori panel orqali o'qilib turardi (prod #17, 2026-10-03). */
+  background: var(--air-card);
   border: 1px solid var(--air-line);
   box-shadow: 0 -2px 24px rgba(16, 24, 40, 0.08), var(--lift);
 }
@@ -314,7 +314,7 @@
 /* Shaffof rejimda karta deyarli shaffof — ostidagi matn panel orqali
    ko'rinib qolardi (prodda topildi). Kanvasning o'zidan zich fon. */
 :global(.air-shell[data-surface="tinted"]) .bar {
-  background: color-mix(in oklab, var(--air-canvas) 94%, transparent);
+  background: var(--air-canvas);
 }
 
 /* ── Mayda detallar ───────────────────────────────────────────────── */
