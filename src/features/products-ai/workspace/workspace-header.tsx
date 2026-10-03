@@ -76,6 +76,17 @@ export function Track({
   );
 }
 
+/**
+ * Halqadagi foiz. Yiqilgan qoralamada backend `progress` 0 beradi (bosqich
+ * `failed`) — lekin ko'pincha rasmgacha hammasi tayyor (prod #29: nom, 6 rasm,
+ * faqat bo'lim qadami yiqilgan). Shuning uchun yiqilganda foiz chiziqdagi
+ * bajarilgan qadamlardan olinadi — halqa va chiziq bir narsani aytsin.
+ */
+function ringValue(draft: AiDraft): number {
+  if (draft.stage !== "failed") return draft.progress;
+  return Math.round(((doneIndex(draft) + 1) / AI_STAGES.length) * 100);
+}
+
 /** AI quvurining 7 qadami — holat `stage` emas, natija maydonlaridan (`stages.ts`). */
 function AiTrack({ draft }: { draft: AiDraft | null }) {
   const done = draft ? doneIndex(draft) : -1;
@@ -251,7 +262,7 @@ export function WorkspaceHeader({
               </div>
             </div>
           </div>
-          {draft && <ProgressRing value={draft.progress} state={ringState} />}
+          {draft && <ProgressRing value={ringValue(draft)} state={ringState} />}
         </div>
 
         {draft && showPublish ? <PublishTrack draft={draft} /> : <AiTrack draft={draft} />}
