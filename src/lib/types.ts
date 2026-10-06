@@ -2256,6 +2256,13 @@ export interface AiUzumPublish {
    */
   linkedManually?: boolean | null;
   linkedAt?: string | null;
+  /**
+   * Uzum tirik tovarga yo'q variantlarni qo'shtirmadi («Dizayn: Oy, Yulduz …») —
+   * sotuvchiga «variantlar bilan yangi kartochka» tanlovi ko'rsatiladi.
+   */
+  variantsBlocked?: string | null;
+  /** Shu sababli yaratilgan yangi kartochka qoralamasi. */
+  newCard?: { draftId: number; at?: string } | null;
   /** Oxirgi "Uzumda tekshirish" natijasi. `null` — hali tekshirilmagan. */
   verified: boolean | null;
   verifiedAt: string | null;

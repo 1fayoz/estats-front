@@ -1496,6 +1496,10 @@ export const splitAiVariants = (id: number) =>
   request<{ draft: AiDraft; kept: AiSplitChunk; created: { id: number; label: string; skus: number }[] }>(
     `/product-ai/drafts/${id}/variants/split`, { method: "POST" });
 
+/** Uzum tirik tovarga variant qo'shtirmagan — variantlar bilan YANGI kartochka (nusxa + joylash). */
+export const createAiVariantsNewCard = (id: number) =>
+  request<AiDraft>(`/product-ai/drafts/${id}/variants/new-card`, { method: "POST" });
+
 /** Bo'lingan kartochkani Uzum'ga olib borishni qayta urinish. */
 export const retryAiSplitPublish = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/variants/split/publish`, { method: "POST" });

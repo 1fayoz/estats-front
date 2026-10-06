@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ArrowLeft, Check, Clock, ImagePlus, Loader2, PackagePlus, Sparkles, Store } from "lucide-react";
 
 import { TopbarSlot } from "@/components/layout/topbar-slot";
@@ -17,7 +19,7 @@ import {
 } from "@/features/products-ai/publish-stages";
 import { JobProgress } from "@/features/products-ai/components/job-progress";
 import { SplitProgress } from "@/features/products-ai/components/split-dialog";
-import { mediaUrl } from "@/lib/api";
+import { ApiError, createAiVariantsNewCard, mediaUrl } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
 
@@ -174,8 +176,68 @@ function PublishTrack({ draft }: { draft: AiDraft }) {
           state: editing ? editPhaseState(phase, publish, publishing) : publishPhaseState(phase, publish, publishing),
         }))}
       />
-      <div className="px-5 pb-4">{note}</div>
+      <div className="px-5 pb-4">
+        {note}
+        {!publishing && (publish.variantsBlocked || publish.newCard) && <NewCardOffer draft={draft} />}
+      </div>
     </>
+  );
+}
+
+/**
+ * Uzum sotuvdagi tovarga yangi variant (Dizayn …) qo'shtirmaydi — vaqtincha
+ * sotuvdan olish ham ochmaydi (prodda 2899171). Sotuvchiga tanlov: variantli
+ * tovarni YANGI kartochka qilib joylash; eskisi qoldig'i va sotuvlari bilan qoladi.
+ */
+function NewCardOffer({ draft }: { draft: AiDraft }) {
+  const router = useRouter();
+  const publish = draft.uzumPublish!;
+  const [confirming, setConfirming] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const made = publish.newCard?.draftId;
+
+  if (made) {
+    return (
+      <p className="mt-2 text-center text-xs">
+        Variantlar bilan yangi kartochka:{" "}
+        <Link href={`/warehouse/ai/${made}`} className="font-medium underline">qoralama #{made}</Link>
+      </p>
+    );
+  }
+
+  const create = async () => {
+    setBusy(true);
+    try {
+      const fresh = await createAiVariantsNewCard(draft.id);
+      toast.success("Yangi kartochka yaratildi va Uzum'ga joylanmoqda.");
+      router.push(`/warehouse/ai/${fresh.id}`);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Yangi kartochka yaratilmadi.");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 flex flex-col items-center gap-2 text-center text-xs">
+      <p className="text-[color:var(--air-label)]">
+        Uzum bu sotuvdagi tovarga yangi variant qo&apos;shishga ruxsat bermaydi ({publish.variantsBlocked}).
+        Variantli tovarni alohida kartochka qilish mumkin — eskisi qoldig&apos;i va sotuvlari bilan qoladi.
+      </p>
+      {confirming ? (
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span>Uzum&apos;da yangi tovar yaratiladi (moderatsiyadan o&apos;tadi). Davom etilsinmi?</span>
+          <Button size="sm" onClick={create} disabled={busy}>
+            {busy ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : null}
+            Ha, joylash
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setConfirming(false)} disabled={busy}>Bekor qilish</Button>
+        </div>
+      ) : (
+        <Button size="sm" variant="outline" onClick={() => setConfirming(true)}>
+          Variantlar bilan yangi kartochka joylash
+        </Button>
+      )}
+    </div>
   );
 }
 
