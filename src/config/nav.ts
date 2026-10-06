@@ -143,6 +143,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { label: "Kategoriyalar", action: "market.categories", href: "/market/categories" as Route, icon: Boxes },
           { label: "Dinamikasi", action: "market.dynamics", href: "/market/dynamics" as Route, icon: Boxes },
           { label: "Qatlamlari", action: "market.niches", href: "/market/niches" as Route, icon: Boxes },
+          { label: "Byudjetga mos nishalar", action: "market.niches", href: "/market/portfolio" as Route, icon: Boxes },
           { label: "Narx asosida tahlil", action: "market.prices", href: "/market/prices" as Route, icon: Boxes },
           { label: "Raqobat / assortiment", action: "market.competition", href: "/market/competition" as Route, icon: Boxes },
         ],

@@ -132,6 +132,24 @@ export type CategoriesData = {
   top_shops_totals: Totals;
 };
 
+export type PortfolioRow = {
+  path: string;
+  category_id: number | null;
+  revenue: number;
+  units: number;
+  avg_price: number;
+  shops: number;
+  growth: number | null;
+  active_shops: number;
+  opportunity: number;
+  opportunity_parts: { demand: number; growth: number; entry: number; turnover: number; competition: number | null };
+  /** O'rtacha sotayotgan do'konning oylik sotuvi (dona / so'm). */
+  shop_units_month: number;
+  shop_revenue_month: number;
+  /** Bir oylik zaxira puli — tannarx ulushi bilan. */
+  capital: number;
+};
+
 export type LayerRow = {
   path: string;
   category_id: number | null;
@@ -311,6 +329,8 @@ export const report = {
     "/prices", params,
   ),
   layers: (params: ListParams) => get<Paged<LayerRow>>("/layers", params),
+  portfolio: (params: ListParams) =>
+    get<{ items: PortfolioRow[]; meta: ReportMeta | null; formula?: string }>("/portfolio", params),
   categoryPaths: (params: ListParams) => get<{ path: string; revenue: number | null }[]>("/category-paths", params),
   products: (params: ListParams) =>
     get<Paged<ProductRow> & { totals: { revenue: number | null; units: number | null } }>("/products", params),
