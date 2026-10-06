@@ -150,6 +150,8 @@ export function BreakEvenCard({
           </div>
         )}
 
+        <AdCeiling economics={economics} />
+
         {/* Narx kalkulyatori — sotuvchi o'zi kiritib ko'radi */}
         <div className="space-y-3 rounded-2xl border border-primary/20 bg-primary/[.03] p-4">
           <Label htmlFor="price-check" className="text-xs">
@@ -358,6 +360,50 @@ function Metric({
         {value}
       </div>
       {hint ? <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div> : null}
+    </div>
+  );
+}
+
+
+/**
+ * Reklama chegarasi — HOZIRGI narxda bitta sotuvga reklamaga ko'pi bilan
+ * qancha sarflash mumkin (shundan oshsa sotuv zararga ishlaydi).
+ *
+ * Formula ochiq: dona foydasi = narx·(1−komissiya) − logistika − tan narx;
+ * beziyon DRR = dona foydasi ÷ narx. Hech qanday taxminiy konversiya yo'q —
+ * faqat shu tovarning o'z raqamlari (ADR-001).
+ */
+function AdCeiling({ economics }: { economics: UnitEconomics }) {
+  const current = economics.priceLadder.find((r) => r.isCurrent);
+  const price = current?.price ?? economics.avgSellPrice;
+  if (!price || price <= 0) return null;
+  const unitProfit =
+    current?.profit ?? price * (1 - economics.commissionRate / 100) - economics.logisticsPerUnit - economics.unitCost;
+  const drr = (unitProfit / price) * 100;
+
+  return (
+    <div className="space-y-2 rounded-2xl border p-4 text-sm">
+      <div className="flex items-center gap-2 font-medium">
+        <TrendingUp className="h-4 w-4" /> Reklama chegarasi ({formatSum(price)} narxda)
+      </div>
+      {unitProfit <= 0 ? (
+        <p className="text-destructive">
+          Bu narxda har sotuv allaqachon {formatSum(Math.abs(unitProfit))} zarar — reklamaga joy yo&apos;q.
+          Avval narxni beziyon nuqtadan yuqoriga ko&apos;taring.
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <Metric label="Bitta sotuvga reklama — ko'pi bilan" value={formatSum(unitProfit)} accent />
+            <Metric label="Beziyon DRR (reklama ÷ tushum)" value={`${drr.toFixed(1)}%`} />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Reklamaning bitta buyurtmaga xarajati (CPO) {formatSum(unitProfit)} dan oshsa yoki DRR {drr.toFixed(1)}%
+            dan oshsa — reklamadan kelgan har sotuv zarar. Hisob: {formatSum(price)} × (1 − {economics.commissionRate.toFixed(1)}%)
+            − {formatSum(economics.logisticsPerUnit)} logistika − {formatSum(economics.unitCost)} tan narx.
+          </p>
+        </>
+      )}
     </div>
   );
 }
