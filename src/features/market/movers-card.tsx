@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import { Card, Empty, ZTable, fmt, styles, useLoad, type Column } from "@/features/report/ui";
-import { MARKET_BASE } from "@/lib/market";
+import { MARKET_BASE, marketFetch } from "@/lib/market";
 
 type Mover = {
   product_id: number;
@@ -56,7 +56,7 @@ export function MoversCard({
   const { data, error } = useLoad<{ items: Mover[]; scope_revenue: number } | null>(
     () =>
       id
-        ? fetch(
+        ? marketFetch(
             `${MARKET_BASE}/${kind}/${id}/movers?start=${start}&end=${end}` +
               `&order=${mode}&limit=${limit}`,
             { cache: "no-store" },

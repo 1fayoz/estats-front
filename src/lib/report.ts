@@ -7,7 +7,7 @@
  */
 
 import { ApiError } from "./api";
-import { MARKET_BASE } from "./market";
+import { MARKET_BASE, marketFetch } from "./market";
 
 /*
   Yuklanish holati — BITTA joyda.
@@ -44,7 +44,7 @@ async function get<T>(path: string, params?: Record<string, unknown>): Promise<T
   let response: Response;
   track(1);
   try {
-    response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
+    response = await marketFetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
   } catch {
     track(-1);
     throw new ApiError("Bozor xizmatiga ulanib bo'lmadi.", 0);

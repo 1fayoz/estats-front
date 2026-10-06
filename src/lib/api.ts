@@ -27,6 +27,8 @@ import type {
   Me,
   Goal,
   MarketingReport,
+  ActionItem,
+  TodayActions,
   NetworksOverview,
   Paginated,
   PermissionModule,
@@ -899,6 +901,18 @@ export const fetchAdVerdict = (productId: number) =>
   request<AdVerdict>(`/social/ad-check/${productId}`);
 
 export const fetchMarketingReport = () => request<MarketingReport>("/marketing");
+
+export const fetchTodayActions = (force = false) =>
+  request<TodayActions>(`/actions/today${force ? "?force=true" : ""}`);
+
+export const fetchActionHistory = (limit = 30) =>
+  request<ActionItem[]>(`/actions/history?limit=${limit}`);
+
+export const decideAction = (id: number, decision: "accept" | "reject" | "done") =>
+  request<ActionItem>(`/actions/${id}/decision`, {
+    method: "POST",
+    body: JSON.stringify({ decision }),
+  });
 
 export const syncSocialAccount = (id: number) =>
   request<SocialAccount>(`/social/accounts/${id}/sync`, { method: "POST" });

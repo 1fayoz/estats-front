@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { BarChart3, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, ListChecks, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -30,6 +30,19 @@ export interface NavGroup {
 }
 
 export const NAV_GROUPS: NavGroup[] = [
+  {
+    title: "Asosiy",
+    items: [
+      {
+        label: "Bugun",
+        // Tavsiyalarda foyda raqamlari bor — P&L ruxsati bilan (backend `page("pnl")`).
+        action: "pnl.view",
+        href: "/today" as Route,
+        icon: ListChecks,
+        description: "Nima qilish kerak — pul ta'siri bilan",
+      },
+    ],
+  },
   {
     title: "Ombor",
     items: [

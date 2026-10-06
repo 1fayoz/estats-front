@@ -5,7 +5,7 @@ import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { MARKET_BASE } from "@/lib/market";
+import { MARKET_BASE, marketFetch } from "@/lib/market";
 
 /**
  * «Hozir yangilash» — bitta bozor kartochkasini Uzum'dan darhol o'qiydi.
@@ -31,7 +31,7 @@ export function RefreshProduct({
   const run = async () => {
     setBusy(true);
     try {
-      const response = await fetch(`${MARKET_BASE}/products/${productId}/refresh`, {
+      const response = await marketFetch(`${MARKET_BASE}/products/${productId}/refresh`, {
         method: "POST",
       });
       const body = await response.json().catch(() => null);

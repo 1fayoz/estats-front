@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Pagination, useServerPage } from "@/components/ui/pagination";
 import { Grid, NoData, Pending, type Column } from "@/features/market/shared";
 import { formatCompact, formatDate, formatNumber } from "@/lib/format";
-import { MARKET_BASE } from "@/lib/market";
+import { MARKET_BASE, marketFetch } from "@/lib/market";
 
 type Summary = {
   revenue: number | null;
@@ -348,7 +348,7 @@ export function ScopeAnalytics({
 }
 
 function getJson(url: string) {
-  return fetch(url, { cache: "no-store" }).then((r) =>
+  return marketFetch(url, { cache: "no-store" }).then((r) =>
     r.ok ? r.json() : Promise.reject(new Error(String(r.status))),
   );
 }

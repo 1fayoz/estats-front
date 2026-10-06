@@ -12,11 +12,33 @@
  */
 
 import { API_BASE, ApiError } from "./api";
+import { AUTH_STORAGE_KEY } from "./auth";
 import { PAGE_SIZE } from "./pagination";
 
 export const MARKET_BASE =
   process.env.NEXT_PUBLIC_MARKET_API?.replace(/\/$/, "") ||
   API_BASE.replace(/\/api\/v1$/, "/market");
+
+/**
+ * Bozor xizmatiga so'rov — sessiya tokeni bilan.
+ *
+ * Bozor API'si `/api/v1/*` ni sessiyasiz qabul qilmaydi (estats-market
+ * `src/api/auth.py`): token yadroning `/auth/me` si orqali tekshiriladi.
+ * MARKET_BASE ga har qanday `fetch` SHU orqali bo'lsin.
+ */
+export function marketFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  let token = "";
+  if (typeof window !== "undefined") {
+    try {
+      token = JSON.parse(window.localStorage.getItem(AUTH_STORAGE_KEY) || "{}")?.state?.accessToken ?? "";
+    } catch {
+      token = "";
+    }
+  }
+  const headers = new Headers(init.headers);
+  if (token && !headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+  return fetch(url, { ...init, headers });
+}
 
 async function get<T>(path: string, params?: Record<string, unknown>): Promise<T> {
   const query = new URLSearchParams();
@@ -28,7 +50,7 @@ async function get<T>(path: string, params?: Record<string, unknown>): Promise<T
 
   let response: Response;
   try {
-    response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
+    response = await marketFetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
   } catch {
     throw new ApiError("Bozor xizmatiga ulanib bo'lmadi.", 0);
   }
@@ -381,13 +403,13 @@ export const market = {
   // jimgina eskirib qoladi.
 
   async backfill(): Promise<void> {
-    const response = await fetch(`${MARKET_BASE}/ops/backfill`, { method: "POST" });
+    const response = await marketFetch(`${MARKET_BASE}/ops/backfill`, { method: "POST" });
     if (!response.ok) throw new ApiError("To'ldirish ishga tushmadi.", response.status);
   },
 
   async mine(stage: string, day?: string): Promise<void> {
     const query = day ? `?day=${day}` : "";
-    const response = await fetch(`${MARKET_BASE}/ops/mine/${stage}${query}`, { method: "POST" });
+    const response = await marketFetch(`${MARKET_BASE}/ops/mine/${stage}${query}`, { method: "POST" });
     if (!response.ok) throw new ApiError("Qadam ishga tushmadi.", response.status);
   },
 };

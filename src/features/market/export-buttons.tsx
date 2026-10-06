@@ -4,7 +4,7 @@ import * as React from "react";
 import { Download, FileSpreadsheet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { MARKET_BASE } from "@/lib/market";
+import { MARKET_BASE, marketFetch } from "@/lib/market";
 
 /**
  * Hisobotni yuklab olish.
@@ -38,7 +38,7 @@ export function ExportButtons({
     try {
       const query = new URLSearchParams({ days: String(days) });
       if (root) query.set("root", String(root));
-      const response = await fetch(`${MARKET_BASE}/exports/${report}.${format}?${query}`);
+      const response = await marketFetch(`${MARKET_BASE}/exports/${report}.${format}?${query}`);
       if (!response.ok) {
         const body = await response.json().catch(() => null);
         throw new Error(body?.detail ?? `Yuklab bo'lmadi (${response.status})`);

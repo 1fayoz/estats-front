@@ -63,7 +63,9 @@ export default function SeoPage() {
       ]);
       setRows(list);
       setAiKey(ai);
-    } catch {
+    } catch (e) {
+      // Ilgari xato jim yutilib, "tovar yo'q" degan bo'sh holat chiqardi.
+      toast.error(e instanceof Error ? e.message : "SEO ro'yxatini yuklab bo'lmadi");
     } finally {
       setLoading(false);
     }

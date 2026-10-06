@@ -6,7 +6,7 @@ import { Star } from "lucide-react";
 import { Pagination, usePagination } from "@/components/ui/pagination";
 import { NoData, Pending } from "@/features/market/shared";
 import { formatDate, formatNumber } from "@/lib/format";
-import { MARKET_BASE } from "@/lib/market";
+import { MARKET_BASE, marketFetch } from "@/lib/market";
 import { cn } from "@/lib/utils";
 
 type Review = {
@@ -66,7 +66,7 @@ export function ReviewsCard({
     setLoading(true);
     const query = new URLSearchParams({ limit: "100" });
     if (rating) query.set("rating", String(rating));
-    fetch(`${MARKET_BASE}/products/${productId}/reviews?${query}`, { cache: "no-store" })
+    marketFetch(`${MARKET_BASE}/products/${productId}/reviews?${query}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((body) => {
         if (!alive) return;

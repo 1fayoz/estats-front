@@ -29,10 +29,15 @@ const KIND = {
 export default function MarketingPage() {
   const [data, setData] = React.useState<MarketingReport | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     try {
       setData(await fetchMarketingReport());
+      setError(null);
+    } catch (e) {
+      // Ilgari xato yutilib, sahifa butunlay bo'sh qolardi.
+      setError(e instanceof Error ? e.message : "Hisobotni yuklab bo'lmadi");
     } finally {
       setLoading(false);
     }
@@ -52,7 +57,18 @@ export default function MarketingPage() {
       </div>
     );
   }
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="space-y-4">
+        <PageHeader title="Marketing" description="Hisobot yuklanmadi" />
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="py-4 text-sm text-destructive">
+            {error ?? "Hisobotni yuklab bo'lmadi"}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const copyProof = (title: string, proof: string[]) => {
     const text = proof.length ? `${title}\n\n${proof.map((p) => `• ${p}`).join("\n")}` : title;

@@ -3128,3 +3128,61 @@ export interface SupportEmail {
   /** Foydalanuvchining do'konlari soni. */
   shops: number;
 }
+
+// ── «Bugun» — tavsiyalar jurnali (backend `/actions`) ──────────────────────
+
+export type ActionSeverity = "critical" | "important" | "opportunity";
+
+export interface ActionEvidence {
+  label: string;
+  value: number | string;
+  unit: string;
+  /** Raqam qayerdan — jadval yoki formula (ADR-001). */
+  source: string;
+}
+
+export interface ActionImpact {
+  /** Oyiga so'm; `low` — hisoblab bo'lmasa null (elastiklik o'ylab topilmaydi). */
+  monthly_profit_uzs?: { low: number | null; high: number | null };
+  basis?: string;
+}
+
+export interface ActionItem {
+  id: number;
+  kind: string;
+  productId: number | null;
+  severity: ActionSeverity;
+  title: string;
+  reason: string;
+  evidence: ActionEvidence[];
+  calculation: Record<string, unknown> | null;
+  expectedImpact: ActionImpact | null;
+  impactUzs: number;
+  confidence: number;
+  action: { type?: string; path?: string; suggested_price?: number; [key: string]: unknown } | null;
+  requiresApproval: boolean;
+  status: "new" | "accepted" | "rejected" | "done" | "expired";
+  createdAt: string;
+  lastSeenAt: string;
+  decidedAt?: string | null;
+  outcome?: Record<string, ActionOutcome> | null;
+}
+
+export interface ActionOutcome {
+  days: number;
+  metric?: "profit_per_day" | "units_per_day";
+  before?: number;
+  after?: number;
+  sold?: number;
+  profit?: number;
+  verdict: "improved" | "worsened" | "flat" | "unknown";
+  note?: string;
+}
+
+export interface TodayActions {
+  windowDays: number;
+  refreshed: boolean;
+  potentialMonthlyUzs: number;
+  counts: Partial<Record<ActionSeverity, number>>;
+  items: ActionItem[];
+}
