@@ -45,6 +45,7 @@ export function TeamPage() {
   const [owner, setOwner] = React.useState<TeamOwner | null>(null);
   const [modules, setModules] = React.useState<PermissionModule[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const [editing, setEditing] = React.useState<TeamMember | null>(null);
   const [adding, setAdding] = React.useState(false);
   const { page, setPage, pageItems: pageMembers } = usePagination(members);
@@ -58,8 +59,10 @@ export function TeamPage() {
       setMembers(team.members);
       setOwner(team.owner);
       setModules(catalogue);
+      setError(null);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Yuklanmadi.");
+      // "A'zo yo'q" deb ko'rsatilmaydi — yuklanmagan ro'yxat bo'sh ro'yxat emas.
+      setError(err instanceof ApiError ? err.message : "Jamoa ro'yxatini yuklab bo'lmadi.");
     } finally {
       setLoading(false);
     }
@@ -103,6 +106,15 @@ export function TeamPage() {
         <Card>
           <CardContent className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Yuklanmoqda…
+          </CardContent>
+        </Card>
+      ) : error ? (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-6 text-sm text-destructive">
+            {error}
+            <Button size="sm" variant="outline" onClick={() => { setLoading(true); void load(); }}>
+              Qayta urinish
+            </Button>
           </CardContent>
         </Card>
       ) : members.length === 0 ? (
