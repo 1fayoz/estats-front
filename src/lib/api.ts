@@ -906,6 +906,21 @@ export const fetchMarketingReport = () => request<MarketingReport>("/marketing")
 export const fetchTodayActions = (force = false) =>
   request<TodayActions>(`/actions/today${force ? "?force=true" : ""}`);
 
+export interface AskJob {
+  job: string;
+  status: "running" | "done" | "failed";
+  question: string;
+  answer: string | null;
+  error: string | null;
+  elapsedSeconds?: number;
+  expectedSeconds: number;
+  context: Record<string, unknown> | null;
+}
+
+export const askData = (question: string) =>
+  request<AskJob>("/actions/ask", { method: "POST", body: JSON.stringify({ question }) });
+export const fetchAskJob = (job: string) => request<AskJob>(`/actions/ask/${job}`);
+
 export const fetchAdReport = () => request<AdReport>("/ads");
 export const syncAdReport = () => request<AdReport>("/ads/sync", { method: "POST" });
 

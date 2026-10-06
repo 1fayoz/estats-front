@@ -7,6 +7,7 @@ import { AlertTriangle, CheckCircle2, ChevronDown, Lightbulb, RefreshCw, XCircle
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { AskBox } from "@/features/actions/ask-box";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -127,6 +128,8 @@ export default function TodayPage() {
           )}
         </>
       )}
+
+      <AskBox />
 
       <History />
     </div>

@@ -12,6 +12,10 @@ import { report, type LayerRow } from "@/lib/report";
   «Qatlamlari» — hamma barg turkum bitta jadvalda. Ustun ranglari
   tashqi xizmatdagi bilan bir xil (heatmap alfa = qiymat / ustun maksimumi);
   «Defitsit» 30 kundan kam bo'lsa to'q ko'k fon bilan belgilanadi.
+  «Imkoniyat» — 0-100, to'rt teng komponent (talab: sotuvi bor do'kon boshiga
+  tushum; o'sish; kirish: sotilgan kartochkalar ulushi; defitsit: oborot
+  kunlari kam) — har biri shu darajadagi nishalar orasida persentil.
+  Komponentlar sichqoncha bilan ko'rsatiladi.
 */
 
 const LIMIT = 500;
@@ -52,6 +56,31 @@ export default function LayersPage() {
           height="calc(100vh - 260px)"
           columns={[
             { key: "path", title: "Toifa", value: (r) => r.path, width: "34%", sortable: false },
+            {
+              key: "opportunity",
+              title: "Imkoniyat",
+              num: true,
+              center: true,
+              value: (r) => r.opportunity ?? null,
+              render: (r) =>
+                r.opportunity == null ? (
+                  <span title="Kichik nisha yoki tengdoshlari kam — ball berilmaydi">-</span>
+                ) : (
+                  <span
+                    title={
+                      r.opportunity_parts
+                        ? `Talab ${r.opportunity_parts.demand} · O'sish ${r.opportunity_parts.growth} · ` +
+                          `Kirish ${r.opportunity_parts.entry} · Defitsit ${r.opportunity_parts.turnover} ` +
+                          "(har biri shu darajadagi nishalar orasida persentil)"
+                        : undefined
+                    }
+                    style={{ fontWeight: 600 }}
+                  >
+                    {r.opportunity}
+                  </span>
+                ),
+              heat: COLORS.heatDeep,
+            },
             { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, format: fmt.compact,
               heat: COLORS.heatBlue },
             { key: "growth", title: "O'sish %", num: true, value: (r) => r.growth, format: fmt.pct(0) },
