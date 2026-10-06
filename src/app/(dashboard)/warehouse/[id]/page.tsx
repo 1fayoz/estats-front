@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TopbarSlot } from "@/components/layout/topbar-slot";
 import { BreakEvenCard } from "@/features/warehouse/components/break-even-card";
+import { BustPlanCard } from "@/features/ads/bust-plan-card";
 import { ChangeHistoryCard } from "@/features/warehouse/components/change-history-card";
 import { PeriodsCard } from "@/features/warehouse/components/periods-card";
 import { ProductAiCostCard } from "@/features/warehouse/components/product-ai-cost-card";
@@ -413,6 +414,7 @@ function ProductDetailPage({ id }: { id: number }) {
           <ProductModerationCard data={data} onReload={load} onUpdated={onUpdated} onOpenAi={openAi} onComplaint={() => setComplaintFor(product.id)} canSeeAi={canSeeAi} complaintJob={complaintJob} />
           {data.uzumCard && <UzumCardContent card={data.uzumCard} />}
           <BreakEvenCard productId={id} economics={data.economics} onApplied={load} />
+          <BustPlanCard productId={id} />
           <ProductAiCostCard productId={id} onOpenDraft={canSeeAi ? openAi : undefined} />
           <DetailIntakes intakes={data.intakes} onAdd={() => setIntakeFor(product)} sharedListings={group?.members.length ?? 1} />
         </>}

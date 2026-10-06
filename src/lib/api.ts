@@ -924,6 +924,43 @@ export const fetchAskJob = (job: string) => request<AskJob>(`/actions/ask/${job}
 export const fetchAdReport = () => request<AdReport>("/ads");
 export const syncAdReport = () => request<AdReport>("/ads/sync", { method: "POST" });
 
+export interface BustPlan {
+  productId: number;
+  title: string;
+  price: number | null;
+  onHand: number;
+  reviews: number | null;
+  rating: number | null;
+  category: string | null;
+  unitProfit: number | null;
+  funnel: { impressions: number; orders: number; periodTo: string | null };
+  bidCeiling: number | null;
+  bidCeilingFormula: string;
+  minBudget: number;
+  readiness: { level: "block" | "warn"; text: string }[];
+  targets: { phrase: string; bestPosition: number; lastFound: string | null; demand: number | null }[];
+  candidates: string[];
+}
+
+export interface BustAiJob {
+  job: string;
+  status: "running" | "done" | "failed";
+  elapsedSeconds?: number;
+  expectedSeconds: number;
+  error: string | null;
+  result: {
+    keywords: { phrase: string; measured: boolean }[];
+    minus: string[];
+    minusRejected: string[];
+    notes: string;
+  } | null;
+}
+
+export const fetchBustPlan = (productId: number) => request<BustPlan>(`/ads/bust/plan/${productId}`);
+export const startBustAi = (productId: number) =>
+  request<BustAiJob>(`/ads/bust/plan/${productId}/ai`, { method: "POST" });
+export const fetchBustAi = (job: string) => request<BustAiJob>(`/ads/bust/plan/ai/${job}`);
+
 export const fetchActionHistory = (limit = 30) =>
   request<ActionItem[]>(`/actions/history?limit=${limit}`);
 
