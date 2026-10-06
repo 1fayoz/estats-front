@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { decideAction, fetchActionHistory, fetchTodayActions } from "@/lib/api";
+import { applyProductPrice, decideAction, fetchActionHistory, fetchTodayActions } from "@/lib/api";
 import { formatNumber, formatSum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ActionItem, ActionOutcome, ActionSeverity, TodayActions } from "@/lib/types";
@@ -200,6 +200,10 @@ function ActionCard({
   onDecide: (item: ActionItem, decision: "accept" | "reject" | "done") => void;
 }) {
   const [open, setOpen] = React.useState(false);
+  // Narx ikki bosishda qo'yiladi: birinchi bosish — tasdiq so'raydi (window.confirm emas).
+  const [confirmPrice, setConfirmPrice] = React.useState(false);
+  const [applying, setApplying] = React.useState(false);
+  const suggested = typeof item.action?.suggested_price === "number" ? Math.round(item.action.suggested_price) : null;
   const sev = SEVERITY[item.severity] ?? SEVERITY.important;
   const Icon = sev.icon;
   const range = item.expectedImpact?.monthly_profit_uzs;
@@ -268,6 +272,33 @@ function ActionCard({
         )}
 
         <div className="flex flex-wrap gap-2">
+          {suggested != null && item.productId != null && (
+            <Button
+              size="sm"
+              variant={confirmPrice ? "default" : "outline"}
+              disabled={applying}
+              onClick={async () => {
+                if (!confirmPrice) {
+                  setConfirmPrice(true);
+                  return;
+                }
+                setApplying(true);
+                try {
+                  // Rasmiy Uzum API (sendPriceData) — natija 7/14 kundan keyin o'lchanadi.
+                  await applyProductPrice(item.productId!, suggested);
+                  toast.success(`Narx ${formatSum(suggested)} qo'yildi — natija 7 va 14 kundan keyin o'lchanadi`);
+                  onDecide(item, "done");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Narx o'zgarmadi");
+                } finally {
+                  setApplying(false);
+                  setConfirmPrice(false);
+                }
+              }}
+            >
+              {confirmPrice ? `Rostdan ${formatSum(suggested)} qo'yilsinmi? Ha` : `Narxni ${formatSum(suggested)} qo'yish`}
+            </Button>
+          )}
           {path && (
             <Button asChild size="sm">
               <Link href={path as Route}>Ochish</Link>
