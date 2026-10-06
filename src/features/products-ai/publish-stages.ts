@@ -59,27 +59,29 @@ export function publishPhaseState(
  * rasmsiz yangilashda u chiziqda umuman ko'rsatilmaydi.
  */
 export const EDIT_STAGE_ORDER = [
-  "opening", "gallery", "names", "descriptions", "sections", "saving", "attributes", "finishing",
+  "opening", "variants", "gallery", "names", "descriptions", "sections", "saving", "skus", "attributes", "finishing",
 ] as const;
 
 export const EDIT_STAGE_LABEL: Record<string, string> = {
   precheck: "AI tekshiruvi: rasm va matn mosligi, surat qoidalari",
   opening: "Uzum kabineti ochilmoqda",
+  variants: "Uzum'da yo'q variantlar (rang, dizayn …) qoʻshilmoqda",
   names: "Nom yangilanmoqda",
   descriptions: "Qisqacha tavsif va tavsif (rasmlari bilan) yozilmoqda",
   sections: "Oʻlchamli setka, tarkib va yoʻriqnoma yozilmoqda",
   gallery: "Galereya rasmlari almashtirilmoqda",
   saving: "Oʻzgarishlar saqlanmoqda",
+  skus: "Yangi SKU'lar (narx, oʻlcham) saqlanmoqda",
   attributes: "Xususiyatlar jadvali toʻldirilmoqda",
   finishing: "Yakunlanmoqda",
 };
 
 // Galereya matndan OLDIN (estats-publish: keyin bo'lsa bo'limlar saqlanmaydi).
 const EDIT_PHASES_ALL: PublishPhase[] = [
-  { key: "open", short: "Tekshiruv va ochish", label: "AI tekshiruvi, Uzum kabinetida tovar ochildi", parts: ["precheck", "opening"] },
+  { key: "open", short: "Tekshiruv va ochish", label: "AI tekshiruvi, Uzum kabinetida tovar ochildi", parts: ["precheck", "opening", "variants"] },
   { key: "gallery", short: "Rasmlar", label: "Galereya rasmlari almashtirildi", parts: ["gallery"] },
   { key: "text", short: "Matn va bo'limlar", label: "Nom, tavsif, setka, tarkib, yo'riqnoma", parts: ["names", "descriptions", "sections"] },
-  { key: "save", short: "Saqlash", label: "Saqlandi, xususiyatlar to'ldirildi", parts: ["saving", "attributes", "finishing"] },
+  { key: "save", short: "Saqlash", label: "Saqlandi, xususiyatlar to'ldirildi", parts: ["saving", "skus", "attributes", "finishing"] },
 ];
 
 export function editPhases(replaceImages: boolean | null | undefined): PublishPhase[] {
