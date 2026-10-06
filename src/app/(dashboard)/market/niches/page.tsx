@@ -14,7 +14,8 @@ import { report, type LayerRow } from "@/lib/report";
   «Defitsit» 30 kundan kam bo'lsa to'q ko'k fon bilan belgilanadi.
   «Imkoniyat» — 0-100, to'rt teng komponent (talab: sotuvi bor do'kon boshiga
   tushum; o'sish; kirish: sotilgan kartochkalar ulushi; defitsit: oborot
-  kunlari kam) — har biri shu darajadagi nishalar orasida persentil.
+  kunlari kam; raqobat: eng katta do'kon ulushi kichik) — har biri shu
+  darajadagi nishalar orasida persentil; o'lchanmagan komponent o'rtachaga kirmaydi.
   Komponentlar sichqoncha bilan ko'rsatiladi.
 */
 
@@ -70,7 +71,8 @@ export default function LayersPage() {
                     title={
                       r.opportunity_parts
                         ? `Talab ${r.opportunity_parts.demand} · O'sish ${r.opportunity_parts.growth} · ` +
-                          `Kirish ${r.opportunity_parts.entry} · Defitsit ${r.opportunity_parts.turnover} ` +
+                          `Kirish ${r.opportunity_parts.entry} · Defitsit ${r.opportunity_parts.turnover} · ` +
+                          `Raqobat ${r.opportunity_parts.competition ?? "o'lchanmagan"} ` +
                           "(har biri shu darajadagi nishalar orasida persentil)"
                         : undefined
                     }

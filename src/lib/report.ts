@@ -148,7 +148,9 @@ export type LayerRow = {
   turnover: number | null;
   /** Imkoniyat balli 0-100 (eski backendda yo'q). */
   opportunity?: number | null;
-  opportunity_parts?: { demand: number; growth: number; entry: number; turnover: number } | null;
+  opportunity_parts?: {
+    demand: number; growth: number; entry: number; turnover: number; competition?: number | null;
+  } | null;
 };
 
 export type ProductRow = {
