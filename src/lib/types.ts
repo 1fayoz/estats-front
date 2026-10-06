@@ -3186,3 +3186,24 @@ export interface TodayActions {
   counts: Partial<Record<ActionSeverity, number>>;
   items: ActionItem[];
 }
+
+
+export interface AdCampaign {
+  id: string;
+  productId: number;
+  commissionPercentage: number;
+  status: string;
+  productDetails?: { title?: { uz?: string; ru?: string } };
+  [key: string]: unknown;
+}
+
+export interface AdReport {
+  periodFrom: string | null;
+  periodTo: string | null;
+  syncedAt: string | null;
+  error: string | null;
+  running: boolean;
+  campaigns: AdCampaign[];
+  funnel: Record<string, string | number | null>[];
+  daily: Record<string, string | number | null>[];
+}

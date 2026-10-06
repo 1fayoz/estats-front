@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { AdsCard } from "@/features/ads/ads-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -92,6 +93,8 @@ export default function MarketingPage() {
         />
         <Stat label="Auditoriya" value={formatNumber(data.audience)} />
       </div>
+
+      <AdsCard />
 
       {/* ── Nima qilish kerak ───────────────────────────────────────────── */}
       {data.actions.length > 0 && (

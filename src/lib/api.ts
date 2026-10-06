@@ -28,6 +28,7 @@ import type {
   Goal,
   MarketingReport,
   ActionItem,
+  AdReport,
   TodayActions,
   NetworksOverview,
   Paginated,
@@ -904,6 +905,9 @@ export const fetchMarketingReport = () => request<MarketingReport>("/marketing")
 
 export const fetchTodayActions = (force = false) =>
   request<TodayActions>(`/actions/today${force ? "?force=true" : ""}`);
+
+export const fetchAdReport = () => request<AdReport>("/ads");
+export const syncAdReport = () => request<AdReport>("/ads/sync", { method: "POST" });
 
 export const fetchActionHistory = (limit = 30) =>
   request<ActionItem[]>(`/actions/history?limit=${limit}`);
