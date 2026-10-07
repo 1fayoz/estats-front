@@ -961,6 +961,56 @@ export const startBustAi = (productId: number) =>
   request<BustAiJob>(`/ads/bust/plan/${productId}/ai`, { method: "POST" });
 export const fetchBustAi = (job: string) => request<BustAiJob>(`/ads/bust/plan/ai/${job}`);
 
+export interface BustQueryBid {
+  query: string;
+  ok: boolean;
+  recommendedBid: number | null;
+  topPositionCpm: number | null;
+  recommendedByUzum?: boolean;
+  verdict: "profitable" | "loss" | "unknown" | "no_auction";
+  suggestedCpm: number | null;
+  title?: string;
+}
+
+export interface BustInsightsJob {
+  job: string;
+  status: "running" | "done" | "failed";
+  elapsedSeconds?: number;
+  expectedSeconds: number;
+  error: string | null;
+  result: {
+    bidCeiling: number | null;
+    groups: {
+      skuGroupId: number;
+      productId: number;
+      title: string;
+      price: number;
+      stock: number;
+      queries: BustQueryBid[];
+      categoryBids: BustQueryBid[];
+    }[];
+  } | null;
+}
+
+export const startBustInsights = (productId: number) =>
+  request<BustInsightsJob>(`/ads/bust/insights/${productId}`, { method: "POST" });
+export const fetchBustInsights = (job: string) => request<BustInsightsJob>(`/ads/bust/plan/ai/${job}`);
+
+export interface BustCreateInput {
+  productId: number;
+  skuGroupId: number;
+  name: string;
+  weeklyAmount: number;
+  uniform: boolean;
+  ads: { query: string; cpm: number }[];
+  minus: string[];
+  allowOverCeiling: boolean;
+  confirm: true;
+}
+
+export const createBust = (body: BustCreateInput) =>
+  request<{ ok: boolean }>("/ads/bust/create", { method: "POST", body: JSON.stringify(body) });
+
 export const fetchActionHistory = (limit = 30) =>
   request<ActionItem[]>(`/actions/history?limit=${limit}`);
 

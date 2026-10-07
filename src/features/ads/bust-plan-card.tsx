@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ApiError, fetchBustAi, fetchBustPlan, startBustAi, type BustAiJob, type BustPlan } from "@/lib/api";
 import { formatNumber } from "@/lib/format";
 
+import { BustCreateSection } from "./bust-create-section";
+
 /**
  * Bust TOP rejasi — Uzum'ga HECH NARSA yozmaydi.
  *
@@ -53,7 +55,7 @@ export function BustPlanCard({ productId }: { productId: number }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2"><Rocket className="h-4 w-4" />Bust TOP rejasi</CardTitle>
         <CardDescription>
-          Uzum&apos;ga hech narsa yuborilmaydi — rejani ko&apos;rib, kabinetda o&apos;zingiz yoqasiz.
+          Reja va Uzum narxlari faqat o&apos;qiladi; kampaniya faqat siz «Ha, yaratish» ni bosganingizda yaratiladi.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
@@ -177,6 +179,8 @@ export function BustPlanCard({ productId }: { productId: number }) {
             </div>
           ) : null}
         </div>
+
+        {!blocked ? <BustCreateSection plan={plan} minus={job?.result?.minus ?? []} /> : null}
       </CardContent>
     </Card>
   );
