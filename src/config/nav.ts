@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { BarChart3, ListChecks, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, ListChecks, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Rocket, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -106,6 +106,13 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: Megaphone,
         description: "Nima ishlayapti va nimaga kuch sarflash kerak",
         badge: "Yangi",
+      },
+      {
+        label: "Bust TOP",
+        action: "pnl.view",
+        href: "/bust" as Route,
+        icon: Rocket,
+        description: "Reklama: qaysi tovar foydali, kampaniyalar va avto-rejim",
       },
       {
         label: "SEO audit",

@@ -1008,6 +1008,42 @@ export interface BustCreateInput {
   confirm: true;
 }
 
+export interface BustShopRow {
+  productId: number;
+  externalId: string;
+  title: string;
+  image: string | null;
+  price: number | null;
+  onHand: number;
+  reviews: number | null;
+  unitProfit: number | null;
+  impressions: number;
+  orders: number;
+  targets: number;
+  bidCeiling: number | null;
+  readiness: { level: "block" | "warn"; text: string }[];
+  status: "ready" | "warn" | "blocked";
+}
+
+export interface BustCampaignRow {
+  id: number;
+  uzumCampaignId: string | null;
+  name: string;
+  products: { productId: number; skuGroupId: number }[];
+  weeklyAmount: number;
+  autopilot: boolean;
+  maxWeeklyAmount: number;
+  stoppedAt: string | null;
+  lastCheckedAt: string | null;
+  createdAt: string;
+  actions: { at: string; action: string; query?: string; value?: number; why: string }[];
+}
+
+export const fetchBustShop = () => request<BustShopRow[]>("/ads/bust/shop");
+export const fetchBustCampaigns = () => request<BustCampaignRow[]>("/ads/bust/campaigns");
+export const updateBustCampaign = (id: number, body: { autopilot?: boolean; maxWeeklyAmount?: number; stop?: boolean }) =>
+  request<BustCampaignRow>(`/ads/bust/campaigns/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+
 export const createBust = (body: BustCreateInput) =>
   request<{ ok: boolean }>("/ads/bust/create", { method: "POST", body: JSON.stringify(body) });
 
