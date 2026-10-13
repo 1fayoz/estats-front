@@ -1039,6 +1039,11 @@ export interface BustCampaignRow {
   actions: { at: string; action: string; query?: string; value?: number; why: string }[];
 }
 
+export const createBustBulk = (body: {
+  name: string; weeklyAmount: number; uniform: boolean; minus: string[]; confirm: true;
+  items: { productId: number; skuGroupId: number; ads: { query: string; cpm: number }[] }[];
+}) => request<{ ok: boolean; id: number; ads: number }>("/ads/bust/create-bulk", { method: "POST", body: JSON.stringify(body) });
+
 export const fetchBustShop = () => request<BustShopRow[]>("/ads/bust/shop");
 export const fetchBustCampaigns = () => request<BustCampaignRow[]>("/ads/bust/campaigns");
 export const updateBustCampaign = (id: number, body: { autopilot?: boolean; maxWeeklyAmount?: number; stop?: boolean }) =>

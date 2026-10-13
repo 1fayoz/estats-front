@@ -16,6 +16,7 @@ import {
   type BustCampaignRow, type BustShopRow,
 } from "@/lib/api";
 import { formatDate, formatNumber } from "@/lib/format";
+import { BustBulk } from "@/features/ads/bust-bulk";
 
 /**
  * Bust TOP — do'kon bo'yicha.
@@ -36,6 +37,8 @@ export default function BustPage() {
   const [rows, setRows] = React.useState<BustShopRow[] | null>(null);
   const [campaigns, setCampaigns] = React.useState<BustCampaignRow[]>([]);
   const [error, setError] = React.useState<string | null>(null);
+  const [selected, setSelected] = React.useState<number[]>([]);
+  const toggle = (id: number) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
   const load = React.useCallback(() => {
     fetchBustShop().then(setRows).catch((e: ApiError) => setError(e.message));
@@ -67,11 +70,13 @@ export default function BustPage() {
         <CardContent>
           {error ? <p className="text-[var(--bad)] text-sm">{error}</p> : null}
           {!rows && !error ? <Skeleton className="h-40 w-full" /> : null}
+          {rows ? <BustBulk rows={rows} selected={selected} onDone={load} /> : null}
           {rows ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-muted-foreground text-left text-xs">
+                    <th className="p-2" />
                     <th className="p-2">Tovar</th>
                     <th className="p-2">Holat</th>
                     <th className="p-2 text-right">Shift (1000 ko&apos;rs.)</th>
@@ -85,6 +90,11 @@ export default function BustPage() {
                 <tbody>
                   {rows.map((r) => (
                     <tr key={r.externalId} className="border-t align-top">
+                      <td className="p-2">
+                        <input type="checkbox" disabled={r.status === "blocked" || r.bidCeiling == null}
+                               checked={selected.includes(r.productId)} onChange={() => toggle(r.productId)}
+                               aria-label={`${r.title} tanlash`} />
+                      </td>
                       <td className="max-w-[320px] p-2">
                         <div className="truncate font-medium" title={r.title}>{r.title}</div>
                         {r.readiness.length ? (
