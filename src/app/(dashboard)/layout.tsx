@@ -5,6 +5,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { AuthGuard } from "@/components/layout/auth-guard";
 import { PageTransition } from "@/components/layout/page-transition";
 import { BroadcastTray } from "@/components/layout/broadcast-tray";
+import { UzumChallengeBanner } from "@/components/layout/uzum-challenge-banner";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
@@ -25,6 +26,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               rejimga qaytadi, aks holda oq fonda oq matn chiqardi. */}
           <main className="flex-1 px-3 pb-24 pt-1 md:px-5 lg:px-6 lg:pb-6">
             <div className="air-surface min-h-[calc(100svh-6.5rem)] px-4 py-5 md:px-6 md:py-6">
+              <UzumChallengeBanner />
               <PageTransition>{children}</PageTransition>
             </div>
           </main>

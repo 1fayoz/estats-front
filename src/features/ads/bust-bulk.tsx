@@ -20,19 +20,25 @@ type Picked = { productId: number; title: string; skuGroupId: number; ads: { que
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function insightsFor(productId: number): Promise<BustInsightsJob> {
+async function insightsFor(productId: number, onTick: (j: BustInsightsJob) => void): Promise<BustInsightsJob> {
   let job = await startBustInsights(productId);
+  onTick(job);
   for (let i = 0; i < 90 && job.status === "running"; i += 1) {
     await sleep(4000);
     job = await fetchBustInsights(job.job);
+    onTick(job);
   }
   return job;
 }
 
 export function BustBulk({ rows, selected, onDone }: { rows: BustShopRow[]; selected: number[]; onDone: () => void }) {
   const [progress, setProgress] = React.useState<{ i: number; n: number; title: string } | null>(null);
+  // Joriy tovar ishining o'lchangan vaqti (backend `elapsedSeconds`/`expectedSeconds`).
+  const [tick, setTick] = React.useState<{ elapsed: number; expected: number } | null>(null);
   const [picked, setPicked] = React.useState<Picked[] | null>(null);
   const [skipped, setSkipped] = React.useState<string[]>([]);
+  // Narx umuman olinmagan tovarlar soni (Cloudflare, sessiya) — «foydali so'rov yo'q» bilan aralashmasin.
+  const [failed, setFailed] = React.useState(0);
   const [budget, setBudget] = React.useState("150000");
   const [name, setName] = React.useState("eStats — Bust");
   const [confirming, setConfirming] = React.useState(false);
@@ -42,12 +48,15 @@ export function BustBulk({ rows, selected, onDone }: { rows: BustShopRow[]; sele
     const chosen = rows.filter((r) => selected.includes(r.productId));
     const out: Picked[] = [];
     const skip: string[] = [];
+    let fails = 0;
     for (const [i, r] of chosen.entries()) {
       setProgress({ i: i + 1, n: chosen.length, title: r.title });
       try {
-        const job = await insightsFor(r.productId);
+        const job = await insightsFor(r.productId, (j) =>
+          setTick({ elapsed: j.elapsedSeconds ?? 0, expected: Math.max(j.expectedSeconds || 0, 1) }));
         const g = job.result?.groups?.[0];
         if (job.status !== "done" || !g) {
+          fails += 1;
           skip.push(`${r.title.slice(0, 40)} — ${job.error || "narx olinmadi"}`);
           continue;
         }
@@ -56,12 +65,15 @@ export function BustBulk({ rows, selected, onDone }: { rows: BustShopRow[]; sele
         if (!ads.length) skip.push(`${r.title.slice(0, 40)} — foydali so'rov yo'q (Uzum stavkasi shiftdan yuqori)`);
         else out.push({ productId: r.productId, title: r.title, skuGroupId: g.skuGroupId, ads });
       } catch (e) {
+        fails += 1;
         skip.push(`${r.title.slice(0, 40)} — ${(e as Error).message}`);
       }
     }
     setProgress(null);
+    setTick(null);
     setPicked(out);
     setSkipped(skip);
+    setFailed(fails);
   };
 
   const submit = async () => {
@@ -93,8 +105,13 @@ export function BustBulk({ rows, selected, onDone }: { rows: BustShopRow[]; sele
         </Button>
         {progress ? (
           <span className="text-muted-foreground text-xs">
-            {Math.round(((progress.i - 1) / progress.n) * 100)}% · hozir: {progress.title.slice(0, 40)} · taxminan{" "}
-            {(progress.n - progress.i + 1) * 15} s qoldi
+            {(() => {
+              const part = tick ? Math.min(0.95, tick.elapsed / tick.expected) : 0;
+              const pct = Math.round(((progress.i - 1 + part) / progress.n) * 100);
+              const per = tick?.expected ?? 120;
+              const left = Math.max(0, Math.round(per - (tick?.elapsed ?? 0)) + (progress.n - progress.i) * per);
+              return `${pct}% · hozir: ${progress.title.slice(0, 40)} · ${Math.round(tick?.elapsed ?? 0)} s · taxminan ${left} s qoldi`;
+            })()}
           </span>
         ) : null}
       </div>
@@ -138,6 +155,13 @@ export function BustBulk({ rows, selected, onDone }: { rows: BustShopRow[]; sele
             pul faqat haqiqiy ko&apos;rsatishlar uchun yechiladi.
           </p>
         </div>
+      ) : picked && failed ? (
+        <p className="text-[var(--bad)] text-xs">
+          Uzum narxlari {failed} ta tovar uchun olinmadi — natija yo&apos;q, bu «foydasiz» degani emas.
+          {skipped.some((s) => /tekshir|captcha/i.test(s))
+            ? " Uzum brauzer tekshiruvini so'radi: Integratsiyalar → «Sotuvchi kabinetiga ulanish» → «Oyna orqali kirish» bilan bir marta o'ting va qayta urining."
+            : " Birozdan keyin qayta urining."}
+        </p>
       ) : picked ? (
         <p className="text-muted-foreground text-xs">Tanlangan tovarlarda foydali so&apos;rov topilmadi — kampaniya tavsiya qilinmaydi.</p>
       ) : null}

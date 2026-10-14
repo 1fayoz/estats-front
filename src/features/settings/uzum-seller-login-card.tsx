@@ -167,6 +167,20 @@ export function UzumSellerLoginCard() {
     }
   };
 
+  // `?connect=uzum` (Telegram xabari yoki tepadagi banner havolasi) — oynani DARHOL ochadi,
+  // sotuvchi tugma qidirib o'tirmasin. Parametr bir marta ishlatiladi.
+  const autoOpened = React.useRef(false);
+  React.useEffect(() => {
+    if (autoOpened.current || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("connect") !== "uzum") return;
+    autoOpened.current = true;
+    url.searchParams.delete("connect");
+    window.history.replaceState(window.history.state, "", url.toString());
+    void onVnc();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onClear = async () => {
     if (busy) return;
     setBusy("clear");

@@ -487,6 +487,10 @@ const shopHeader = (shopId?: number) =>
 export const startUzumLogin = (shopId?: number) =>
   request<UzumLoginStart>("/market/uzum-login/start", { method: "POST", ...shopHeader(shopId) });
 
+/** Uzum kabineti Cloudflare tekshiruvini kutyaptimi (`challenge.py`). */
+export const fetchUzumChallenge = (shopId?: number) =>
+  request<{ pending: boolean; since: number | null }>("/market/uzum-login/challenge", shopHeader(shopId));
+
 export const completeUzumLogin = (shopId?: number) =>
   request<UzumLoginStatus>("/market/uzum-login/complete", {
     method: "POST",
