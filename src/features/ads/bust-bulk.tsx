@@ -160,7 +160,9 @@ export function BustBulk({ rows, selected, onDone }: { rows: BustShopRow[]; sele
           Uzum narxlari {failed} ta tovar uchun olinmadi — natija yo&apos;q, bu «foydasiz» degani emas.
           {skipped.some((s) => /tekshir|captcha/i.test(s))
             ? " Uzum brauzer tekshiruvini so'radi: Integratsiyalar → «Sotuvchi kabinetiga ulanish» → «Oyna orqali kirish» bilan bir marta o'ting va qayta urining."
-            : " Birozdan keyin qayta urining."}
+            : skipped.some((s) => /aukcioniga bermadi/i.test(s))
+              ? " Uzum'da sotuvda bo'lmagan tovar Bust'ga qo'yilmaydi — sabablari yuqorida."
+              : " Sabablari yuqorida; tuzatib qayta urining."}
         </p>
       ) : picked ? (
         <p className="text-muted-foreground text-xs">Tanlangan tovarlarda foydali so&apos;rov topilmadi — kampaniya tavsiya qilinmaydi.</p>
