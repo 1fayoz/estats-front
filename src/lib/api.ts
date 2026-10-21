@@ -210,6 +210,26 @@ async function request<T>(
   return body as T;
 }
 
+/**
+ * Bir vaqtda ketgan BIR XIL GET so'rovlari bitta tarmoq so'roviga birlashadi.
+ *
+ * Kesh EMAS: so'rov tugashi bilan unutiladi, keyingi chaqiruv yangisini
+ * yuboradi. Faqat bitta ekrandagi ikki komponent bir vaqtda o'z effektida
+ * bir xil manzilni so'raganda (masalan `/warehouse/ai/new` — yo'riqnoma va
+ * rasm sozlamalari paneli) takror ketmasligi uchun.
+ */
+const inflight = new Map<string, Promise<unknown>>();
+function shared<T>(key: string, load: () => Promise<T>): Promise<T> {
+  // Kalitga hisob va do'kon ham kiradi: boshqa do'kon javobi aralashmasin.
+  const p = readPersisted();
+  const fullKey = `${p.workspaceId ?? ""}:${p.activeShopId ?? ""}:${key}`;
+  const existing = inflight.get(fullKey) as Promise<T> | undefined;
+  if (existing) return existing;
+  const promise = load().finally(() => inflight.delete(fullKey));
+  inflight.set(fullKey, promise);
+  return promise;
+}
+
 const qs = (params: Record<string, string | number | boolean | undefined | null>) => {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -1611,7 +1631,8 @@ export const retryAiSplitPublish = (id: number) =>
   request<AiDraft>(`/product-ai/drafts/${id}/variants/split/publish`, { method: "POST" });
 
 /** Do'kon sukuti — yangi tovar shu sozlama bilan yasaladi. */
-export const fetchAiImageSettings = () => request<AiImageSettingsState>(`/product-ai/image-settings`);
+export const fetchAiImageSettings = () =>
+  shared("ai-image-settings", () => request<AiImageSettingsState>(`/product-ai/image-settings`));
 
 export const saveAiImageSettings = (settings: Partial<AiImageSettings>) =>
   request<AiImageSettingsState>(`/product-ai/image-settings`, {

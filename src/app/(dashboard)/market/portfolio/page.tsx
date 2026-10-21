@@ -20,8 +20,9 @@ import { report, type PortfolioRow } from "@/lib/report";
 */
 
 
-function useOwnCostShare(): number | null {
-  const [share, setShare] = React.useState<number | null>(null);
+/** `undefined` — P&L hali yuklanmoqda; `null` — tannarx ma'lumoti yo'q. */
+function useOwnCostShare(): number | null | undefined {
+  const [share, setShare] = React.useState<number | null | undefined>(undefined);
   React.useEffect(() => {
     // Toshkent kuni bo'yicha (00:00–05:00 oralig'ida UTC hali kechagi kun).
     const to = todayUz();
@@ -46,10 +47,15 @@ export default function PortfolioPage() {
   const own = useOwnCostShare();
   const sharePct = params.share ? Number(params.share) : own != null ? Math.round(own * 100) : 40;
   const budget = Number(params.budget) || 0;
+  // Ulush qo'lda berilmagan bo'lsa P&L javobini KUTAMIZ: ilgari avval 40%
+  // sukut bilan, P&L kelgach haqiqiy ulush bilan — og'ir `/portfolio`
+  // so'rovi har ochilishda IKKI marta ketardi (birinchisining natijasi
+  // baribir tashlab yuborilardi).
+  const shareResolved = Boolean(params.share) || own !== undefined;
   const ready = budget >= 100_000 && sharePct > 2 && sharePct < 95;
   const { data, error } = useLoad(
-    () => (ready ? report.portfolio({ budget, cost_share: sharePct / 100, period: "d30" }) : Promise.resolve(null)),
-    [budget, sharePct, ready],
+    () => (ready && shareResolved ? report.portfolio({ budget, cost_share: sharePct / 100, period: "d30" }) : Promise.resolve(null)),
+    [budget, sharePct, ready, shareResolved],
   );
 
   return (
@@ -68,7 +74,9 @@ export default function PortfolioPage() {
         <span style={{ fontSize: 12, opacity: 0.75 }}>
           {params.share
             ? "qo'lda kiritilgan"
-            : own != null
+            : own === undefined
+              ? "P&L'dan tannarx ulushi olinmoqda…"
+              : own != null
               ? "sizning 90 kunlik P&L'ingizdan (tannarxi ma'lum tovarlar)"
               : "P&L'da tannarx yo'q — 40% sukut, o'zgartiring"}
         </span>
