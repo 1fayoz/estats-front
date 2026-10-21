@@ -4,7 +4,7 @@ import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useUserStore } from "@/stores/user-store";
-import { ApiError, fetchMe } from "@/lib/api";
+import { ApiError, SESSION_EXPIRED_EVENT, fetchMe } from "@/lib/api";
 import { rememberReturn } from "@/lib/lens";
 import { ALL_NAV_ITEMS, visibleNav } from "@/config/nav";
 import { SetPasswordGate } from "@/features/auth/components/set-password";
@@ -84,6 +84,19 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       active = false;
     };
   }, [hydrated, accessToken, router, setUser, signOut]);
+
+  // Ish davomida istalgan so'rov 401 olsa — sessiya tugagan: chiqarib,
+  // kirish sahifasiga. Token o'chgach keyingi so'rovlar tokensiz ketadi va
+  // hodisa qayta yuborilmaydi, ya'ni sikl bo'lmaydi.
+  React.useEffect(() => {
+    const onExpired = () => {
+      if (!useUserStore.getState().accessToken) return;
+      signOut();
+      router.replace("/login");
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+  }, [router, signOut]);
 
   // Ruxsati yo'q sahifa. Menyudan yashiringan bo'lsa ham manzilni
   // qo'lda yozish yoki eski xatcho'p qolishi mumkin — u holda

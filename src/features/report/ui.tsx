@@ -340,9 +340,12 @@ export function DateRangeControl({
   React.useEffect(() => setDraft({ start, end }), [start, end]);
 
   const preset = (days: number) => {
-    const last = new Date(`${end}T00:00:00`);
+    // UTC'da hisoblanadi: mahalliy yarim tun (`T00:00:00`) Toshkentda
+    // (UTC+5) `toISOString()` da OLDINGI kunga aylanib, butun oraliq bir
+    // kun orqaga surilardi ("7 kun" 13–20 o'rniga 13–19 bo'lib ketardi).
+    const last = new Date(`${end}T00:00:00Z`);
     const first = new Date(last);
-    first.setDate(first.getDate() - (days - 1));
+    first.setUTCDate(first.getUTCDate() - (days - 1));
     const iso = (d: Date) => d.toISOString().slice(0, 10);
     onChange(iso(first), iso(last));
     setOpen(false);

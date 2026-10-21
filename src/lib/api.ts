@@ -105,6 +105,9 @@ export const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
 ).replace(/\/$/, "");
 
+/** Autentifikatsiyalangan so'rov 401 olganda yuboriladigan `window` hodisasi. */
+export const SESSION_EXPIRED_EVENT = "estats:session-expired";
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -183,6 +186,14 @@ async function request<T>(
   if (response.status === 204) return undefined as T;
 
   const body = await response.json().catch(() => null);
+  // Sessiya ish davomida tugadi (JWT muddati o'tdi / bekor qilindi): backend
+  // 401 ni FAQAT sessiya uchun qaytaradi. Ilgari faqat ilova ochilganda
+  // `/auth/me` tekshirilardi — tugagan sessiyada har sahifa sahifani
+  // yangilaguncha xato ko'rsatib turardi. Endi AuthGuard shu hodisani tinglab
+  // chiqarib yuboradi (store'ni bu yerda import qilmaymiz — aylanma import).
+  if (response.status === 401 && token && typeof window !== "undefined") {
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+  }
   if (!response.ok) {
     const raw = body && (body.detail ?? body.message ?? body.error);
     // `detail` obyekt bo'lishi mumkin: `{code, message, …}` (masalan

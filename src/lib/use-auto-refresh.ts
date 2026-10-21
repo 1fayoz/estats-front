@@ -4,6 +4,8 @@ import * as React from "react";
 
 /** Ochiq turgan sahifa qancha vaqtdan keyin o'zi yangilansin (ms). */
 const DEFAULT_INTERVAL_MS = 5 * 60 * 1000;
+/** Ketma-ket triggerlar (focus + visibilitychange) bitta yangilanishga birlashadi. */
+const MIN_GAP_MS = 5 * 1000;
 
 /**
  * Keep a page's data fresh without a refresh button.
@@ -20,13 +22,21 @@ export function useAutoRefresh(refresh: () => void, intervalMs = DEFAULT_INTERVA
   latest.current = refresh;
 
   React.useEffect(() => {
-    const run = () => {
-      if (document.visibilityState === "visible") latest.current();
+    // Tabga qaytilganda brauzer `focus` va `visibilitychange` ni KETMA-KET
+    // yuboradi — ikkalasi ham yangilasa bir xil so'rov ikki marta ketardi.
+    // Sahifa ochilganda esa ma'lumot allaqachon yuklanmoqda (sahifaning o'z
+    // effekti), shuning uchun ochilgandan keyingi birinchi `focus` ham
+    // qayta so'rov yubormasin. Sanoq shu effekt o'rnatilgan paytdan.
+    let lastRun = Date.now();
+    const trigger = () => {
+      if (document.visibilityState !== "visible") return;
+      const now = Date.now();
+      if (now - lastRun < MIN_GAP_MS) return;
+      lastRun = now;
+      latest.current();
     };
-
-    const onVisible = () => {
-      if (document.visibilityState === "visible") latest.current();
-    };
+    const run = trigger;
+    const onVisible = trigger;
 
     window.addEventListener("focus", onVisible);
     document.addEventListener("visibilitychange", onVisible);

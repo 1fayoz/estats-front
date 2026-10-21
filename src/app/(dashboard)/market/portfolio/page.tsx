@@ -7,6 +7,7 @@ import {
   COLORS, Card, Empty, FilterBar, ReportPage, SourceNote, ZTable, fmt, useLoad, useParams,
 } from "@/features/report/ui";
 import { fetchPnl } from "@/lib/api";
+import { addDays, todayUz } from "@/lib/date-range";
 import { report, type PortfolioRow } from "@/lib/report";
 
 /*
@@ -18,14 +19,13 @@ import { report, type PortfolioRow } from "@/lib/report";
   Natija kafolat EMAS: o'rtacha raqobatchi qancha sotishi.
 */
 
-const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 function useOwnCostShare(): number | null {
   const [share, setShare] = React.useState<number | null>(null);
   React.useEffect(() => {
-    const to = new Date();
-    const from = new Date(to.getTime() - 89 * 86400_000);
-    fetchPnl(iso(from), iso(to))
+    // Toshkent kuni bo'yicha (00:00–05:00 oralig'ida UTC hali kechagi kun).
+    const to = todayUz();
+    fetchPnl(addDays(to, -89), to)
       .then((r) => {
         let gross = 0;
         let cogs = 0;

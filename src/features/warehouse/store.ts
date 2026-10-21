@@ -19,6 +19,28 @@ interface ProductsState {
   patch: (id: number, changes: Partial<WarehouseProduct>) => void;
 }
 
+/** Backend sahifa hajmining yuqori chegarasi (`src/utils/pagination.py`: `le=500`). */
+const MAX_PAGE_SIZE = 500;
+
+/**
+ * Faol katalog TO'LIQ — barcha sahifalari bilan.
+ *
+ * Ilgari bitta `size=200` so'rov olinardi: 200 dan ortiq tovarli do'konda
+ * qolganlari (nom bo'yicha tartibda oxirgilari) ro'yxatdan ham, ombor
+ * jamlamalaridan ham jimgina tushib qolardi. Odatiy do'kon bitta so'rovga
+ * sig'adi; kattasi uchun qolgan sahifalar ketma-ket olinadi.
+ */
+async function fetchAllProducts(): Promise<WarehouseProduct[]> {
+  const first = await fetchProducts({ size: MAX_PAGE_SIZE });
+  const items = [...first.results];
+  // Fon sinxronini faqat birinchi so'rov boshlaydi.
+  for (let page = 2; page <= first.pages; page++) {
+    const next = await fetchProducts({ page, size: MAX_PAGE_SIZE, sync: false });
+    items.push(...next.results);
+  }
+  return items;
+}
+
 export const useWarehouseStore = create<ProductsState>((set, get) => ({
   status: "idle",
   items: [],
@@ -30,9 +52,9 @@ export const useWarehouseStore = create<ProductsState>((set, get) => ({
     if (!force && status === "success") return Promise.resolve();
     if (!force && promise) return promise;
 
-    const p = fetchProducts()
-      .then((page) =>
-        set({ status: "success", items: page.results, error: null, promise: null })
+    const p = fetchAllProducts()
+      .then((items) =>
+        set({ status: "success", items, error: null, promise: null })
       )
       .catch((err: unknown) =>
         set({
