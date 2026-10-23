@@ -22,13 +22,19 @@ import { useUserStore } from "@/stores/user-store";
  *
  * Ilova ichida ko'rinadigan qismi yo'q: u faqat kirishni bajaradi
  * va odamni kabinetga o'tkazadi.
+ *
+ * Komponent ikki joyda turadi — `(auth)` va `(dashboard)` layout'larida
+ * (`TelegramEntry` orqali). Kabinetdan kirishga yo'naltirilganda u
+ * qayta o'rnatiladi, shuning uchun "urinib ko'rildi" belgisi modul
+ * darajasida: bitta sahifa yuklanishida kirish faqat BIR marta.
  */
+let loginAttempted = false;
+
 export function TelegramWebApp() {
   const router = useRouter();
   const pathname = usePathname();
   const hydrated = useUserStore((s) => s.hydrated);
   const signIn = useUserStore((s) => s.signIn);
-  const tried = React.useRef(false);
 
   React.useEffect(() => {
     const tg = typeof window !== "undefined" ? window.Telegram?.WebApp : undefined;
@@ -42,7 +48,7 @@ export function TelegramWebApp() {
   React.useEffect(() => {
     // Saqlangan sessiya o'qilgunicha kutamiz, aks holda `signIn`
     // yozgan tokenni rehydrate ustidan yozib ketardi.
-    if (!hydrated || tried.current) return;
+    if (!hydrated || loginAttempted) return;
 
     const initData = window.Telegram?.WebApp?.initData;
     if (!initData) return;
@@ -54,7 +60,7 @@ export function TelegramWebApp() {
     // bo'lsa, "tokeni bor ekan" deb o'tkazib yuborish odamga
     // BEGONA hisobni ko'rsatardi. WebApp ichida kimlikni Telegram
     // belgilaydi — bitta so'rov shu noaniqlikni butunlay yopadi.
-    tried.current = true;
+    loginAttempted = true;
     (async () => {
       try {
         const { accessToken: token, user } = await telegramLogin(initData);

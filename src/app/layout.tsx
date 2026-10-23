@@ -4,8 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { siteConfig } from "@/config/site";
-import Script from "next/script";
-import { TelegramWebApp } from "@/features/telegram/telegram-webapp";
 import { OrganizationSchema, SoftwareApplicationSchema, WebSiteSchema } from "@/components/seo/structured-data";
 
 const geistSans = Geist({
@@ -104,22 +102,15 @@ export default function RootLayout({
         <WebSiteSchema />
         <OrganizationSchema />
         <SoftwareApplicationSchema />
-        {/* Telegram WebApp SDK. `beforeInteractive` — `initData`
-            React ishga tushishidan OLDIN tayyor bo'lishi kerak,
-            aks holda avto-login birinchi renderni o'tkazib
-            yuborardi. Telegram tashqarisida skript hech nima
-            qilmaydi. */}
-        <Script
-          src="https://telegram.org/js/telegram-web-app.js"
-          strategy="beforeInteractive"
-        />
+        {/* Telegram WebApp SDK bu yerda emas: u faqat WebApp ochiladigan
+            joylarda — bosh sahifa, kirish va kabinet — `TelegramWebApp`
+            ichida yuklanadi. Ochiq SEO sahifalar uni yuklamaydi. */}
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <TelegramWebApp />
           {children}
           <Toaster
             theme="system"
