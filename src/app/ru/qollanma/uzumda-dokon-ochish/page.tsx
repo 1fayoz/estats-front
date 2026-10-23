@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, Rocket, ShieldCheck } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema, HowToSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Как открыть магазин на Uzum Market в 2026 году",
   description:
     "Как стать селлером Uzum Market: регистрация ИП или ООО в Узбекистане, загрузка карточек, печать штрихкодов и первая отгрузка.",
   path: "/ru/qollanma/uzumda-dokon-ochish",
+  type: "article",
   keywords: [
     "как открыть магазин на uzum market",
     "регистрация селлера uzum 2026",
@@ -80,6 +82,13 @@ export default function RussianOpenStoreGuidePage() {
           Все этапы запуска успешного онлайн-магазина: от открытия расчетного счета и подготовки этикеток
           до первой прибыльной поставки.
         </p>
+        <ArticleMeta
+          headline="Как открыть магазин на Uzum Market в 2026 году"
+          description="Как стать селлером Uzum Market: регистрация ИП или ООО в Узбекистане, загрузка карточек, печать штрихкодов и первая отгрузка."
+          url="/ru/qollanma/uzumda-dokon-ochish"
+          datePublished="2026-09-25"
+          locale="ru"
+        />
       </header>
 
       {/* Steps List */}

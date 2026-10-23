@@ -218,3 +218,50 @@ export function CalculatorToolSchema({
     />
   );
 }
+
+
+
+
+/**
+ * Qo'llanma maqolasi. Sana sahifa matnida ham ko'rsatiladi — Google
+ * strukturali ma'lumotni faqat ko'rinadigan mazmun bilan mos bo'lsa oladi.
+ */
+export function ArticleSchema({
+  headline,
+  description,
+  url,
+  datePublished,
+  dateModified,
+  inLanguage = "uz",
+}: {
+  headline: string;
+  description: string;
+  url: string;
+  datePublished: string;
+  dateModified: string;
+  inLanguage?: string;
+}) {
+  const fullUrl = url.startsWith("http") ? url : `${siteConfig.url}${url}`;
+  const org = { "@type": "Organization", name: siteConfig.name, url: siteConfig.url };
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline,
+    description,
+    inLanguage,
+    mainEntityOfPage: { "@type": "WebPage", "@id": fullUrl },
+    url: fullUrl,
+    image: `${siteConfig.url}/og.png`,
+    datePublished,
+    dateModified,
+    author: org,
+    publisher: { ...org, logo: { "@type": "ImageObject", url: `${siteConfig.url}/icon.png` } },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}

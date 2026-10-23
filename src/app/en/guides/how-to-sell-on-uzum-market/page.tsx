@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Check, FileText, Rocket, ShieldCheck, Sparkles } from "lucide-react";
 import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "How to Sell on Uzum Market in 2026: Seller Guide",
   description:
     "Step-by-step guide to starting on Uzum Market in Uzbekistan: business registration, contracts, barcodes, product listings and first warehouse delivery.",
   path: "/en/guides/how-to-sell-on-uzum-market",
+  type: "article",
   keywords: [
     "how to sell on uzum market",
     "uzum market seller onboarding",
@@ -63,6 +65,13 @@ export default function EnOpenShopGuidePage() {
         <p className="max-w-3xl text-base text-muted-foreground leading-relaxed">
           Uzum Market is Central Asia's fastest-growing national marketplace, processing over 100,000 daily orders with guaranteed 1-day delivery across Uzbekistan. Here is your definitive blueprint to launching a profitable store.
         </p>
+        <ArticleMeta
+          headline="How to Sell on Uzum Market in 2026: Seller Guide"
+          description="Step-by-step guide to starting on Uzum Market in Uzbekistan: business registration, contracts, barcodes, product listings and first warehouse delivery."
+          url="/en/guides/how-to-sell-on-uzum-market"
+          datePublished="2026-09-25"
+          locale="en"
+        />
       </header>
 
       {/* Steps */}

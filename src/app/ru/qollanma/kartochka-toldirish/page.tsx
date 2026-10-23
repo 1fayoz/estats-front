@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Как оформить карточку товара на Uzum Market",
   description:
     "Секреты SEO оптимизации карточки товара на Uzum Market: составление ключевых заголовков, продающее описание, инфографика и повышение конверсии кликов в заказы.",
   path: "/ru/qollanma/kartochka-toldirish",
+  type: "article",
   keywords: [
     "seo оптимизация карточки uzum",
     "как заполнить карточку на узбекистан маркет",
@@ -60,6 +62,13 @@ export default function RussianCardSeoGuidePage() {
         <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Практические рекомендации по повышению позиций карточки во внутреннем поиске и увеличению конверсии (CR).
         </p>
+        <ArticleMeta
+          headline="Как оформить карточку товара на Uzum Market"
+          description="Секреты SEO оптимизации карточки товара на Uzum Market: составление ключевых заголовков, продающее описание, инфографика и повышение конверсии кликов в заказы."
+          url="/ru/qollanma/kartochka-toldirish"
+          datePublished="2026-09-25"
+          locale="ru"
+        />
       </header>
 
       <section className="space-y-6">

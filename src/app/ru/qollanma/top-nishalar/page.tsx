@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Compass, TrendingUp, CheckCircle2 } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Как найти прибыльную нишу на Uzum Market",
   description:
     "Методика поиска свободных ниш с низкой конкуренцией и высоким спросом на Uzum Market: анализ объемов продаж, проверка монополизации и расчет юнит-экономики.",
   path: "/ru/qollanma/top-nishalar",
+  type: "article",
   keywords: [
     "прибыльные ниши uzum market",
     "что продавать на uzum 2026",
@@ -60,6 +62,13 @@ export default function RussianTopNichesGuidePage() {
         <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Пошаговый алгоритм выбора товара для закупа в Китае или производства в Узбекистане без риска слить капитал.
         </p>
+        <ArticleMeta
+          headline="Как найти прибыльную нишу на Uzum Market"
+          description="Методика поиска свободных ниш с низкой конкуренцией и высоким спросом на Uzum Market: анализ объемов продаж, проверка монополизации и расчет юнит-экономики."
+          url="/ru/qollanma/top-nishalar"
+          datePublished="2026-09-25"
+          locale="ru"
+        />
       </header>
 
       <section className="space-y-6">

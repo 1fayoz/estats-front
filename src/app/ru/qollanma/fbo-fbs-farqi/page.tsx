@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Boxes, Check, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "FBO или FBS на Uzum Market: Разница и Выбор",
   description:
     "Сравнение FBO (склад маркетплейса) и FBS (свой склад) на Uzum Market: комиссии, скорость доставки, заморозка капитала и риски.",
   path: "/ru/qollanma/fbo-fbs-farqi",
+  type: "article",
   keywords: [
     "fbo fbs разница uzum",
     "fbo uzum market что это",
@@ -55,6 +57,13 @@ export default function RussianFboFbsGuidePage() {
         <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Детальный разбор двух главных логистических моделей торговли на маркетплейсах в Узбекистане.
         </p>
+        <ArticleMeta
+          headline="FBO или FBS на Uzum Market: Разница и Выбор"
+          description="Сравнение FBO (склад маркетплейса) и FBS (свой склад) на Uzum Market: комиссии, скорость доставки, заморозка капитала и риски."
+          url="/ru/qollanma/fbo-fbs-farqi"
+          datePublished="2026-09-25"
+          locale="ru"
+        />
       </header>
 
       {/* Comparison Grid */}

@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Check, FileText, Rocket, ShieldCheck, Sparkles } from "lucide-react";
 import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Uzum Marketda Do'kon Ochish — 2026 Yo'riqnoma",
   description:
     "Uzum Marketda sotuvchi bo'lish: YaTT yoki MChJ ochish, hujjatlar, shartnoma, kabinetni sozlash va birinchi partiyani omborga topshirish.",
   path: "/qollanma/uzumda-dokon-ochish",
+  type: "article",
   keywords: [
     "uzumda dokon ochish",
     "uzum market seller bolish",
@@ -65,6 +67,12 @@ export default function OpenShopGuidePage() {
           O&apos;zbekistonning eng yirik marketpleysida savdo boshlash uchun zarur bo&apos;lgan barcha huquqiy,
           moliyaviy va texnik talablar.
         </p>
+        <ArticleMeta
+          headline="Uzum Marketda Do'kon Ochish — 2026 Yo'riqnoma"
+          description="Uzum Marketda sotuvchi bo'lish: YaTT yoki MChJ ochish, hujjatlar, shartnoma, kabinetni sozlash va birinchi partiyani omborga topshirish."
+          url="/qollanma/uzumda-dokon-ochish"
+          datePublished="2026-09-25"
+        />
       </header>
 
       <section className="space-y-8 rounded-3xl border bg-card p-6 sm:p-10">

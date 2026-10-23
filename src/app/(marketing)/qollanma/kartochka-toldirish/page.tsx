@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Bot, Check, FileText, Sparkles, Star, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Tovar Kartochkasini To'ldirish va SEO Yo'riqnomasi",
   description:
     "Uzum Marketda tovar kartochkasini to'g'ri to'ldirish: yuqori konversiyali nom tanlash, kalit so'zlar matritsasi, infografika va rich content yaratish sirlari.",
   path: "/qollanma/kartochka-toldirish",
+  type: "article",
   keywords: [
     "uzum kartochka toldirish",
     "uzum tovar seo",
@@ -64,6 +66,12 @@ export default function CardOptimizationGuidePage() {
         <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Reklamasiz bepul organik xaridorlarni jalb qilishning 4 ta oltin qoidasi.
         </p>
+        <ArticleMeta
+          headline="Tovar Kartochkasini To'ldirish va SEO Yo'riqnomasi"
+          description="Uzum Marketda tovar kartochkasini to'g'ri to'ldirish: yuqori konversiyali nom tanlash, kalit so'zlar matritsasi, infografika va rich content yaratish sirlari."
+          url="/qollanma/kartochka-toldirish"
+          datePublished="2026-09-25"
+        />
       </header>
 
       <section className="space-y-8 rounded-3xl border bg-card p-6 sm:p-10">

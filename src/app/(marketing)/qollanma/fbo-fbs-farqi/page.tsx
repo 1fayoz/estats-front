@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Check, Layers, Package, ShieldCheck, X } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "FBO yoki FBS: Uzum Marketda Qaysi Biri Ma'qul?",
   description:
     "FBO va FBS modellari solishtirmasi: yangi sotuvchi uchun qaysi biri arzonroq, tezroq va qulayroq? Barcha xarajatlar va farqlar.",
   path: "/qollanma/fbo-fbs-farqi",
+  type: "article",
   keywords: [
     "fbo va fbs farqi",
     "uzum fbo nima",
@@ -43,6 +45,12 @@ export default function FboVsFbsGuidePage() {
           Uzum omboriga topshirish va o&apos;z omboringizdan jo&apos;natish o&apos;rtasidagi barcha farqlar,
           xarajatlar va eng to&apos;g&apos;ri strategiya.
         </p>
+        <ArticleMeta
+          headline="FBO yoki FBS: Uzum Marketda Qaysi Biri Ma'qul?"
+          description="FBO va FBS modellari solishtirmasi: yangi sotuvchi uchun qaysi biri arzonroq, tezroq va qulayroq? Barcha xarajatlar va farqlar."
+          url="/qollanma/fbo-fbs-farqi"
+          datePublished="2026-09-25"
+        />
       </header>
 
       <div className="grid gap-6 sm:grid-cols-2">

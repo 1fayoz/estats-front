@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Check, DollarSign, Megaphone, Target, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Boost TOP Reklamani To'g'ri Sozlash — Qo'llanma",
   description:
     "Uzum Boost TOP reklamasini samarali ishlatish qo'llanmasi: stavka qo'yish, DRR nazorati, foydasiz so'rovlarni o'chirish va ROI oshirish.",
   path: "/qollanma/boost-top-sozlash",
+  type: "article",
   keywords: [
     "boost top uzum sozlash",
     "uzum reklama qollanma",
@@ -42,6 +44,12 @@ export default function BoostTopGuidePage() {
         <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Reklamaga pul sochishni to&apos;xtating. Har bir so&apos;m investitsiya ko&apos;proq sof daromad keltirsin.
         </p>
+        <ArticleMeta
+          headline="Boost TOP Reklamani To'g'ri Sozlash — Qo'llanma"
+          description="Uzum Boost TOP reklamasini samarali ishlatish qo'llanmasi: stavka qo'yish, DRR nazorati, foydasiz so'rovlarni o'chirish va ROI oshirish."
+          url="/qollanma/boost-top-sozlash"
+          datePublished="2026-09-25"
+        />
       </header>
 
       <section className="space-y-8 rounded-3xl border bg-card p-6 sm:p-10">

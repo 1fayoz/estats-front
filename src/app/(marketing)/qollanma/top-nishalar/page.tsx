@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Check, Compass, Eye, Flame, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Uzum Marketda Bo'sh Nishalarni Topish — 5 Qadam",
   description:
     "Uzum Market'da qaysi tovarlarni sotish eng daromadli? Monopoliyani aniqlash, talab o'sishini o'rganish va kam raqobatli bo'sh nishalarni topish formulasi.",
   path: "/qollanma/top-nishalar",
+  type: "article",
   keywords: [
     "uzumda qanday tovar sotish kerak",
     "bosh nishalar uzum",
@@ -42,6 +44,12 @@ export default function NicheFindingGuidePage() {
           Boshqalar sotayotgan tovarga ko&apos;r-ko&apos;rona ergashmang. Yuqori marjali va talab katta bo&apos;lgan
           tovarlarni topishning 5 ta qoidasi.
         </p>
+        <ArticleMeta
+          headline="Uzum Marketda Bo'sh Nishalarni Topish — 5 Qadam"
+          description="Uzum Market'da qaysi tovarlarni sotish eng daromadli? Monopoliyani aniqlash, talab o'sishini o'rganish va kam raqobatli bo'sh nishalarni topish formulasi."
+          url="/qollanma/top-nishalar"
+          datePublished="2026-09-25"
+        />
       </header>
 
       <section className="space-y-8 rounded-3xl border bg-card p-6 sm:p-10">

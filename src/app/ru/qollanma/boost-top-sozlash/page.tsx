@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Megaphone, Target, CheckCircle2 } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { buildMetadata } from "@/lib/seo";
+import { ArticleMeta } from "@/components/seo/article-meta";
 
 export const metadata: Metadata = buildMetadata({
   title: "Настройка рекламы Boost TOP на Uzum Market",
   description:
     "Руководство по рекламе Boost TOP на Uzum Market: выбор ставок, расчет допустимого ДРР и анализ отдачи инвестиций (ROAS).",
   path: "/ru/qollanma/boost-top-sozlash",
+  type: "article",
   keywords: [
     "настройка boost top uzum",
     "реклама на узбекистан маркет",
@@ -50,6 +52,13 @@ export default function RussianBoostTopGuidePage() {
         <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Как запускать рекламное продвижение карточек, управлять ставками за клик и гарантированно оставаться в плюсе.
         </p>
+        <ArticleMeta
+          headline="Настройка рекламы Boost TOP на Uzum Market"
+          description="Руководство по рекламе Boost TOP на Uzum Market: выбор ставок, расчет допустимого ДРР и анализ отдачи инвестиций (ROAS)."
+          url="/ru/qollanma/boost-top-sozlash"
+          datePublished="2026-09-25"
+          locale="ru"
+        />
       </header>
 
       <section className="space-y-6">
