@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
@@ -6,6 +7,18 @@ import { AuthGuard } from "@/components/layout/auth-guard";
 import { PageTransition } from "@/components/layout/page-transition";
 import { BroadcastTray } from "@/components/layout/broadcast-tray";
 import { UzumChallengeBanner } from "@/components/layout/uzum-challenge-banner";
+
+/**
+ * Kabinet — login ortidagi shaxsiy hisobotlar: qidiruvda umuman
+ * bo'lmasligi kerak. Ildizdagi `index, follow` bu yerda bekor qilinadi;
+ * X-Robots-Tag sarlavhasi (next.config.ts) va robots.txt ham shu
+ * ro'yxatni yopadi.
+ */
+export const metadata: Metadata = {
+  // Sahifa o'zi bermasa — bosh sahifa sarlavhasi emas, "Kabinet · eStats".
+  title: "Kabinet",
+  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
+};
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (

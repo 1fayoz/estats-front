@@ -17,7 +17,7 @@ import styles from "@/features/auth/components/login.module.css";
 export const metadata: Metadata = {
   title: "Kirish",
   description: `${siteConfig.name} kabinetiga kirish.`,
-  robots: { index: false, follow: true },
+  robots: { index: false, follow: false },
 };
 
 const benefits = [

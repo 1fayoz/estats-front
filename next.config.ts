@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { PRIVATE_ROUTE_SEGMENTS } from "./src/config/private-routes";
+
 /** Har bir javobga qo'shiladigan xavfsizlik sarlavhalari. */
 const SECURITY_HEADERS = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -29,8 +31,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
       {
-        // Kabinet — sotuvchining moliyaviy ma'lumoti; hech qachon indekslanmasin.
-        source: "/:path(warehouse|intakes|pnl|finance|settings)/:rest*",
+        // Kabinet va kirish — login ortidagi shaxsiy ma'lumot; hech qachon
+        // indekslanmasin. Ro'yxat `src/config/private-routes.ts` da.
+        source: `/:path(${PRIVATE_ROUTE_SEGMENTS.join("|")})/:rest*`,
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
       },
     ];

@@ -1,34 +1,26 @@
 import type { MetadataRoute } from "next";
 
+import { PRIVATE_ROUTE_SEGMENTS } from "@/config/private-routes";
 import { siteConfig } from "@/config/site";
 
 /**
  * Kabinet sahifalari indekslanmaydi: ular sotuvchining shaxsiy hisoboti va
- * qidiruvda umuman ko'rinmasligi kerak. Ochiq qismi — landing va huquqiy
- * sahifalar.
+ * qidiruvda umuman ko'rinmasligi kerak. Ochiq qismi — landing, kalkulyator,
+ * qo'llanma va huquqiy sahifalar.
+ *
+ * Yopiq yo'llar BITTA ro'yxatda va barcha botlar uchun bir xil. Ilgari AI
+ * botlar guruhida alohida ro'yxat va `Allow: /market/*` turardi — `/market`
+ * esa kabinet (login ortida), ochiq sahifa emas.
  */
+const PRIVATE_PATHS = [...PRIVATE_ROUTE_SEGMENTS.map((s) => `/${s}`), "/api/"];
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/warehouse",
-          "/intakes",
-          "/plan",
-          "/expenses",
-          "/pnl",
-          "/finance",
-          "/instagram",
-          "/socials",
-          "/seo",
-          "/networks",
-          "/marketing",
-          "/integrations",
-          "/settings",
-          "/api/",
-        ],
+        disallow: PRIVATE_PATHS,
       },
       {
         userAgent: [
@@ -42,38 +34,8 @@ export default function robots(): MetadataRoute.Robots {
           "cohere-ai",
           "Bytespider",
         ],
-        allow: [
-          "/",
-          "/llms.txt",
-          "/llms-full.txt",
-          "/kalkulyator/*",
-          "/tekshirish",
-          "/kategoriya/*",
-          "/qollanma/*",
-          "/lugat",
-          "/bozorlar/*",
-          "/muqobil/*",
-          "/yechimlar/*",
-          "/market/*",
-          "/ru/*",
-          "/en/*",
-        ],
-        disallow: [
-          "/warehouse",
-          "/intakes",
-          "/plan",
-          "/expenses",
-          "/pnl",
-          "/finance",
-          "/instagram",
-          "/socials",
-          "/seo",
-          "/networks",
-          "/marketing",
-          "/integrations",
-          "/settings",
-          "/api/",
-        ],
+        allow: ["/", "/llms.txt", "/llms-full.txt"],
+        disallow: PRIVATE_PATHS,
       },
     ],
     sitemap: `${siteConfig.url}/sitemap.xml`,
