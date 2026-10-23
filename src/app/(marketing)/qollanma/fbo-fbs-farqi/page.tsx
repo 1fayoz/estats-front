@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Layers, Package, ShieldCheck, X } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "FBO yoki FBS: Uzum Marketda Qaysi Birini Tanlash Ma'qul? — Taqqoslash | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "FBO yoki FBS: Uzum Marketda Qaysi Biri Ma'qul?",
   description:
-    "FBO (Fulfillment by Operator) va FBS (Fulfillment by Seller) modellari solishtirmasi. Yangi sotuvchilar uchun qaysi biri arzonroq, tezroq va qulayroq? Barcha xarajatlar va farqlar.",
+    "FBO va FBS modellari solishtirmasi: yangi sotuvchi uchun qaysi biri arzonroq, tezroq va qulayroq? Barcha xarajatlar va farqlar.",
+  path: "/qollanma/fbo-fbs-farqi",
   keywords: [
     "fbo va fbs farqi",
     "uzum fbo nima",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "fbo yoki fbs qaysi biri yaxshi",
     "marketpleys logistika modellari",
   ],
-  alternates: { canonical: "/qollanma/fbo-fbs-farqi" },
-  openGraph: {
-    title: "FBO yoki FBS: Qaysi Birini Tanlash Kerak? — eStats Qo'llanma",
-    description: "Uzum Market logistika modellarining to'liq tahlili va taqqoslanishi.",
-    url: "https://estats.uz/qollanma/fbo-fbs-farqi",
-  },
-};
+  ogTitle: "FBO yoki FBS: Qaysi Birini Tanlash Kerak? — eStats Qo'llanma",
+  ogDescription: "Uzum Market logistika modellarining to'liq tahlili va taqqoslanishi.",
+});
 
 export default function FboVsFbsGuidePage() {
   return (

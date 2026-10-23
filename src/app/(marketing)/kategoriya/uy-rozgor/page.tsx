@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Home, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Uy-Ro'zg'or va Oshxona Tahlili — Kundalik Talab va Doimiy Sotuvlar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Uy-Ro'zg'or va Oshxona Tahlili",
   description:
-    "Uzum Market'dagi uy-ro'zg'or buyumlari, oshxona anjomlari, tozalash vositalari va interyer tovarlari tahlili: o'rtacha aylanma, eng talabgir nishalar va raqobatchilar tahlili.",
+    "Uzum Market uy-ro'zg'or, oshxona, tozalash vositalari va interyer tovarlari tahlili: o'rtacha aylanma, talabgir nishalar va raqobatchilar.",
+  path: "/kategoriya/uy-rozgor",
   keywords: [
     "uzum uy rozgor tahlili",
     "oshxona anjomlari uzum",
@@ -14,13 +16,9 @@ export const metadata: Metadata = {
     "tozalash vositalari uzum bozor",
     "uy rozgor eng kop sotiladigan tovarlar",
   ],
-  alternates: { canonical: "/kategoriya/uy-rozgor" },
-  openGraph: {
-    title: "Uy-Ro'zg'or va Oshxona Bozor Tahlili — Uzum Market | eStats",
-    description: "Uy-ro'zg'or toifasidagi eng ommabop mahsulotlar va ularning oylik tushumi.",
-    url: "https://estats.uz/kategoriya/uy-rozgor",
-  },
-};
+  ogTitle: "Uy-Ro'zg'or va Oshxona Bozor Tahlili — Uzum Market | eStats",
+  ogDescription: "Uy-ro'zg'or toifasidagi eng ommabop mahsulotlar va ularning oylik tushumi.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema, HowToSchema } from "@/components/seo/structured-data";
 import { BarcodeGeneratorTool } from "@/components/barcode-generator-tool";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Генератор Штрихкодов и Термоэтикеток для Uzum и Wildberries (58х40) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Генератор Штрихкодов и Термоэтикеток 58х40",
   description:
     "Бесплатный онлайн генератор штрихкодов Code-128 и EAN-13, печать термоэтикеток 58х40 мм и 43х25 мм для селлеров Uzum Market, Wildberries и Ozon в Узбекистане.",
+  path: "/ru/kalkulyator/shtrix-kod",
   keywords: [
     "генератор штрихкодов uzum market",
     "печать термоэтикеток узбекистан",
@@ -18,20 +20,9 @@ export const metadata: Metadata = {
     "маркировка товаров uzum",
     "генератор этикеток маркетплейс",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/shtrix-kod",
-    languages: {
-      uz: "/kalkulyator/shtrix-kod",
-      ru: "/ru/kalkulyator/shtrix-kod",
-      en: "/en/tools/barcode-generator",
-    },
-  },
-  openGraph: {
-    title: "Генератор Штрихкодов и Этикеток для Маркетплейсов — Бесплатно",
-    description: "Печать термоэтикеток 58х40 мм для Uzum Market и Wildberries онлайн.",
-    url: "https://estats.uz/ru/kalkulyator/shtrix-kod",
-  },
-};
+  ogTitle: "Генератор Штрихкодов и Этикеток для Маркетплейсов — Бесплатно",
+  ogDescription: "Печать термоэтикеток 58х40 мм для Uzum Market и Wildberries онлайн.",
+});
 
 const FAQ_ITEMS = [
   {

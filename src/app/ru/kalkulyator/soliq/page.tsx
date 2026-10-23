@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { MarketplaceTaxCalculator } from "@/features/calculators/marketplace-tax-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Налоговый Калькулятор Маркетплейсов в Узбекистане (ИП / ООО) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Налоговый Калькулятор Маркетплейсов (ИП / ООО)",
   description:
-    "Онлайн расчет налогов для селлеров Uzum Market, Wildberries и Яндекс Маркет в Узбекистане: налог 4% с оборота, социальный налог ИП, порог НДС 1 млрд сумов и льготы e-commerce.",
+    "Расчет налогов для селлеров маркетплейсов в Узбекистане: 4% с оборота, социальный налог ИП, порог НДС 1 млрд сумов и льготы e-commerce.",
+  path: "/ru/kalkulyator/soliq",
   keywords: [
     "налоги маркетплейс узбекистан",
     "налог с оборота 4 процента uzum",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "налоговый калькулятор селлера uzum",
     "социальный налог ип брв",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/soliq",
-    languages: {
-      uz: "/kalkulyator/soliq",
-      ru: "/ru/kalkulyator/soliq",
-    },
-  },
-  openGraph: {
-    title: "Налоговый Калькулятор Маркетплейсов Узбекистан — eStats",
-    description: "Рассчитайте налог с оборота, социальный налог и риск НДС 12% при торговле на маркетплейсах.",
-    url: "https://estats.uz/ru/kalkulyator/soliq",
-  },
-};
+  ogTitle: "Налоговый Калькулятор Маркетплейсов Узбекистан — eStats",
+  ogDescription: "Рассчитайте налог с оборота, социальный налог и риск НДС 12% при торговле на маркетплейсах.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Cpu, Flame, Smartphone, TrendingUp, Users } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Elektronika Bozor Tahlili — Oylik Savdolar, Top Nishalar va Narxlar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Elektronika Bozor Tahlili",
   description:
-    "Uzum Market'dagi elektronika va maishiy texnika kategoriyasi tahlili: oylik aylanma, o'rtacha chek, eng ko'p sotilayotgan smartfon aksessuarlari, quloqchinlar va bo'sh nishalar.",
+    "Uzum Market elektronika va maishiy texnika tahlili: oylik aylanma, o'rtacha chek, top smartfon aksessuarlari, quloqchinlar va bo'sh nishalar.",
+  path: "/kategoriya/elektronika",
   keywords: [
     "uzum elektronika tahlili",
     "elektronika eng kop sotiladigan tovarlar uzum",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "elektronika oylik aylanma uzum",
     "bo'sh nishalar elektronika",
   ],
-  alternates: { canonical: "/kategoriya/elektronika" },
-  openGraph: {
-    title: "Elektronika Kategoriyasi Tahlili — Uzum Market | eStats",
-    description: "Elektronika toifasida qaysi tovarlar eng ko'p daromad keltirmoqda?",
-    url: "https://estats.uz/kategoriya/elektronika",
-  },
-};
+  ogTitle: "Elektronika Kategoriyasi Tahlili — Uzum Market | eStats",
+  ogDescription: "Elektronika toifasida qaysi tovarlar eng ko'p daromad keltirmoqda?",
+});
 
 const FAQ_ITEMS = [
   {

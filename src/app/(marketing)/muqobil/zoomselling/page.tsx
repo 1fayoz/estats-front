@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ZoomSelling Muqobili — eStats | Uzum va Multi-Marketplace Analitikasi",
+export const metadata: Metadata = buildMetadata({
+  title: "ZoomSelling Muqobili — Uzum va Multi-Market Tahlil",
   description:
-    "ZoomSelling alternativi qidiryapsizmi? eStats — nafaqat Uzum Market, balki Yandex Market, Wildberries va Ozon tahlili, buxgalteriya darajasidagi FIFO tan narxi, ombor nazorati va AI yordamchilari bilan to'liq ustun platforma.",
+    "ZoomSelling muqobili: Uzum, Yandex Market, Wildberries va Ozon tahlili, FIFO tan narx, ombor nazorati va AI yordamchilari — bitta platformada.",
+  path: "/muqobil/zoomselling",
   keywords: [
     "zoomselling",
     "zoomselling uzum",
@@ -18,14 +20,9 @@ export const metadata: Metadata = {
     "estats vs zoomselling",
     "tovar tan narxi hisobi",
   ],
-  alternates: { canonical: "/muqobil/zoomselling" },
-  openGraph: {
-    title: "ZoomSelling Muqobili — Nega 1 400+ sotuvchi eStats'ni tanlaydi?",
-    description:
-      "ZoomSelling ga nisbatan kengroq imkoniyatlar: ko'p bozorli tahlil (Uzum, Yandex, WB, Ozon), FIFO tan narx, ombor ERP va AI SEO.",
-    url: "https://estats.uz/muqobil/zoomselling",
-  },
-};
+  ogTitle: "ZoomSelling Muqobili — Nega 1 400+ sotuvchi eStats'ni tanlaydi?",
+  ogDescription: "ZoomSelling ga nisbatan kengroq imkoniyatlar: ko'p bozorli tahlil (Uzum, Yandex, WB, Ozon), FIFO tan narx, ombor ERP va AI SEO.",
+});
 
 const FAQ_ITEMS = [
   {

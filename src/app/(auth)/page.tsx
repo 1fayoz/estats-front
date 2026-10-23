@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { CtaSection } from "@/features/landing/components/cta-section";
 import { FaqSection } from "@/features/landing/components/faq-section";
 import { LandingFooter } from "@/features/landing/components/footer";
@@ -9,6 +11,17 @@ import { PricingSection } from "@/features/landing/components/pricing-section";
 import { ProductsSection } from "@/features/landing/components/products-section";
 import { QuestionsSection } from "@/features/landing/components/questions-section";
 import styles from "@/features/landing/components/landing.module.css";
+import { siteConfig } from "@/config/site";
+import { buildMetadata } from "@/lib/seo";
+
+// Bosh sahifa kanonik va hreflang'ni O'ZI beradi (ilgari ildiz layout'da
+// turib, barcha sahifalarga meros bo'lib o'tardi).
+export const metadata: Metadata = buildMetadata({
+  title: `${siteConfig.name} — ${siteConfig.tagline}`,
+  description: siteConfig.description,
+  path: "/",
+  absoluteTitle: true,
+});
 
 export default function LandingPage() {
   return (

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Flame, Shirt, TrendingUp, Users } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Kiyim va Poyabzal Bozor Tahlili — Oylik Savdolar va Mavsumiy Trendlar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Kiyim va Poyabzal Bozor Tahlili",
   description:
-    "Uzum Market'dagi kiyim-kechak, poyabzal va aksessuarlar toifasi tahlili: o'rtacha chek, eng ko'p sotilayotgan modellar, qaytish foizlari (vozvrat), mavsumiy o'sish va daromadli nishalar.",
+    "Uzum Market kiyim, poyabzal va aksessuarlar tahlili: o'rtacha chek, top modellar, vozvrat foizi, mavsumiy o'sish va daromadli nishalar.",
+  path: "/kategoriya/kiyim-va-poyabzal",
   keywords: [
     "uzum kiyim kechak tahlili",
     "uzum poyabzal sotuvlari",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "kiyim qaytish foizi uzum",
     "kiyim nishalari marketpleys",
   ],
-  alternates: { canonical: "/kategoriya/kiyim-va-poyabzal" },
-  openGraph: {
-    title: "Kiyim va Poyabzal Bozor Tahlili — Uzum Market | eStats",
-    description: "Kiyim toifasida eng yuqori marja va talabga ega tovarlar qaysilar?",
-    url: "https://estats.uz/kategoriya/kiyim-va-poyabzal",
-  },
-};
+  ogTitle: "Kiyim va Poyabzal Bozor Tahlili — Uzum Market | eStats",
+  ogDescription: "Kiyim toifasida eng yuqori marja va talabga ega tovarlar qaysilar?",
+});
 
 const FAQ_ITEMS = [
   {

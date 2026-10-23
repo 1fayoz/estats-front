@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Check, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
 import { UnitEconomicsCalculator } from "@/features/calculators/unit-economics-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Калькулятор Юнит-Экономики для Маркетплейсов — Расчет Маржи и ROI | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Калькулятор Юнит-Экономики — Маржа и ROI",
   description:
-    "Бесплатный расчет юнит-экономики товара: чистая маржа, окупаемость вложений (ROI), точка безубыточности (Break-even цена), учет налогов и рекламных расходов на маркетплейсах.",
+    "Бесплатный расчет юнит-экономики товара: чистая маржа, ROI, точка безубыточности, налоги и рекламные расходы на маркетплейсах.",
+  path: "/ru/kalkulyator/unit-iqtisodiyot",
   keywords: [
     "калькулятор юнит экономики",
     "расчет маржи маркетплейс",
@@ -16,22 +18,9 @@ export const metadata: Metadata = {
     "break even цена калькулятор",
     "рентабельность продаж узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/unit-iqtisodiyot",
-    languages: {
-      uz: "/kalkulyator/unit-iqtisodiyot",
-      ru: "/ru/kalkulyator/unit-iqtisodiyot",
-      en: "/kalkulyator/unit-iqtisodiyot",
-      "x-default": "/kalkulyator/unit-iqtisodiyot",
-    },
-  },
-  openGraph: {
-    title: "Калькулятор Юнит-Экономики — eStats",
-    description: "Рассчитайте чистую маржу и минимальную безубыточную цену товара.",
-    url: "https://estats.uz/ru/kalkulyator/unit-iqtisodiyot",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Калькулятор Юнит-Экономики — eStats",
+  ogDescription: "Рассчитайте чистую маржу и минимальную безубыточную цену товара.",
+});
 
 const FAQ_ITEMS = [
   {

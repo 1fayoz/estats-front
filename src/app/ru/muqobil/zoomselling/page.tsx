@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналог ZoomSelling — eStats | Аналитика Uzum Market, Склад и PnL",
+export const metadata: Metadata = buildMetadata({
+  title: "Аналог ZoomSelling — Аналитика Uzum, Склад, PnL",
   description:
-    "Ищете лучшую альтернативу ZoomSelling в Узбекистане? eStats предлагает больше возможностей: точный расчет чистой прибыли по FIFO, складской учет, поддержка Wildberries, Yandex и Ozon, AI карточки товаров.",
+    "Альтернатива ZoomSelling в Узбекистане: чистая прибыль по FIFO, складской учет, поддержка Wildberries, Yandex и Ozon, AI карточки товаров.",
+  path: "/ru/muqobil/zoomselling",
   keywords: [
     "zoomselling аналог",
     "альтернатива zoomselling",
@@ -16,22 +18,9 @@ export const metadata: Metadata = {
     "программа для uzum market",
     "учет прибыли uzum market",
   ],
-  alternates: {
-    canonical: "/ru/muqobil/zoomselling",
-    languages: {
-      uz: "/muqobil/zoomselling",
-      ru: "/ru/muqobil/zoomselling",
-      en: "/en/alternatives/zoomselling",
-      "x-default": "/muqobil/zoomselling",
-    },
-  },
-  openGraph: {
-    title: "Аналог ZoomSelling в Узбекистане — eStats",
-    description: "Сравните eStats и ZoomSelling: мульти-маркетплейс, себестоимость по FIFO и склад.",
-    url: "https://estats.uz/ru/muqobil/zoomselling",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Аналог ZoomSelling в Узбекистане — eStats",
+  ogDescription: "Сравните eStats и ZoomSelling: мульти-маркетплейс, себестоимость по FIFO и склад.",
+});
 
 const FAQ_ITEMS = [
   {

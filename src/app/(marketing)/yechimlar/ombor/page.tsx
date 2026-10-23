@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Boxes, Check, Layers, Package, ShieldCheck } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleys Ombor Dasturi — Qoldiqlar, Partiyalar va SKU Nazorati | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Ombor Dasturi — Qoldiq va Partiyalar",
   description:
-    "Uzum Market, Yandex Market, Wildberries va Ozon uchun professional ombor hisobi (Inventory ERP). Partiyalar bo'yicha kirim, tan narx, qoldiqlar ogohlantirishi va dublikat tovarlarni birlashtirish.",
+    "Uzum, Yandex Market, Wildberries va Ozon uchun ombor hisobi: partiyalar bo'yicha kirim, tan narx, qoldiq ogohlantirishi va dublikatlarni birlashtirish.",
+  path: "/yechimlar/ombor",
   keywords: [
     "ombor dasturi",
     "sklad dasturi uzum",
@@ -17,14 +19,9 @@ export const metadata: Metadata = {
     "sku nazorati",
     "fifo ombor dasturi",
   ],
-  alternates: { canonical: "/yechimlar/ombor" },
-  openGraph: {
-    title: "Marketpleys Ombor Dasturi — Har bir partiya va tovar nazoratda",
-    description:
-      "Uzum va boshqa marketpleyslar uchun maxsus moslashtirilgan zamonaviy ombor boshqaruvi.",
-    url: "https://estats.uz/yechimlar/ombor",
-  },
-};
+  ogTitle: "Marketpleys Ombor Dasturi — Har bir partiya va tovar nazoratda",
+  ogDescription: "Uzum va boshqa marketpleyslar uchun maxsus moslashtirilgan zamonaviy ombor boshqaruvi.",
+});
 
 const FAQ_ITEMS = [
   {

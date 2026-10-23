@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Globe, Layers, ShieldCheck, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ozon O'zbekiston Analitika va Savdo Boshqaruvi — Sellers Uchun | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ozon O'zbekiston Analitika va Savdo Boshqaruvi",
   description:
-    "Ozon Uzbekistan sotuvchilari uchun to'liq analitika platformasi: O'zbekistondan turib Ozon orqali savdo qilish, komissiyalar, valyuta konvertatsiyasi, ombor va sof foyda hisobi.",
+    "Ozon sotuvchilari uchun analitika: O'zbekistondan turib Ozon orqali savdo, komissiyalar, valyuta konvertatsiyasi, ombor va sof foyda hisobi.",
+  path: "/bozorlar/ozon",
   keywords: [
     "ozon uzbekistan analitika",
     "ozon seller uzbekistan",
@@ -14,13 +16,9 @@ export const metadata: Metadata = {
     "ozon komissiyasi hisoblash",
     "ozon fbs uzbekistan",
   ],
-  alternates: { canonical: "/bozorlar/ozon" },
-  openGraph: {
-    title: "Ozon O'zbekiston Analitika Tizimi — eStats",
-    description: "Ozon bozoridagi tovarlaringiz va buyurtmalaringizni to'liq nazorat qiling.",
-    url: "https://estats.uz/bozorlar/ozon",
-  },
-};
+  ogTitle: "Ozon O'zbekiston Analitika Tizimi — eStats",
+  ogDescription: "Ozon bozoridagi tovarlaringiz va buyurtmalaringizni to'liq nazorat qiling.",
+});
 
 const FAQ_ITEMS = [
   {

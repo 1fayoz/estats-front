@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Baby, Check, Flame, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Bolalar Tovarlari Tahlili — O'yinchoqlar, Gigiyena va Kiyimlar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Bolalar Tovarlari Tahlili",
   description:
-    "Uzum Market'dagi bolalar tovarlari, o'yinchoqlar, pamperslar, yangi tug'ilgan chaqaloqlar parvarishi va bolalar kiyimlari toifasi tahlili: o'rtacha aylanma, eng ko'p sotilayotgan tovarlar.",
+    "Uzum Market bolalar tovarlari tahlili: o'yinchoqlar, pamperslar, chaqaloq parvarishi va bolalar kiyimlari — o'rtacha aylanma va top tovarlar.",
+  path: "/kategoriya/bolalar-tovarlari",
   keywords: [
     "uzum bolalar tovarlari tahlili",
     "oyinchoqlar sotuvlari uzum",
@@ -14,13 +16,9 @@ export const metadata: Metadata = {
     "chaqaloqlar tovarlari uzum",
     "bolalar tovarlari nishalari",
   ],
-  alternates: { canonical: "/kategoriya/bolalar-tovarlari" },
-  openGraph: {
-    title: "Bolalar Tovarlari Bozor Tahlili — Uzum Market | eStats",
-    description: "Bolalar tovarlari toifasidagi eng talabgir nishalar va oylik daromad.",
-    url: "https://estats.uz/kategoriya/bolalar-tovarlari",
-  },
-};
+  ogTitle: "Bolalar Tovarlari Bozor Tahlili — Uzum Market | eStats",
+  ogDescription: "Bolalar tovarlari toifasidagi eng talabgir nishalar va oylik daromad.",
+});
 
 const FAQ_ITEMS = [
   {

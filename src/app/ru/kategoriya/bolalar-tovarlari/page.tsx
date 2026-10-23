@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Baby, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналитика Ниши Детские Товары и Игрушки на Uzum Market — Продажи и Спрос | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ниша Детские Товары на Uzum Market — Аналитика",
   description:
     "Анализ рынка детских товаров в Узбекистане на Uzum Market: развивающие игрушки, одежда для новорожденных, подгузники и коляски. Маржинальность и объем спроса.",
+  path: "/ru/kategoriya/bolalar-tovarlari",
   keywords: [
     "детские товары uzum market",
     "игрушки продажи узбекистан",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "подгузники маркетплейс узбекистан",
     "прибыльные детские товары",
   ],
-  alternates: {
-    canonical: "/ru/kategoriya/bolalar-tovarlari",
-    languages: {
-      uz: "/kategoriya/bolalar-tovarlari",
-      ru: "/ru/kategoriya/bolalar-tovarlari",
-    },
-  },
-  openGraph: {
-    title: "Аналитика Ниши Детские Товары — Uzum Market | eStats",
-    description: "Продажи детских товаров и развивающих игрушек в Узбекистане.",
-    url: "https://estats.uz/ru/kategoriya/bolalar-tovarlari",
-  },
-};
+  ogTitle: "Аналитика Ниши Детские Товары — Uzum Market | eStats",
+  ogDescription: "Продажи детских товаров и развивающих игрушек в Узбекистане.",
+});
 
 const FAQ_ITEMS = [
   {

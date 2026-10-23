@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { CalculatorsHub } from "@/features/calculators/calculators-hub";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Бесплатные Онлайн Калькуляторы для Маркетплейсов (2026) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Бесплатные Калькуляторы для Маркетплейсов (2026)",
   description:
-    "12+ бесплатных инструментов для селлеров Uzum Market, Wildberries и Ozon: расчет себестоимости карго из Китая, налогов, комиссии, термоэтикеток 58х40, акта FBO и юнит-экономики.",
+    "12+ бесплатных инструментов для селлеров Uzum, Wildberries и Ozon: карго из Китая, налоги, комиссия, термоэтикетки 58х40, акт FBO и юнит-экономика.",
+  path: "/ru/kalkulyator",
   keywords: [
     "калькуляторы маркетплейсов узбекистан",
     "калькулятор комиссии uzum market",
@@ -14,21 +16,9 @@ export const metadata: Metadata = {
     "генератор штрихкодов 58х40",
     "акт приема передачи fbo накладная",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator",
-    languages: {
-      uz: "/kalkulyator",
-      ru: "/ru/kalkulyator",
-      en: "/en/tools",
-    },
-  },
-  openGraph: {
-    title: "Бесплатные Онлайн Калькуляторы для Маркетплейсов — eStats",
-    description: "Все калькуляторы для селлеров: карго, налоги, комиссия, акты и штрихкоды.",
-    url: "https://estats.uz/ru/kalkulyator",
-    images: ["https://estats.uz/api/og?title=Калькуляторы+для+Маркетплейсов&badge=eStats+Инструменты"],
-  },
-};
+  ogTitle: "Бесплатные Онлайн Калькуляторы для Маркетплейсов — eStats",
+  ogDescription: "Все калькуляторы для селлеров: карго, налоги, комиссия, акты и штрихкоды.",
+});
 
 const FAQ_ITEMS = [
   {

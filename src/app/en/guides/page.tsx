@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Rocket, Search, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "E-Commerce Knowledge Base & Selling Guides | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "E-Commerce Knowledge Base & Selling Guides",
   description:
-    "Comprehensive guides and playbooks for selling on Central Asian marketplaces: Uzum Market seller onboarding, product listing SEO, FBO vs FBS models, and advertising optimization.",
+    "Guides for selling on Central Asian marketplaces: Uzum Market seller onboarding, listing SEO, FBO vs FBS models and advertising optimization.",
+  path: "/en/guides",
   keywords: [
     "how to sell on uzum market",
     "uzbekistan marketplace guides",
@@ -14,21 +16,9 @@ export const metadata: Metadata = {
     "cross border selling uzbekistan",
     "e-commerce central asia",
   ],
-  alternates: {
-    canonical: "/en/guides",
-    languages: {
-      uz: "/qollanma",
-      ru: "/ru/qollanma",
-      en: "/en/guides",
-    },
-  },
-  openGraph: {
-    title: "Marketplace Guides & Seller Knowledge Base — eStats",
-    description: "Step-by-step masterclasses on launching and scaling e-commerce stores in Uzbekistan.",
-    url: "https://estats.uz/en/guides",
-    images: ["https://estats.uz/api/og?title=Marketplace+Guides+%26+Playbooks&badge=eStats+Knowledge"],
-  },
-};
+  ogTitle: "Marketplace Guides & Seller Knowledge Base — eStats",
+  ogDescription: "Step-by-step masterclasses on launching and scaling e-commerce stores in Uzbekistan.",
+});
 
 const GUIDES = [
   {

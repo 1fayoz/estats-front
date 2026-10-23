@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Sparkles, TrendingUp, Heart } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналитика Ниши Косметика и Уход на Uzum Market — Продажи и Тренды | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ниша Косметика и Уход на Uzum Market",
   description:
     "Анализ категории красоты, парфюмерии и уходовой косметики на Uzum Market: самые популярные бренды, корейская косметика, процент выкупа и сезонный спрос.",
+  path: "/ru/kategoriya/gozallik-va-parvarish",
   keywords: [
     "аналитика косметики uzum market",
     "корейская косметика узбекистан продажи",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "маржа на косметике маркетплейс",
     "тренды красоты узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/kategoriya/gozallik-va-parvarish",
-    languages: {
-      uz: "/kategoriya/gozallik-va-parvarish",
-      ru: "/ru/kategoriya/gozallik-va-parvarish",
-    },
-  },
-  openGraph: {
-    title: "Аналитика Ниши Косметика и Уход — Uzum Market | eStats",
-    description: "Продажи косметики и парфюмерии на Uzum Market в деталях.",
-    url: "https://estats.uz/ru/kategoriya/gozallik-va-parvarish",
-  },
-};
+  ogTitle: "Аналитика Ниши Косметика и Уход — Uzum Market | eStats",
+  ogDescription: "Продажи косметики и парфюмерии на Uzum Market в деталях.",
+});
 
 const FAQ_ITEMS = [
   {

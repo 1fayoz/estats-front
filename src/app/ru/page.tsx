@@ -7,11 +7,13 @@ import { ProductsSection } from "@/features/landing/components/products-section"
 import { PricingSection } from "@/features/landing/components/pricing-section";
 import { FaqSection } from "@/features/landing/components/faq-section";
 import { CtaSection } from "@/features/landing/components/cta-section";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "eStats — Аналитика и Управление Продажами на Uzum Market, Wildberries, Yandex Market и Ozon",
+export const metadata: Metadata = buildMetadata({
+  title: "eStats — аналитика Uzum Market, Wildberries и Ozon",
   description:
-    "Единая экосистема для селлеров маркетплейсов в Узбекистане. Точная себестоимость по FIFO, учет чистой прибыли PnL, остатки на складах FBO/FBS, AI оптимизация карточек и аналитика ниш.",
+    "Экосистема для селлеров маркетплейсов Узбекистана: себестоимость по FIFO, чистая прибыль PnL, остатки FBO/FBS, AI карточки и аналитика ниш.",
+  path: "/ru",
   keywords: [
     "аналитика uzum market",
     "аналитика маркетплейсов узбекистан",
@@ -26,24 +28,10 @@ export const metadata: Metadata = {
     "себестоимость fifo узбекистан",
     "юнит экономика маркетплейс",
   ],
-  alternates: {
-    canonical: "/ru",
-    languages: {
-      uz: "/",
-      ru: "/ru",
-      en: "/en",
-      "x-default": "/",
-    },
-  },
-  openGraph: {
-    title: "eStats — Аналитика и Управление Продажами на Маркетплейсах",
-    description:
-      "Управляйте продажами на Uzum, Wildberries, Yandex Market и Ozon в едином окне. Точная чистая прибыль и складской учет.",
-    url: "https://estats.uz/ru",
-    locale: "ru_RU",
-    type: "website",
-  },
-};
+  ogTitle: "eStats — Аналитика и Управление Продажами на Маркетплейсах",
+  ogDescription: "Управляйте продажами на Uzum, Wildberries, Yandex Market и Ozon в едином окне. Точная чистая прибыль и складской учет.",
+  absoluteTitle: true,
+});
 
 export default function RussianHomePage() {
   return (

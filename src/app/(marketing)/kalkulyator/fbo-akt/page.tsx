@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { FboActGenerator } from "@/features/calculators/fbo-act-generator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market va Wildberries FBO/FBS Qabul Qilish Akti (Nakladnaya) Generatori | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "FBO/FBS Qabul Akti (Nakladnaya) Generatori",
   description:
-    "Omborga tovar topshirish uchun rasmiy qabul qilish-topshirish dalolatnomasini (nakladnaya) bepul onlayn to'ldiring va A4 formatda chop eting. Uzum FBO, FBS va postavka hujjatlari.",
+    "Omborga tovar topshirish dalolatnomasini (nakladnaya) bepul onlayn to'ldiring va A4 formatda chop eting. Uzum FBO, FBS va postavka hujjatlari.",
+  path: "/kalkulyator/fbo-akt",
   keywords: [
     "uzum fbo akt yaratish",
     "uzum nakladnaya generatsiya",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "qabul qilish topshirish dalolatnomasi uzum",
     "omborga tovar topshirish hujjati",
   ],
-  alternates: {
-    canonical: "/kalkulyator/fbo-akt",
-    languages: {
-      uz: "/kalkulyator/fbo-akt",
-      ru: "/ru/kalkulyator/fbo-akt",
-    },
-  },
-  openGraph: {
-    title: "Uzum va WB FBO/FBS Qabul Qilish Akti Generatori — eStats",
-    description: "A4 formatdagi rasmiy tovar topshirish hujjatini bir necha soniyada tayyorlang.",
-    url: "https://estats.uz/kalkulyator/fbo-akt",
-  },
-};
+  ogTitle: "Uzum va WB FBO/FBS Qabul Qilish Akti Generatori — eStats",
+  ogDescription: "A4 formatdagi rasmiy tovar topshirish hujjatini bir necha soniyada tayyorlang.",
+});
 
 const FAQ_ITEMS = [
   {

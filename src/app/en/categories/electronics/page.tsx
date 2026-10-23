@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Cpu, Flame, Smartphone, TrendingUp, Users } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Electronics & Tech Category Intelligence: Uzum Market Analytics | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Electronics Category Analytics",
   description:
-    "Comprehensive market analysis of consumer electronics, mobile accessories, and home tech on Uzum Market: monthly sales volume, average order value, top sellers, and low-competition niches.",
+    "Uzum Market electronics analysis: mobile accessories and home tech — monthly sales volume, average order value, top sellers and low-competition niches.",
+  path: "/en/categories/electronics",
   keywords: [
     "uzum market electronics analytics",
     "top selling products uzbekistan",
@@ -14,21 +16,9 @@ export const metadata: Metadata = {
     "mobile accessories uzum market",
     "market intelligence uzbekistan",
   ],
-  alternates: {
-    canonical: "/en/categories/electronics",
-    languages: {
-      uz: "/kategoriya/elektronika",
-      ru: "/ru/kategoriya/elektronika",
-      en: "/en/categories/electronics",
-    },
-  },
-  openGraph: {
-    title: "Electronics Category Analytics — Uzum Market | eStats",
-    description: "Deep data breakdown of consumer electronics and tech sales in Uzbekistan.",
-    url: "https://estats.uz/en/categories/electronics",
-    images: ["https://estats.uz/api/og?title=Electronics+Category+Intelligence&badge=eStats+Market"],
-  },
-};
+  ogTitle: "Electronics Category Analytics — Uzum Market | eStats",
+  ogDescription: "Deep data breakdown of consumer electronics and tech sales in Uzbekistan.",
+});
 
 const FAQ_ITEMS = [
   {

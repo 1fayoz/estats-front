@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Boxes, CheckCircle2, ShieldCheck, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Яндекс Маркет Узбекистан — Управление Продажами, FBS и Аналитика | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Яндекс Маркет Узбекистан — Продажи и Аналитика",
   description:
     "Экосистема для продавцов Яндекс Маркет в Узбекистане: экспресс-доставка, склад FBS, оптимизация рекламных ставок (Буст продаж) и точный расчет чистой прибыли.",
+  path: "/ru/bozorlar/yandex-market",
   keywords: [
     "яндекс маркет узбекистан",
     "yandex market seller uzbekistan",
@@ -15,22 +17,9 @@ export const metadata: Metadata = {
     "fbs яндекс маркет узбекистан",
     "аналитика яндекс маркет",
   ],
-  alternates: {
-    canonical: "/ru/bozorlar/yandex-market",
-    languages: {
-      uz: "/bozorlar/yandex-market",
-      ru: "/ru/bozorlar/yandex-market",
-      en: "/en/solutions/marketplace-analytics",
-      "x-default": "/bozorlar/yandex-market",
-    },
-  },
-  openGraph: {
-    title: "Яндекс Маркет Узбекистан — Управление Продажами eStats",
-    description: "Автоматизация склада, заказов и рекламы для селлеров Яндекс Маркет в Ташкенте.",
-    url: "https://estats.uz/ru/bozorlar/yandex-market",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Яндекс Маркет Узбекистан — Управление Продажами eStats",
+  ogDescription: "Автоматизация склада, заказов и рекламы для селлеров Яндекс Маркет в Ташкенте.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Boxes, CheckCircle2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Учет Склада и Остатков FBO / FBS для Маркетплейсов | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Учет Склада и Остатков FBO / FBS для Маркетплейсов",
   description:
-    "Облачная система складского учета для маркетплейсов в Узбекистане. Контроль остатков на складах Uzum, Wildberries, Yandex Market, учет партий по себестоимости и печать штрихкодов.",
+    "Облачный складской учет для маркетплейсов: остатки на складах Uzum, Wildberries, Yandex Market, партии по себестоимости и печать штрихкодов.",
+  path: "/ru/yechimlar/ombor",
   keywords: [
     "складской учет маркетплейс",
     "программа для склада узбекистан",
@@ -15,22 +17,9 @@ export const metadata: Metadata = {
     "партионный учет склад",
     "печать этикеток uzum",
   ],
-  alternates: {
-    canonical: "/ru/yechimlar/ombor",
-    languages: {
-      uz: "/yechimlar/ombor",
-      ru: "/ru/yechimlar/ombor",
-      en: "/en/solutions/inventory-management",
-      "x-default": "/yechimlar/ombor",
-    },
-  },
-  openGraph: {
-    title: "Учет Склада FBO/FBS для Маркетплейсов — eStats",
-    description: "Управляйте поставками, штрихкодами и остатками без ошибок и штрафов.",
-    url: "https://estats.uz/ru/yechimlar/ombor",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Учет Склада FBO/FBS для Маркетплейсов — eStats",
+  ogDescription: "Управляйте поставками, штрихкодами и остатками без ошибок и штрафов.",
+});
 
 export default function RussianWarehouseSolutionPage() {
   return (

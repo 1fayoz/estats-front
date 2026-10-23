@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Как правильно оформить карточку товара на Uzum Market для ТОПа | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Как оформить карточку товара на Uzum Market",
   description:
     "Секреты SEO оптимизации карточки товара на Uzum Market: составление ключевых заголовков, продающее описание, инфографика и повышение конверсии кликов в заказы.",
+  path: "/ru/qollanma/kartochka-toldirish",
   keywords: [
     "seo оптимизация карточки uzum",
     "как заполнить карточку на узбекистан маркет",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "инфографика для uzum",
     "продвижение карточки в топ uzum",
   ],
-  alternates: {
-    canonical: "/ru/qollanma/kartochka-toldirish",
-    languages: {
-      uz: "/qollanma/kartochka-toldirish",
-      ru: "/ru/qollanma/kartochka-toldirish",
-    },
-  },
-  openGraph: {
-    title: "Оформление карточки товара на Uzum Market для выхода в ТОП — eStats",
-    description: "Пошаговые правила SEO и дизайна карточки товара.",
-    url: "https://estats.uz/ru/qollanma/kartochka-toldirish",
-  },
-};
+  ogTitle: "Оформление карточки товара на Uzum Market для выхода в ТОП — eStats",
+  ogDescription: "Пошаговые правила SEO и дизайна карточки товара.",
+});
 
 const RULES = [
   {

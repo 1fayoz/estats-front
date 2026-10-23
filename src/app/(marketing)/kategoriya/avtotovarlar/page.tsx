@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Car, Check, Flame, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Avtotovarlar Bozor Tahlili — Avtomobil Aksessuarlari va Gadjetlar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Avtotovarlar Bozor Tahlili",
   description:
-    "Uzum Market'dagi avtotovarlar, video registratorlar, avtoximiya, chexollar va mashina aksessuarlari tahlili: o'rtacha chek, eng ko'p sotilayotgan tovarlar va daromadli nishalar.",
+    "Uzum Market avtotovarlar tahlili: video registratorlar, avtoximiya, chexollar va aksessuarlar — o'rtacha chek, top tovarlar va daromadli nishalar.",
+  path: "/kategoriya/avtotovarlar",
   keywords: [
     "uzum avtotovarlar tahlili",
     "mashina aksessuarlari uzum",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "avtotovarlar aylanmasi",
     "eng kop sotiladigan avto tovarlar",
   ],
-  alternates: { canonical: "/kategoriya/avtotovarlar" },
-  openGraph: {
-    title: "Avtotovarlar Bozor Tahlili — Uzum Market | eStats",
-    description: "Mashina aksessuarlari toifasida eng ko'p daromad keltirayotgan tovarlar.",
-    url: "https://estats.uz/kategoriya/avtotovarlar",
-  },
-};
+  ogTitle: "Avtotovarlar Bozor Tahlili — Uzum Market | eStats",
+  ogDescription: "Mashina aksessuarlari toifasida eng ko'p daromad keltirayotgan tovarlar.",
+});
 
 const FAQ_ITEMS = [
   {

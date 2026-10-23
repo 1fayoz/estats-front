@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Check, FileText, Rocket, ShieldCheck, Sparkles } from "lucide-react";
 import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Marketda Do'kon Ochish — 2026-Yilda Noldan Sotuv Boshlash Bo'yicha To'liq Yo'riqnoma | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Marketda Do'kon Ochish — 2026 Yo'riqnoma",
   description:
-    "Uzum Market'da rasmiy sotuvchi (seller) bo'lish: YaTT yoki MChJ ochish, kerakli hujjatlar, shartnoma imzolash, kabinetni sozlash va birinchi tovar partiyasini omborga topshirish bosqichlari.",
+    "Uzum Marketda sotuvchi bo'lish: YaTT yoki MChJ ochish, hujjatlar, shartnoma, kabinetni sozlash va birinchi partiyani omborga topshirish.",
+  path: "/qollanma/uzumda-dokon-ochish",
   keywords: [
     "uzumda dokon ochish",
     "uzum market seller bolish",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "uzum yatt ochish",
     "uzum seller registratsiya",
   ],
-  alternates: { canonical: "/qollanma/uzumda-dokon-ochish" },
-  openGraph: {
-    title: "Uzum Marketda Do'kon Ochish — Bosqichma-bosqich Qo'llanma",
-    description: "2026-yilda Uzum Marketda muvaffaqiyatli savdo boshlashning barcha qadamlari.",
-    url: "https://estats.uz/qollanma/uzumda-dokon-ochish",
-  },
-};
+  ogTitle: "Uzum Marketda Do'kon Ochish — Bosqichma-bosqich Qo'llanma",
+  ogDescription: "2026-yilda Uzum Marketda muvaffaqiyatli savdo boshlashning barcha qadamlari.",
+});
 
 export default function OpenShopGuidePage() {
   return (

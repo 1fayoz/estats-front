@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, DollarSign, Megaphone, Target, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Boost TOP Reklamani To'g'ri Sozlash — Budjetni 2x Tejang va Savdoni Oshiring | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Boost TOP Reklamani To'g'ri Sozlash — Qo'llanma",
   description:
-    "Uzum Market Boost TOP ichki reklama tizimini samarali ishlatish bo'yicha to'liq qo'llanma: stavka qo'yish, DRR nazorati, foydasiz so'rovlarni o'chirish va ROI oshirish.",
+    "Uzum Boost TOP reklamasini samarali ishlatish qo'llanmasi: stavka qo'yish, DRR nazorati, foydasiz so'rovlarni o'chirish va ROI oshirish.",
+  path: "/qollanma/boost-top-sozlash",
   keywords: [
     "boost top uzum sozlash",
     "uzum reklama qollanma",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "uzum reklama strategiyasi",
     "uzum reklama tahlili",
   ],
-  alternates: { canonical: "/qollanma/boost-top-sozlash" },
-  openGraph: {
-    title: "Boost TOP Reklamani Sozlash Qo'llanmasi — eStats",
-    description: "Reklamangiz har doim foydaga ishlashi uchun amaliy qadamlar.",
-    url: "https://estats.uz/qollanma/boost-top-sozlash",
-  },
-};
+  ogTitle: "Boost TOP Reklamani Sozlash Qo'llanmasi — eStats",
+  ogDescription: "Reklamangiz har doim foydaga ishlashi uchun amaliy qadamlar.",
+});
 
 export default function BoostTopGuidePage() {
   return (

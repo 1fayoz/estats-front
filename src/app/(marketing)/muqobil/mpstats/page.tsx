@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Globe2, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "MPStats O'zbekiston — eStats | Uzum, Wildberries, Ozon va Yandex Tahlili",
+export const metadata: Metadata = buildMetadata({
+  title: "MPStats O'zbekiston — Uzum, WB, Ozon Tahlili",
   description:
-    "MPStats O'zbekistonda juda qimmat va Uzum Market ma'lumotlarini to'liq bermayaptimi? eStats — Uzum, Wildberries, Ozon va Yandex Market uchun arzon, qulay va mahalliy to'lovlarga mos mukammal tahlil platformasi.",
+    "MPStats qimmat va Uzum ma'lumotini to'liq bermayaptimi? eStats — Uzum, Wildberries, Ozon va Yandex uchun arzon, mahalliy to'lovga mos tahlil platformasi.",
+  path: "/muqobil/mpstats",
   keywords: [
     "mpstats uzbekistan",
     "mpstats uzum",
@@ -17,14 +19,9 @@ export const metadata: Metadata = {
     "yandex market analitika o'zbekiston",
     "estats vs mpstats",
   ],
-  alternates: { canonical: "/muqobil/mpstats" },
-  openGraph: {
-    title: "MPStats O'zbekiston — eStats: Bozorlar tahlili va boshqaruvi",
-    description:
-      "Uzum Market, Wildberries, Ozon va Yandex Market bir joyda. Mahalliy to'lovlar, FIFO tan narx va arzon tariflar.",
-    url: "https://estats.uz/muqobil/mpstats",
-  },
-};
+  ogTitle: "MPStats O'zbekiston — eStats: Bozorlar tahlili va boshqaruvi",
+  ogDescription: "Uzum Market, Wildberries, Ozon va Yandex Market bir joyda. Mahalliy to'lovlar, FIFO tan narx va arzon tariflar.",
+});
 
 const FAQ_ITEMS = [
   {

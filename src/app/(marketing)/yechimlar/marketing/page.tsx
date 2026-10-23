@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Megaphone, Send, Share2, Sparkles, Target, Zap } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleys Marketing va Reklama Nazorati — Boost TOP, DRR, Telegram va Instagram | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Marketing — Boost TOP va DRR Nazorati",
   description:
-    "Uzum Boost TOP reklamalarini tahlil qilish, DRR va ROAS ni hisoblash, samarasiz reklama xarajatlarini to'xtatish. Telegram va Instagram orqali tashqi trafik va avtoposting imkoniyatlari.",
+    "Uzum Boost TOP reklamasini tahlil qiling, DRR va ROAS ni hisoblang, samarasiz xarajatni to'xtating. Telegram va Instagram orqali tashqi trafik.",
+  path: "/yechimlar/marketing",
   keywords: [
     "boost top uzum",
     "marketpleys reklama tahlili",
@@ -18,14 +20,9 @@ export const metadata: Metadata = {
     "roas tahlili",
     "tashqi trafik uzum",
   ],
-  alternates: { canonical: "/yechimlar/marketing" },
-  openGraph: {
-    title: "Marketpleys Reklama va Marketing Boshqaruvi — Har bir sarflangan so'm natija bersin",
-    description:
-      "Boost TOP reklama audit, DRR nazorati, Telegram va Instagram orqali ko'proq mijoz jalb qilish.",
-    url: "https://estats.uz/yechimlar/marketing",
-  },
-};
+  ogTitle: "Marketpleys Reklama va Marketing Boshqaruvi — Har bir sarflangan so'm natija bersin",
+  ogDescription: "Boost TOP reklama audit, DRR nazorati, Telegram va Instagram orqali ko'proq mijoz jalb qilish.",
+});
 
 const FAQ_ITEMS = [
   {

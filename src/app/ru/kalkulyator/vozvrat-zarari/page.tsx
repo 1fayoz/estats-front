@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { ReturnsLossCalculator } from "@/features/calculators/returns-loss-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Калькулятор Убытков от Возвратов (Невыкупов) — Uzum Market и Wildberries | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Калькулятор Убытков от Возвратов — Uzum и WB",
   description:
     "Рассчитайте финансовые потери от возвратов, невыкупов и обратной логистики на маркетплейсах Uzum Market, Wildberries и Ozon в Узбекистане.",
+  path: "/ru/kalkulyator/vozvrat-zarari",
   keywords: [
     "калькулятор возвратов маркетплейс",
     "убытки от возвратов uzum",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "себестоимость возвратов fifo",
     "аналитика брака uzum market",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/vozvrat-zarari",
-    languages: {
-      uz: "/kalkulyator/vozvrat-zarari",
-      ru: "/ru/kalkulyator/vozvrat-zarari",
-    },
-  },
-  openGraph: {
-    title: "Калькулятор Убытков от Возвратов на Маркетплейсах",
-    description: "Узнайте точную сумму скрытых потерь на возвратах и логистике.",
-    url: "https://estats.uz/ru/kalkulyator/vozvrat-zarari",
-  },
-};
+  ogTitle: "Калькулятор Убытков от Возвратов на Маркетплейсах",
+  ogDescription: "Узнайте точную сумму скрытых потерь на возвратах и логистике.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema, HowToSchema } from "@/components/seo/structured-data";
 import { BarcodeGeneratorTool } from "@/components/barcode-generator-tool";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Free Barcode & Thermal Label Generator (58x40, 43x25 mm) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Free Barcode & Thermal Label Generator (58x40)",
   description:
     "Generate scannable Code-128 and EAN-13 barcodes and print standard 58x40 mm thermal stickers for marketplace sellers online.",
+  path: "/en/tools/barcode-generator",
   keywords: [
     "barcode generator thermal printer",
     "58x40 mm label generator",
@@ -16,20 +18,9 @@ export const metadata: Metadata = {
     "uzum market barcode print",
     "wildberries thermal label generator",
   ],
-  alternates: {
-    canonical: "/en/tools/barcode-generator",
-    languages: {
-      uz: "/kalkulyator/shtrix-kod",
-      ru: "/ru/kalkulyator/shtrix-kod",
-      en: "/en/tools/barcode-generator",
-    },
-  },
-  openGraph: {
-    title: "Free Barcode & Thermal Label Generator — eStats",
-    description: "Instant 58x40 mm sticker and barcode generation for e-commerce sellers.",
-    url: "https://estats.uz/en/tools/barcode-generator",
-  },
-};
+  ogTitle: "Free Barcode & Thermal Label Generator — eStats",
+  ogDescription: "Instant 58x40 mm sticker and barcode generation for e-commerce sellers.",
+});
 
 const FAQ_ITEMS = [
   {

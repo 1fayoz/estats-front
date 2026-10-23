@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BarChart3, Boxes, CheckCircle2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Wildberries Узбекистан — Аналитика Продаж, Склад FBO/FBS и Учет | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Wildberries Узбекистан — Аналитика и Склад",
   description:
-    "Профессиональная система учета и аналитики для селлеров Wildberries в Узбекистане. Синхронизация остатков, расчет процента выкупа, учет логистики и чистой прибыли по FIFO.",
+    "Учет и аналитика для селлеров Wildberries в Узбекистане: синхронизация остатков, процент выкупа, логистика и чистая прибыль по FIFO.",
+  path: "/ru/bozorlar/wildberries",
   keywords: [
     "wildberries узбекистан",
     "вайлдберриз узбекистан селлер",
@@ -15,22 +17,9 @@ export const metadata: Metadata = {
     "fbs wildberries uzbekistan",
     "программа для вайлдберриз",
   ],
-  alternates: {
-    canonical: "/ru/bozorlar/wildberries",
-    languages: {
-      uz: "/bozorlar/wildberries",
-      ru: "/ru/bozorlar/wildberries",
-      en: "/en/solutions/marketplace-analytics",
-      "x-default": "/bozorlar/wildberries",
-    },
-  },
-  openGraph: {
-    title: "Wildberries Узбекистан — Аналитика и Складской Учет eStats",
-    description: "Контролируйте продажи, выкупы и чистую прибыль на Wildberries в едином окне.",
-    url: "https://estats.uz/ru/bozorlar/wildberries",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Wildberries Узбекистан — Аналитика и Складской Учет eStats",
+  ogDescription: "Контролируйте продажи, выкупы и чистую прибыль на Wildberries в едином окне.",
+});
 
 const FAQ_ITEMS = [
   {

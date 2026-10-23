@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BarChart3, CheckCircle2, Globe2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Multi-Marketplace Analytics in Central Asia — Uzum, WB, Yandex, Ozon | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Multi-Marketplace Analytics — Uzum, WB, Yandex, Ozon",
   description:
     "Unified multi-channel analytics for marketplace sellers in Uzbekistan: real-time sales revenue, return rates, pricing dynamics, and competitor bench-marking.",
+  path: "/en/solutions/marketplace-analytics",
   keywords: [
     "marketplace analytics uzbekistan",
     "uzum market analytics",
@@ -14,22 +16,9 @@ export const metadata: Metadata = {
     "multi marketplace dashboard",
     "wildberries yandex uzbekistan analytics",
   ],
-  alternates: {
-    canonical: "/en/solutions/marketplace-analytics",
-    languages: {
-      uz: "/yechimlar/bozor",
-      ru: "/ru/yechimlar/moliya",
-      en: "/en/solutions/marketplace-analytics",
-      "x-default": "/yechimlar/bozor",
-    },
-  },
-  openGraph: {
-    title: "Multi-Marketplace Analytics in Central Asia — eStats",
-    description: "Track multi-channel orders, revenue trends, and competitor price changes in real time.",
-    url: "https://estats.uz/en/solutions/marketplace-analytics",
-    locale: "en_US",
-  },
-};
+  ogTitle: "Multi-Marketplace Analytics in Central Asia — eStats",
+  ogDescription: "Track multi-channel orders, revenue trends, and competitor price changes in real time.",
+});
 
 export default function EnglishMarketplaceAnalyticsPage() {
   return (

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { AbcAnalysisCalculator } from "@/features/calculators/abc-analysis-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ABC-Анализ Товаров и Склада (Правило Парето 80/20) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "ABC-Анализ Товаров и Склада (Правило Парето 80/20)",
   description:
-    "Онлайн калькулятор ABC-анализа товарной матрицы для Uzum Market, Wildberries и Ozon. Выявите товары группы А (80% выручки), стабильные товары (B) и замороженный неликвид (C).",
+    "Онлайн ABC-анализ товарной матрицы для Uzum Market, Wildberries и Ozon: товары группы А (80% выручки), стабильные (B) и неликвид (C).",
+  path: "/ru/kalkulyator/abc-tahlil",
   keywords: [
     "abc анализ товаров калькулятор",
     "abc анализ онлайн маркетплейсы",
@@ -13,21 +15,9 @@ export const metadata: Metadata = {
     "анализ склада uzum market",
     "неликвид на складе выявление",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/abc-tahlil",
-    languages: {
-      uz: "/kalkulyator/abc-tahlil",
-      ru: "/ru/kalkulyator/abc-tahlil",
-      en: "/en/tools/abc-analysis",
-    },
-  },
-  openGraph: {
-    title: "ABC-Анализ Товарного Портфеля Маркетплейсов — eStats",
-    description: "Разделите ассортимент по выручке: выявите локомотивы продаж и избавьтесь от неликвида.",
-    url: "https://estats.uz/ru/kalkulyator/abc-tahlil",
-    images: ["https://estats.uz/api/og?title=ABC-Анализ+Склада+и+Товаров&badge=eStats+Инструменты"],
-  },
-};
+  ogTitle: "ABC-Анализ Товарного Портфеля Маркетплейсов — eStats",
+  ogDescription: "Разделите ассортимент по выручке: выявите локомотивы продаж и избавьтесь от неликвида.",
+});
 
 const FAQ_ITEMS = [
   {

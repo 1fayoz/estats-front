@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { ReturnsLossCalculator } from "@/features/calculators/returns-loss-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Qaytgan Tovarlar (Vozvrat) va Zarar Kalkulyatori — Uzum Market va Wildberries | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Vozvrat va Zarar Kalkulyatori — Uzum va WB",
   description:
-    "Uzum Market va Wildberries'da xaridorlar qaytargan tovarlar sababli yillik va oylik sof zararni, teskari logistika to'lovlarini va brak xarajatlarini bepul hisoblang.",
+    "Uzum Market va Wildberries'da qaytgan tovarlar sababli oylik va yillik sof zararni, teskari logistika va brak xarajatlarini bepul hisoblang.",
+  path: "/kalkulyator/vozvrat-zarari",
   keywords: [
     "uzum vozvrat hisoblash",
     "uzum tovar qaytishi zarari",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "marketpleys zararlarni hisoblash",
     "ombor brak tovar hisobi",
   ],
-  alternates: {
-    canonical: "/kalkulyator/vozvrat-zarari",
-    languages: {
-      uz: "/kalkulyator/vozvrat-zarari",
-      ru: "/ru/kalkulyator/vozvrat-zarari",
-    },
-  },
-  openGraph: {
-    title: "Qaytgan Tovarlar (Vozvrat) Zararini Hisoblash Kalkulyatori",
-    description: "Vozvratlar tufayli cho'ntagingizdan qancha pul ketayotganini aniqlang.",
-    url: "https://estats.uz/kalkulyator/vozvrat-zarari",
-  },
-};
+  ogTitle: "Qaytgan Tovarlar (Vozvrat) Zararini Hisoblash Kalkulyatori",
+  ogDescription: "Vozvratlar tufayli cho'ntagingizdan qancha pul ketayotganini aniqlang.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { ImageSpecsCalculator } from "@/features/calculators/image-specs-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market va Wildberries Rasm O'lchamlari va Moderatsiya Qoidalari | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Rasm O'lchamlari va Talablari",
   description:
-    "Uzum Market va Wildberries uchun tovar rasmi va infografika o'lchamlarini onlayn tekshiring: 3:4 proporsiya, 1200x1600 px ruxsat etilgan o'lcham, fon rangi va moderatsiya talablari.",
+    "Uzum Market va Wildberries uchun tovar rasmi va infografika o'lchamlarini tekshiring: 3:4 proporsiya, 1200x1600 px, fon rangi va moderatsiya talablari.",
+  path: "/kalkulyator/rasm-talablari",
   keywords: [
     "uzum rasm olchamlari",
     "uzum infografika 3 4 proporsiya",
@@ -14,20 +16,9 @@ export const metadata: Metadata = {
     "1200x1600 tovar rasmi",
     "marketpleys foto formati tekshirgich",
   ],
-  alternates: {
-    canonical: "/kalkulyator/rasm-talablari",
-    languages: {
-      uz: "/kalkulyator/rasm-talablari",
-      ru: "/ru/kalkulyator/rasm-talablari",
-    },
-  },
-  openGraph: {
-    title: "Marketpleys Foto va Infografika O'lchamlari Tekshirgichi — eStats",
-    description: "Rasm eni va bo'yini kiritib, Uzum va WB moderatsiyasidan 100% o'tishini tekshiring.",
-    url: "https://estats.uz/kalkulyator/rasm-talablari",
-    images: ["https://estats.uz/api/og?title=Uzum+Rasm+va+Infografika+Olchamlari&badge=eStats+Tools"],
-  },
-};
+  ogTitle: "Marketpleys Foto va Infografika O'lchamlari Tekshirgichi — eStats",
+  ogDescription: "Rasm eni va bo'yini kiritib, Uzum va WB moderatsiyasidan 100% o'tishini tekshiring.",
+});
 
 const FAQ_ITEMS = [
   {

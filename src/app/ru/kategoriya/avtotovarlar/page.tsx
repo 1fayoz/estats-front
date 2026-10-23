@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Car, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналитика Ниши Автотовары и Аксессуары на Uzum Market — Продажи и Спрос | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ниша Автотовары на Uzum Market — Аналитика",
   description:
     "Анализ рынка автотоваров в Узбекистане на Uzum Market: видеорегистраторы, автохимия, чехлы, органайзеры и лампы. Средний чек и доходность селлеров.",
+  path: "/ru/kategoriya/avtotovarlar",
   keywords: [
     "автотовары uzum market",
     "автоаксессуары узбекистан продажи",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "автохимия маркетплейс",
     "прибыльные автотовары узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/kategoriya/avtotovarlar",
-    languages: {
-      uz: "/kategoriya/avtotovarlar",
-      ru: "/ru/kategoriya/avtotovarlar",
-    },
-  },
-  openGraph: {
-    title: "Аналитика Ниши Автотовары — Uzum Market | eStats",
-    description: "Продажи автотоваров и аксессуаров в Узбекистане.",
-    url: "https://estats.uz/ru/kategoriya/avtotovarlar",
-  },
-};
+  ogTitle: "Аналитика Ниши Автотовары — Uzum Market | eStats",
+  ogDescription: "Продажи автотоваров и аксессуаров в Узбекистане.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Check, Megaphone, Target } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { DrrCalculator } from "@/features/calculators/drr-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "DRR va ROAS Kalkulyatori — Uzum Boost TOP va Reklama Samaradorligini Hisoblash | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "DRR va ROAS Kalkulyatori — Uzum Boost TOP",
   description:
-    "Uzum Market Boost TOP va boshqa reklamalaringizning DRR (Доля рекламных расходов) va ROAS ko'rsatkichlarini onlayn hisoblang. Reklama foyda keltiryaptimi yoki zararga ishlayaptimi, darhol aniqlang.",
+    "Uzum Boost TOP va boshqa reklamalarning DRR va ROAS ko'rsatkichlarini onlayn hisoblang: reklama foyda keltiryaptimi yoki zararmi — darhol bilasiz.",
+  path: "/kalkulyator/drr",
   keywords: [
     "drr kalkulyator",
     "drr hisoblash",
@@ -17,13 +19,9 @@ export const metadata: Metadata = {
     "reklama rentabelligi uzum",
     "acos drr farqi",
   ],
-  alternates: { canonical: "/kalkulyator/drr" },
-  openGraph: {
-    title: "DRR va Reklama Rentabelligi Kalkulyatori — eStats",
-    description: "Reklamangiz har bir sarflangan so'mga qancha savdo keltirayotganini aniqlang.",
-    url: "https://estats.uz/kalkulyator/drr",
-  },
-};
+  ogTitle: "DRR va Reklama Rentabelligi Kalkulyatori — eStats",
+  ogDescription: "Reklamangiz har bir sarflangan so'mga qancha savdo keltirayotganini aniqlang.",
+});
 
 const FAQ_ITEMS = [
   {

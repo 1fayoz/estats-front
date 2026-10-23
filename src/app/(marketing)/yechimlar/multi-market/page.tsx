@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Globe, Layers, LayoutDashboard, ShieldCheck, Zap } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Multi-Marketplace Boshqaruv — Uzum, Yandex, WB va Ozon Yagona Paneli | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Multi-Marketplace Boshqaruv — Uzum, Yandex, WB, Ozon",
   description:
-    "Bir nechta marketpleysda (Uzum Market, Yandex Market, Wildberries, Ozon) savdo qilyapsizmi? Har xil kabinetlarga kirib chiqishdan qutuling. eStats bilan barcha savdolar, qoldiqlar va moliya bitta ekranda.",
+    "Uzum Market, Yandex Market, Wildberries va Ozon'da sotasizmi? Har xil kabinetlardan qutuling: barcha savdo, qoldiq va moliya bitta ekranda.",
+  path: "/yechimlar/multi-market",
   keywords: [
     "multi marketplace uzbekistan",
     "barcha marketpleyslar bitta joyda",
@@ -16,13 +18,9 @@ export const metadata: Metadata = {
     "ko'p bozorli savdo",
     "yagona kabinet marketplace",
   ],
-  alternates: { canonical: "/yechimlar/multi-market" },
-  openGraph: {
-    title: "Multi-Marketplace Boshqaruv — Barcha bozorlar bitta oynada",
-    description: "Uzum, Yandex Market, Wildberries va Ozon hisoblarini eStats orqali birlashtiring.",
-    url: "https://estats.uz/yechimlar/multi-market",
-  },
-};
+  ogTitle: "Multi-Marketplace Boshqaruv — Barcha bozorlar bitta oynada",
+  ogDescription: "Uzum, Yandex Market, Wildberries va Ozon hisoblarini eStats orqali birlashtiring.",
+});
 
 const FAQ_ITEMS = [
   {

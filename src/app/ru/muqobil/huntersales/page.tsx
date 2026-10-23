@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналог HunterSales для Uzum Market — eStats | Сравнение и Преимущества",
+export const metadata: Metadata = buildMetadata({
+  title: "Аналог HunterSales для Uzum Market — Сравнение",
   description:
-    "Ищете альтернативу HunterSales? Платформа eStats предлагает расширенную внешнюю аналитику ниш, точный учет себестоимости по FIFO, складской контроль и AI SEO для продавцов Uzum Market и Wildberries.",
+    "Альтернатива HunterSales: аналитика ниш, учет себестоимости по FIFO, складской контроль и AI SEO для продавцов Uzum Market и Wildberries.",
+  path: "/ru/muqobil/huntersales",
   keywords: [
     "аналог huntersales uzum",
     "huntersales узбекистан",
@@ -15,19 +17,9 @@ export const metadata: Metadata = {
     "разведка ниш uzum",
     "парсер узбекских маркетплейсов",
   ],
-  alternates: {
-    canonical: "/ru/muqobil/huntersales",
-    languages: {
-      uz: "/muqobil/huntersales",
-      ru: "/ru/muqobil/huntersales",
-    },
-  },
-  openGraph: {
-    title: "Аналог HunterSales для Uzum Market — eStats",
-    description: "Комплексная аналитика и управление магазином в едином сервисе.",
-    url: "https://estats.uz/ru/muqobil/huntersales",
-  },
-};
+  ogTitle: "Аналог HunterSales для Uzum Market — eStats",
+  ogDescription: "Комплексная аналитика и управление магазином в едином сервисе.",
+});
 
 const FAQ_ITEMS = [
   {

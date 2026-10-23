@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Globe2, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналог MPSTATS для Uzum Market и Узбекистана — eStats | Сравнение",
+export const metadata: Metadata = buildMetadata({
+  title: "Аналог MPSTATS для Uzum Market и Узбекистана",
   description:
-    "Ищете аналог MPSTATS для рынка Узбекистана? eStats объединяет глубокую аналитику Uzum Market, Wildberries, Yandex Market и Ozon. Оплата в сумах, себестоимость по FIFO и цены в разы ниже.",
+    "Аналог MPSTATS для Узбекистана: аналитика Uzum Market, Wildberries, Yandex Market и Ozon, оплата в сумах, себестоимость по FIFO и низкие цены.",
+  path: "/ru/muqobil/mpstats",
   keywords: [
     "аналог mpstats uzum",
     "mpstats узбекистан",
@@ -16,19 +18,9 @@ export const metadata: Metadata = {
     "wildberries узбекистан аналитика",
     "сервис аналитики uzum",
   ],
-  alternates: {
-    canonical: "/ru/muqobil/mpstats",
-    languages: {
-      uz: "/muqobil/mpstats",
-      ru: "/ru/muqobil/mpstats",
-    },
-  },
-  openGraph: {
-    title: "Аналог MPSTATS для Узбекистана — eStats",
-    description: "Комплексная аналитика Uzum Market, WB, Ozon и Yandex по доступной цене.",
-    url: "https://estats.uz/ru/muqobil/mpstats",
-  },
-};
+  ogTitle: "Аналог MPSTATS для Узбекистана — eStats",
+  ogDescription: "Комплексная аналитика Uzum Market, WB, Ozon и Yandex по доступной цене.",
+});
 
 const FAQ_ITEMS = [
   {

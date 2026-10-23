@@ -1,144 +1,66 @@
 import type { MetadataRoute } from "next";
 
+import { I18N_ROUTES, LOCALES, languageAlternates } from "@/config/i18n-routes";
 import { siteConfig } from "@/config/site";
-
-export const revalidate = 0;
 
 /**
  * Faqat ochiq sahifalar. Kabinet ichidagi yo'llar bu yerga tushmaydi —
  * ular sessiyaga bog'liq va qidiruv uchun ma'nosiz.
+ *
+ * Ro'yxat `I18N_ROUTES` dan yasaladi — hreflang sahifadagi bilan bir xil
+ * bo'lishi uchun. `lastModified` — mazmun haqiqatda o'zgargan kun
+ * (doimiy sana): ilgari har so'rovda `new Date()` berilardi va Google
+ * bunday lastmod'ga ishonmay qo'yadi. Sahifa mazmuni jiddiy o'zgarsa —
+ * shu yerdagi sana yangilanadi.
  */
+const DEFAULT_LAST_MODIFIED = "2026-09-25";
+const LAST_MODIFIED: Record<string, string> = {
+  "/lens/privacy": "2026-09-18",
+};
+
+type Entry = Pick<MetadataRoute.Sitemap[number], "changeFrequency" | "priority">;
+
+/** Bo'lim bo'yicha ustuvorlik — hamma sahifa 1.0 bo'lsa, belgi ma'nosiz. */
+function rankOf(path: string): Entry {
+  const p = path.replace(/^\/(ru|en)(?=\/|$)/, "") || "/";
+  if (p === "/") return { changeFrequency: "weekly", priority: 1.0 };
+  if (["/kalkulyator", "/tools", "/qollanma", "/guides", "/tekshirish"].includes(p))
+    return { changeFrequency: "weekly", priority: 0.9 };
+  if (/^\/(kalkulyator|tools)\//.test(p)) return { changeFrequency: "monthly", priority: 0.8 };
+  if (/^\/(yechimlar|solutions|bozorlar|muqobil|alternatives)\//.test(p))
+    return { changeFrequency: "monthly", priority: 0.7 };
+  if (/^\/(qollanma|guides|kategoriya|categories)\//.test(p))
+    return { changeFrequency: "monthly", priority: 0.7 };
+  if (p === "/lugat") return { changeFrequency: "monthly", priority: 0.6 };
+  if (p === "/lens") return { changeFrequency: "monthly", priority: 0.5 };
+  // Huquqiy sahifalar
+  return { changeFrequency: "yearly", priority: 0.3 };
+}
+
+const abs = (path: string) => (path === "/" ? siteConfig.url : `${siteConfig.url}${path}`);
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  return [
-    // --- 1. O'ZBEKCHA ASOSIY VA BO'LIM SAHIFALARI (Default / UZ) ---
-    { url: siteConfig.url, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-
-    // Bepul Kalkulyatorlar va Skanerlar (Eng yuqori qidiruv trafigi)
-    { url: `${siteConfig.url}/kalkulyator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/abc-tahlil`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/rasm-talablari`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/kargo`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/soliq`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/shtrix-kod`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/fbo-akt`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/kalkulyator/unit-iqtisodiyot`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kalkulyator/vozvrat-zarari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kalkulyator/chegirma-narx`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kalkulyator/ombor-zaxirasi`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kalkulyator/drr`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-
-    // Bozor Kategoriyalari Tahlili (Programmatic Category SEO)
-    { url: `${siteConfig.url}/kategoriya/elektronika`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kategoriya/kiyim-va-poyabzal`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kategoriya/gozallik-va-parvarish`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kategoriya/uy-rozgor`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kategoriya/avtotovarlar`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/kategoriya/bolalar-tovarlari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-
-    // Amaliy Qo'llanmalar (How-to Guides)
-    { url: `${siteConfig.url}/qollanma`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/qollanma/uzumda-dokon-ochish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/qollanma/kartochka-toldirish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/qollanma/fbo-fbs-farqi`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/qollanma/boost-top-sozlash`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/qollanma/top-nishalar`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-
-    // Bozorlar (Marketplace Specific Landing Pages)
-    { url: `${siteConfig.url}/bozorlar/wildberries`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/bozorlar/yandex-market`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/bozorlar/ozon`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-
-    // Muqobillar (Competitor conquesting)
-    { url: `${siteConfig.url}/muqobil/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/muqobil/1c`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/muqobil/huntersales`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteConfig.url}/muqobil/mpstats`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteConfig.url}/muqobil/sellerfox`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
-
-    // Yechimlar (SEO domain pages)
-    { url: `${siteConfig.url}/yechimlar/tovar-seo`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/yechimlar/ombor`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/yechimlar/moliya`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/yechimlar/bozor`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/yechimlar/marketing`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/yechimlar/uzum-lens`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/yechimlar/telegram-instagram`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/yechimlar/multi-market`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-
-    // Ensiklopediya va Lug'at
-    { url: `${siteConfig.url}/lugat`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
-
-    // --- 2. RUSSIAN LOCALIZED PAGES (/ru) ---
-    { url: `${siteConfig.url}/ru`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/tekshirish`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/abc-tahlil`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/rasm-talablari`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/kargo`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/soliq`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/shtrix-kod`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/fbo-akt`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/uzum-komissiya`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/ru/kalkulyator/unit-iqtisodiyot`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kalkulyator/vozvrat-zarari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kalkulyator/ombor-zaxirasi`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kalkulyator/chegirma-narx`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kalkulyator/drr`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-
-    // Категории товаров (RU)
-    { url: `${siteConfig.url}/ru/kategoriya/elektronika`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kategoriya/kiyim-va-poyabzal`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kategoriya/gozallik-va-parvarish`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kategoriya/uy-rozgor`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kategoriya/avtotovarlar`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/kategoriya/bolalar-tovarlari`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-
-    // База знаний и инструкции (RU)
-    { url: `${siteConfig.url}/ru/qollanma`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/ru/qollanma/uzumda-dokon-ochish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/qollanma/kartochka-toldirish`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/qollanma/fbo-fbs-farqi`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/ru/qollanma/boost-top-sozlash`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/ru/qollanma/top-nishalar`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-
-    // Глоссарий (RU)
-    { url: `${siteConfig.url}/ru/lugat`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
-
-    // Маркетплейсы и альтернативы (RU)
-    { url: `${siteConfig.url}/ru/bozorlar/wildberries`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/bozorlar/yandex-market`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/bozorlar/ozon`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteConfig.url}/ru/muqobil/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/muqobil/1c`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/muqobil/mpstats`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/muqobil/huntersales`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/ru/muqobil/sellerfox`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteConfig.url}/ru/yechimlar/ombor`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/ru/yechimlar/moliya`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteConfig.url}/ru/yechimlar/tovar-seo`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-
-    // --- 3. ENGLISH LOCALIZED PAGES (/en) ---
-    { url: `${siteConfig.url}/en`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/en/tools`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/en/tools/abc-analysis`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/en/tools/barcode-generator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/en/tools/product-checker`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/en/tools/commission-calculator`, lastModified: now, changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteConfig.url}/en/guides`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/en/guides/how-to-sell-on-uzum-market`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/en/categories/electronics`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${siteConfig.url}/en/solutions/marketplace-analytics`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/en/solutions/inventory-management`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/en/solutions/ai-seo`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${siteConfig.url}/en/alternatives/zoomselling`, lastModified: now, changeFrequency: "daily", priority: 0.95 },
-
-    // Huquqiy va boshqa sahifalar
-    { url: `${siteConfig.url}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${siteConfig.url}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${siteConfig.url}/lens`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${siteConfig.url}/lens/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-  ];
+  const entries: MetadataRoute.Sitemap = [];
+  for (const group of I18N_ROUTES) {
+    for (const locale of LOCALES) {
+      const path = group[locale];
+      if (!path) continue;
+      const languages = languageAlternates(path);
+      entries.push({
+        url: abs(path),
+        lastModified: LAST_MODIFIED[path] ?? DEFAULT_LAST_MODIFIED,
+        ...rankOf(path),
+        ...(languages
+          ? {
+              alternates: {
+                languages: Object.fromEntries(
+                  Object.entries(languages).map(([lang, href]) => [lang, abs(href)]),
+                ),
+              },
+            }
+          : {}),
+      });
+    }
+  }
+  return entries;
 }

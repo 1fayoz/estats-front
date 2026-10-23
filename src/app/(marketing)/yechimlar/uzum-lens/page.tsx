@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Download, Eye, Globe, Layers, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "eStats Lens — Uzum Market va Marketpleyslar Uchun Chrome Kengaytmasi | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "eStats Lens — Uzum Market Uchun Chrome Kengaytmasi",
   description:
-    "Uzum Market veb-saytida to'g'ridan-to'g'ri tovar kartochkasi ustida uning oylik sotuvlari, kunlik dinamikasi, qoldiqlari va tushumini ko'rsatib turuvchi bepul Chrome Extension.",
+    "Uzum Market saytida tovar kartochkasi ustida oylik sotuv, kunlik dinamika, qoldiq va tushumni ko'rsatuvchi bepul Chrome kengaytmasi.",
+  path: "/yechimlar/uzum-lens",
+  // Mahsulot nomi "eStats Lens" — brend sarlavhada bor, shablon qo'shmaydi.
+  absoluteTitle: true,
   keywords: [
     "uzum chrome extension",
     "uzum kengaytma",
@@ -16,13 +20,9 @@ export const metadata: Metadata = {
     "uzum tovar sotuvini korish",
     "uzum qoldiqlarini korish plagin",
   ],
-  alternates: { canonical: "/yechimlar/uzum-lens" },
-  openGraph: {
-    title: "eStats Lens — To'g'ridan-to'g'ri bozor sahifasida tovar sirlarini oching",
-    description: "Uzum Market tovarlarining sotuv hajmi va daromadini 1 klikda ko'ring.",
-    url: "https://estats.uz/yechimlar/uzum-lens",
-  },
-};
+  ogTitle: "eStats Lens — To'g'ridan-to'g'ri bozor sahifasida tovar sirlarini oching",
+  ogDescription: "Uzum Market tovarlarining sotuv hajmi va daromadini 1 klikda ko'ring.",
+});
 
 const FAQ_ITEMS = [
   {

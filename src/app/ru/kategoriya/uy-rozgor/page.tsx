@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Home, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналитика Ниши Товары для Дома и Кухни на Uzum Market — Объемы и Тренды | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ниша Товары для Дома на Uzum Market — Аналитика",
   description:
     "Анализ ниши товаров для дома, посуды, органайзеров и текстиля на Uzum Market: средний чек, всесезонный спрос, маржинальность и ТОП продаваемых позиций.",
+  path: "/ru/kategoriya/uy-rozgor",
   keywords: [
     "товары для дома uzum market",
     "посуда и кухня продажи узбекистан",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "маржа товары для дома",
     "прибыльные ниши для дома",
   ],
-  alternates: {
-    canonical: "/ru/kategoriya/uy-rozgor",
-    languages: {
-      uz: "/kategoriya/uy-rozgor",
-      ru: "/ru/kategoriya/uy-rozgor",
-    },
-  },
-  openGraph: {
-    title: "Аналитика Товаров для Дома — Uzum Market | eStats",
-    description: "Спрос и продажи товаров для дома и уюта на Uzum Market.",
-    url: "https://estats.uz/ru/kategoriya/uy-rozgor",
-  },
-};
+  ogTitle: "Аналитика Товаров для Дома — Uzum Market | eStats",
+  ogDescription: "Спрос и продажи товаров для дома и уюта на Uzum Market.",
+});
 
 const FAQ_ITEMS = [
   {

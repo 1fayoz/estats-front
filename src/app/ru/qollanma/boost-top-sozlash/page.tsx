@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Megaphone, Target, CheckCircle2 } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Настройка рекламы Boost TOP на Uzum Market без слива бюджета | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Настройка рекламы Boost TOP на Uzum Market",
   description:
-    "Пошаговое руководство по внутренней рекламе на Uzum Market: выбор эффективных ставок, расчет допустимого ДРР (доли рекламных расходов) и анализ отдачи инвестиций (ROAS).",
+    "Руководство по рекламе Boost TOP на Uzum Market: выбор ставок, расчет допустимого ДРР и анализ отдачи инвестиций (ROAS).",
+  path: "/ru/qollanma/boost-top-sozlash",
   keywords: [
     "настройка boost top uzum",
     "реклама на узбекистан маркет",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "дрр рекламы uzum market",
     "ставки рекламы маркетплейс",
   ],
-  alternates: {
-    canonical: "/ru/qollanma/boost-top-sozlash",
-    languages: {
-      uz: "/qollanma/boost-top-sozlash",
-      ru: "/ru/qollanma/boost-top-sozlash",
-    },
-  },
-  openGraph: {
-    title: "Настройка рекламы Boost TOP на Uzum Market — eStats",
-    description: "Как настроить рекламу в плюс и контролировать ДРР.",
-    url: "https://estats.uz/ru/qollanma/boost-top-sozlash",
-  },
-};
+  ogTitle: "Настройка рекламы Boost TOP на Uzum Market — eStats",
+  ogDescription: "Как настроить рекламу в плюс и контролировать ДРР.",
+});
 
 const FAQ_ITEMS = [
   {

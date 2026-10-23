@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { DrrCalculator } from "@/features/calculators/drr-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Калькулятор ДРР и Окупаемости Рекламы (ROAS) — Uzum и Wildberries | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Калькулятор ДРР и ROAS — Uzum и Wildberries",
   description:
     "Рассчитайте долю рекламных расходов (ДРР), возврат инвестиций (ROAS) и предельно допустимую стоимость клика/заказа в кампаниях Boost TOP и внутренней рекламе.",
+  path: "/ru/kalkulyator/drr",
   keywords: [
     "калькулятор дрр uzum",
     "доля рекламных расходов wildberries",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "предельный дрр формула",
     "эффективность рекламы узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/drr",
-    languages: {
-      uz: "/kalkulyator/drr",
-      ru: "/ru/kalkulyator/drr",
-    },
-  },
-  openGraph: {
-    title: "Калькулятор ДРР и Окупаемости Рекламы (ROAS)",
-    description: "Проверьте, окупается ли реклама ваших товаров на маркетплейсах.",
-    url: "https://estats.uz/ru/kalkulyator/drr",
-  },
-};
+  ogTitle: "Калькулятор ДРР и Окупаемости Рекламы (ROAS)",
+  ogDescription: "Проверьте, окупается ли реклама ваших товаров на маркетплейсах.",
+});
 
 const FAQ_ITEMS = [
   {

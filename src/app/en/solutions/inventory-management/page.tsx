@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Boxes, CheckCircle2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Cloud Inventory & WMS for E-Commerce Sellers in Uzbekistan | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Cloud Inventory & WMS for Marketplace Sellers",
   description:
     "Multi-channel inventory management software: FBO and FBS stock synchronization, purchase order batches, barcode printing, and safety stock reorder point alerts.",
+  path: "/en/solutions/inventory-management",
   keywords: [
     "ecommerce inventory software uzbekistan",
     "cloud warehouse management central asia",
@@ -14,22 +16,9 @@ export const metadata: Metadata = {
     "barcode generator uzum market",
     "inventory management system tashkent",
   ],
-  alternates: {
-    canonical: "/en/solutions/inventory-management",
-    languages: {
-      uz: "/yechimlar/ombor",
-      ru: "/ru/yechimlar/ombor",
-      en: "/en/solutions/inventory-management",
-      "x-default": "/yechimlar/ombor",
-    },
-  },
-  openGraph: {
-    title: "Cloud Inventory & WMS for Marketplace Sellers — eStats",
-    description: "Manage multi-channel inventory, prevent stockouts, and print marketplace-compliant barcodes.",
-    url: "https://estats.uz/en/solutions/inventory-management",
-    locale: "en_US",
-  },
-};
+  ogTitle: "Cloud Inventory & WMS for Marketplace Sellers — eStats",
+  ogDescription: "Manage multi-channel inventory, prevent stockouts, and print marketplace-compliant barcodes.",
+});
 
 export default function EnglishInventorySolutionPage() {
   return (

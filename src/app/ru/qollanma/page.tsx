@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Lightbulb, Rocket, Sparkles } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "База Знаний и Инструкции для Селлеров Маркетплейсов | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "База Знаний и Инструкции для Селлеров",
   description:
-    "Пошаговые руководства по торговле на Uzum Market, Wildberries и Яндекс Маркет в Узбекистане: открытие магазина, SEO оптимизация карточек, выбор схемы FBO/FBS и реклама Boost TOP.",
+    "Руководства по торговле на Uzum Market, Wildberries и Яндекс Маркет: открытие магазина, SEO карточек, выбор FBO/FBS и реклама Boost TOP.",
+  path: "/ru/qollanma",
   keywords: [
     "как открыть магазин на uzum market",
     "инструкция селлера uzum",
@@ -15,19 +17,9 @@ export const metadata: Metadata = {
     "настройка boost top узбекистан",
     "база знаний маркетплейсов",
   ],
-  alternates: {
-    canonical: "/ru/qollanma",
-    languages: {
-      uz: "/qollanma",
-      ru: "/ru/qollanma",
-    },
-  },
-  openGraph: {
-    title: "База Знаний для Продавцов Маркетплейсов — eStats",
-    description: "Практические инструкции от открытия ИП до масштабирования продаж.",
-    url: "https://estats.uz/ru/qollanma",
-  },
-};
+  ogTitle: "База Знаний для Продавцов Маркетплейсов — eStats",
+  ogDescription: "Практические инструкции от открытия ИП до масштабирования продаж.",
+});
 
 const GUIDES = [
   {

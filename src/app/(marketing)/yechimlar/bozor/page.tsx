@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Compass, Eye, Flame, Search, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleys Bozor va Nishalar Tahlili — Tovar Qidirish va Raqobatchilar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Bozor va Nishalar Tahlili",
   description:
-    "Uzum Market, Yandex Market, Wildberries va Ozon bozor analitikasi. Bo'sh nishalarni topish, tovar sotuvlar hajmi, raqobatchilar bahosi, oylik aylanma va talab o'sishini kuzatish.",
+    "Uzum Market, Yandex Market, Wildberries va Ozon bozor analitikasi: bo'sh nishalar, sotuv hajmi, raqobatchilar narxi va talab o'sishini kuzating.",
+  path: "/yechimlar/bozor",
   keywords: [
     "bozor tahlili uzum",
     "marketpleys nisha tanlash",
@@ -18,14 +20,9 @@ export const metadata: Metadata = {
     "marketpleys razvedka",
     "uzum tahlili",
   ],
-  alternates: { canonical: "/yechimlar/bozor" },
-  openGraph: {
-    title: "Marketpleys Bozor va Nishalar Tahlili — Daromadli tovarlarni oldindan aniqlang",
-    description:
-      "Uzum, Yandex va boshqa bozorlardagi eng ko'p sotilayotgan tovarlar va raqobatchilar sirlari.",
-    url: "https://estats.uz/yechimlar/bozor",
-  },
-};
+  ogTitle: "Marketpleys Bozor va Nishalar Tahlili — Daromadli tovarlarni oldindan aniqlang",
+  ogDescription: "Uzum, Yandex va boshqa bozorlardagi eng ko'p sotilayotgan tovarlar va raqobatchilar sirlari.",
+});
 
 const FAQ_ITEMS = [
   {

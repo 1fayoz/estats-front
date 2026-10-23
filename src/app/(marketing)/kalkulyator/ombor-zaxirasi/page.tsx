@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Boxes, Check, Clock, ShieldAlert } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { InventoryReorderCalculator } from "@/features/calculators/inventory-reorder-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ombor Zaxirasini Rejalashtirish Kalkulyatori — Out of Stock'dan Himoya va Reorder Point | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ombor Zaxirasi Kalkulyatori — Reorder Point",
   description:
-    "Marketpleysda tovarlaringiz tugab qolmasligi uchun qachon va qancha yangi partiya buyurtma berish kerakligini onlayn hisoblang. Xavfsizlik zaxirasi (Safety Stock) va Reorder Point formulasi.",
+    "Tovar tugab qolmasligi uchun qachon va qancha partiya buyurtma berishni hisoblang. Xavfsizlik zaxirasi (Safety Stock) va Reorder Point formulasi.",
+  path: "/kalkulyator/ombor-zaxirasi",
   keywords: [
     "ombor zaxirasi hisoblash",
     "out of stock xavfi",
@@ -17,13 +19,9 @@ export const metadata: Metadata = {
     "zaxira rejalashtirish",
     "partiya buyurtma qilish vaqti",
   ],
-  alternates: { canonical: "/kalkulyator/ombor-zaxirasi" },
-  openGraph: {
-    title: "Ombor Zaxirasini Rejalashtirish Kalkulyatori — eStats",
-    description: "Uzum va boshqa bozorlarda reyting tushib ketmasligi uchun tovar zaxirasini aniq rejalang.",
-    url: "https://estats.uz/kalkulyator/ombor-zaxirasi",
-  },
-};
+  ogTitle: "Ombor Zaxirasini Rejalashtirish Kalkulyatori — eStats",
+  ogDescription: "Uzum va boshqa bozorlarda reyting tushib ketmasligi uchun tovar zaxirasini aniq rejalang.",
+});
 
 const FAQ_ITEMS = [
   {

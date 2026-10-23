@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Bot, Check, FileText, Search, Sparkles, Star, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleys Tovar SEO va Kartochka Optimizatsiyasi — AI bilan TOP-1 ga Chiqish | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Tovar SEO — AI Kartochka Optimizatsiyasi",
   description:
-    "Uzum Market, Yandex va WB qidiruvida tovaringizni 1-o'ringa olib chiqing. AI bilan professional sarlavha, to'liq tavsif, yuqori chastotali kalit so'zlar va konversiyani oshiruvchi rich content.",
+    "Uzum, Yandex va WB qidiruvida tovaringizni 1-o'ringa chiqaring: AI bilan sarlavha, to'liq tavsif, kalit so'zlar va konversiyani oshiruvchi rich content.",
+  path: "/yechimlar/tovar-seo",
   keywords: [
     "uzum tovar seo",
     "kartochka optimizatsiya uzum",
@@ -18,13 +20,9 @@ export const metadata: Metadata = {
     "marketplace seo dasturi",
     "ctr oshirish",
   ],
-  alternates: { canonical: "/yechimlar/tovar-seo" },
-  openGraph: {
-    title: "Marketpleys Tovar SEO va Kartochka Optimizatsiyasi — eStats AI",
-    description: "Sun'iy intellekt yordamida tovar kartochkangizni qidiruv algoritmlariga 100% moslang.",
-    url: "https://estats.uz/yechimlar/tovar-seo",
-  },
-};
+  ogTitle: "Marketpleys Tovar SEO va Kartochka Optimizatsiyasi — eStats AI",
+  ogDescription: "Sun'iy intellekt yordamida tovar kartochkangizni qidiruv algoritmlariga 100% moslang.",
+});
 
 const FAQ_ITEMS = [
   {

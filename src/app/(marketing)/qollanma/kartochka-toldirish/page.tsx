@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Bot, Check, FileText, Sparkles, Star, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Tovar Kartochkasini To'ldirish va SEO — Qidiruvda 1-O'ringa Chiqish Yo'riqnomasi | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Tovar Kartochkasini To'ldirish va SEO Yo'riqnomasi",
   description:
     "Uzum Marketda tovar kartochkasini to'g'ri to'ldirish: yuqori konversiyali nom tanlash, kalit so'zlar matritsasi, infografika va rich content yaratish sirlari.",
+  path: "/qollanma/kartochka-toldirish",
   keywords: [
     "uzum kartochka toldirish",
     "uzum tovar seo",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "uzum tovar nomini yozish",
     "rich content tayyorlash",
   ],
-  alternates: { canonical: "/qollanma/kartochka-toldirish" },
-  openGraph: {
-    title: "Tovar Kartochkasini To'ldirish va SEO — eStats Qo'llanma",
-    description: "Kartochkangizni xaridorlar va algoritm uchun mukammal qilib tayyorlang.",
-    url: "https://estats.uz/qollanma/kartochka-toldirish",
-  },
-};
+  ogTitle: "Tovar Kartochkasini To'ldirish va SEO — eStats Qo'llanma",
+  ogDescription: "Kartochkangizni xaridorlar va algoritm uchun mukammal qilib tayyorlang.",
+});
 
 export default function CardOptimizationGuidePage() {
   return (

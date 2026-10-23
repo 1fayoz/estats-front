@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 
 /**
  * eStats Lens kengaytmasining maxfiylik siyosati — Chrome Web Store'dagi
@@ -10,10 +11,14 @@ import type { Metadata } from "next";
  * practices" javoblari ham yangilanadi (`estats-lens-extension/store/LISTING.md`).
  */
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "eStats Lens — maxfiylik siyosati",
-  description: "eStats Lens brauzer kengaytmasi qanday ma'lumot bilan ishlaydi, nima uchun va qancha saqlanadi.",
-};
+  description:
+    "eStats Lens brauzer kengaytmasi qanday ma'lumot bilan ishlaydi, nima uchun va qancha saqlanadi.",
+  path: "/lens/privacy",
+  // Mahsulot nomi "eStats Lens" — brend sarlavhada bor, shablon qo'shmaydi.
+  absoluteTitle: true,
+});
 
 const UPDATED = { uz: "2026-yil 17-sentabr", ru: "17 сентября 2026 г.", en: "September 17, 2026" };
 const CONTACT = "turaqulovfayoz4@gmail.com";

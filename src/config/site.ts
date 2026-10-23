@@ -1,10 +1,10 @@
 export const siteConfig = {
   name: "eStats",
   tagline: "Marketpleyslar uchun professional analitika va boshqaruv",
+  // Meta description — 155 belgidan oshmasin (qidiruvda kesiladi).
   description:
-    "Marketpleys sotuvchilari uchun yagona ekotizim: Uzum Market, Yandex Market, " +
-    "Wildberries, Ozon va boshqalar. Tan narx, FIFO bo'yicha sof foyda, " +
-    "doimiy xarajatlar va ko'p kanalli savdo boshqaruvi — bitta joyda.",
+    "Uzum Market, Yandex Market, Wildberries va Ozon sotuvchilari uchun yagona " +
+    "ekotizim: tan narx, FIFO bo'yicha sof foyda, xarajatlar va savdo boshqaruvi.",
   url: "https://estats.uz",
   locale: "uz",
   // Ilgari sayt shu manzilda turgan. Eski havolalar 301 bilan yangisiga

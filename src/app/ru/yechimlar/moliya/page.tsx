@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BarChart3, CheckCircle2, DollarSign, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Финансовый Учет PnL и Себестоимость FIFO для Маркетплейсов | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Учет PnL и Себестоимость FIFO для Маркетплейсов",
   description:
-    "Точный расчет чистой прибыли для селлеров маркетплейсов в Узбекистане. Отчет о прибылях и убытках (PnL), партионная себестоимость по FIFO, учет комиссий, возвратов и постоянных расходов.",
+    "Чистая прибыль для селлеров маркетплейсов в Узбекистане: отчет PnL, себестоимость партий по FIFO, комиссии, возвраты и постоянные расходы.",
+  path: "/ru/yechimlar/moliya",
   keywords: [
     "финансовый учет маркетплейс",
     "pnl отчет маркетплейс узбекистан",
@@ -14,22 +16,9 @@ export const metadata: Metadata = {
     "себестоимость fifo узбекистан",
     "бухгалтерия маркетплейс ташкент",
   ],
-  alternates: {
-    canonical: "/ru/yechimlar/moliya",
-    languages: {
-      uz: "/yechimlar/moliya",
-      ru: "/ru/yechimlar/moliya",
-      en: "/en/solutions/marketplace-analytics",
-      "x-default": "/yechimlar/moliya",
-    },
-  },
-  openGraph: {
-    title: "Финансовый Учет PnL и Себестоимость FIFO — eStats",
-    description: "Знайте свою реальную прибыль с каждого проданного товара на Uzum и других площадках.",
-    url: "https://estats.uz/ru/yechimlar/moliya",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Финансовый Учет PnL и Себестоимость FIFO — eStats",
+  ogDescription: "Знайте свою реальную прибыль с каждого проданного товара на Uzum и других площадках.",
+});
 
 export default function RussianFinanceSolutionPage() {
   return (

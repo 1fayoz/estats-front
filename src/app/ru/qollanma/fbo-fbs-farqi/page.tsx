@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Boxes, Check, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "FBO или FBS на Uzum Market: Разница, Плюсы и Минусы для Селлера | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "FBO или FBS на Uzum Market: Разница и Выбор",
   description:
-    "Сравнение схем FBO (продажи со склада маркетплейса) и FBS (продажи со своего склада) на Uzum Market в Узбекистане: комиссии, скорость доставки, заморозка капитала и риски.",
+    "Сравнение FBO (склад маркетплейса) и FBS (свой склад) на Uzum Market: комиссии, скорость доставки, заморозка капитала и риски.",
+  path: "/ru/qollanma/fbo-fbs-farqi",
   keywords: [
     "fbo fbs разница uzum",
     "fbo uzum market что это",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "схемы работы маркетплейс узбекистан",
     "складские тарифы uzum",
   ],
-  alternates: {
-    canonical: "/ru/qollanma/fbo-fbs-farqi",
-    languages: {
-      uz: "/qollanma/fbo-fbs-farqi",
-      ru: "/ru/qollanma/fbo-fbs-farqi",
-    },
-  },
-  openGraph: {
-    title: "FBO против FBS на Uzum Market — eStats Руководство",
-    description: "Какую модель работы выбрать селлеру в 2026 году?",
-    url: "https://estats.uz/ru/qollanma/fbo-fbs-farqi",
-  },
-};
+  ogTitle: "FBO против FBS на Uzum Market — eStats Руководство",
+  ogDescription: "Какую модель работы выбрать селлеру в 2026 году?",
+});
 
 const FAQ_ITEMS = [
   {

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { CalculatorsHub } from "@/features/calculators/calculators-hub";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Free E-Commerce & Marketplace Calculators | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Free E-Commerce & Marketplace Calculators",
   description:
     "Free operational tools and calculators for marketplace sellers: barcode & label generator, unit economics, ABC analysis, and marketplace commission calculators.",
+  path: "/en/tools",
   keywords: [
     "marketplace calculators",
     "free e-commerce tools",
@@ -13,21 +15,9 @@ export const metadata: Metadata = {
     "abc inventory calculator",
     "unit economics calculator",
   ],
-  alternates: {
-    canonical: "/en/tools",
-    languages: {
-      uz: "/kalkulyator",
-      ru: "/ru/kalkulyator",
-      en: "/en/tools",
-    },
-  },
-  openGraph: {
-    title: "Free E-Commerce & Marketplace Calculators — eStats",
-    description: "Online barcode generator, unit economics, ABC analysis, and commission calculators.",
-    url: "https://estats.uz/en/tools",
-    images: ["https://estats.uz/api/og?title=Free+Marketplace+Tools&badge=eStats+Global"],
-  },
-};
+  ogTitle: "Free E-Commerce & Marketplace Calculators — eStats",
+  ogDescription: "Online barcode generator, unit economics, ABC analysis, and commission calculators.",
+});
 
 const FAQ_ITEMS = [
   {

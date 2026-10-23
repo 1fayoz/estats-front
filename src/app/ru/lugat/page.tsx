@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Check, Search, Sparkles } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Глоссарий Терминов Маркетплейсов — FIFO, ДРР, FBO, FBS, ROAS, SKU | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Глоссарий Маркетплейсов — FIFO, ДРР, FBO, FBS",
   description:
-    "Полный словарь понятий и аббревиатур для селлеров Uzum Market, Wildberries и Ozon: FIFO, FBO, FBS, ДРР, ROAS, SKU, Out of Stock, Юнит-экономика простыми словами.",
+    "Словарь терминов для селлеров Uzum Market, Wildberries и Ozon: FIFO, FBO, FBS, ДРР, ROAS, SKU, Out of Stock, юнит-экономика простыми словами.",
+  path: "/ru/lugat",
   keywords: [
     "глоссарий маркетплейсов",
     "что такое fifo",
@@ -16,19 +18,9 @@ export const metadata: Metadata = {
     "out of stock значение",
     "термины uzum market",
   ],
-  alternates: {
-    canonical: "/ru/lugat",
-    languages: {
-      uz: "/lugat",
-      ru: "/ru/lugat",
-    },
-  },
-  openGraph: {
-    title: "Глоссарий Терминов Маркетплейсов — eStats База Знаний",
-    description: "Энциклопедия терминов электронной коммерции для селлеров.",
-    url: "https://estats.uz/ru/lugat",
-  },
-};
+  ogTitle: "Глоссарий Терминов Маркетплейсов — eStats База Знаний",
+  ogDescription: "Энциклопедия терминов электронной коммерции для селлеров.",
+});
 
 const TERMS = [
   {

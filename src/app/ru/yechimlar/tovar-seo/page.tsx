@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Bot, CheckCircle2, ShieldCheck, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "AI SEO Оптимизация Карточек Товаров для Uzum Market | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "AI SEO Карточек Товаров для Uzum Market",
   description:
-    "Выводите товары на 1-е место в поиске Uzum Market с помощью искусственного интеллекта eStats. Генерация ключевых слов, SEO-названий, продающих описаний и аудит индексации.",
+    "Выводите товары в топ поиска Uzum Market с AI eStats: ключевые слова, SEO-названия, продающие описания и аудит индексации.",
+  path: "/ru/yechimlar/tovar-seo",
   keywords: [
     "ai seo uzum market",
     "оптимизация карточек uzum",
@@ -15,22 +17,9 @@ export const metadata: Metadata = {
     "ключевые слова uzum",
     "вывод в топ uzum market",
   ],
-  alternates: {
-    canonical: "/ru/yechimlar/tovar-seo",
-    languages: {
-      uz: "/yechimlar/tovar-seo",
-      ru: "/ru/yechimlar/tovar-seo",
-      en: "/en/solutions/ai-seo",
-      "x-default": "/yechimlar/tovar-seo",
-    },
-  },
-  openGraph: {
-    title: "AI SEO Оптимизация Карточек Товаров для Uzum Market — eStats",
-    description: "Автоматический подбор высокочастотных поисковых запросов и генерация продающих текстов.",
-    url: "https://estats.uz/ru/yechimlar/tovar-seo",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "AI SEO Оптимизация Карточек Товаров для Uzum Market — eStats",
+  ogDescription: "Автоматический подбор высокочастотных поисковых запросов и генерация продающих текстов.",
+});
 
 export default function RussianSeoSolutionPage() {
   return (

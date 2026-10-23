@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { MarketplaceTaxCalculator } from "@/features/calculators/marketplace-tax-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "O'zbekiston Marketpleys Soliq Kalkulyatori (YaTT & MChJ 4%) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Soliq Kalkulyatori — YaTT va MChJ",
   description:
-    "Uzum Market, Wildberries va Yandex sotuvchilari uchun soliq hisoblash kalkulyatori: YaTT 4% aylanma soliq, elektron tijorat 1% imtiyozi, ijtimoiy soliq va 1 mlrd so'mlik QQS chegarasi.",
+    "Marketpleys sotuvchilari uchun soliq kalkulyatori: YaTT 4% aylanma soliq, elektron tijorat 1% imtiyozi, ijtimoiy soliq va 1 mlrd so'mlik QQS chegarasi.",
+  path: "/kalkulyator/soliq",
   keywords: [
     "marketpleys soliq kalkulyator",
     "uzum soliq hisoblash",
@@ -15,19 +17,9 @@ export const metadata: Metadata = {
     "soliq uzum market chek",
     "ijtimoiy soliq yatt bhm",
   ],
-  alternates: {
-    canonical: "/kalkulyator/soliq",
-    languages: {
-      uz: "/kalkulyator/soliq",
-      ru: "/ru/kalkulyator/soliq",
-    },
-  },
-  openGraph: {
-    title: "O'zbekiston Marketpleys Soliq Kalkulyatori (2026) — eStats",
-    description: "YaTT va MChJlar uchun aylanma soliq, ijtimoiy soliq va QQS xavfini 1 daqiqada hisoblang.",
-    url: "https://estats.uz/kalkulyator/soliq",
-  },
-};
+  ogTitle: "O'zbekiston Marketpleys Soliq Kalkulyatori (2026) — eStats",
+  ogDescription: "YaTT va MChJlar uchun aylanma soliq, ijtimoiy soliq va QQS xavfini 1 daqiqada hisoblang.",
+});
 
 const FAQ_ITEMS = [
   {

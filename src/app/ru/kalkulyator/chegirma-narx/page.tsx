@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { DiscountPricingCalculator } from "@/features/calculators/discount-pricing-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Калькулятор Скидок и Акций на Uzum Market — Расчет Зачеркнутой Цены | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Калькулятор Скидок и Зачеркнутой Цены Uzum",
   description:
     "Рассчитайте оптимальную зачеркнутую и фактическую цену для участия в акциях на Uzum Market и Wildberries без ухода в минус. Сохраните плановую маржинальность.",
+  path: "/ru/kalkulyator/chegirma-narx",
   keywords: [
     "калькулятор скидок uzum market",
     "расчет зачеркнутой цены маркетплейс",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "ценообразование uzum market",
     "калькулятор акций маркетплейс",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/chegirma-narx",
-    languages: {
-      uz: "/kalkulyator/chegirma-narx",
-      ru: "/ru/kalkulyator/chegirma-narx",
-    },
-  },
-  openGraph: {
-    title: "Калькулятор Скидок и Ценообразования на Uzum Market",
-    description: "Устанавливайте привлекательные скидки с гарантией чистой прибыли.",
-    url: "https://estats.uz/ru/kalkulyator/chegirma-narx",
-  },
-};
+  ogTitle: "Калькулятор Скидок и Ценообразования на Uzum Market",
+  ogDescription: "Устанавливайте привлекательные скидки с гарантией чистой прибыли.",
+});
 
 const FAQ_ITEMS = [
   {

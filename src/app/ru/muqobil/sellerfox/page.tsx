@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Compass, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналог SellerFox для Маркетплейсов в Узбекистане — eStats | Сравнение",
+export const metadata: Metadata = buildMetadata({
+  title: "Аналог SellerFox для Маркетплейсов Узбекистана",
   description:
-    "Ищете аналог SellerFox? Платформа eStats объединяет анализ ниш, партионную себестоимость по FIFO и мульти-маркетплейс для Uzum Market, Wildberries, Yandex Market и Ozon.",
+    "Аналог SellerFox: анализ ниш, партионная себестоимость по FIFO и мульти-маркетплейс для Uzum Market, Wildberries, Yandex Market и Ozon.",
+  path: "/ru/muqobil/sellerfox",
   keywords: [
     "аналог sellerfox узбекистан",
     "sellerfox uzum market",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "аналитика маркетплейсов узбекистан",
     "мониторинг конкурентов uzum",
   ],
-  alternates: {
-    canonical: "/ru/muqobil/sellerfox",
-    languages: {
-      uz: "/muqobil/sellerfox",
-      ru: "/ru/muqobil/sellerfox",
-    },
-  },
-  openGraph: {
-    title: "Аналог SellerFox для Узбекистана — eStats",
-    description: "Мульти-маркетплейс платформа для продавцов в Центральной Азии.",
-    url: "https://estats.uz/ru/muqobil/sellerfox",
-  },
-};
+  ogTitle: "Аналог SellerFox для Узбекистана — eStats",
+  ogDescription: "Мульти-маркетплейс платформа для продавцов в Центральной Азии.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { FboActGenerator } from "@/features/calculators/fbo-act-generator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Генератор Акта Приёма-Передачи FBO/FBS для Uzum Market и Wildberries | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Генератор Акта Приёма FBO/FBS для Uzum и WB",
   description:
-    "Бесплатный онлайн генератор накладной и акта приёма-передачи партии товаров на склад маркетплейса в формате A4. Готовые шаблоны для селлеров Uzum Market, Wildberries и Ozon.",
+    "Бесплатный генератор накладной и акта приёма-передачи товаров на склад маркетплейса в A4. Шаблоны для Uzum Market, Wildberries и Ozon.",
+  path: "/ru/kalkulyator/fbo-akt",
   keywords: [
     "акт приема передачи uzum market",
     "накладная на склад uzum",
@@ -13,19 +15,9 @@ export const metadata: Metadata = {
     "генератор актов fbo fbs",
     "документы для поставки uzum",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/fbo-akt",
-    languages: {
-      uz: "/kalkulyator/fbo-akt",
-      ru: "/ru/kalkulyator/fbo-akt",
-    },
-  },
-  openGraph: {
-    title: "Генератор Акта Приёма-Передачи для Маркетплейсов — eStats",
-    description: "Формируйте и печатайте накладные поставки в формате A4 за секунды.",
-    url: "https://estats.uz/ru/kalkulyator/fbo-akt",
-  },
-};
+  ogTitle: "Генератор Акта Приёма-Передачи для Маркетплейсов — eStats",
+  ogDescription: "Формируйте и печатайте накладные поставки в формате A4 за секунды.",
+});
 
 const FAQ_ITEMS = [
   {

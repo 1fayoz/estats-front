@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Cpu, Flame, Smartphone, TrendingUp, Users } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналитика Ниши Электроника и Техника на Uzum Market — Объемы Продаж и ТОП Товары | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ниша Электроника на Uzum Market — Аналитика",
   description:
-    "Глубокий анализ категории электроники на Uzum Market: ежемесячный оборот, средний чек, самые продаваемые аксессуары для смартфонов, наушники и свободные прибыльные ниши.",
+    "Анализ категории электроники на Uzum Market: ежемесячный оборот, средний чек, топ аксессуаров для смартфонов, наушники и свободные ниши.",
+  path: "/ru/kategoriya/elektronika",
   keywords: [
     "аналитика электроники uzum market",
     "топ товары электроника узбекистан",
@@ -15,19 +17,9 @@ export const metadata: Metadata = {
     "оборот категории электроника",
     "прибыльные ниши uzum",
   ],
-  alternates: {
-    canonical: "/ru/kategoriya/elektronika",
-    languages: {
-      uz: "/kategoriya/elektronika",
-      ru: "/ru/kategoriya/elektronika",
-    },
-  },
-  openGraph: {
-    title: "Аналитика Категории Электроника — Uzum Market | eStats",
-    description: "Какие товары приносят максимальную выручку в электронике на Uzum?",
-    url: "https://estats.uz/ru/kategoriya/elektronika",
-  },
-};
+  ogTitle: "Аналитика Категории Электроника — Uzum Market | eStats",
+  ogDescription: "Какие товары приносят максимальную выручку в электронике на Uzum?",
+});
 
 const FAQ_ITEMS = [
   {

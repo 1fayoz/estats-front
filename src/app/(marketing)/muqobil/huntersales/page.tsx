@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Flame, ShieldAlert, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "HunterSales Muqobili — Uzum va Marketpleyslar Uchun Kuchliroq va Qulayroq Analitika | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "HunterSales Muqobili — Uzum Analitikasi",
   description:
-    "HunterSales o'rniga eng yaxshi muqobil qidiryapsizmi? eStats: Uzum, Yandex, WB va Ozon uchun to'liq bozor tahlili, ombor (FIFO), haqiqiy tan narx va AI tovar SEO vositalari.",
+    "HunterSales muqobili: Uzum, Yandex, WB va Ozon uchun bozor tahlili, ombor (FIFO), haqiqiy tan narx va AI tovar SEO vositalari — eStats'da.",
+  path: "/muqobil/huntersales",
   keywords: [
     "huntersales muqobili",
     "huntersales analog",
@@ -17,13 +19,9 @@ export const metadata: Metadata = {
     "uzum bozor tahlili",
     "tovar razvedkasi uzum",
   ],
-  alternates: { canonical: "/muqobil/huntersales" },
-  openGraph: {
-    title: "HunterSales Muqobili — eStats Analitika Platformasi",
-    description: "Nega sotuvchilar HunterSales'dan ko'ra eStats'ni afzal ko'rishadi?",
-    url: "https://estats.uz/muqobil/huntersales",
-  },
-};
+  ogTitle: "HunterSales Muqobili — eStats Analitika Platformasi",
+  ogDescription: "Nega sotuvchilar HunterSales'dan ko'ra eStats'ni afzal ko'rishadi?",
+});
 
 const FAQ_ITEMS = [
   {

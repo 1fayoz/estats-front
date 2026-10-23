@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, HelpCircle, ShieldCheck, Printer, Barcode } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema, HowToSchema } from "@/components/seo/structured-data";
 import { BarcodeGeneratorTool } from "@/components/barcode-generator-tool";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market va Wildberries Shtrix-kod & Etiketka Generatori (58x40, 43x25) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Shtrix-kod va Etiketka Generatori (58x40, 43x25)",
   description:
-    "Uzum Market, Wildberries va Ozon uchun bepul shtrix-kod (Code-128, EAN-13) va termo-etiketka generatsiyasi. 58x40 mm, 43x25 mm o'lchamlarda darhol termoprinterga chiqarish.",
+    "Uzum Market, Wildberries va Ozon uchun bepul shtrix-kod (Code-128, EAN-13) va termo-etiketka: 58x40 va 43x25 mm, darhol termoprinterga.",
+  path: "/kalkulyator/shtrix-kod",
   keywords: [
     "uzum market shtrix kod generatsiya",
     "uzum etiketka chiqarish",
@@ -20,20 +22,9 @@ export const metadata: Metadata = {
     "code 128 shtrix kod uzum",
     "xprinter etiketka chiqarish",
   ],
-  alternates: {
-    canonical: "/kalkulyator/shtrix-kod",
-    languages: {
-      uz: "/kalkulyator/shtrix-kod",
-      ru: "/ru/kalkulyator/shtrix-kod",
-      en: "/en/tools/barcode-generator",
-    },
-  },
-  openGraph: {
-    title: "Uzum va Wildberries Shtrix-kod & Etiketka Generatori — Bepul Onlayn",
-    description: "58x40 mm termo-etiketkalar va shtrix-kodlarni bepul generatsiya qiling va chop eting.",
-    url: "https://estats.uz/kalkulyator/shtrix-kod",
-  },
-};
+  ogTitle: "Uzum va Wildberries Shtrix-kod & Etiketka Generatori — Bepul Onlayn",
+  ogDescription: "58x40 mm termo-etiketkalar va shtrix-kodlarni bepul generatsiya qiling va chop eting.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Boxes, Globe2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ozon Узбекистан — Продажи, Экспорт в СНГ и Складской Учет | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ozon Узбекистан — Продажи и Складской Учет",
   description:
     "Продажи на Ozon из Узбекистана: учет международной логистики, таможенных документов, синхронизация FBS складов и расчет чистой прибыли в валюте и сумах.",
+  path: "/ru/bozorlar/ozon",
   keywords: [
     "ozon узбекистан",
     "озон узбекистан селлер",
@@ -14,22 +16,9 @@ export const metadata: Metadata = {
     "экспорт озон ташкент",
     "fbs ozon uzbekistan",
   ],
-  alternates: {
-    canonical: "/ru/bozorlar/ozon",
-    languages: {
-      uz: "/bozorlar/ozon",
-      ru: "/ru/bozorlar/ozon",
-      en: "/en/solutions/marketplace-analytics",
-      "x-default": "/bozorlar/ozon",
-    },
-  },
-  openGraph: {
-    title: "Ozon Узбекистан — Продажи и Экспорт eStats",
-    description: "Управление трансграничными поставками и продажами на Ozon из Узбекистана.",
-    url: "https://estats.uz/ru/bozorlar/ozon",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Ozon Узбекистан — Продажи и Экспорт eStats",
+  ogDescription: "Управление трансграничными поставками и продажами на Ozon из Узбекистана.",
+});
 
 const FAQ_ITEMS = [
   {

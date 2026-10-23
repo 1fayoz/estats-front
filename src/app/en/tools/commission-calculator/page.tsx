@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Calculator, Check } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
 import { UzumCommissionCalculator } from "@/features/calculators/uzum-commission-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Commission & Profit Calculator (2026) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Commission & Profit Calculator (2026)",
   description:
     "Free online commission calculator for Uzum Market sellers in Uzbekistan. Calculate category referral fees, FBO logistics, unit cost, and net margins.",
+  path: "/en/tools/commission-calculator",
   keywords: [
     "uzum market commission calculator",
     "uzum marketplace seller fees",
@@ -15,22 +17,9 @@ export const metadata: Metadata = {
     "uzum unit economics",
     "central asia ecommerce seller calculator",
   ],
-  alternates: {
-    canonical: "/en/tools/commission-calculator",
-    languages: {
-      uz: "/kalkulyator/uzum-komissiya",
-      ru: "/ru/kalkulyator/uzum-komissiya",
-      en: "/en/tools/commission-calculator",
-      "x-default": "/kalkulyator/uzum-komissiya",
-    },
-  },
-  openGraph: {
-    title: "Uzum Market Commission & Profit Calculator — eStats",
-    description: "Model Uzum marketplace fees and unit net profit before purchasing inventory.",
-    url: "https://estats.uz/en/tools/commission-calculator",
-    locale: "en_US",
-  },
-};
+  ogTitle: "Uzum Market Commission & Profit Calculator — eStats",
+  ogDescription: "Model Uzum marketplace fees and unit net profit before purchasing inventory.",
+});
 
 const FAQ_ITEMS = [
   {

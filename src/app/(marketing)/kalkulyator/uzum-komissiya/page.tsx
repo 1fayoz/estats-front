@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Calculator, Check, HelpCircle, ShieldCheck } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { UzumCommissionCalculator } from "@/features/calculators/uzum-commission-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Komissiya Kalkulyatori (2026) — Sof Foyda va Xarajatlarni Bepul Hisoblash | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Komissiya Kalkulyatori (2026)",
   description:
-    "Uzum Market'da sotayotgan tovaringiz bo'yicha komissiya, logistika, tan narx va qo'lingizda qoladigan sof foydani onlayn bepul hisoblang. Toifalar bo'yicha amaldagi foiz stavkalari.",
+    "Uzum Marketdagi tovaringiz bo'yicha komissiya, logistika, tan narx va qo'lingizda qoladigan sof foydani bepul hisoblang. Toifalar bo'yicha stavkalar.",
+  path: "/kalkulyator/uzum-komissiya",
   keywords: [
     "uzum komissiyasi kalkulyator",
     "uzum komissiya hisoblash",
@@ -18,13 +20,9 @@ export const metadata: Metadata = {
     "uzumda qancha foyda qoladi",
     "uzum kalkulyator",
   ],
-  alternates: { canonical: "/kalkulyator/uzum-komissiya" },
-  openGraph: {
-    title: "Uzum Market Komissiya Kalkulyatori — Bepul Onlayn Hisoblagich",
-    description: "Uzum komissiyasi va barcha xarajatlarni hisobga olgan holda toza foydangizni biling.",
-    url: "https://estats.uz/kalkulyator/uzum-komissiya",
-  },
-};
+  ogTitle: "Uzum Market Komissiya Kalkulyatori — Bepul Onlayn Hisoblagich",
+  ogDescription: "Uzum komissiyasi va barcha xarajatlarni hisobga olgan holda toza foydangizni biling.",
+});
 
 const FAQ_ITEMS = [
   {

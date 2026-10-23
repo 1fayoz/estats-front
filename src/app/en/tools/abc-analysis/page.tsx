@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { AbcAnalysisCalculator } from "@/features/calculators/abc-analysis-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Inventory ABC Analysis Calculator (80/20 Pareto Principle) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "ABC Analysis Calculator (80/20 Pareto)",
   description:
     "Free online ABC product inventory segmentation tool for multi-channel marketplace sellers. Separate high-revenue Group A items from deadweight Group C stock.",
+  path: "/en/tools/abc-analysis",
   keywords: [
     "abc analysis calculator",
     "inventory pareto 80 20 rule",
@@ -13,21 +15,9 @@ export const metadata: Metadata = {
     "e-commerce stock classification",
     "dead stock identifier tool",
   ],
-  alternates: {
-    canonical: "/en/tools/abc-analysis",
-    languages: {
-      uz: "/kalkulyator/abc-tahlil",
-      ru: "/ru/kalkulyator/abc-tahlil",
-      en: "/en/tools/abc-analysis",
-    },
-  },
-  openGraph: {
-    title: "Inventory ABC Analysis Calculator — eStats",
-    description: "Analyze your SKU revenue distribution and optimize inventory replenishment.",
-    url: "https://estats.uz/en/tools/abc-analysis",
-    images: ["https://estats.uz/api/og?title=Inventory+ABC+Analysis+Calculator&badge=eStats+Tools"],
-  },
-};
+  ogTitle: "Inventory ABC Analysis Calculator — eStats",
+  ogDescription: "Analyze your SKU revenue distribution and optimize inventory replenishment.",
+});
 
 const FAQ_ITEMS = [
   {

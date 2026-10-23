@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Foydalanish shartlari — eStats",
-  description: "eStats xizmatidan foydalanish shartlari.",
-};
+export const metadata: Metadata = buildMetadata({
+  title: "Foydalanish shartlari",
+  description:
+    "eStats xizmatidan foydalanish shartlari.",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

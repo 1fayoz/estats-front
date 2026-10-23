@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, MessageSquare, Send, Share2, Sparkles, TrendingUp, Users } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Telegram va Instagram Avtoposting — Marketpleys Tovarlarini Ijtimoiy Tarmoqlarda Sotish | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Telegram va Instagram Avtoposting — Marketpleys",
   description:
-    "Uzum va boshqa marketpleys tovarlaringizni 1 klik bilan Telegram kanal va guruhlarga, Instagram sahifalarga avtomatik joylang. Rasm, narx, tavsif va to'g'ridan-to'g'ri xarid havolasi.",
+    "Marketpleys tovarlaringizni 1 klikda Telegram kanal va guruhlarga, Instagram'ga avtomatik joylang: rasm, narx, tavsif va xarid havolasi bilan.",
+  path: "/yechimlar/telegram-instagram",
   keywords: [
     "telegram avtoposting tovar",
     "instagram savdo marketpleys",
@@ -16,13 +18,9 @@ export const metadata: Metadata = {
     "marketpleys smm",
     "telegram bot do'kon",
   ],
-  alternates: { canonical: "/yechimlar/telegram-instagram" },
-  openGraph: {
-    title: "Telegram va Instagram Avtoposting — Marketpleys sotuvchilari uchun tashqi trafik",
-    description: "Ijtimoiy tarmoqlardagi obunachilaringizni marketpleysdagi xaridorlarga aylantiring.",
-    url: "https://estats.uz/yechimlar/telegram-instagram",
-  },
-};
+  ogTitle: "Telegram va Instagram Avtoposting — Marketpleys sotuvchilari uchun tashqi trafik",
+  ogDescription: "Ijtimoiy tarmoqlardagi obunachilaringizni marketpleysdagi xaridorlarga aylantiring.",
+});
 
 const FAQ_ITEMS = [
   {

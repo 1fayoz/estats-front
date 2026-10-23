@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Bot, CheckCircle2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "AI Product Listing SEO for Central Asian Marketplaces | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "AI Listing SEO for Central Asian Marketplaces",
   description:
-    "Rank #1 on Uzum Market, Wildberries, and Yandex Market using AI optimization: generate high-intent search keywords, bilingual titles, and high-converting listing copy.",
+    "Rank higher on Uzum Market, Wildberries and Yandex Market with AI: high-intent keywords, bilingual titles and high-converting listing copy.",
+  path: "/en/solutions/ai-seo",
   keywords: [
     "ai listing seo uzum",
     "marketplace seo software uzbekistan",
@@ -14,22 +16,9 @@ export const metadata: Metadata = {
     "bilingual product descriptions uzbek russian",
     "search rank optimization uzum market",
   ],
-  alternates: {
-    canonical: "/en/solutions/ai-seo",
-    languages: {
-      uz: "/yechimlar/tovar-seo",
-      ru: "/ru/yechimlar/tovar-seo",
-      en: "/en/solutions/ai-seo",
-      "x-default": "/yechimlar/tovar-seo",
-    },
-  },
-  openGraph: {
-    title: "AI Product Listing SEO for Marketplaces — eStats",
-    description: "Automate keyword research and optimize listings for maximum visibility.",
-    url: "https://estats.uz/en/solutions/ai-seo",
-    locale: "en_US",
-  },
-};
+  ogTitle: "AI Product Listing SEO for Marketplaces — eStats",
+  ogDescription: "Automate keyword research and optimize listings for maximum visibility.",
+});
 
 export default function EnglishSeoSolutionPage() {
   return (

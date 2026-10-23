@@ -53,26 +53,21 @@ export const metadata: Metadata = {
     "Instagram marketpleys",
   ],
   authors: [{ name: siteConfig.name, url: siteConfig.url }],
-  // Har sahifa o'z kanonik manzilini oladi; ildizda apex turadi.
-  alternates: {
-    canonical: "/",
-    languages: {
-      "uz": "/",
-      "ru": "/ru",
-      "en": "/en",
-      "x-default": "/",
-    },
-  },
+  // Kanonik va hreflang bu yerda YO'Q: ildizdagi qiymat o'zini bermagan
+  // har sahifaga (huquqiy sahifalar, 404, kabinet) meros bo'lib o'tib,
+  // ularni bosh sahifaning nusxasi deb e'lon qilardi. Har ochiq sahifa
+  // ularni `buildMetadata` orqali o'zi beradi.
   other: {
     "geo.region": "UZ",
     "geo.placename": "Tashkent, Uzbekistan",
     "geo.position": "41.2995;69.2401",
     "ICBM": "41.2995, 69.2401",
   },
+  // Standart qiymatlar — o'zini bermagan sahifalar uchun. `url` ataylab
+  // yo'q: aks holda har sahifaning og:url'i bosh sahifa bo'lib qolardi.
   openGraph: {
     type: "website",
     locale: "uz_UZ",
-    url: siteConfig.url,
     siteName: siteConfig.name,
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.description,

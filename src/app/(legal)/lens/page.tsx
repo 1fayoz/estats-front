@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { fetchLensReleaseCached, LENS_PRIVACY_PATH } from "@/lib/lens";
+import { buildMetadata } from "@/lib/seo";
 
 /**
  * eStats Lens kengaytmasining OCHIQ sahifasi — Chrome Web Store'dagi
@@ -13,10 +14,14 @@ import { fetchLensReleaseCached, LENS_PRIVACY_PATH } from "@/lib/lens";
  * matn `/lens/privacy` da.
  */
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "eStats Lens — uzum.uz uchun brauzer kengaytmasi",
-  description: "uzum.uz sahifalarida bozor tahlili: tovar tushumi, qoldiq, qidiruvdagi o'rin, Uzum tariflari bilan unit iqtisodiyot va rasm bo'yicha qidiruv.",
-};
+  description:
+    "uzum.uz sahifalarida bozor tahlili: tovar tushumi, qoldiq, qidiruvdagi o'rin, Uzum tariflari bilan unit iqtisodiyot va rasm bo'yicha qidiruv.",
+  path: "/lens",
+  // Mahsulot nomi "eStats Lens" — brend sarlavhada bor, shablon qo'shmaydi.
+  absoluteTitle: true,
+});
 
 export default async function LensPage() {
   const release = await fetchLensReleaseCached();

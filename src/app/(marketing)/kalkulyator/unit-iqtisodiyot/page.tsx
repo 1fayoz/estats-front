@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Check, DollarSign, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { UnitEconomicsCalculator } from "@/features/calculators/unit-economics-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Unit Iqtisodiyoti (Unit Economics) Kalkulyatori — Tovar Marjasi, ROI va Zararsizlik | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Unit Iqtisodiyoti Kalkulyatori — Marja va ROI",
   description:
-    "Marketpleysda tovar sotishdan oldin unit iqtisodiyotini onlayn bepul hisoblang. 1 dona tovarning sof marjasi, ROI ko'rsatkichi, soliqlar, reklama ulushi va minimal sotuv narxi (Break-even).",
+    "Tovar sotishdan oldin unit iqtisodiyotini bepul hisoblang: 1 dona tovarning sof marjasi, ROI, soliqlar, reklama ulushi va zararsizlik narxi.",
+  path: "/kalkulyator/unit-iqtisodiyot",
   keywords: [
     "unit iqtisodiyoti kalkulyator",
     "unit economics uzbekistan",
@@ -17,13 +19,9 @@ export const metadata: Metadata = {
     "breakeven narx hisoblash",
     "uzum foyda marjasi",
   ],
-  alternates: { canonical: "/kalkulyator/unit-iqtisodiyot" },
-  openGraph: {
-    title: "Unit Iqtisodiyoti Kalkulyatori — Tovar foydasini professional hisoblang",
-    description: "1 dona tovardan qancha foyda qolishi va minimal sotuv narxini aniqlang.",
-    url: "https://estats.uz/kalkulyator/unit-iqtisodiyot",
-  },
-};
+  ogTitle: "Unit Iqtisodiyoti Kalkulyatori — Tovar foydasini professional hisoblang",
+  ogDescription: "1 dona tovardan qancha foyda qolishi va minimal sotuv narxini aniqlang.",
+});
 
 const FAQ_ITEMS = [
   {

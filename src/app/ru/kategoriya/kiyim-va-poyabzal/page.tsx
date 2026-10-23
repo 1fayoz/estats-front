@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Shirt, TrendingUp, Users, Check } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Аналитика Ниши Одежда и Обувь на Uzum Market — Продажи и Сезонные Тренды | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Ниша Одежда и Обувь на Uzum Market — Аналитика",
   description:
-    "Анализ категории одежды, обуви и текстиля на маркетплейсах Узбекистана: средний чек, процент возвратов, популярные размеры, сезонные пики и расчет маржинальности.",
+    "Анализ одежды, обуви и текстиля на маркетплейсах Узбекистана: средний чек, процент возвратов, популярные размеры, сезонные пики и маржа.",
+  path: "/ru/kategoriya/kiyim-va-poyabzal",
   keywords: [
     "аналитика одежды uzum market",
     "продажи обуви uzum",
@@ -15,19 +17,9 @@ export const metadata: Metadata = {
     "сезонные тренды одежды узбекистан",
     "рынок текстиля узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/kategoriya/kiyim-va-poyabzal",
-    languages: {
-      uz: "/kategoriya/kiyim-va-poyabzal",
-      ru: "/ru/kategoriya/kiyim-va-poyabzal",
-    },
-  },
-  openGraph: {
-    title: "Аналитика Одежды и Обуви — Uzum Market | eStats",
-    description: "Как зарабатывать в нише одежды с учетом процента возвратов?",
-    url: "https://estats.uz/ru/kategoriya/kiyim-va-poyabzal",
-  },
-};
+  ogTitle: "Аналитика Одежды и Обуви — Uzum Market | eStats",
+  ogDescription: "Как зарабатывать в нише одежды с учетом процента возвратов?",
+});
 
 const FAQ_ITEMS = [
   {

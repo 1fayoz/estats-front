@@ -7,11 +7,13 @@ import { ProductsSection } from "@/features/landing/components/products-section"
 import { PricingSection } from "@/features/landing/components/pricing-section";
 import { FaqSection } from "@/features/landing/components/faq-section";
 import { CtaSection } from "@/features/landing/components/cta-section";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "eStats — Multi-Marketplace Analytics & Inventory Software in Uzbekistan",
+export const metadata: Metadata = buildMetadata({
+  title: "eStats — Marketplace Analytics for Uzum Market",
   description:
-    "Unified operating platform for sellers on Uzum Market, Wildberries, Yandex Market, and Ozon. Real-time FIFO unit economics, FBO/FBS cloud stock control, AI listing SEO, and niche analytics.",
+    "One platform for Uzum Market, Wildberries, Yandex Market and Ozon sellers: FIFO unit economics, FBO/FBS stock control, AI listing SEO and niche analytics.",
+  path: "/en",
   keywords: [
     "marketplace analytics uzbekistan",
     "uzum market analytics",
@@ -24,24 +26,10 @@ export const metadata: Metadata = {
     "wildberries uzbekistan software",
     "yandex market uzbekistan seller",
   ],
-  alternates: {
-    canonical: "/en",
-    languages: {
-      uz: "/",
-      ru: "/ru",
-      en: "/en",
-      "x-default": "/",
-    },
-  },
-  openGraph: {
-    title: "eStats — Multi-Marketplace Analytics & Operations Software",
-    description:
-      "Manage Uzum, Wildberries, Yandex Market, and Ozon stores in one single dashboard with FIFO profit calculations.",
-    url: "https://estats.uz/en",
-    locale: "en_US",
-    type: "website",
-  },
-};
+  ogTitle: "eStats — Multi-Marketplace Analytics & Operations Software",
+  ogDescription: "Manage Uzum, Wildberries, Yandex Market, and Ozon stores in one single dashboard with FIFO profit calculations.",
+  absoluteTitle: true,
+});
 
 export default function EnglishHomePage() {
   return (

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ZoomSelling Alternative — eStats | Multi-Marketplace Analytics & ERP",
+export const metadata: Metadata = buildMetadata({
+  title: "ZoomSelling Alternative — Marketplace Analytics & ERP",
   description:
-    "Looking for a better ZoomSelling alternative in Uzbekistan? eStats delivers true FIFO costing, full warehouse inventory control, multi-marketplace sync (WB, Yandex, Ozon), and AI listing optimization.",
+    "Looking for a ZoomSelling alternative in Uzbekistan? eStats delivers FIFO costing, warehouse control, multi-marketplace sync and AI listing optimization.",
+  path: "/en/alternatives/zoomselling",
   keywords: [
     "zoomselling alternative",
     "zoomselling uzum market",
@@ -14,22 +16,9 @@ export const metadata: Metadata = {
     "estats vs zoomselling",
     "uzum seller analytics software",
   ],
-  alternates: {
-    canonical: "/en/alternatives/zoomselling",
-    languages: {
-      uz: "/muqobil/zoomselling",
-      ru: "/ru/muqobil/zoomselling",
-      en: "/en/alternatives/zoomselling",
-      "x-default": "/muqobil/zoomselling",
-    },
-  },
-  openGraph: {
-    title: "ZoomSelling Alternative in Central Asia — eStats",
-    description: "Compare ZoomSelling with eStats: multi-marketplace, FIFO costing, and cloud WMS.",
-    url: "https://estats.uz/en/alternatives/zoomselling",
-    locale: "en_US",
-  },
-};
+  ogTitle: "ZoomSelling Alternative in Central Asia — eStats",
+  ogDescription: "Compare ZoomSelling with eStats: multi-marketplace, FIFO costing, and cloud WMS.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Check, Percent, Sparkles, Tag } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { DiscountPricingCalculator } from "@/features/calculators/discount-pricing-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Chegirma va Narx Qo'yish Kalkulyatori — Uzum Marketda Narx Belgilash Strategiyasi | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Chegirma va Narx Kalkulyatori — Uzum Market",
   description:
-    "Uzum Marketda tovaringizga qancha chegirma ko'rsatishdan qat'i nazar, mo'ljallangan sof foydada qolish uchun asl narx (chizilgan narx) va haqiqiy sotuv narxini bepul hisoblang.",
+    "Uzum Marketda chegirmadan keyin ham mo'ljallangan sof foydada qolish uchun asl (chizilgan) narx va haqiqiy sotuv narxini bepul hisoblang.",
+  path: "/kalkulyator/chegirma-narx",
   keywords: [
     "chegirma kalkulyatori uzum",
     "narx qoyish kalkulyatori",
@@ -17,13 +19,9 @@ export const metadata: Metadata = {
     "uzumda tovar narxi qoyish",
     "marketpleys narx strategiyasi",
   ],
-  alternates: { canonical: "/kalkulyator/chegirma-narx" },
-  openGraph: {
-    title: "Chegirma va Narx Belgilash Kalkulyatori — eStats Bepul Vosita",
-    description: "Katta chegirma e'lon qilib ham doim sof foydada qoling.",
-    url: "https://estats.uz/kalkulyator/chegirma-narx",
-  },
-};
+  ogTitle: "Chegirma va Narx Belgilash Kalkulyatori — eStats Bepul Vosita",
+  ogDescription: "Katta chegirma e'lon qilib ham doim sof foydada qoling.",
+});
 
 const FAQ_ITEMS = [
   {

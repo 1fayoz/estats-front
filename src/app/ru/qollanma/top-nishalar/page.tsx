@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Compass, TrendingUp, CheckCircle2 } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Как найти прибыльную нишу на Uzum Market в 2026 году | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Как найти прибыльную нишу на Uzum Market",
   description:
     "Методика поиска свободных ниш с низкой конкуренцией и высоким спросом на Uzum Market: анализ объемов продаж, проверка монополизации и расчет юнит-экономики.",
+  path: "/ru/qollanma/top-nishalar",
   keywords: [
     "прибыльные ниши uzum market",
     "что продавать на uzum 2026",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "аналитика конкурентов uzum",
     "товары с высоким спросом узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/qollanma/top-nishalar",
-    languages: {
-      uz: "/qollanma/top-nishalar",
-      ru: "/ru/qollanma/top-nishalar",
-    },
-  },
-  openGraph: {
-    title: "Как найти прибыльную нишу на Uzum Market — eStats",
-    description: "Формула выбора товара с гарантированным спросом и маржой от 30%.",
-    url: "https://estats.uz/ru/qollanma/top-nishalar",
-  },
-};
+  ogTitle: "Как найти прибыльную нишу на Uzum Market — eStats",
+  ogDescription: "Формула выбора товара с гарантированным спросом и маржой от 30%.",
+});
 
 const CRITERIA = [
   {

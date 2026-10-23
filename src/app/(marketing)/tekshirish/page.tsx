@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Bot, Check, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { PublicProductScanner } from "@/features/scanner/public-product-scanner";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Tovarini Tekshirish — Havola Orqali Sotuvlar va Qoldiqlarni Bepul Aniqlash | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Tovarini Tekshirish — Sotuv va Qoldiq",
   description:
-    "Istalgan Uzum Market tovar havolasini (linkini) yoki ID sini kiriting. Tovarning taxminiy oylik savdosi, aylanmasi, narx reytingi va SEO auditini onlayn bepul ko'ring.",
+    "Uzum Market tovar havolasi yoki ID sini kiriting: taxminiy oylik savdo, aylanma, narx reytingi va SEO auditini onlayn bepul ko'ring.",
+  path: "/tekshirish",
   keywords: [
     "uzum tovar tekshirish",
     "uzum tovar sotuvini korish",
@@ -17,13 +19,9 @@ export const metadata: Metadata = {
     "uzum tovar skaner",
     "bepul tovar tahlili",
   ],
-  alternates: { canonical: "/tekshirish" },
-  openGraph: {
-    title: "Uzum Tovarini Tekshirish — eStats Tezkor Skaner",
-    description: "Uzum tovar havolasini kiriting va uning barcha sirlarini bilib oling.",
-    url: "https://estats.uz/tekshirish",
-  },
-};
+  ogTitle: "Uzum Tovarini Tekshirish — eStats Tezkor Skaner",
+  ogDescription: "Uzum tovar havolasini kiriting va uning barcha sirlarini bilib oling.",
+});
 
 const FAQ_ITEMS = [
   {

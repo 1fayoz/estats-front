@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { ChinaCargoCalculator } from "@/features/calculators/china-cargo-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Xitoy (1688 / Taobao / Kargo) Tan Narxi Kalkulyatori | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Xitoy Kargo Tan Narxi Kalkulyatori (1688, Taobao)",
   description:
-    "1688 va Taobao tovarlarining kargo, yuan kursi, dostavka va qadoqlash xarajatlarini onlayn hisoblang. Toshkentgacha 1 dona tovar sof tan narxi va Uzum Marketda tavsiya sotuv narxi.",
+    "1688 va Taobao tovarlarining kargo, yuan kursi, dostavka va qadoqlash xarajatlarini hisoblang: Toshkentgacha 1 dona tan narxi va tavsiya narx.",
+  path: "/kalkulyator/kargo",
   keywords: [
     "xitoy kargo kalkulyator",
     "1688 tovar tan narxi",
@@ -15,19 +17,9 @@ export const metadata: Metadata = {
     "kargo kg narxi xitoy",
     "xitoydan tovar olib kelish xarajatlari",
   ],
-  alternates: {
-    canonical: "/kalkulyator/kargo",
-    languages: {
-      uz: "/kalkulyator/kargo",
-      ru: "/ru/kalkulyator/kargo",
-    },
-  },
-  openGraph: {
-    title: "Xitoy (1688 / Taobao / Kargo) Tan Narxi Kalkulyatori — eStats",
-    description: "1688 dan tovar keltirishda yuan kursi, kargo va qadoqni hisoblab 1 dona sof tan narxni chiqaring.",
-    url: "https://estats.uz/kalkulyator/kargo",
-  },
-};
+  ogTitle: "Xitoy (1688 / Taobao / Kargo) Tan Narxi Kalkulyatori — eStats",
+  ogDescription: "1688 dan tovar keltirishda yuan kursi, kargo va qadoqni hisoblab 1 dona sof tan narxni chiqaring.",
+});
 
 const FAQ_ITEMS = [
   {

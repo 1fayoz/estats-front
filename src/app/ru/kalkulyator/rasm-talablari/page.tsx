@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { ImageSpecsCalculator } from "@/features/calculators/image-specs-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Требования к Размерам Фото и Инфографики Uzum Market и Wildberries | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Требования к Фото Uzum Market и Wildberries",
   description:
-    "Онлайн проверка параметров фото для маркетплейсов Uzum Market, Wildberries и Ozon: пропорции 3:4, минимальное разрешение 1080x1440, белый фон и правила модерации.",
+    "Проверка фото для Uzum Market, Wildberries и Ozon: пропорции 3:4, минимальное разрешение 1080x1440, белый фон и правила модерации.",
+  path: "/ru/kalkulyator/rasm-talablari",
   keywords: [
     "размеры фото uzum market",
     "пропорция фото 3 4 вайлдберриз",
@@ -13,20 +15,9 @@ export const metadata: Metadata = {
     "разрешение 1200х1600 маркетплейс",
     "модерация фото карточки товара",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/rasm-talablari",
-    languages: {
-      uz: "/kalkulyator/rasm-talablari",
-      ru: "/ru/kalkulyator/rasm-talablari",
-    },
-  },
-  openGraph: {
-    title: "Проверка Размеров Фото и Инфографики Маркетплейсов — eStats",
-    description: "Проверьте пропорцию 3:4 и разрешение фото для 100% прохождения модерации.",
-    url: "https://estats.uz/ru/kalkulyator/rasm-talablari",
-    images: ["https://estats.uz/api/og?title=Размеры+Фото+и+Инфографики+Uzum&badge=eStats+Инструменты"],
-  },
-};
+  ogTitle: "Проверка Размеров Фото и Инфографики Маркетплейсов — eStats",
+  ogDescription: "Проверьте пропорцию 3:4 и разрешение фото для 100% прохождения модерации.",
+});
 
 const FAQ_ITEMS = [
   {

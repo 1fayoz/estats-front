@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Boxes, Check, Clock, ShieldAlert } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
 import { InventoryReorderCalculator } from "@/features/calculators/inventory-reorder-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Калькулятор Складских Остатков и Точки Заказа (ROP) — Защита от Out of Stock | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Калькулятор Остатков и Точки Заказа (ROP)",
   description:
-    "Онлайн расчет оптимальной даты закупа и страхового запаса (Safety Stock) для селлеров Uzum Market и Wildberries. Предотвратите обнуление остатков и падение карточки в поиске.",
+    "Расчет даты закупа и страхового запаса (Safety Stock) для Uzum Market и Wildberries: без обнуления остатков и падения карточки в поиске.",
+  path: "/ru/kalkulyator/ombor-zaxirasi",
   keywords: [
     "калькулятор остатков склад",
     "точка перезаказа rop формула",
@@ -16,19 +18,9 @@ export const metadata: Metadata = {
     "расчет запасов wildberries",
     "оборачиваемость склада узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/ombor-zaxirasi",
-    languages: {
-      uz: "/kalkulyator/ombor-zaxirasi",
-      ru: "/ru/kalkulyator/ombor-zaxirasi",
-    },
-  },
-  openGraph: {
-    title: "Калькулятор Складских Остатков и Точки Перезаказа (ROP)",
-    description: "Точный расчет даты заказа товаров для селлеров маркетплейсов.",
-    url: "https://estats.uz/ru/kalkulyator/ombor-zaxirasi",
-  },
-};
+  ogTitle: "Калькулятор Складских Остатков и Точки Перезаказа (ROP)",
+  ogDescription: "Точный расчет даты заказа товаров для селлеров маркетплейсов.",
+});
 
 const FAQ_ITEMS = [
   {

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Calculator, Check, DollarSign, LineChart, PieChart, ShieldCheck } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleys Moliya va Kirim-Chiqim Dasturi — Tan Narx (FIFO) va Sof Foyda | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Moliya Dasturi — FIFO Tan Narx va Foyda",
   description:
-    "Uzum Market, Yandex Market, Wildberries va Ozon uchun professional moliya va kirim-chiqim dasturi. FIFO bo'yicha tan narx, komissiya, logistika, marja, ROI va P&L hisoboti.",
+    "Uzum, Yandex Market, Wildberries va Ozon uchun moliya va kirim-chiqim dasturi: FIFO tan narx, komissiya, logistika, marja, ROI va P&L hisoboti.",
+  path: "/yechimlar/moliya",
   keywords: [
     "marketpleys moliya dasturi",
     "tan narx hisoblash",
@@ -18,14 +20,9 @@ export const metadata: Metadata = {
     "roi marja hisoblagich",
     "savdo moliyasi",
   ],
-  alternates: { canonical: "/yechimlar/moliya" },
-  openGraph: {
-    title: "Marketpleys Moliya va Kirim-Chiqim Dasturi — Haqiqiy sof foydangizni biling",
-    description:
-      "Komissiya, logistika va FIFO tan narxi hisobga olingan holda har bir so'm daromad va sof foyda hisobi.",
-    url: "https://estats.uz/yechimlar/moliya",
-  },
-};
+  ogTitle: "Marketpleys Moliya va Kirim-Chiqim Dasturi — Haqiqiy sof foydangizni biling",
+  ogDescription: "Komissiya, logistika va FIFO tan narxi hisobga olingan holda har bir so'm daromad va sof foyda hisobi.",
+});
 
 const FAQ_ITEMS = [
   {

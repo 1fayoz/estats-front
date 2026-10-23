@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { AbcAnalysisCalculator } from "@/features/calculators/abc-analysis-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ABC Tahlil Kalkulyatori (Pareto 80/20 Qoidasi) — Tovar Portfeli Auditi | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "ABC Tahlil Kalkulyatori (Pareto 80/20)",
   description:
-    "Uzum Market va marketpleys tovarlaringizni A (80% tushum), B (15%) va C (5%) guruhlarga onlayn ajrating. Asosiy daromad keltiruvchi tovarlar va o'lik zaxirani aniqlang.",
+    "Tovarlaringizni A (80% tushum), B (15%) va C (5%) guruhlarga onlayn ajrating. Asosiy daromad keltiruvchi tovarlar va o'lik zaxirani aniqlang.",
+  path: "/kalkulyator/abc-tahlil",
   keywords: [
     "abc tahlil kalkulyator",
     "pareto qoidasi marketpleys",
@@ -14,21 +16,9 @@ export const metadata: Metadata = {
     "ombor zaxirasi abc tahlil",
     "eng kop sotiladigan tovarlarni aniqlash",
   ],
-  alternates: {
-    canonical: "/kalkulyator/abc-tahlil",
-    languages: {
-      uz: "/kalkulyator/abc-tahlil",
-      ru: "/ru/kalkulyator/abc-tahlil",
-      en: "/en/tools/abc-analysis",
-    },
-  },
-  openGraph: {
-    title: "ABC Tovar Portfeli va Savdo Tahlili Kalkulyatori — eStats",
-    description: "Tovar matritsangizni Pareto 80/20 qoidasi bo'yicha tahlil qiling va daromadni oshiring.",
-    url: "https://estats.uz/kalkulyator/abc-tahlil",
-    images: ["https://estats.uz/api/og?title=ABC+Tovar+Tahlili+Kalkulyatori&badge=eStats+Tools"],
-  },
-};
+  ogTitle: "ABC Tovar Portfeli va Savdo Tahlili Kalkulyatori — eStats",
+  ogDescription: "Tovar matritsangizni Pareto 80/20 qoidasi bo'yicha tahlil qiling va daromadni oshiring.",
+});
 
 const FAQ_ITEMS = [
   {

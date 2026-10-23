@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Check, FileText, Rocket, ShieldCheck, Sparkles } from "lucide-react";
 import { BreadcrumbSchema, HowToSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "How to Sell on Uzum Market in 2026: Complete Seller Guide | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "How to Sell on Uzum Market in 2026: Seller Guide",
   description:
-    "Comprehensive step-by-step tutorial on starting a business on Uzum Market in Uzbekistan: business registration, contracts, barcode labeling, product listings, and first warehouse delivery.",
+    "Step-by-step guide to starting on Uzum Market in Uzbekistan: business registration, contracts, barcodes, product listings and first warehouse delivery.",
+  path: "/en/guides/how-to-sell-on-uzum-market",
   keywords: [
     "how to sell on uzum market",
     "uzum market seller onboarding",
@@ -14,21 +16,9 @@ export const metadata: Metadata = {
     "uzum market fees and requirements",
     "fbo delivery uzum fulfillment",
   ],
-  alternates: {
-    canonical: "/en/guides/how-to-sell-on-uzum-market",
-    languages: {
-      uz: "/qollanma/uzumda-dokon-ochish",
-      ru: "/ru/qollanma/uzumda-dokon-ochish",
-      en: "/en/guides/how-to-sell-on-uzum-market",
-    },
-  },
-  openGraph: {
-    title: "How to Start Selling on Uzum Market (2026 Seller Guide) — eStats",
-    description: "Launch your marketplace store in Uzbekistan with this comprehensive walkthrough.",
-    url: "https://estats.uz/en/guides/how-to-sell-on-uzum-market",
-    images: ["https://estats.uz/api/og?title=How+to+Sell+on+Uzum+Market+2026&badge=eStats+Guide"],
-  },
-};
+  ogTitle: "How to Start Selling on Uzum Market (2026 Seller Guide) — eStats",
+  ogDescription: "Launch your marketplace store in Uzbekistan with this comprehensive walkthrough.",
+});
 
 export default function EnOpenShopGuidePage() {
   return (

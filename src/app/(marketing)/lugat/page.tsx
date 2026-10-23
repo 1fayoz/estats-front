@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Check, Search, Sparkles } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleys Atamalari Lug'ati (Glossary) — FIFO, DRR, FBO, FBS, ROI, SKU | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Atamalari Lug'ati — FIFO, DRR, FBO",
   description:
-    "Marketpleys sotuvchilari uchun to'liq atamalar lug'ati. FIFO, FBO, FBS, DRR, ACoS, ROAS, SKU, Out of Stock, Rich Content, Unit Economics atamalarining oddiy tildagi tushuntirishi.",
+    "Marketpleys sotuvchilari uchun atamalar lug'ati: FIFO, FBO, FBS, DRR, ACoS, ROAS, SKU, Out of Stock, Rich Content — oddiy tilda tushuntirish.",
+  path: "/lugat",
   keywords: [
     "marketpleys lug'at",
     "fifo nima",
@@ -19,13 +21,9 @@ export const metadata: Metadata = {
     "marja va roi farqi",
     "uzum atamalari",
   ],
-  alternates: { canonical: "/lugat" },
-  openGraph: {
-    title: "Marketpleys Atamalari Lug'ati — eStats Boshlang'ich va Professional Qo'llanma",
-    description: "Elektron tijorat va marketpleys terminlarining to'liq ensiklopediyasi.",
-    url: "https://estats.uz/lugat",
-  },
-};
+  ogTitle: "Marketpleys Atamalari Lug'ati — eStats Boshlang'ich va Professional Qo'llanma",
+  ogDescription: "Elektron tijorat va marketpleys terminlarining to'liq ensiklopediyasi.",
+});
 
 const GLOSSARY_TERMS = [
   {

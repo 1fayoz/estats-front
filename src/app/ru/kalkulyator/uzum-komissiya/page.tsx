@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowRight, Calculator, Check, HelpCircle } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
 import { UzumCommissionCalculator } from "@/features/calculators/uzum-commission-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Калькулятор Комиссии Uzum Market (2026) — Расчет Чистой Прибыли Онлайн | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Калькулятор Комиссии Uzum Market (2026)",
   description:
     "Бесплатный онлайн калькулятор комиссии и тарифов Uzum Market. Расчет логистики FBO, себестоимости партии и чистой прибыли по актуальным ставкам для селлеров.",
+  path: "/ru/kalkulyator/uzum-komissiya",
   keywords: [
     "калькулятор комиссии uzum market",
     "комиссия узум маркет 2026",
@@ -17,22 +19,9 @@ export const metadata: Metadata = {
     "калькулятор селлера узбекистан",
     "чистая прибыль uzum market",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/uzum-komissiya",
-    languages: {
-      uz: "/kalkulyator/uzum-komissiya",
-      ru: "/ru/kalkulyator/uzum-komissiya",
-      en: "/en/tools/commission-calculator",
-      "x-default": "/kalkulyator/uzum-komissiya",
-    },
-  },
-  openGraph: {
-    title: "Калькулятор Комиссии и Прибыли Uzum Market — eStats",
-    description: "Рассчитайте комиссию маркетплейса, логистику и чистую прибыль до запуска продаж.",
-    url: "https://estats.uz/ru/kalkulyator/uzum-komissiya",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Калькулятор Комиссии и Прибыли Uzum Market — eStats",
+  ogDescription: "Рассчитайте комиссию маркетплейса, логистику и чистую прибыль до запуска продаж.",
+});
 
 const FAQ_ITEMS = [
   {

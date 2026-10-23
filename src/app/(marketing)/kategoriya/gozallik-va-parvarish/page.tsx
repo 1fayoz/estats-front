@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Flame, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Go'zallik va Parvarish Tahlili — Kosmetika, Parfyumeriya va Top Brendlar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Go'zallik va Parvarish Tahlili",
   description:
-    "Uzum Market'dagi go'zallik, kosmetika va shaxsiy parvarish toifasi tahlili: yuqori takroriy xaridlar (LTV), eng ko'p sotilayotgan kremlar, zardoblar (serum), parfyumeriya va bo'sh nishalar.",
+    "Uzum Market go'zallik va parvarish tahlili: takroriy xaridlar (LTV), top kremlar, zardoblar, parfyumeriya va bo'sh nishalar.",
+  path: "/kategoriya/gozallik-va-parvarish",
   keywords: [
     "uzum kosmetika tahlili",
     "gozallik tovarlari sotuvlari uzum",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "eng kop sotiladigan kremlar",
     "kosmetika marjasi",
   ],
-  alternates: { canonical: "/kategoriya/gozallik-va-parvarish" },
-  openGraph: {
-    title: "Go'zallik va Parvarish Bozor Tahlili — Uzum Market | eStats",
-    description: "Kosmetika toifasidagi eng talabgir tovarlar va raqobat darajasi.",
-    url: "https://estats.uz/kategoriya/gozallik-va-parvarish",
-  },
-};
+  ogTitle: "Go'zallik va Parvarish Bozor Tahlili — Uzum Market | eStats",
+  ogDescription: "Kosmetika toifasidagi eng talabgir tovarlar va raqobat darajasi.",
+});
 
 const FAQ_ITEMS = [
   {

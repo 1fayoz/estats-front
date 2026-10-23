@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Flame, HelpCircle, Lightbulb, Rocket, ShieldCheck, Sparkles } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleys Sotuvchilari Uchun Qo'llanmalar va Yo'riqnomalar | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleys Sotuvchilari Uchun Qo'llanmalar",
   description:
-    "Uzum Market, Yandex Market va Wildberries'da muvaffaqiyatli savdo qilish bo'yicha bosqichma-bosqich qo'llanmalar, do'kon ochish, tovar kartochkasini SEO optimallashtirish va reklama sozlash yo'riqnomalari.",
+    "Uzum Market, Yandex Market va Wildberries'da savdo bo'yicha qo'llanmalar: do'kon ochish, kartochka SEO optimallashtirish va reklama sozlash.",
+  path: "/qollanma",
   keywords: [
     "uzumda dokon ochish qollanma",
     "marketpleys qollanma",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "boost top qollanma",
     "uzumda savdo qilish sirlari",
   ],
-  alternates: { canonical: "/qollanma" },
-  openGraph: {
-    title: "Marketpleys Sotuvchilari Uchun Qo'llanmalar — eStats Bilimlar Bazasi",
-    description: "Noldan professional sotuvchigacha bo'lgan amaliy yo'riqnomalar to'plami.",
-    url: "https://estats.uz/qollanma",
-  },
-};
+  ogTitle: "Marketpleys Sotuvchilari Uchun Qo'llanmalar — eStats Bilimlar Bazasi",
+  ogDescription: "Noldan professional sotuvchigacha bo'lgan amaliy yo'riqnomalar to'plami.",
+});
 
 const GUIDES = [
   {

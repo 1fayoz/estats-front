@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Maxfiylik siyosati — eStats",
-  description: "eStats qanday ma'lumot yig'adi, nima uchun va qanday saqlaydi.",
-};
+export const metadata: Metadata = buildMetadata({
+  title: "Maxfiylik siyosati",
+  description:
+    "eStats qanday ma'lumot yig'adi, nima uchun va qanday saqlaydi.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

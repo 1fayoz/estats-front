@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Rocket, ShieldCheck } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema, HowToSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Как открыть магазин на Uzum Market в 2026 году: Пошаговая Инструкция | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Как открыть магазин на Uzum Market в 2026 году",
   description:
-    "Полное практическое руководство: как зарегистрироваться селлером на Uzum Market, открыть ИП или ООО в Узбекистане, загрузить карточки, распечатать штрихкоды и сделать первую отгрузку.",
+    "Как стать селлером Uzum Market: регистрация ИП или ООО в Узбекистане, загрузка карточек, печать штрихкодов и первая отгрузка.",
+  path: "/ru/qollanma/uzumda-dokon-ochish",
   keywords: [
     "как открыть магазин на uzum market",
     "регистрация селлера uzum 2026",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "стать продавцом uzum uz",
     "пошаговая инструкция uzum",
   ],
-  alternates: {
-    canonical: "/ru/qollanma/uzumda-dokon-ochish",
-    languages: {
-      uz: "/qollanma/uzumda-dokon-ochish",
-      ru: "/ru/qollanma/uzumda-dokon-ochish",
-    },
-  },
-  openGraph: {
-    title: "Как открыть магазин на Uzum Market в 2026 году — eStats",
-    description: "Пошаговый гайд от юридической регистрации до первых продаж.",
-    url: "https://estats.uz/ru/qollanma/uzumda-dokon-ochish",
-  },
-};
+  ogTitle: "Как открыть магазин на Uzum Market в 2026 году — eStats",
+  ogDescription: "Пошаговый гайд от юридической регистрации до первых продаж.",
+});
 
 const STEPS = [
   {

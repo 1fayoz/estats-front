@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, CheckCircle2, ShieldCheck, Sparkles, X, Zap } from "lucide-react";
 import { BreadcrumbSchema, FAQSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Облачный Складской Учет вместо 1С и МойСклад для Маркетплейсов | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Замена 1С и МойСклад для Маркетплейсов",
   description:
-    "Ищете удобную замену 1С и МойСклад в Узбекистане? eStats — легкая облачная система учета для продавцов маркетплейсов: партионный учет себестоимости по FIFO, синхронизация FBO/FBS, штрихкоды и PnL.",
+    "Замена 1С и МойСклад в Узбекистане: облачный учет для маркетплейсов — себестоимость партий по FIFO, синхронизация FBO/FBS, штрихкоды и PnL.",
+  path: "/ru/muqobil/1c",
   keywords: [
     "1с склад узбекистан",
     "мой склад узбекистан",
@@ -16,22 +18,9 @@ export const metadata: Metadata = {
     "себестоимость партий fifo",
     "облачный склад ташкент",
   ],
-  alternates: {
-    canonical: "/ru/muqobil/1c",
-    languages: {
-      uz: "/muqobil/1c",
-      ru: "/ru/muqobil/1c",
-      en: "/en/solutions/inventory-management",
-      "x-default": "/muqobil/1c",
-    },
-  },
-  openGraph: {
-    title: "eStats вместо 1С и МойСклад — Облачный Учет для Маркетплейсов",
-    description: "Простой, быстрый и доступный учет товаров и финансов без тяжелой 1С.",
-    url: "https://estats.uz/ru/muqobil/1c",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "eStats вместо 1С и МойСклад — Облачный Учет для Маркетплейсов",
+  ogDescription: "Простой, быстрый и доступный учет товаров и финансов без тяжелой 1С.",
+});
 
 const FAQ_ITEMS = [
   {

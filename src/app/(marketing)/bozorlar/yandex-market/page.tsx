@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Compass, Layers, ShieldCheck, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Yandex Market O'zbekiston Analitika va Boshqaruv — Sellers Uchun | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Yandex Market O'zbekiston Analitika va Boshqaruv",
   description:
-    "Yandex Market Uzbekistan sotuvchilari uchun professional analitika: Toshkent va butun respublika bo'yicha savdo tushumi, komissiya, logistika, ombor qoldiqlari va sof foyda hisobi.",
+    "Yandex Market sotuvchilari uchun analitika: savdo tushumi, komissiya, logistika, ombor qoldiqlari va sof foyda hisobi — butun respublika bo'yicha.",
+  path: "/bozorlar/yandex-market",
   keywords: [
     "yandex market uzbekistan analitika",
     "yandex market sotuvchi uzbekistan",
@@ -14,13 +16,9 @@ export const metadata: Metadata = {
     "yandex market ombor hisobi",
     "yandex market toshkent",
   ],
-  alternates: { canonical: "/bozorlar/yandex-market" },
-  openGraph: {
-    title: "Yandex Market O'zbekiston Analitika Tizimi — eStats",
-    description: "Yandex Market'dagi savdolaringizni Uzum bilan birga bitta joyda boshqaring.",
-    url: "https://estats.uz/bozorlar/yandex-market",
-  },
-};
+  ogTitle: "Yandex Market O'zbekiston Analitika Tizimi — eStats",
+  ogDescription: "Yandex Market'dagi savdolaringizni Uzum bilan birga bitta joyda boshqaring.",
+});
 
 const FAQ_ITEMS = [
   {

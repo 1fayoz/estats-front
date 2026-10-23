@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Database, Layers, ShieldCheck, Zap } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "1C va MoySklad Muqobili — Marketpleyslar Uchun Zamonaviy Bulutli Ombor va Moliya | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "1C va MoySklad Muqobili — Marketpleys Ombori",
   description:
-    "1C va MoySklad o'rniga yengil, tezkor va arzon muqobil. Qimmat dasturchilarsiz, serverlarsiz Uzum, Yandex, WB va Ozon hisobini yuritish. Partiyalar, FIFO tan narx, qoldiqlar va P&L.",
+    "1C va MoySklad o'rniga yengil va arzon muqobil: dasturchi va serversiz Uzum, Yandex, WB, Ozon hisobi. Partiyalar, FIFO tan narx, qoldiqlar va P&L.",
+  path: "/muqobil/1c",
   keywords: [
     "1c muqobili",
     "1c uzum market",
@@ -17,13 +19,9 @@ export const metadata: Metadata = {
     "bulutli ombor dasturi",
     "sklad dasturi uzbekistan",
   ],
-  alternates: { canonical: "/muqobil/1c" },
-  openGraph: {
-    title: "1C va MoySklad Muqobili — eStats Bulutli Ombor Platformasi",
-    description: "Nega zamonaviy marketpleys sotuvchilari og'ir 1C tizimidan eStats'ga o'tishmoqda?",
-    url: "https://estats.uz/muqobil/1c",
-  },
-};
+  ogTitle: "1C va MoySklad Muqobili — eStats Bulutli Ombor Platformasi",
+  ogDescription: "Nega zamonaviy marketpleys sotuvchilari og'ir 1C tizimidan eStats'ga o'tishmoqda?",
+});
 
 const FAQ_ITEMS = [
   {

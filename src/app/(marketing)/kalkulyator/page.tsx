@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { CalculatorsHub } from "@/features/calculators/calculators-hub";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Marketpleyslar Uchun Bepul Onlayn Kalkulyatorlar (2026) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Marketpleyslar Uchun Bepul Kalkulyatorlar (2026)",
   description:
-    "Uzum Market, Wildberries va Ozon sotuvchilari uchun 12+ ta bepul professional kalkulyator: Xitoy kargo, soliq, FBO akt, shtrix-kod, komissiya, unit iqtisodiyoti va ABC tahlili.",
+    "Uzum Market, Wildberries va Ozon sotuvchilari uchun 12+ bepul kalkulyator: kargo, soliq, FBO akt, shtrix-kod, komissiya, unit iqtisodiyot va ABC.",
+  path: "/kalkulyator",
   keywords: [
     "uzum kalkulyatorlar",
     "marketpleys kalkulyatorlari bepul",
@@ -16,21 +18,9 @@ export const metadata: Metadata = {
     "fbo akt yaratish",
     "abc tahlil kalkulyator",
   ],
-  alternates: {
-    canonical: "/kalkulyator",
-    languages: {
-      uz: "/kalkulyator",
-      ru: "/ru/kalkulyator",
-      en: "/en/tools",
-    },
-  },
-  openGraph: {
-    title: "Marketpleyslar Uchun Bepul Onlayn Kalkulyatorlar — eStats",
-    description: "12+ bepul onlayn vositalar: tan narx, komissiya, soliq, kargo va ombor hisoblari.",
-    url: "https://estats.uz/kalkulyator",
-    images: ["https://estats.uz/api/og?title=Bepul+Marketpleys+Kalkulyatorlari&badge=eStats+Tools+Hub"],
-  },
-};
+  ogTitle: "Marketpleyslar Uchun Bepul Onlayn Kalkulyatorlar — eStats",
+  ogDescription: "12+ bepul onlayn vositalar: tan narx, komissiya, soliq, kargo va ombor hisoblari.",
+});
 
 const FAQ_ITEMS = [
   {

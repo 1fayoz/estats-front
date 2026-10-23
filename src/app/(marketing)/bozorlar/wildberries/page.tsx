@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Globe, Layers, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Wildberries O'zbekiston Analitika va Ombor Boshqaruvi — WB Sellers Uchun | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Wildberries O'zbekiston — Analitika va Ombor",
   description:
-    "Wildberries Uzbekistan sotuvchilari uchun to'liq analitika va ERP: O'zbekistondan WB omboriga jo'natish, valyuta va so'mdagi sof foyda, komissiyalar, FIFO tan narx va avtomatlashtirish.",
+    "Wildberries sotuvchilari uchun analitika va ERP: WB omboriga jo'natish, so'mdagi sof foyda, komissiyalar, FIFO tan narx va avtomatlashtirish.",
+  path: "/bozorlar/wildberries",
   keywords: [
     "wildberries uzbekistan analitika",
     "wb uzbekistan sklad dasturi",
@@ -15,13 +17,9 @@ export const metadata: Metadata = {
     "wildberries fbs uzbekistan",
     "wb seller uzbekistan",
   ],
-  alternates: { canonical: "/bozorlar/wildberries" },
-  openGraph: {
-    title: "Wildberries O'zbekiston Analitika Platformasi — eStats",
-    description: "Wildberries'da savdo qiluvchi O'zbekistonlik tadbirkorlar uchun maxsus yechim.",
-    url: "https://estats.uz/bozorlar/wildberries",
-  },
-};
+  ogTitle: "Wildberries O'zbekiston Analitika Platformasi — eStats",
+  ogDescription: "Wildberries'da savdo qiluvchi O'zbekistonlik tadbirkorlar uchun maxsus yechim.",
+});
 
 const FAQ_ITEMS = [
   {

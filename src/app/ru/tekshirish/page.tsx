@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { PublicProductScanner } from "@/features/scanner/public-product-scanner";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Сканер Товаров Uzum Market — Проверка Продаж и Выручки Онлайн | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Сканер Товаров Uzum Market — Проверка Продаж",
   description:
     "Бесплатная проверка любого товара на Uzum Market по ссылке или ID: оценка ежемесячных продаж, выручки, конкурентоспособности цены и аудит SEO карточки товара.",
+  path: "/ru/tekshirish",
   keywords: [
     "сканер uzum market",
     "проверка товара uzum",
@@ -14,22 +16,9 @@ export const metadata: Metadata = {
     "статистика продаж узбекистан",
     "аналитика карточки товара uzum",
   ],
-  alternates: {
-    canonical: "/ru/tekshirish",
-    languages: {
-      uz: "/tekshirish",
-      ru: "/ru/tekshirish",
-      en: "/en/tools/product-checker",
-      "x-default": "/tekshirish",
-    },
-  },
-  openGraph: {
-    title: "Сканер Товаров Uzum Market — Онлайн Анализ Продаж",
-    description: "Проверьте продажи, выручку и качество SEO карточки любого товара на Uzum Market.",
-    url: "https://estats.uz/ru/tekshirish",
-    locale: "ru_RU",
-  },
-};
+  ogTitle: "Сканер Товаров Uzum Market — Онлайн Анализ Продаж",
+  ogDescription: "Проверьте продажи, выручку и качество SEO карточки любого товара на Uzum Market.",
+});
 
 export default function RussianScannerPage() {
   return (

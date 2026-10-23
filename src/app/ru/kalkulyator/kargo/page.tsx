@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { BreadcrumbSchema, FaqSchema, SoftwareApplicationSchema } from "@/components/seo/structured-data";
 import { ChinaCargoCalculator } from "@/features/calculators/china-cargo-calculator";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Калькулятор Карго и Себестоимости из Китая (1688 / Taobao) | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Калькулятор Карго из Китая (1688 / Taobao)",
   description:
     "Точный онлайн расчет себестоимости товаров из Китая под ключ: курс юаня, доставка карго за кг, страховка, упаковка и розничная цена на Uzum Market.",
+  path: "/ru/kalkulyator/kargo",
   keywords: [
     "калькулятор карго из китая",
     "себестоимость 1688 узбекистан",
@@ -14,19 +16,9 @@ export const metadata: Metadata = {
     "маржа uzum market товары из китая",
     "тарифы карго китай узбекистан",
   ],
-  alternates: {
-    canonical: "/ru/kalkulyator/kargo",
-    languages: {
-      uz: "/kalkulyator/kargo",
-      ru: "/ru/kalkulyator/kargo",
-    },
-  },
-  openGraph: {
-    title: "Калькулятор Себестоимости и Карго из Китая — eStats",
-    description: "Рассчитайте точную себестоимость единицы товара в Ташкенте с учетом карго и расходов.",
-    url: "https://estats.uz/ru/kalkulyator/kargo",
-  },
-};
+  ogTitle: "Калькулятор Себестоимости и Карго из Китая — eStats",
+  ogDescription: "Рассчитайте точную себестоимость единицы товара в Ташкенте с учетом карго и расходов.",
+});
 
 const FAQ_ITEMS = [
   {

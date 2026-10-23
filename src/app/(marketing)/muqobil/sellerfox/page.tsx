@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Compass, Sparkles, X } from "lucide-react";
 import { BreadcrumbSchema, FaqSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "SellerFox Muqobili — O'zbekiston va MDH Marketpleyslari Uchun Mukammal Yechim | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "SellerFox Muqobili — O'zbekiston Marketpleyslari",
   description:
-    "SellerFox o'rniga zamonaviy muqobil: Uzum Market, Yandex Market, Wildberries va Ozon tahlili. Narx segmentlari, nishalar, ombor (FIFO), haqiqiy marja va AI tovar kartochkalari.",
+    "SellerFox o'rniga zamonaviy muqobil: Uzum, Yandex, Wildberries va Ozon tahlili, narx segmentlari, nishalar, ombor (FIFO), marja va AI kartochkalar.",
+  path: "/muqobil/sellerfox",
   keywords: [
     "sellerfox muqobili",
     "sellerfox analog",
@@ -16,13 +18,9 @@ export const metadata: Metadata = {
     "wildberries ozon uzum tahlil",
     "raqobatchilar monitoringi",
   ],
-  alternates: { canonical: "/muqobil/sellerfox" },
-  openGraph: {
-    title: "SellerFox Muqobili — eStats Multi-Marketplace Platformasi",
-    description: "Nima uchun O'zbekiston sotuvchilari eStats'ni tanlaydi?",
-    url: "https://estats.uz/muqobil/sellerfox",
-  },
-};
+  ogTitle: "SellerFox Muqobili — eStats Multi-Marketplace Platformasi",
+  ogDescription: "Nima uchun O'zbekiston sotuvchilari eStats'ni tanlaydi?",
+});
 
 const FAQ_ITEMS = [
   {

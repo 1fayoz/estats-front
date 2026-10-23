@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Compass, Eye, Flame, TrendingUp } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Marketda Kam Raqobatli va Bo'sh Nishalarni Topish — 5 Ta Amaliy Qadam | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Marketda Bo'sh Nishalarni Topish — 5 Qadam",
   description:
     "Uzum Market'da qaysi tovarlarni sotish eng daromadli? Monopoliyani aniqlash, talab o'sishini o'rganish va kam raqobatli bo'sh nishalarni topish formulasi.",
+  path: "/qollanma/top-nishalar",
   keywords: [
     "uzumda qanday tovar sotish kerak",
     "bosh nishalar uzum",
@@ -14,13 +16,9 @@ export const metadata: Metadata = {
     "tovar tanlash qollanma",
     "daromadli nishalar marketplace",
   ],
-  alternates: { canonical: "/qollanma/top-nishalar" },
-  openGraph: {
-    title: "Uzumda Bo'sh Nishalarni Topish Formulasi — eStats Qo'llanma",
-    description: "Kam raqobat va yuqori talabga ega tovarlarni oldindan aniqlang.",
-    url: "https://estats.uz/qollanma/top-nishalar",
-  },
-};
+  ogTitle: "Uzumda Bo'sh Nishalarni Topish Formulasi — eStats Qo'llanma",
+  ogDescription: "Kam raqobat va yuqori talabga ega tovarlarni oldindan aniqlang.",
+});
 
 export default function NicheFindingGuidePage() {
   return (

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { PublicProductScanner } from "@/features/scanner/public-product-scanner";
 import { BreadcrumbSchema } from "@/components/seo/structured-data";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Uzum Market Product Scanner — Instant Sales & Revenue Estimator | eStats",
+export const metadata: Metadata = buildMetadata({
+  title: "Uzum Market Product Scanner — Sales Estimator",
   description:
     "Free Uzum Market product scanner: estimate monthly unit sales, revenue, average customer rating, and listing SEO optimization score in real time.",
+  path: "/en/tools/product-checker",
   keywords: [
     "uzum market product scanner",
     "uzum product sales estimator",
@@ -13,22 +15,9 @@ export const metadata: Metadata = {
     "uzum seller analytics",
     "ecommerce product research uzbekistan",
   ],
-  alternates: {
-    canonical: "/en/tools/product-checker",
-    languages: {
-      uz: "/tekshirish",
-      ru: "/ru/tekshirish",
-      en: "/en/tools/product-checker",
-      "x-default": "/tekshirish",
-    },
-  },
-  openGraph: {
-    title: "Uzum Market Product Scanner — Sales & Revenue Estimator",
-    description: "Inspect any Uzum Market item URL to evaluate revenue, units sold, and listing SEO.",
-    url: "https://estats.uz/en/tools/product-checker",
-    locale: "en_US",
-  },
-};
+  ogTitle: "Uzum Market Product Scanner — Sales & Revenue Estimator",
+  ogDescription: "Inspect any Uzum Market item URL to evaluate revenue, units sold, and listing SEO.",
+});
 
 export default function EnglishProductCheckerPage() {
   return (
