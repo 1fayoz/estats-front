@@ -20,9 +20,11 @@ export const metadata: Metadata = buildMetadata({
   ogDescription: "Step-by-step masterclasses on launching and scaling e-commerce stores in Uzbekistan.",
 });
 
+// `href` — to'liq absolyut yo'l. Ilgari `/en/guides/../tools/...` kabi
+// nisbiy yo'l yasalardi: brauzer uni tuzatadi, qidiruv boti esa yo'q.
 const GUIDES = [
   {
-    slug: "how-to-sell-on-uzum-market",
+    href: "/en/guides/how-to-sell-on-uzum-market",
     title: "How to Start Selling on Uzum Market in 2026: Complete Seller Guide",
     description:
       "A step-by-step roadmap to register a business, sign seller agreements, prepare barcodes, and launch your first product shipment in Uzbekistan.",
@@ -30,7 +32,7 @@ const GUIDES = [
     icon: Rocket,
   },
   {
-    slug: "../tools/barcode-generator",
+    href: "/en/tools/barcode-generator",
     title: "Marketplace Thermal Label & Barcode Generation Guide",
     description:
       "How to format Code-128 and 58x40 mm thermal stickers to pass warehouse fulfillment checks without rejections.",
@@ -38,7 +40,7 @@ const GUIDES = [
     icon: ShieldCheck,
   },
   {
-    slug: "../tools/abc-analysis",
+    href: "/en/tools/abc-analysis",
     title: "Pareto 80/20 ABC Inventory Analysis for Marketplace Catalogs",
     description:
       "Learn how to classify high-velocity revenue drivers versus capital-draining dead stock to optimize inventory cash flow.",
@@ -74,8 +76,8 @@ export default function EnGuidesHubPage() {
           const Icon = guide.icon;
           return (
             <Link
-              key={guide.slug}
-              href={`/en/guides/${guide.slug}`}
+              key={guide.href}
+              href={guide.href}
               className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-primary/40 hover:shadow-md"
             >
               <div className="space-y-3">

@@ -8,6 +8,11 @@ import { cn } from "@/lib/utils";
 import base from "./landing.module.css";
 import styles from "./landing-chrome.module.css";
 
+/**
+ * Har tildagi footer faqat O'SHA tildagi sahifalarga havola beradi; tarjimasi
+ * yo'q bo'limlar uchungina o'zbekcha sahifaga olib boradi. Til havolalari
+ * oddiy `<a>` qatori — qidiruv boti tarjimalarni JS'siz ham ko'radi.
+ */
 export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }) {
   const homeHref = locale === "uz" ? "/" : `/${locale}`;
 
@@ -61,7 +66,10 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
             <Link href="/ru/bozorlar/ozon">Ozon Узбекистан</Link>
             <Link href="/ru/kategoriya/elektronika">Ниша Электроника</Link>
             <Link href="/ru/kategoriya/kiyim-va-poyabzal">Ниша Одежда и обувь</Link>
-            <Link href="/ru/qollanma">База знаний и инструкции</Link>
+            <Link href="/ru/kategoriya/gozallik-va-parvarish">Ниша Косметика и уход</Link>
+            <Link href="/ru/kategoriya/uy-rozgor">Ниша Товары для дома</Link>
+            <Link href="/ru/kategoriya/avtotovarlar">Ниша Автотовары</Link>
+            <Link href="/ru/kategoriya/bolalar-tovarlari">Ниша Детские товары</Link>
             <Link href="/ru/lugat">Глоссарий терминов</Link>
           </nav>
 
@@ -72,6 +80,13 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
             <Link href="/ru/muqobil/mpstats">Аналог MPSTATS</Link>
             <Link href="/ru/muqobil/huntersales">Аналог HunterSales</Link>
             <Link href="/ru/muqobil/sellerfox">Аналог SellerFox</Link>
+            <h3>Инструкции</h3>
+            <Link href="/ru/qollanma">База знаний и инструкции</Link>
+            <Link href="/ru/qollanma/uzumda-dokon-ochish">Открыть магазин на Uzum</Link>
+            <Link href="/ru/qollanma/kartochka-toldirish">SEO карточки товара</Link>
+            <Link href="/ru/qollanma/fbo-fbs-farqi">Разница FBO и FBS</Link>
+            <Link href="/ru/qollanma/boost-top-sozlash">Настройка Boost TOP</Link>
+            <Link href="/ru/qollanma/top-nishalar">Поиск ниши</Link>
             <Link href="/login">Вход в кабинет</Link>
           </nav>
         </div>
@@ -83,7 +98,7 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground">Язык:</span>
-            <LanguageSwitcher />
+            <LanguageSwitcher variant="inline" />
           </div>
         </div>
       </footer>
@@ -129,7 +144,9 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
             <Link href="/bozorlar/wildberries">Wildberries Uzbekistan</Link>
             <Link href="/bozorlar/yandex-market">Yandex Market Uzbekistan</Link>
             <Link href="/bozorlar/ozon">Ozon Uzbekistan</Link>
-            <Link href="/qollanma">Knowledge Base</Link>
+            <Link href="/en/categories/electronics">Electronics Category</Link>
+            <Link href="/en/guides">Knowledge Base</Link>
+            <Link href="/en/guides/how-to-sell-on-uzum-market">How to Sell on Uzum Market</Link>
           </nav>
 
           <nav aria-label="Company" className={styles.footerNav}>
@@ -147,7 +164,7 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground">Language:</span>
-            <LanguageSwitcher />
+            <LanguageSwitcher variant="inline" />
           </div>
         </div>
       </footer>
@@ -197,9 +214,15 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
           <Link href="/kategoriya/elektronika">Elektronika tahlili</Link>
           <Link href="/kategoriya/kiyim-va-poyabzal">Kiyim va poyabzal</Link>
           <Link href="/kategoriya/gozallik-va-parvarish">Go&apos;zallik va parvarish</Link>
+          <Link href="/kategoriya/uy-rozgor">Uy-ro&apos;zg&apos;or va oshxona</Link>
+          <Link href="/kategoriya/avtotovarlar">Avtotovarlar</Link>
+          <Link href="/kategoriya/bolalar-tovarlari">Bolalar tovarlari</Link>
           <Link href="/qollanma">Barcha qo&apos;llanmalar</Link>
           <Link href="/qollanma/uzumda-dokon-ochish">Uzumda do&apos;kon ochish</Link>
           <Link href="/qollanma/kartochka-toldirish">Tovar kartochkasi SEO</Link>
+          <Link href="/qollanma/fbo-fbs-farqi">FBO yoki FBS farqi</Link>
+          <Link href="/qollanma/boost-top-sozlash">Boost TOP sozlash</Link>
+          <Link href="/qollanma/top-nishalar">Bo&apos;sh nishalarni topish</Link>
           <Link href="/lugat">Marketpleys lug&apos;ati</Link>
         </nav>
 
@@ -214,6 +237,8 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
           <Link href="/muqobil/huntersales">HunterSales muqobili</Link>
           <Link href="/muqobil/sellerfox">SellerFox muqobili</Link>
           <Link href="/login">Hisobga kirish</Link>
+          <Link href="/privacy">Maxfiylik siyosati</Link>
+          <Link href="/terms">Foydalanish shartlari</Link>
         </nav>
       </div>
 
@@ -224,7 +249,7 @@ export function LandingFooter({ locale = "uz" }: { locale?: "uz" | "ru" | "en" }
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground">Til:</span>
-          <LanguageSwitcher />
+          <LanguageSwitcher variant="inline" />
         </div>
       </div>
     </footer>

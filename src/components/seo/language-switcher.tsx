@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Globe, ChevronDown } from "lucide-react";
 
-export type Locale = "uz" | "ru" | "en";
+import { localeOfPath, translatedPath, type Locale } from "@/config/i18n-routes";
+
+export type { Locale };
 
 interface LanguageOption {
   code: Locale;
@@ -15,126 +17,42 @@ interface LanguageOption {
 }
 
 const LANGUAGES: LanguageOption[] = [
-  { code: "uz", label: "O'zbekcha", shortLabel: "UZ", flag: "🇺🇿" },
+  { code: "uz", label: "O‘zbekcha", shortLabel: "UZ", flag: "🇺🇿" },
   { code: "ru", label: "Русский", shortLabel: "RU", flag: "🇷🇺" },
   { code: "en", label: "English", shortLabel: "EN", flag: "🇬🇧" },
 ];
 
+const LOCALE_HOME: Record<Locale, string> = { uz: "/", ru: "/ru", en: "/en" };
+
+/**
+ * Shu sahifaning boshqa tildagi manzili — `src/config/i18n-routes.ts`
+ * xaritasidan. Tarjimasi yo'q sahifa uchun o'sha tilning bosh sahifasi:
+ * ilgari `/en` + UZ yo'li yasalib, 404 ga olib borardi.
+ */
 function getEquivalentPath(pathname: string, targetLocale: Locale): string {
-  // Normalize pathname
   const cleanPath = pathname.replace(/\/$/, "") || "/";
-
-  // Check current locale
-  let currentLocale: Locale = "uz";
-  let basePath = cleanPath;
-
-  if (cleanPath === "/ru" || cleanPath.startsWith("/ru/")) {
-    currentLocale = "ru";
-    basePath = cleanPath.slice(3) || "/";
-  } else if (cleanPath === "/en" || cleanPath.startsWith("/en/")) {
-    currentLocale = "en";
-    basePath = cleanPath.slice(3) || "/";
-  }
-
-  if (targetLocale === currentLocale) {
-    return cleanPath;
-  }
-
-  // Cross-language route mapping
-  const routeMap: Record<string, { uz: string; ru: string; en: string }> = {
-    "/": {
-      uz: "/",
-      ru: "/ru",
-      en: "/en",
-    },
-    "/tekshirish": {
-      uz: "/tekshirish",
-      ru: "/ru/tekshirish",
-      en: "/en/tools/product-checker",
-    },
-    "/kalkulyator/uzum-komissiya": {
-      uz: "/kalkulyator/uzum-komissiya",
-      ru: "/ru/kalkulyator/uzum-komissiya",
-      en: "/en/tools/commission-calculator",
-    },
-    "/kalkulyator/unit-iqtisodiyot": {
-      uz: "/kalkulyator/unit-iqtisodiyot",
-      ru: "/ru/kalkulyator/unit-iqtisodiyot",
-      en: "/en/tools/commission-calculator",
-    },
-    "/bozorlar/wildberries": {
-      uz: "/bozorlar/wildberries",
-      ru: "/ru/bozorlar/wildberries",
-      en: "/en/solutions/marketplace-analytics",
-    },
-    "/bozorlar/yandex-market": {
-      uz: "/bozorlar/yandex-market",
-      ru: "/ru/bozorlar/yandex-market",
-      en: "/en/solutions/marketplace-analytics",
-    },
-    "/bozorlar/ozon": {
-      uz: "/bozorlar/ozon",
-      ru: "/ru/bozorlar/ozon",
-      en: "/en/solutions/marketplace-analytics",
-    },
-    "/muqobil/zoomselling": {
-      uz: "/muqobil/zoomselling",
-      ru: "/ru/muqobil/zoomselling",
-      en: "/en/alternatives/zoomselling",
-    },
-    "/muqobil/1c": {
-      uz: "/muqobil/1c",
-      ru: "/ru/muqobil/1c",
-      en: "/en/solutions/inventory-management",
-    },
-    "/yechimlar/ombor": {
-      uz: "/yechimlar/ombor",
-      ru: "/ru/yechimlar/ombor",
-      en: "/en/solutions/inventory-management",
-    },
-    "/yechimlar/tovar-seo": {
-      uz: "/yechimlar/tovar-seo",
-      ru: "/ru/yechimlar/tovar-seo",
-      en: "/en/solutions/ai-seo",
-    },
-    "/yechimlar/moliya": {
-      uz: "/yechimlar/moliya",
-      ru: "/ru/yechimlar/moliya",
-      en: "/en/solutions/marketplace-analytics",
-    },
-  };
-
-  // Check known mapped route
-  const currentKey = Object.keys(routeMap).find(
-    (key) => key === basePath || (basePath === "/" && key === "/")
-  );
-
-  if (currentKey && routeMap[currentKey]) {
-    return routeMap[currentKey][targetLocale];
-  }
-
-  // Fallback translation strategy
-  if (targetLocale === "uz") {
-    return basePath || "/";
-  } else if (targetLocale === "ru") {
-    return `/ru${basePath === "/" ? "" : basePath}`;
-  } else {
-    return `/en${basePath === "/" ? "" : basePath}`;
-  }
+  if (localeOfPath(cleanPath) === targetLocale) return cleanPath;
+  return translatedPath(cleanPath, targetLocale) ?? LOCALE_HOME[targetLocale];
 }
 
-export function LanguageSwitcher({ className }: { className?: string }) {
+/**
+ * `variant="inline"` — oddiy havolalar qatori (footer uchun). Ochiladigan
+ * menyu ham havolalarini DOM'da doim saqlaydi (`hidden` bilan): ilgari ular
+ * faqat ochilganda chizilardi va qidiruv boti tarjimalarni ko'rmasdi.
+ */
+export function LanguageSwitcher({
+  className,
+  variant = "dropdown",
+}: {
+  className?: string;
+  variant?: "dropdown" | "inline";
+}) {
   const pathname = usePathname() || "/";
   const [isOpen, setIsOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
   // Determine current active locale
-  let currentLocale: Locale = "uz";
-  if (pathname === "/ru" || pathname.startsWith("/ru/")) {
-    currentLocale = "ru";
-  } else if (pathname === "/en" || pathname.startsWith("/en/")) {
-    currentLocale = "en";
-  }
+  const currentLocale = localeOfPath(pathname);
 
   const currentOption =
     LANGUAGES.find((l) => l.code === currentLocale) || LANGUAGES[0];
@@ -151,6 +69,27 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  if (variant === "inline") {
+    return (
+      <nav aria-label="Til / Язык / Language" className={`flex items-center gap-2 text-xs ${className || ""}`}>
+        {LANGUAGES.map((lang, i) => (
+          <React.Fragment key={lang.code}>
+            {i > 0 && <span aria-hidden="true" className="text-muted-foreground">|</span>}
+            <Link
+              href={getEquivalentPath(pathname, lang.code)}
+              hrefLang={lang.code}
+              lang={lang.code}
+              aria-current={lang.code === currentLocale ? "page" : undefined}
+              className={lang.code === currentLocale ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"}
+            >
+              {lang.label}
+            </Link>
+          </React.Fragment>
+        ))}
+      </nav>
+    );
+  }
 
   return (
     <div
@@ -179,38 +118,40 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         />
       </button>
 
-      {isOpen && (
-        <div className="absolute right-0 z-50 mt-1.5 w-36 origin-top-right rounded-2xl border border-border/80 bg-card p-1 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95">
-          <div className="py-0.5" role="menu">
-            {LANGUAGES.map((lang) => {
-              const targetUrl = getEquivalentPath(pathname, lang.code);
-              const isActive = lang.code === currentLocale;
+      <div
+        hidden={!isOpen}
+        className="absolute right-0 z-50 mt-1.5 w-36 origin-top-right rounded-2xl border border-border/80 bg-card p-1 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95"
+      >
+        <div className="py-0.5" role="menu">
+          {LANGUAGES.map((lang) => {
+            const targetUrl = getEquivalentPath(pathname, lang.code);
+            const isActive = lang.code === currentLocale;
 
-              return (
-                <Link
-                  key={lang.code}
-                  href={targetUrl}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-xs font-medium transition ${
-                    isActive
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                  }`}
-                  role="menuitem"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>{lang.flag}</span>
-                    <span>{lang.label}</span>
-                  </span>
-                  {isActive && (
-                    <span className="size-1.5 rounded-full bg-primary" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+            return (
+              <Link
+                key={lang.code}
+                href={targetUrl}
+                hrefLang={lang.code}
+                onClick={() => setIsOpen(false)}
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-xs font-medium transition ${
+                  isActive
+                    ? "bg-primary/10 text-primary font-semibold"
+                    : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                }`}
+                role="menuitem"
+              >
+                <span className="flex items-center gap-2">
+                  <span>{lang.flag}</span>
+                  <span>{lang.label}</span>
+                </span>
+                {isActive && (
+                  <span className="size-1.5 rounded-full bg-primary" />
+                )}
+              </Link>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 }
