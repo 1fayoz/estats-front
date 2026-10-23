@@ -1,6 +1,8 @@
 export const siteConfig = {
   name: "eStats",
-  tagline: "Marketpleyslar uchun professional analitika va boshqaruv",
+  // Bosh sahifa sarlavhasi `${name} — ${tagline}`: asosiy qidiruv so'zi
+  // ("Uzum Market") boshida turishi kerak.
+  tagline: "Uzum Market sotuvchilari uchun analitika va sof foyda",
   // Meta description — 155 belgidan oshmasin (qidiruvda kesiladi).
   description:
     "Uzum Market, Yandex Market, Wildberries va Ozon sotuvchilari uchun yagona " +

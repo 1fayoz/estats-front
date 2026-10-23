@@ -26,6 +26,7 @@ export type LandingLocale = "uz" | "ru" | "en";
 const HERO_TEXTS = {
   uz: {
     kicker: "Marketpleys sotuvchilari uchun · Uzum, Yandex, WB, Ozon",
+    titleKeyword: "Uzum Market analitikasi va sof foyda hisobi",
     titleStart: "Sotuvlar ko‘p.",
     titleHighlight: "Foyda",
     titleEnd: " qancha?",
@@ -60,6 +61,7 @@ const HERO_TEXTS = {
   },
   ru: {
     kicker: "Для селлеров маркетплейсов · Uzum, Yandex, WB, Ozon",
+    titleKeyword: "Аналитика Uzum Market и учет чистой прибыли",
     titleStart: "Продаж много.",
     titleHighlight: "Прибыль",
     titleEnd: " какая?",
@@ -94,6 +96,7 @@ const HERO_TEXTS = {
   },
   en: {
     kicker: "For Marketplace Sellers · Uzum, Yandex, WB, Ozon",
+    titleKeyword: "Uzum Market analytics and net profit tracking",
     titleStart: "High sales volume.",
     titleHighlight: "Profit",
     titleEnd: " is what?",
@@ -138,8 +141,13 @@ export function HeroSection({ locale = "uz" }: { locale?: LandingLocale }) {
           <p className={styles.kicker}>
             <span /> {t.kicker}
           </p>
+          {/* H1 qidiruv uchun kalit iborani o'z ichiga oladi (kichik
+              qator), vizual shior esa o'zgarmaydi. `{" "}` — `<br>`
+              matnda bo'shliq bermaydi va qidiruvchi "ko‘p.Foyda" deb
+              o'qirdi. */}
           <h1 id="landing-title">
-            {t.titleStart}
+            <span className={styles.titleKeyword}>{t.titleKeyword}</span>{" "}
+            {t.titleStart}{" "}
             <br />
             <span>{t.titleHighlight}</span>
             {t.titleEnd}
@@ -315,7 +323,7 @@ export function LandingConnections({ locale = "uz" }: { locale?: LandingLocale }
     <section className={styles.connections} aria-label="Integratsiyalar">
       <div className={`${base.container} ${styles.connectionsInner}`}>
         <p>
-          {t.titleStart}
+          {t.titleStart}{" "}
           <br />
           <strong>{t.titleBold}</strong>
         </p>

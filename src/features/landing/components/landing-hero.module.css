@@ -5,6 +5,8 @@
 .kicker > span { width: 6px; height: 6px; border-radius: 50%; background: var(--lp-purple); box-shadow: 0 0 0 4px #6650df0c; }
 .copy h1 { font-size: clamp(44px, 4.9vw, 66px); line-height: 1.1; font-weight: 600; letter-spacing: -.058em; white-space: nowrap; }
 .copy h1 > span { background: linear-gradient(transparent 77%, var(--lp-lime) 77%, var(--lp-lime) 95%, transparent 95%); }
+/* H1 dagi kalit ibora — shior ustidagi kichik qator, ajratish fonisiz. */
+.copy h1 > .titleKeyword { display: block; margin-bottom: 14px; background: none; color: var(--lp-muted); font-size: 15px; line-height: 1.4; font-weight: 500; letter-spacing: 0; white-space: normal; }
 .description { max-width: 430px; margin-top: 28px; font-size: 16px; line-height: 1.85; color: var(--lp-muted); }
 .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
 .reassurance { display: flex; align-items: center; gap: 8px; margin-top: 17px; color: var(--lp-muted); font-size: 11px; line-height: 1.6; }
