@@ -32,6 +32,8 @@ export function OrganizationSchema() {
   );
 }
 
+// `aggregateRating` ataylab yo'q: sahifada haqiqiy sharh/baholar
+// ko'rsatilmaguncha uni berish — Google qoidasiga zid (soxta reyting).
 export function SoftwareApplicationSchema() {
   const schema = {
     "@context": "https://schema.org",
@@ -64,13 +66,6 @@ export function SoftwareApplicationSchema() {
         description: "Chegirma bilan to'liq biznes avtomatlashtirish to'plami",
       },
     ],
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.9",
-      ratingCount: "1420",
-      bestRating: "5",
-      worstRating: "1",
-    },
     featureList: [
       "Ko'p bozorli analitika: Uzum Market, Yandex Market, Wildberries, Ozon",
       "Haqiqiy tan narx va FIFO usulida partiyaviy foyda/zarar (PnL) hisobi",
@@ -180,14 +175,8 @@ export function WebSiteSchema() {
     name: siteConfig.name,
     alternateName: ["eStats Uzum", "eStats Analytics", "eStats Uzbekistan"],
     url: siteConfig.url,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${siteConfig.url}/tekshirish?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
+    // `SearchAction` yo'q: /tekshirish `?q=` ni o'qimaydi, Google esa
+    // ishlamaydigan qidiruv qutisini ko'rsatib qo'yardi.
   };
 
   return (
@@ -220,13 +209,6 @@ export function CalculatorToolSchema({
       price: "0",
       priceCurrency: "UZS",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.9",
-      ratingCount: "1420",
-      bestRating: "5",
-      worstRating: "1",
-    },
   };
 
   return (
@@ -236,6 +218,3 @@ export function CalculatorToolSchema({
     />
   );
 }
-
-
-
