@@ -5,63 +5,55 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
-import { ApiError, googleLogin, passwordLogin } from "@/lib/api";
-import type { LoginResponse } from "@/lib/types";
+import type { Me } from "@/lib/types";
 import { consumeReturn } from "@/lib/lens";
 import { useUserStore } from "@/stores/user-store";
 
+import { loginNext, signInWith } from "../session";
 import { GoogleButton } from "./google-button";
 import styles from "./login.module.css";
 
-/** Kirgandan keyin qayerga: saqlangan qaytish manzili, bo'lmasa kabinet. */
+/**
+ * Kirgandan keyin qayerga: saqlangan qaytish manzili, proxy bergan `?next=`,
+ * bo'lmasa kabinet.
+ */
 function landingPath(shopCount: number): Route {
-  return (consumeReturn() ?? (shopCount ? "/warehouse" : "/integrations")) as Route;
+  return (consumeReturn() ??
+    loginNext() ??
+    (shopCount ? "/dashboard/warehouse" : "/dashboard/integrations")) as Route;
 }
 
 /**
  * Kirish.
  *
- * * Sessiya allaqachon bor bo'lsa — forma KO'RSATILMAYDI, darhol kabinetga
- *   o'tiladi. Token yaroqsiz bo'lib chiqsa kabinetdagi `AuthGuard` uni
- *   o'chirib shu yerga qaytaradi, ya'ni aylanib qolish yo'q.
+ * * Kirib bo'lgan odamni kabinetga FAQAT `proxy.ts` yo'naltiradi. Forma o'zi
+ *   yo'naltirmaydi: brauzer va proxy sessiyani turlicha ko'rsa (masalan secret
+ *   mos kelmasa), ikkalasi bir-birini qaytarib cheksiz aylanardi.
  * * Asosiy yo'l — email + parol. Birinchi marta esa Google bilan: hisob
  *   faqat o'sha yerda ochiladi, parol esa kabinetga kirishdan oldin
  *   majburiy o'rnatiladi (`SetPasswordGate`).
  */
 export function LoginForm() {
   const router = useRouter();
-  const signIn = useUserStore((state) => state.signIn);
-  const accessToken = useUserStore((state) => state.accessToken);
-  const user = useUserStore((state) => state.user);
-  const hydrated = useUserStore((state) => state.hydrated);
+  const { status } = useSession();
+  const storeHydrated = useUserStore((state) => state.hydrated);
+  const hydrated = storeHydrated && status !== "loading";
 
   const [loading, setLoading] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPasswordValue] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const alreadyConnected = hydrated && Boolean(accessToken);
-
-  // Kirgan odam login sahifasini ko'rmaydi — to'g'ridan-to'g'ri kabinet.
-  // `replace`: orqaga bosilganda yana shu sahifaga qaytib, yana yo'naltirilib
-  // qolmasin.
-  const redirected = React.useRef(false);
-  React.useEffect(() => {
-    if (!alreadyConnected || redirected.current) return;
-    redirected.current = true;
-    router.replace(landingPath(user?.shops.length ?? 1));
-  }, [alreadyConnected, router, user]);
 
   const finish = React.useCallback(
-    ({ accessToken: jwt, user: signedInUser }: LoginResponse) => {
-      redirected.current = true;
-      signIn(jwt, signedInUser);
+    (signedInUser: Me) => {
       toast.success(`Xush kelibsiz, ${signedInUser.fullName || signedInUser.email}`);
       router.replace(landingPath(signedInUser.shops.length));
     },
-    [router, signIn]
+    [router]
   );
 
   const onCredential = React.useCallback(
@@ -69,9 +61,9 @@ export function LoginForm() {
       setLoading(true);
       setError(null);
       try {
-        finish(await googleLogin(idToken));
+        finish(await signInWith("google", { idToken }));
       } catch (err) {
-        setError(err instanceof ApiError ? err.message : "Kirishda xatolik yuz berdi.");
+        setError(err instanceof Error ? err.message : "Kirishda xatolik yuz berdi.");
         setLoading(false);
       }
     },
@@ -84,14 +76,14 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
     try {
-      finish(await passwordLogin(email.trim(), password));
+      finish(await signInWith("password", { email: email.trim(), password }));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Kirishda xatolik yuz berdi.");
+      setError(err instanceof Error ? err.message : "Kirishda xatolik yuz berdi.");
       setLoading(false);
     }
   };
 
-  const busy = !hydrated || alreadyConnected;
+  const busy = !hydrated;
 
   return (
     <section
@@ -115,7 +107,7 @@ export function LoginForm() {
       {busy ? (
         <div className={styles.verifyingState} role="status" aria-live="polite">
           <Loader2 aria-hidden="true" />
-          {alreadyConnected ? "Kabinet ochilmoqda…" : "Sessiya tekshirilmoqda…"}
+          Sessiya tekshirilmoqda…
         </div>
       ) : (
         <div className={styles.signInContent}>

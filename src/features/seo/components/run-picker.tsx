@@ -4,7 +4,7 @@ import { History, TrendingDown, TrendingUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { SeoRun } from "@/lib/types";
-import styles from "@/app/(dashboard)/seo/[id]/seo-detail.module.css";
+import styles from "@/app/dashboard/seo/[id]/seo-detail.module.css";
 
 export function RunPicker({
   runs,

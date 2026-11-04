@@ -3,11 +3,14 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-import { AUTH_STORAGE_KEY } from "@/lib/auth";
+import { AUTH_STORAGE_KEY, setAccessToken } from "@/lib/auth";
 import type { Me, Shop, Workspace } from "@/lib/types";
 
 interface AuthState {
-  /** Backend-issued JWT — the only credential kept on this device. */
+  /**
+   * Backend JWT from the next-auth session — memory only, never persisted: the
+   * session cookie is the source of truth and `AuthSessionProvider` mirrors it here.
+   */
   accessToken: string | null;
   user: Me | null;
   /**
@@ -51,13 +54,15 @@ export const useUserStore = create<AuthState>()(
       workspaceId: null,
       hydrated: false,
 
-      signIn: (accessToken, user) =>
+      signIn: (accessToken, user) => {
+        setAccessToken(accessToken);
         set({
           accessToken,
           user,
           activeShopId: resolveShop(user.shops, get().activeShopId),
           workspaceId: user.workspace?.id ?? null,
-        }),
+        });
+      },
       setUser: (user) =>
         set({
           user,
@@ -68,24 +73,32 @@ export const useUserStore = create<AuthState>()(
       // Hisob almashganda do'kon tanlovi ham bekor qilinadi: eski
       // do'kon yangi hisobda umuman yo'q va u 404 berardi.
       setWorkspace: (workspaceId) => set({ workspaceId, activeShopId: null }),
-      signOut: () =>
+      signOut: () => {
+        setAccessToken(null);
         set({
           accessToken: null,
           user: null,
           activeShopId: null,
           workspaceId: null,
-        }),
+        });
+      },
       setHydrated: (value) => set({ hydrated: value }),
     }),
     {
       name: AUTH_STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        accessToken: state.accessToken,
         user: state.user,
         activeShopId: state.activeShopId,
         workspaceId: state.workspaceId,
       }),
+      // v0 kept the JWT in localStorage; drop it from devices that still have it.
+      version: 1,
+      migrate: (persisted) => {
+        const { accessToken: _dropped, ...rest } = (persisted ?? {}) as Record<string, unknown>;
+        void _dropped;
+        return rest as Partial<AuthState>;
+      },
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);
       },

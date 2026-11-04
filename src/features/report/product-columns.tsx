@@ -48,12 +48,12 @@ export function productColumns(periodDays: number | null): Column<ProductRow>[] 
     { key: "category", title: "Toifa 4", sortable: false, width: 90, render: (r) => r.category ?? "-" },
     {
       key: "shop", title: "Do'kon↗", sortable: false, width: 80,
-      render: (r) => r.shop_id ? <Link className={styles.link} href={`/market/shop?shop_id=${r.shop_id}`}>{r.shop}</Link>
+      render: (r) => r.shop_id ? <Link className={styles.link} href={`/dashboard/market/shop?shop_id=${r.shop_id}`}>{r.shop}</Link>
         : <span className={styles.link}>{r.shop}</span>,
     },
     {
       key: "title", title: "Kartochka (ZS) ↗", sortable: false, width: 150,
-      render: (r) => <Link className={styles.link} href={`/market/card?id=${r.product_id}`}>{r.title}</Link>,
+      render: (r) => <Link className={styles.link} href={`/dashboard/market/card?id=${r.product_id}`}>{r.title}</Link>,
     },
     { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, heat: COLORS.heatLight },
     { key: "growth", title: "O'sish %", num: true, value: (r) => r.growth, format: fmt.pct(0, true) },
@@ -88,12 +88,12 @@ export function skuColumns(
     { key: "category", title: "Toifa 4", sortable: false, width: 80, render: (r) => r.category ?? "-" },
     {
       key: "shop", title: "Dokon", sortable: false, width: 70,
-      render: (r) => r.shop_id ? <Link className={styles.link} href={`/market/shop?shop_id=${r.shop_id}`}>{r.shop}</Link>
+      render: (r) => r.shop_id ? <Link className={styles.link} href={`/dashboard/market/shop?shop_id=${r.shop_id}`}>{r.shop}</Link>
         : r.shop,
     },
     {
       key: "title", title: "Kartochka↗", sortable: false, width: 140,
-      render: (r) => <Link className={styles.link} href={`/market/card?id=${r.product_id}`}>{r.title}</Link>,
+      render: (r) => <Link className={styles.link} href={`/dashboard/market/card?id=${r.product_id}`}>{r.title}</Link>,
     },
     { key: "sku_title", title: "SKU", sortable: false, width: 90, render: (r) => r.sku_title ?? "" },
     { key: "revenue", title: "Tushim (soʻm)", num: true, value: (r) => r.revenue, heat: COLORS.heatLight },

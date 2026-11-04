@@ -123,7 +123,7 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
       .catch((err) => {
         if (!alive) return;
         toast.error(err instanceof ApiError ? err.message : "Qoralama ochilmadi.");
-        router.replace("/warehouse");
+        router.replace("/dashboard/warehouse");
       })
       .finally(() => alive && setLoading(false));
     return () => {
@@ -186,7 +186,7 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
         setHint("");
         apply(fresh);
         toast.success("Rasm qabul qilindi — AI ishlashni boshladi.");
-        router.replace(`/warehouse/ai/${fresh.id}`);
+        router.replace(`/dashboard/warehouse/ai/${fresh.id}`);
       }),
     onSave: () =>
       act("save", async () => {
@@ -294,7 +294,7 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
         await deleteAiDraft(draft.id);
         drafts.remove(draft.id);
         toast.success("O'chirildi.");
-        router.replace("/warehouse");
+        router.replace("/dashboard/warehouse");
       }),
   };
 

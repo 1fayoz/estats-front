@@ -15,7 +15,7 @@ import type { SeoAudit } from "@/lib/types";
  * Tovar sahifasidagi SEO auditning ENG OXIRGI natijasi — qisqacha.
  *
  * To'liq tahlil (kalit so'zlar jadvali, tillar, rasm/sharh tahlili)
- * `/seo/{id}`da turadi — buni bu yerga ko'chirish ombor sahifasini
+ * `/dashboard/seo/{id}`da turadi — buni bu yerga ko'chirish ombor sahifasini
  * ikkinchi SEO sahifasiga aylantirardi. Bu yerda faqat javob kerak
  * bo'ladigan savol: "bu kartochka SEO nuqtai nazaridan qanday holatda,
  * va oxirgi marta QACHON tekshirilgan?" — qolgani havola orqali.
@@ -100,7 +100,7 @@ export function SeoAuditCard({ productId }: { productId: number }) {
           </p>
         )}
         <Link
-          href={`/seo/${productId}`}
+          href={`/dashboard/seo/${productId}`}
           className="mt-3 inline-flex items-center gap-1 text-sm text-primary hover:underline"
         >
           {analyzed ? "To'liq tahlilni ko'rish" : "SEO auditga o'tish"}

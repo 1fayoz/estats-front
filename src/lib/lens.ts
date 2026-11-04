@@ -11,20 +11,12 @@
  */
 
 import { API_BASE, ApiError } from "./api";
-import { AUTH_STORAGE_KEY } from "./auth";
+import { getAccessToken } from "./auth";
 
 export const LENS_BASE =
   process.env.NEXT_PUBLIC_LENS_API?.replace(/\/$/, "") || API_BASE.replace(/\/api\/v1$/, "/lens/api/v1");
 
-function jwt(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
-    return raw ? (JSON.parse(raw)?.state?.accessToken ?? null) : null;
-  } catch {
-    return null;
-  }
-}
+const jwt = (): string | null => getAccessToken();
 
 async function request<T>(path: string, init: RequestInit & { auth?: boolean } = {}): Promise<T> {
   const { auth = true, headers, ...rest } = init;

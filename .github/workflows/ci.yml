@@ -32,6 +32,9 @@ jobs:
       - run: npm ci
       - name: TypeScript
         run: npx tsc --noEmit
+      # Faqat xatolar to'xtatadi; eski qarzdorlik hozircha ogohlantirish.
+      - name: ESLint
+        run: npm run lint
       - name: Next build
         run: npm run build
 

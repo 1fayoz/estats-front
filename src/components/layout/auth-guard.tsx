@@ -1,19 +1,23 @@
 "use client";
 
 import * as React from "react";
+import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useUserStore } from "@/stores/user-store";
 import { ApiError, SESSION_EXPIRED_EVENT, fetchMe } from "@/lib/api";
 import { rememberReturn } from "@/lib/lens";
 import { ALL_NAV_ITEMS, visibleNav } from "@/config/nav";
+import { LOGIN_PATH } from "@/config/private-routes";
 import { SetPasswordGate } from "@/features/auth/components/set-password";
+import { signOutEverywhere } from "@/features/auth/session";
 
 /**
- * Protects the dashboard. Once the persisted session is rehydrated it sends the JWT to
- * `/auth/me`: no session or a rejected one lands the user back on the landing page,
- * and a valid one refreshes the store identity (shop renames show up without a
- * re-login). Dashboard data only ever renders behind a verified session.
+ * Protects the dashboard. `proxy.ts` already turns away requests without a session
+ * cookie; here the next-auth session's JWT is checked against `/auth/me`: a rejected
+ * or expired one ends the session and lands on the login page, and a valid one
+ * refreshes the store identity (shop renames show up without a re-login). Dashboard
+ * data only ever renders behind a verified session.
  *
  * Sessiya SAHIFA ALMASHGANDA QAYTA tekshirilmaydi — faqat ilova ochilganda va
  * token o'zgarganda. Ilgari `pathname` bog'liqlikda turardi va har bosishda
@@ -22,16 +26,16 @@ import { SetPasswordGate } from "@/features/auth/components/set-password";
  * `/auth/me` so'rovi ketardi.
  */
 //: Magazini yo'q foydalanuvchi shu yerga tushadi — Uzum tokeni shu yerda.
-const SETUP_PATH = "/integrations";
+const SETUP_PATH = "/dashboard/integrations";
 //: Kengaytmani ulash do'kon talab qilmaydi (bozor tahlili hamma uchun).
-const EXTENSION_PATH = "/extension/";
+const EXTENSION_PATH = "/dashboard/extension/";
 
 /** Shu manzilni ochadigan ruxsat kodi (menyu ta'rifidan). */
 function actionFor(pathname: string): string | undefined {
   const item = ALL_NAV_ITEMS.filter((nav) =>
     pathname === nav.href || pathname.startsWith(`${nav.href}/`)
   )
-    // Eng aniq moslik: `/warehouse` va `/warehouse/x` bo'lsa
+    // Eng aniq moslik: `/dashboard/warehouse` va `/dashboard/warehouse/x` bo'lsa
     // uzunrog'i to'g'ri javob.
     .sort((a, b) => String(b.href).length - String(a.href).length)[0];
   return item?.action;
@@ -40,15 +44,21 @@ function actionFor(pathname: string): string | undefined {
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const accessToken = useUserStore((s) => s.accessToken);
+  const { data: session, status } = useSession();
+  const accessToken =
+    status === "authenticated" && !session?.error ? session.accessToken : null;
   const hydrated = useUserStore((s) => s.hydrated);
   const user = useUserStore((s) => s.user);
   const setUser = useUserStore((s) => s.setUser);
-  const signOut = useUserStore((s) => s.signOut);
   const [checked, setChecked] = React.useState(false);
 
+  const leave = React.useCallback(async () => {
+    await signOutEverywhere();
+    router.replace(LOGIN_PATH);
+  }, [router]);
+
   React.useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || status === "loading") return;
 
     if (!accessToken) {
       // Landing emas, kirish sahifasi: bu odam allaqachon kabinetga
@@ -57,7 +67,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       // Kengaytmani ulash sahifasi kirgandan keyin o'ziga QAYTADI —
       // aks holda `state` yo'qolib, sotuvchi ulashni boshidan boshlardi.
       rememberReturn(`${window.location.pathname}${window.location.search}`);
-      router.replace("/login");
+      void leave();
       return;
     }
 
@@ -72,8 +82,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         // A backend that's merely unreachable must not log the seller out — only an
         // actual rejection of the session does.
         if (err instanceof ApiError && err.isAuthError) {
-          signOut();
-          router.replace("/login");
+          void leave();
           return;
         }
       }
@@ -83,7 +92,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return () => {
       active = false;
     };
-  }, [hydrated, accessToken, router, setUser, signOut]);
+  }, [hydrated, status, accessToken, leave, setUser]);
 
   // Ish davomida istalgan so'rov 401 olsa — sessiya tugagan: chiqarib,
   // kirish sahifasiga. Token o'chgach keyingi so'rovlar tokensiz ketadi va
@@ -91,12 +100,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     const onExpired = () => {
       if (!useUserStore.getState().accessToken) return;
-      signOut();
-      router.replace("/login");
+      void leave();
     };
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
-  }, [router, signOut]);
+  }, [leave]);
 
   // Ruxsati yo'q sahifa. Menyudan yashiringan bo'lsa ham manzilni
   // qo'lda yozish yoki eski xatcho'p qolishi mumkin — u holda
@@ -111,7 +119,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const firstAllowed = React.useMemo(() => {
     const groups = visibleNav(user?.actions ?? []);
     const firstGroupItem = groups[0]?.items[0];
-    const target = firstGroupItem?.children?.[0]?.href ?? firstGroupItem?.href ?? "/market";
+    const target = firstGroupItem?.children?.[0]?.href ?? firstGroupItem?.href ?? "/dashboard/market";
     return target;
   }, [user?.actions]);
 

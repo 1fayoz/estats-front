@@ -28,10 +28,10 @@ export function Sidebar() {
   const groups = visibleNav(useActions());
 
   // Faol band — ENG UZUN mos kelgan yo'l bo'yicha, hammasi orasidan
-  // bittasi. Oddiy `startsWith` bilan "/market" ("Bozor holati")
-  // "/market/shops" ("Do'konlar") sahifasida ham faol bo'lib qolardi
+  // bittasi. Oddiy `startsWith` bilan "/dashboard/market" ("Bozor holati")
+  // "/dashboard/market/shops" ("Do'konlar") sahifasida ham faol bo'lib qolardi
   // — ikkalasi baravar yorishardi. Yo'l chegarasi ("/" bilan tugashi
-  // yoki teng bo'lishi) ham SHART: aks holda "/market" "/marketing"da
+  // yoki teng bo'lishi) ham SHART: aks holda "/dashboard/market" "/dashboard/marketing"da
   // ham "mos keladi" deb hisoblanardi.
   const bestHref = React.useMemo(() => {
     const hrefs = groups.flatMap((g) => leafItems(g.items).map((i) => String(i.href)));

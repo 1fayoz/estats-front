@@ -71,6 +71,21 @@ export function UzumSellerLoginCard() {
     void load();
   }, [load, shop?.id]);
 
+  // `?connect=uzum` (Telegram xabari yoki tepadagi banner havolasi) — oynani DARHOL ochadi,
+  // sotuvchi tugma qidirib o'tirmasin. Parametr bir marta ishlatiladi. Hook'lar
+  // `if (!shop)` dan OLDIN turishi shart; do'kon keyinroq yuklansa, shu yerda kutiladi.
+  const autoOpened = React.useRef(false);
+  React.useEffect(() => {
+    if (!shop || autoOpened.current || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("connect") !== "uzum") return;
+    autoOpened.current = true;
+    url.searchParams.delete("connect");
+    window.history.replaceState(window.history.state, "", url.toString());
+    void onVnc();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shop?.id]);
+
   if (!shop) return null;
 
   const connectedAt = state?.connectedAt ?? shop.uzumSellerConnectedAt ?? null;
@@ -166,20 +181,6 @@ export function UzumSellerLoginCard() {
       setBusy("");
     }
   };
-
-  // `?connect=uzum` (Telegram xabari yoki tepadagi banner havolasi) — oynani DARHOL ochadi,
-  // sotuvchi tugma qidirib o'tirmasin. Parametr bir marta ishlatiladi.
-  const autoOpened = React.useRef(false);
-  React.useEffect(() => {
-    if (autoOpened.current || typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("connect") !== "uzum") return;
-    autoOpened.current = true;
-    url.searchParams.delete("connect");
-    window.history.replaceState(window.history.state, "", url.toString());
-    void onVnc();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const onClear = async () => {
     if (busy) return;

@@ -53,14 +53,14 @@ export function StateBanner() {
           ortiqcha bo'lardi. */}
       {!state.token_configured ? (
         <Link
-          href={state.token_manage_at ?? "/integrations"}
+          href={state.token_manage_at ?? "/dashboard/integrations"}
           className="ml-auto font-medium underline underline-offset-2"
         >
           Token kiriting — o&apos;lchov davom etadi
         </Link>
       ) : state.token_likely_expired ? (
         <Link
-          href={state.token_manage_at ?? "/integrations"}
+          href={state.token_manage_at ?? "/dashboard/integrations"}
           className="ml-auto font-medium underline underline-offset-2"
         >
           Token muddati o&apos;tgan — yangilang

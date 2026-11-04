@@ -66,7 +66,7 @@ export function SiblingsCard({
                   row.isCurrent ? (
                     <Badge variant="secondary">shu tovar</Badge>
                   ) : (
-                    <Link href={`/warehouse/${row.id}`} className="text-sm text-primary underline">
+                    <Link href={`/dashboard/warehouse/${row.id}`} className="text-sm text-primary underline">
                       ochish
                     </Link>
                   )
@@ -111,7 +111,7 @@ export function SiblingsCard({
                     {row.isCurrent ? (
                       <span className="font-medium">{row.variantName || row.title}</span>
                     ) : (
-                      <Link href={`/warehouse/${row.id}`} className="font-medium hover:underline">
+                      <Link href={`/dashboard/warehouse/${row.id}`} className="font-medium hover:underline">
                         {row.variantName || row.title}
                       </Link>
                     )}

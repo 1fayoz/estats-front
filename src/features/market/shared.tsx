@@ -194,7 +194,7 @@ export function Grid<T>({
   visible?: Set<string>;
   /**
    * Berilsa — jadval o'zi 15 tadan sahifalaydi (manzilda shu nom bilan).
-   * Ro'yxat sahifalari (`/market/products` va h.k.) buni BERMAYDI: ular
+   * Ro'yxat sahifalari (`/dashboard/market/products` va h.k.) buni BERMAYDI: ular
    * serverdan allaqachon bitta sahifani oladi. Detal sahifalardagi
    * to'liq yuklangan jadvallar (kunlik tarix, SKU'lar) uchun.
    */

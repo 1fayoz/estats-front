@@ -8,7 +8,7 @@ import type { AiAudit } from "@/lib/types";
 /**
  * Joylashdan OLDINGI tekshiruv.
  *
- * SEO auditidan (`/seo/[id]`) ALOHIDA: u yerdagi audit Uzumda
+ * SEO auditidan (`/dashboard/seo/[id]`) ALOHIDA: u yerdagi audit Uzumda
  * ALLAQACHON turgan tovarni o'lchaydi (qidiruv o'rni, sotuvi).
  * Bu yerda hali hech narsa yo'q — faqat qoralama, va savol boshqa:
  * "kartochka to'liqmi, Uzum talabiga javob beradimi".

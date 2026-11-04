@@ -202,7 +202,7 @@ export function StockGroupCard({
                       {member.isCurrent ? (
                         <span className="font-medium">{member.variantName || member.title}</span>
                       ) : (
-                        <Link href={`/warehouse/${member.id}`} className="font-medium hover:underline">
+                        <Link href={`/dashboard/warehouse/${member.id}`} className="font-medium hover:underline">
                           {member.variantName || member.title}
                         </Link>
                       )}

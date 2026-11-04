@@ -283,7 +283,7 @@ export function NetworkPanel({
 
           {accounts.length > 0 && row.platform === "instagram" && (
             <Button asChild variant="outline" className="h-11 w-full rounded-xl sm:w-auto">
-              <Link href={"/socials" as Route}>E&apos;lonlar va reklama <ArrowRight className="size-4" /></Link>
+              <Link href={"/dashboard/socials" as Route}>E&apos;lonlar va reklama <ArrowRight className="size-4" /></Link>
             </Button>
           )}
         </CardContent>

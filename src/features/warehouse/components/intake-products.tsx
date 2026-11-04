@@ -225,7 +225,7 @@ function Identity({ row }: { row: IntakeProductMoney }) {
   const noIntake = row.intakeQuantity === 0 && row.soldQuantity > 0;
   const title = row.warehouseProductId === null
     ? <span className="line-clamp-2 text-sm font-medium leading-5">{row.title}</span>
-    : <Link href={`/warehouse/${row.warehouseProductId}`} className="line-clamp-2 text-sm font-medium leading-5 hover:text-[#00904d] hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{row.title}</Link>;
+    : <Link href={`/dashboard/warehouse/${row.warehouseProductId}`} className="line-clamp-2 text-sm font-medium leading-5 hover:text-[#00904d] hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{row.title}</Link>;
 
   return (
     <div className="flex min-w-0 items-start gap-3">

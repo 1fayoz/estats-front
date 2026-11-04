@@ -3,7 +3,7 @@ import { AlertTriangle, Check, Languages } from "lucide-react";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { SeoLanguage } from "@/lib/types";
-import styles from "@/app/(dashboard)/seo/[id]/seo-detail.module.css";
+import styles from "@/app/dashboard/seo/[id]/seo-detail.module.css";
 
 export function LanguagesBlock({ languages }: { languages: SeoLanguage[] }) {
   const shown = languages.filter((language) => language.coverageTotal > 0 || language.filled);

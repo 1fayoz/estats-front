@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
-import { PRIVATE_ROUTE_SEGMENTS } from "./src/config/private-routes";
+import {
+  AUTH_PREFIX,
+  DASHBOARD_HOME,
+  DASHBOARD_PREFIX,
+  LEGACY_DASHBOARD_SEGMENTS,
+  LOGIN_PATH,
+} from "./src/config/private-routes";
+
+const LEGACY = LEGACY_DASHBOARD_SEGMENTS.join("|");
 
 /** Har bir javobga qo'shiladigan xavfsizlik sarlavhalari. */
 const SECURITY_HEADERS = [
@@ -28,13 +36,27 @@ const nextConfig: NextConfig = {
   typedRoutes: false,
 
   async headers() {
+    const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
+
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
+      // Kabinet va kirish — login ortidagi shaxsiy ma'lumot; hech qachon
+      // indekslanmasin.
+      { source: `${DASHBOARD_PREFIX}/:path*`, headers: noindex },
+      { source: `${AUTH_PREFIX}/:path*`, headers: noindex },
+    ];
+  },
+
+  async redirects() {
+    return [
+      { source: DASHBOARD_PREFIX, destination: DASHBOARD_HOME, permanent: false },
+      // Prefiksdan oldingi manzillar: saqlangan havolalar, bot tugmalari va
+      // landing'dagi «Kirish» tugmalari yangi joyga o'tadi.
+      { source: "/login", destination: LOGIN_PATH, permanent: true },
       {
-        // Kabinet va kirish — login ortidagi shaxsiy ma'lumot; hech qachon
-        // indekslanmasin. Ro'yxat `src/config/private-routes.ts` da.
-        source: `/:path(${PRIVATE_ROUTE_SEGMENTS.join("|")})/:rest*`,
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+        source: `/:segment(${LEGACY})/:path*`,
+        destination: `${DASHBOARD_PREFIX}/:segment/:path*`,
+        permanent: true,
       },
     ];
   },

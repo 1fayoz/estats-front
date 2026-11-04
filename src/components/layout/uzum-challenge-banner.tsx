@@ -38,7 +38,7 @@ export function UzumChallengeBanner() {
         to&apos;xtab turibdi. Bir marta belgi qo&apos;ysangiz, qolganini eStats o&apos;zi davom ettiradi.
       </span>
       <Link
-        href={"/integrations?connect=uzum" as Route}
+        href={"/dashboard/integrations?connect=uzum" as Route}
         className="rounded-xl bg-[var(--warn)] px-3 py-1.5 font-medium text-black"
       >
         Hozir o&apos;tish

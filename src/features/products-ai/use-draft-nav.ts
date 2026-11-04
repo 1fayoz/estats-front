@@ -7,7 +7,7 @@ import { draftHref } from "@/lib/api";
 
 /**
  * Qoralama ENDI ALOHIDA SAHIFADA (2026-10-03, sotuvchi talabi):
- * `/warehouse/ai/new` — yangi tovar, `/warehouse/ai/12?tab=images` —
+ * `/dashboard/warehouse/ai/new` — yangi tovar, `/dashboard/warehouse/ai/12?tab=images` —
  * mavjud qoralama. Ilgari `?draft=12` parametrli oyna edi; ikki sahifa
  * (ombor va tovar) uni o'z nusxasi bilan ochardi va uzun forma tor
  * oynaga sig'masdi.

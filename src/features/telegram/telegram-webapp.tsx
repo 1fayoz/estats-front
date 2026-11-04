@@ -3,7 +3,8 @@
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { telegramLogin } from "@/lib/api";
+import { DASHBOARD_HOME, LOGIN_PATH } from "@/config/private-routes";
+import { loginNext, signInWith } from "@/features/auth/session";
 import { useUserStore } from "@/stores/user-store";
 
 /**
@@ -34,7 +35,6 @@ export function TelegramWebApp() {
   const router = useRouter();
   const pathname = usePathname();
   const hydrated = useUserStore((s) => s.hydrated);
-  const signIn = useUserStore((s) => s.signIn);
 
   React.useEffect(() => {
     const tg = typeof window !== "undefined" ? window.Telegram?.WebApp : undefined;
@@ -63,13 +63,13 @@ export function TelegramWebApp() {
     loginAttempted = true;
     (async () => {
       try {
-        const { accessToken: token, user } = await telegramLogin(initData);
-        signIn(token, user);
-        // Landing yoki kirish sahifasida turgan bo'lsa — kabinetga.
-        // Boshqa sahifada bo'lsa o'sha joyida qoladi: bot xabaridagi
-        // havola aynan kerakli ekranga olib borishi mumkin.
-        if (pathname === "/" || pathname.startsWith("/login")) {
-          router.replace("/warehouse");
+        await signInWith("telegram", { initData });
+        // Landing yoki kirish sahifasida turgan bo'lsa — kabinetga (proxy
+        // yuborgan `next` manziliga, bo'lmasa bosh bo'limga). Boshqa sahifada
+        // bo'lsa o'sha joyida qoladi: bot xabaridagi havola aynan kerakli
+        // ekranga olib borishi mumkin.
+        if (pathname === "/" || pathname.startsWith(LOGIN_PATH)) {
+          router.replace((loginNext() ?? DASHBOARD_HOME) as Parameters<typeof router.replace>[0]);
         }
       } catch {
         // Jimgina: bog'lanmagan odam oddiy landing'ni ko'raveradi va
@@ -78,7 +78,7 @@ export function TelegramWebApp() {
         // tizimdan chiqarib yuborishi mumkin emas.
       }
     })();
-  }, [hydrated, pathname, router, signIn]);
+  }, [hydrated, pathname, router]);
 
   return null;
 }

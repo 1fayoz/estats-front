@@ -4,7 +4,7 @@
 // Uzum token itself is stored server-side on the seller's row and never comes back to
 // the browser — every later call carries only the JWT.
 
-import { AUTH_STORAGE_KEY } from "./auth";
+import { AUTH_STORAGE_KEY, getAccessToken } from "./auth";
 import type {
   Funnel,
   AdPlan,
@@ -23,7 +23,6 @@ import type {
   IntakeInput,
   IntakeMoney,
   IntakeRow,
-  LoginResponse,
   Me,
   Goal,
   MarketingReport,
@@ -126,10 +125,10 @@ export class ApiError extends Error {
 }
 
 /**
- * Read the JWT straight out of persisted storage rather than from the store.
+ * The JWT from the in-memory session, the shop and workspace from persisted storage.
  *
  * `api` is imported by the auth store itself, so going through the store would be a
- * circular import; localStorage is the same source of truth either way.
+ * circular import; localStorage is the same source of truth for the selection.
  */
 function readPersisted(): {
   accessToken?: string | null;
@@ -137,12 +136,18 @@ function readPersisted(): {
   workspaceId?: number | null;
 } {
   if (typeof window === "undefined") return {};
+  let selection: { activeShopId?: number | null; workspaceId?: number | null } = {};
   try {
     const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
-    return raw ? (JSON.parse(raw)?.state ?? {}) : {};
+    selection = raw ? (JSON.parse(raw)?.state ?? {}) : {};
   } catch {
-    return {};
+    selection = {};
   }
+  return {
+    activeShopId: selection.activeShopId,
+    workspaceId: selection.workspaceId,
+    accessToken: getAccessToken(),
+  };
 }
 
 async function request<T>(
@@ -240,24 +245,7 @@ const qs = (params: Record<string, string | number | boolean | undefined | null>
 };
 
 // ── auth ─────────────────────────────────────────────────────────────────────
-
-/** Exchange a Google ID token for a session. */
-export const googleLogin = (idToken: string) =>
-  request<LoginResponse>("/auth/google", {
-    method: "POST",
-    auth: false,
-    shopScoped: false,
-    body: JSON.stringify({ idToken }),
-  });
-
-/** Email + parol. Hisob bu yerda OCHILMAYDI — birinchi kirish Google bilan. */
-export const passwordLogin = (email: string, password: string) =>
-  request<LoginResponse>("/auth/password/login", {
-    method: "POST",
-    auth: false,
-    shopScoped: false,
-    body: JSON.stringify({ email, password }),
-  });
+// Kirish (parol, Google, Telegram) server tomonda — `lib/next-auth.ts`.
 
 /** Parol o'rnatish yoki almashtirish (parol bor bo'lsa joriysi majburiy). */
 export const setPassword = (password: string, currentPassword?: string) =>
@@ -1183,21 +1171,6 @@ export const setProfile = (fullName: string) =>
 
 export const setPhone = (phone: string) =>
   request<Me>("/auth/phone", { method: "PUT", body: JSON.stringify({ phone }) });
-
-/**
- * Telegram WebApp'dan kirish.
- *
- * `auth: false` — hali tokenimiz yo'q, aynan shu chaqiruv uni
- * beradi. `initData` ni Telegram imzolagan va uni backend
- * tekshiradi.
- */
-export const telegramLogin = (initData: string) =>
-  request<LoginResponse>("/auth/telegram", {
-    method: "POST",
-    auth: false,
-    shopScoped: false,
-    body: JSON.stringify({ initData }),
-  });
 
 // ── jamoa ────────────────────────────────────────────────────────────────────
 

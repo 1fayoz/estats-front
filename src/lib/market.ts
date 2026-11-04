@@ -12,7 +12,7 @@
  */
 
 import { API_BASE, ApiError } from "./api";
-import { AUTH_STORAGE_KEY } from "./auth";
+import { getAccessToken } from "./auth";
 import { PAGE_SIZE } from "./pagination";
 
 export const MARKET_BASE =
@@ -27,14 +27,7 @@ export const MARKET_BASE =
  * MARKET_BASE ga har qanday `fetch` SHU orqali bo'lsin.
  */
 export function marketFetch(url: string, init: RequestInit = {}): Promise<Response> {
-  let token = "";
-  if (typeof window !== "undefined") {
-    try {
-      token = JSON.parse(window.localStorage.getItem(AUTH_STORAGE_KEY) || "{}")?.state?.accessToken ?? "";
-    } catch {
-      token = "";
-    }
-  }
+  const token = getAccessToken();
   const headers = new Headers(init.headers);
   if (token && !headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
   return fetch(url, { ...init, headers });

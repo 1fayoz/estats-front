@@ -285,7 +285,7 @@ export function ProductTable({
               )}
             >
               <Link
-                href={`/warehouse/${item.id}`}
+                href={`/dashboard/warehouse/${item.id}`}
                 className="block min-h-11 min-w-0 rounded-lg transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <CardHead
@@ -410,7 +410,7 @@ export function ProductTable({
                   </Button>
                 )}
                 <Button asChild variant="outline" className="h-11 rounded-xl">
-                  <Link href={`/warehouse/${item.id}`} aria-label={`${item.title}: batafsil`}>
+                  <Link href={`/dashboard/warehouse/${item.id}`} aria-label={`${item.title}: batafsil`}>
                     Batafsil <ChevronRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -438,7 +438,7 @@ export function ProductTable({
                   {open && g.variants.map((variant) => (
                     <div key={variant.id} className="min-w-0 rounded-xl border border-border/70 p-3">
                       <Link
-                        href={`/warehouse/${variant.id}`}
+                        href={`/dashboard/warehouse/${variant.id}`}
                         className="block min-h-11 min-w-0 rounded-lg transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
                         <CardHead
@@ -483,7 +483,7 @@ export function ProductTable({
                         </Button>
                         <Button asChild variant="ghost" className="h-11 rounded-xl">
                           <Link
-                            href={`/warehouse/${variant.id}`}
+                            href={`/dashboard/warehouse/${variant.id}`}
                             aria-label={`${variant.variantName || variant.title}, ${variant.skuCode || "variant"}: batafsil`}
                           >
                             Batafsil <ChevronRight className="h-4 w-4" />
@@ -542,14 +542,14 @@ export function ProductTable({
                   g.variants.map((v) => (
                     <tr
                       key={v.id}
-                      onClick={() => router.push(`/warehouse/${v.id}`)}
+                      onClick={() => router.push(`/dashboard/warehouse/${v.id}`)}
                       tabIndex={0}
                       role="link"
                       onKeyDown={(e) => {
                         if (e.target !== e.currentTarget) return;
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
-                          router.push(`/warehouse/${v.id}`);
+                          router.push(`/dashboard/warehouse/${v.id}`);
                         }
                       }}
                       className="cursor-pointer bg-muted/20 text-[13px] transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
@@ -675,7 +675,7 @@ function ProductRow(props: {
 
   // Guruh bo'lsa: qatorni bosish — ochish/yopish; alohida tovar bo'lsa
   // — detalga o'tish (avvalgidek).
-  const onRowClick = () => (g.isGroup ? onToggleOpen() : router.push(`/warehouse/${item.id}`));
+  const onRowClick = () => (g.isGroup ? onToggleOpen() : router.push(`/dashboard/warehouse/${item.id}`));
 
   return (
     <tr

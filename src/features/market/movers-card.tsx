@@ -79,7 +79,7 @@ export function MoversCard({
       title: "Kartasi",
       sortable: false,
       render: (r) => (
-        <Link className={styles.link} href={`/market/card?id=${r.product_id}`}>
+        <Link className={styles.link} href={`/dashboard/market/card?id=${r.product_id}`}>
           {r.title}
         </Link>
       ),
@@ -92,7 +92,7 @@ export function MoversCard({
             sortable: false,
             render: (r: Mover) =>
               r.shop_id ? (
-                <Link className={styles.link} href={`/market/shop?shop_id=${r.shop_id}`}>
+                <Link className={styles.link} href={`/dashboard/market/shop?shop_id=${r.shop_id}`}>
                   {r.shop ?? "-"}
                 </Link>
               ) : (

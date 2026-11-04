@@ -200,7 +200,7 @@ function NewCardOffer({ draft }: { draft: AiDraft }) {
     return (
       <p className="mt-2 text-center text-xs">
         Variantlar bilan yangi kartochka:{" "}
-        <Link href={`/warehouse/ai/${made}`} className="font-medium underline">qoralama #{made}</Link>
+        <Link href={`/dashboard/warehouse/ai/${made}`} className="font-medium underline">qoralama #{made}</Link>
       </p>
     );
   }
@@ -210,7 +210,7 @@ function NewCardOffer({ draft }: { draft: AiDraft }) {
     try {
       const fresh = await createAiVariantsNewCard(draft.id);
       toast.success("Yangi kartochka yaratildi va Uzum'ga joylanmoqda.");
-      router.push(`/warehouse/ai/${fresh.id}`);
+      router.push(`/dashboard/warehouse/ai/${fresh.id}`);
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Yangi kartochka yaratilmadi.");
       setBusy(false);
@@ -270,7 +270,7 @@ export function WorkspaceHeader({
     <>
       <TopbarSlot>
         <Button asChild variant="outline" size="sm" className="air-control gap-2 text-white hover:text-white">
-          <Link href="/warehouse" aria-label="Omborga qaytish">
+          <Link href="/dashboard/warehouse" aria-label="Omborga qaytish">
             <ArrowLeft className="h-3.5 w-3.5 shrink-0 opacity-70" />
             <span className="hidden sm:inline">Omborga qaytish</span>
           </Link>

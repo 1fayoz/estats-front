@@ -73,7 +73,7 @@ export function BroadcastTray() {
   const moderationJobs = React.useMemo(
     () =>
       moderationAll.filter((job) => {
-        if (job.productId != null && pathname === `/warehouse/${job.productId}`) return false;
+        if (job.productId != null && pathname === `/dashboard/warehouse/${job.productId}`) return false;
         if (isDismissed(moderationDismissed, job)) return false;
         if (moderationJobActive(job) || job.status === "failed") return true;
         // Tugagani natijasi ko'rinib tursin, keyin o'zi yo'qoladi.
@@ -85,7 +85,7 @@ export function BroadcastTray() {
   // «Avto hal qilish» tuzatishlari — to'rtinchi ish turi. Tovar sahifasi ochiq
   // bo'lsa progress panelning O'ZIDA turadi — bu yerda takrorlanmaydi.
   const fixesAll = useAutoResolveActive();
-  const fixes = fixesAll.filter((f) => f.productId == null || pathname !== `/warehouse/${f.productId}`);
+  const fixes = fixesAll.filter((f) => f.productId == null || pathname !== `/dashboard/warehouse/${f.productId}`);
 
   // SEO tahlili — ikkinchi ish turi. Tugagani darhol yo'qoladi:
   // natijasi o'z sahifasida turadi, panelda uni ushlab turishning
@@ -339,7 +339,7 @@ function JobRow({ job }: { job: SeoJobRow }) {
           </p>
         </div>
         <Link
-          href={"/seo" as Route}
+          href={"/dashboard/seo" as Route}
           className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           aria-label="Ochish"
         >
@@ -369,7 +369,7 @@ function JobRow({ job }: { job: SeoJobRow }) {
 /** «Uzum sababini aniqlash» — Uzum kabinetidan blok sababi o'qilmoqda. */
 function ModerationRow({ job, onDismiss }: { job: ModerationJob; onDismiss: () => void }) {
   const active = moderationJobActive(job);
-  const href = (job.productId != null ? `/warehouse/${job.productId}` : "/warehouse") as Route;
+  const href = (job.productId != null ? `/dashboard/warehouse/${job.productId}` : "/dashboard/warehouse") as Route;
   return (
     <div className="p-3">
       <div className="flex items-start gap-2.5">
@@ -440,5 +440,5 @@ function FixRow({ fix }: { fix: AutoResolveActive }) {
       <AutoResolveProgress fix={fix.fix} status={fix.status} compact />
     </div>
   );
-  return fix.productId != null ? <Link href={`/warehouse/${fix.productId}`} className="block hover:bg-accent/40">{body}</Link> : body;
+  return fix.productId != null ? <Link href={`/dashboard/warehouse/${fix.productId}`} className="block hover:bg-accent/40">{body}</Link> : body;
 }

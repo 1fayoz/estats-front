@@ -247,7 +247,7 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
         <div className="mb-4 grid size-12 place-items-center rounded-2xl border bg-background"><NetworkIcon platform="instagram" colored className="size-6" /></div>
         <h3 className="font-semibold">Instagram ulanmagan</h3>
         <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">Postlarni boshqarish va reklama yaratish uchun Instagram akkauntingizni ulang.</p>
-        <Button asChild className="mt-5 h-11 rounded-xl"><Link href={"/integrations" as Route}>Instagram ulash <ArrowRight /></Link></Button>
+        <Button asChild className="mt-5 h-11 rounded-xl"><Link href={"/dashboard/integrations" as Route}>Instagram ulash <ArrowRight /></Link></Button>
       </div>
     );
   }
@@ -265,7 +265,7 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
       {connectedAccount.missing.length > 0 && (
         <details className="rounded-xl border border-[color:var(--warn)]/25 bg-[color:var(--warn)]/5 px-4">
           <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-medium"><AlertTriangle className="size-4 shrink-0 text-[var(--warn)]" />Ba'zi imkoniyatlar cheklangan <span className="ml-auto text-xs text-muted-foreground">{connectedAccount.missing.length}</span></summary>
-          <div className="pb-4 text-xs leading-5 text-muted-foreground"><ul className="list-inside list-disc space-y-1">{connectedAccount.missing.map((item) => <li key={item}>{item}</li>)}</ul><Link href={"/integrations" as Route} className="mt-2 inline-flex min-h-11 items-center text-foreground underline underline-offset-4">Integratsiyalarni tekshirish <ArrowRight className="ml-2 size-3.5" /></Link></div>
+          <div className="pb-4 text-xs leading-5 text-muted-foreground"><ul className="list-inside list-disc space-y-1">{connectedAccount.missing.map((item) => <li key={item}>{item}</li>)}</ul><Link href={"/dashboard/integrations" as Route} className="mt-2 inline-flex min-h-11 items-center text-foreground underline underline-offset-4">Integratsiyalarni tekshirish <ArrowRight className="ml-2 size-3.5" /></Link></div>
         </details>
       )}
 
@@ -308,7 +308,7 @@ function InstagramWorkspace({ scope, refreshKey }: { scope: string; refreshKey: 
                 <article key={item.productId} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
                   {item.image ? <img src={item.image} alt="" loading="lazy" className="size-14 shrink-0 rounded-xl border bg-background object-contain" /> : <div className="grid size-14 shrink-0 place-items-center rounded-xl border bg-muted/40"><Package className="size-5 text-muted-foreground" /></div>}
                   <div className="min-w-0 flex-1">
-                    <Link href={("/warehouse/" + item.productId) as Route} className="line-clamp-2 text-sm font-medium leading-5 hover:underline">{item.title}</Link>
+                    <Link href={("/dashboard/warehouse/" + item.productId) as Route} className="line-clamp-2 text-sm font-medium leading-5 hover:underline">{item.title}</Link>
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">{formatNumber(item.soldQuantity)} sotilgan · qoldiq {formatNumber(item.stock)} · {formatNumber(item.imageCount)} ta rasm</p>
                     {(!item.canPublish || !connectedAccount.canPublish) && <p className="mt-1 text-xs leading-5 text-[var(--warn)]">{item.reason || "Post joylash uchun Instagram ruxsatlarini tekshiring."}</p>}
                   </div>

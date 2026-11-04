@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { PRIVATE_ROUTE_SEGMENTS } from "@/config/private-routes";
+import { AUTH_PREFIX, DASHBOARD_PREFIX } from "@/config/private-routes";
 import { siteConfig } from "@/config/site";
 
 /**
@@ -8,11 +8,11 @@ import { siteConfig } from "@/config/site";
  * qidiruvda umuman ko'rinmasligi kerak. Ochiq qismi — landing, kalkulyator,
  * qo'llanma va huquqiy sahifalar.
  *
- * Yopiq yo'llar BITTA ro'yxatda va barcha botlar uchun bir xil. Ilgari AI
- * botlar guruhida alohida ro'yxat va `Allow: /market/*` turardi — `/market`
- * esa kabinet (login ortida), ochiq sahifa emas.
+ * Yopiq yo'llar — ikkita prefiks (kabinet va kirish), barcha botlar uchun
+ * bir xil. Eski manzillar (`/market` va h.k.) shu prefikslarga 301 bilan
+ * o'tadi, ya'ni ular ham yopiq qoladi.
  */
-const PRIVATE_PATHS = [...PRIVATE_ROUTE_SEGMENTS.map((s) => `/${s}`), "/api/"];
+const PRIVATE_PATHS = [`${DASHBOARD_PREFIX}/`, `${AUTH_PREFIX}/`, "/api/"];
 
 export default function robots(): MetadataRoute.Robots {
   return {

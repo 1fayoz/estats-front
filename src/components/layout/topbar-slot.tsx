@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
  * qo'ya oladigan joy.
  *
  * Nega portal, nega store emas. Yuqori qator LAYOUT'da turadi
- * (`(dashboard)/layout.tsx`), sahifa esa uning ichida — ya'ni
+ * (`dashboard/layout.tsx`), sahifa esa uning ichida — ya'ni
  * sahifa uni to'g'ridan-to'g'ri to'ldira olmaydi. Zustand orqali
  * ReactNode uzatish ham mumkin edi, lekin u holda tugmaning
  * hodisalari (Link, onClick) sahifaning O'Z daraxtidan uzilib

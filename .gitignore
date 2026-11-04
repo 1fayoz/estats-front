@@ -73,7 +73,9 @@ ehthumbs.db
 /src/features/products/
 /src/lib/uzum.ts
 /src/data/
-/src/app/api/
+# Eski mahalliy API fayllari e'tiborsiz; next-auth route'i (`api/auth`) — loyihaniki.
+/src/app/api/*
+!/src/app/api/auth/
 /.legacy_api/
 /src/components/charts/
 

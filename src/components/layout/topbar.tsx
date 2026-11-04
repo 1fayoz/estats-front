@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOutEverywhere } from "@/features/auth/session";
 import { useUserStore } from "@/stores/user-store";
 import { ShopSwitcher } from "./shop-switcher";
 import { SurfaceToggle } from "./surface-toggle";
@@ -23,7 +24,6 @@ import { TOPBAR_SLOT_ID } from "./topbar-slot";
 export function Topbar() {
   const router = useRouter();
   const user = useUserStore((s) => s.user);
-  const signOut = useUserStore((s) => s.signOut);
   const setWorkspace = useUserStore((s) => s.setWorkspace);
 
   const displayName = user?.fullName || user?.email || "eStats";
@@ -113,7 +113,7 @@ export function Topbar() {
                       // Kabinet ichidagi sahifa berilsa, `AuthGuard`
                       // yangi hisobning ruxsatiga qarab kerakli
                       // joyga o'zi yo'naltiradi.
-                      window.location.assign("/warehouse");
+                      window.location.assign("/dashboard/warehouse");
                     }}
                   >
                     <Building2 className="h-4 w-4" />
@@ -130,14 +130,14 @@ export function Topbar() {
               </>
             ) : null}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/settings")}>
+            <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
               <Settings className="h-4 w-4" /> Sozlamalar
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => {
-                signOut();
+              onClick={async () => {
+                await signOutEverywhere();
                 router.push("/");
               }}
             >

@@ -107,7 +107,7 @@ export function SocialPostCard({
             <ul className={styles.products}>
               {post.products.map((product) => (
                 <li key={product.id} className={styles.product}>
-                  <Link href={`/warehouse/${product.id}` as Route} title={product.title}>{product.title}</Link>
+                  <Link href={`/dashboard/warehouse/${product.id}` as Route} title={product.title}>{product.title}</Link>
                   <button type="button" className={styles.iconButton} onClick={() => onUnlink(product.id)} aria-label={`${product.title} bilan bog‘lanishni uzish`}><X size={14} aria-hidden="true" /></button>
                 </li>
               ))}

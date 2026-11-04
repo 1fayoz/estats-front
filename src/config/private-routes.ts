@@ -1,15 +1,27 @@
 /**
- * Login ortidagi (kabinet) va kirish yo'llarining birinchi segmenti.
+ * Login ortidagi kabinet va kirish sahifalari — ikkita prefiks.
  *
- * Bitta ro'yxat uch joyda ishlatiladi: `robots.ts` (Disallow),
- * `next.config.ts` (X-Robots-Tag: noindex) — kabinet layout'idagi
- * `robots: noindex` meta bilan birga. `(dashboard)` ga yangi bo'lim
- * qo'shilsa — shu yerga ham yoziladi.
+ * `robots.ts` (Disallow), `next.config.ts` (X-Robots-Tag: noindex) va
+ * `proxy.ts` (sessiya tekshiruvi) shu prefikslarni ishlatadi, ya'ni kabinetga
+ * yangi bo'lim qo'shilganda hech qayerga yozish shart emas.
  *
- * Diqqat: bu fayl `next.config.ts` dan import qilinadi, shuning uchun
- * `@/` taxallusi va boshqa modullarsiz qolishi kerak.
+ * Diqqat: bu fayl `next.config.ts` va `proxy.ts` dan import qilinadi,
+ * shuning uchun `@/` taxallusi va boshqa modullarsiz qolishi kerak.
  */
-export const PRIVATE_ROUTE_SEGMENTS = [
+export const DASHBOARD_PREFIX = "/dashboard";
+export const AUTH_PREFIX = "/auth";
+export const LOGIN_PATH = "/auth/login";
+/** `/dashboard` ning o'zi ochilganda — AuthGuard ruxsatga qarab boshqa bo'limga o'tkazadi. */
+export const DASHBOARD_HOME = "/dashboard/warehouse";
+
+/**
+ * Prefiksdan oldingi eski manzillar (`/today`, `/warehouse/12`, …).
+ *
+ * Faqat 301 redirect uchun: saqlangan havolalar, Telegram bot tugmalari va
+ * xatlardagi eski URL'lar ishlashda davom etsin. Hamma joy yangi manzilga
+ * o'tgach olib tashlanadi.
+ */
+export const LEGACY_DASHBOARD_SEGMENTS = [
   "today",
   "market",
   "bust",
@@ -28,5 +40,4 @@ export const PRIVATE_ROUTE_SEGMENTS = [
   "pnl",
   "finance",
   "settings",
-  "login",
 ] as const;

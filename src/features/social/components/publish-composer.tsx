@@ -80,7 +80,7 @@ export function PublishDestinations({ accounts, selected, onToggle, disabled }: 
           <span className={styles.destinationText}><strong>{account.name || account.username || account.externalId}</strong><span>{PLATFORM_LABEL[account.platform] || account.platform}{account.isDefault ? " · Asosiy" : ""}</span></span>
           <span className={styles.checkbox}>{selected.has(account.id) && <Check aria-hidden="true" />}</span>
         </button>)}
-      </div> : <div className={styles.notice}><AlertCircle aria-hidden="true" /><div><p>Joylash uchun ulangan akkaunt yo&apos;q.</p><Link href="/integrations" className={styles.inlineLink}>Tarmoq ulash <ArrowUpRight aria-hidden="true" /></Link></div></div>}
+      </div> : <div className={styles.notice}><AlertCircle aria-hidden="true" /><div><p>Joylash uchun ulangan akkaunt yo&apos;q.</p><Link href="/dashboard/integrations" className={styles.inlineLink}>Tarmoq ulash <ArrowUpRight aria-hidden="true" /></Link></div></div>}
     </fieldset>
   );
 }

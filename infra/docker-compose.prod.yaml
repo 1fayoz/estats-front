@@ -15,6 +15,10 @@ services:
       - "127.0.0.1:8071:3000"
     environment:
       NODE_ENV: production
+      # next-auth sessiya cookie'sini shifrlaydi. Serverdagi `infra/.env` da
+      # turadi (rsync uni o'chirmaydi, repoda yo'q); bo'lmasa deploy to'xtaydi.
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET infra/.env da bo'lishi kerak}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-https://estats.uz}
     restart: unless-stopped
     # Loglar cheklanmasa disk to'ladi. Bu server umumiy, shuning uchun
     # /etc/docker/daemon.json ga tegilmaydi (u demonni qayta ishga tushirib,

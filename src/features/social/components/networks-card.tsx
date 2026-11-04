@@ -111,7 +111,7 @@ export function NetworksCard() {
                 <div className="shrink-0">
                   {row.platform === "instagram" ? (
                     <Link
-                      href={"/instagram" as Route}
+                      href={"/dashboard/instagram" as Route}
                       className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                     >
                       Boshqarish <ArrowRight className="h-3.5 w-3.5" />

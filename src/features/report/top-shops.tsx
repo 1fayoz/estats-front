@@ -32,7 +32,7 @@ export function TopShops({
         {
           key: "shop", title: "Top-magazinlar", sortable: false,
           render: (r) => r.shop_id ? (
-            <Link className={styles.link} href={`/market/shop?shop_id=${r.shop_id}`}>{r.shop}</Link>
+            <Link className={styles.link} href={`/dashboard/market/shop?shop_id=${r.shop_id}`}>{r.shop}</Link>
           ) : r.shop,
         },
         ...(withSeller ? [{ key: "seller", title: "Sotuvchilar (yur.shaxs)", sortable: false,

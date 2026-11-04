@@ -5,7 +5,7 @@
  *
  * Bu yerda: Chrome Web Store'dan o'rnatish, qisqa yo'riqnoma va ulangan
  * brauzerlar ro'yxati (uzish bilan). Ulashning O'ZI shu yerda emas — uni
- * kengaytma boshlaydi (`/extension/connect`), chunki token aynan o'sha
+ * kengaytma boshlaydi (`/dashboard/extension/connect`), chunki token aynan o'sha
  * brauzerga tushishi kerak.
  *
  * Kengaytma FAQAT do'kon orqali tarqatiladi: zip arxiv yo'q, yangilanishni

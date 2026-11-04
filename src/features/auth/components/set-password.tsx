@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LOGIN_PATH } from "@/config/private-routes";
 import { ApiError, setPassword } from "@/lib/api";
 import { useUserStore } from "@/stores/user-store";
+
+import { signOutEverywhere } from "../session";
 
 /** Backend qoidasi bilan bir xil (`passwords.validate`) — xato serverga bormasdan ko'rinsin. */
 const MIN_LENGTH = 8;
@@ -141,7 +144,6 @@ function PasswordForm({
 export function SetPasswordGate() {
   const router = useRouter();
   const user = useUserStore((s) => s.user);
-  const signOut = useUserStore((s) => s.signOut);
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-background px-4 py-10">
@@ -164,9 +166,9 @@ export function SetPasswordGate() {
             variant="ghost"
             size="sm"
             className="w-fit gap-1.5 text-muted-foreground"
-            onClick={() => {
-              signOut();
-              router.replace("/login");
+            onClick={async () => {
+              await signOutEverywhere();
+              router.replace(LOGIN_PATH);
             }}
           >
             <LogOut className="h-3.5 w-3.5" /> Chiqish

@@ -27,10 +27,10 @@ const QUICK: {
   icon: typeof Boxes;
   action: string;
 }[] = [
-  { label: "Tovarlar", href: "/warehouse" as Route, icon: Boxes, action: "warehouse.view" },
-  { label: "Foyda", href: "/pnl" as Route, icon: Calculator, action: "pnl.view" },
-  { label: "SEO", href: "/seo" as Route, icon: SearchCheck, action: "seo.view" },
-  { label: "Tarmoq", href: "/socials" as Route, icon: Share2, action: "socials.view" },
+  { label: "Tovarlar", href: "/dashboard/warehouse" as Route, icon: Boxes, action: "warehouse.view" },
+  { label: "Foyda", href: "/dashboard/pnl" as Route, icon: Calculator, action: "pnl.view" },
+  { label: "SEO", href: "/dashboard/seo" as Route, icon: SearchCheck, action: "seo.view" },
+  { label: "Tarmoq", href: "/dashboard/socials" as Route, icon: Share2, action: "socials.view" },
 ];
 
 export function MobileNav() {

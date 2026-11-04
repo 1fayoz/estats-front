@@ -125,7 +125,7 @@ export function CardInfo({ data }: { data: CardData | null }) {
           <div className={styles.dropdownHead} style={{ height: 20, fontSize: 11, padding: "0 6px" }}>Do&apos;kon (↗ZS)</div>
           <div style={{ padding: 8, fontSize: 12 }}>
             {info?.shop_id ? (
-              <Link className={styles.link} href={`/market/shop?shop_id=${info.shop_id}`}>{info.shop}</Link>
+              <Link className={styles.link} href={`/dashboard/market/shop?shop_id=${info.shop_id}`}>{info.shop}</Link>
             ) : info?.shop ?? "Ma'lumot yo'q"}
           </div>
         </Card>

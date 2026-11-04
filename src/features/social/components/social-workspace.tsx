@@ -125,7 +125,7 @@ export function SocialWorkspace() {
           </div>
           <div className={styles.navActions}>
             <Button variant="ghost" size="icon" className={styles.iconButton} onClick={() => { refresh(); setRefreshKey((value) => value + 1); }} disabled={refreshing} aria-label="Ma’lumotlarni yangilash"><RefreshCw className={cn(refreshing && "animate-spin")} /></Button>
-            <Button asChild variant="outline" className={styles.settings}><Link href={"/integrations" as Route} aria-label="Integratsiyalar" title="Integratsiyalar"><Settings2 /><span>Integratsiyalar</span></Link></Button>
+            <Button asChild variant="outline" className={styles.settings}><Link href={"/dashboard/integrations" as Route} aria-label="Integratsiyalar" title="Integratsiyalar"><Settings2 /><span>Integratsiyalar</span></Link></Button>
           </div>
         </div>
 
@@ -221,14 +221,14 @@ function ProductPage({ query, page, onPage, coverage, connected, postsReady, can
   if (resource.error && !resource.data) return <Notice message={resource.error} onRetry={resource.refresh} />;
   if (!resource.data) return <LoadingRows />;
   const { results, count, pages } = resource.data;
-  if (results.length === 0) return <Empty title={query ? "Tovar topilmadi" : "Hozircha tovar yo‘q"} description={query ? "Boshqa nom yoki SKU bilan qidirib ko‘ring." : "Avval omborga tovar qo‘shing, keyin uni tarmoqlarga joylang."} action={page > 1 ? <Button variant="outline" onClick={() => onPage(1)}>Birinchi sahifaga qaytish</Button> : !query ? <Button asChild variant="outline"><Link href={"/warehouse" as Route}>Omborga o‘tish<ArrowRight /></Link></Button> : undefined} />;
+  if (results.length === 0) return <Empty title={query ? "Tovar topilmadi" : "Hozircha tovar yo‘q"} description={query ? "Boshqa nom yoki SKU bilan qidirib ko‘ring." : "Avval omborga tovar qo‘shing, keyin uni tarmoqlarga joylang."} action={page > 1 ? <Button variant="outline" onClick={() => onPage(1)}>Birinchi sahifaga qaytish</Button> : !query ? <Button asChild variant="outline"><Link href={"/dashboard/warehouse" as Route}>Omborga o‘tish<ArrowRight /></Link></Button> : undefined} />;
   return <section className={styles.catalog} aria-label="Tovarlarning tarmoqlardagi holati">
     <div className={styles.catalogHeader}><span>Tovar</span><span>Tarmoqlardagi e’lonlar</span></div>
     <div>{results.map((product) => {
       const linked = coverage.get(product.id);
       const platforms = PLATFORM_ORDER.filter((platform) => connected.includes(platform) || linked?.has(platform));
       return <article key={product.id} className={styles.productRow}>
-        <Link href={`/warehouse/${product.id}` as Route} className={styles.productIdentity}>
+        <Link href={`/dashboard/warehouse/${product.id}` as Route} className={styles.productIdentity}>
           <span className={styles.productImage}>{product.image ? <img src={product.image} alt="" loading="lazy" /> : <Package />}</span>
           <span><strong>{product.title}</strong><small>{[product.variantName, product.skuCode ?? product.sellerSku ?? `ID ${product.id}`].filter(Boolean).join(" · ")}</small></span>
         </Link>
@@ -260,7 +260,7 @@ function NetworkFeed({ platform, posts, onLink, onUnlink, onPublish }: { platfor
 }
 
 function Disconnected({ platform }: { platform?: SocialPlatform }) {
-  return <Empty title={platform ? `${PLATFORM_LABEL[platform]} hali ulanmagan` : "Birinchi tarmog‘ingizni ulang"} description="Akkauntingizni ulang. Tovarlarni joylash va e’lonlarni kuzatish shu yerda bo‘ladi." action={<Button asChild><Link href={"/integrations" as Route}>Tarmoq ulash<ArrowRight /></Link></Button>} />;
+  return <Empty title={platform ? `${PLATFORM_LABEL[platform]} hali ulanmagan` : "Birinchi tarmog‘ingizni ulang"} description="Akkauntingizni ulang. Tovarlarni joylash va e’lonlarni kuzatish shu yerda bo‘ladi." action={<Button asChild><Link href={"/dashboard/integrations" as Route}>Tarmoq ulash<ArrowRight /></Link></Button>} />;
 }
 
 function Empty({ title, description, action }: { title: string; description: string; action?: React.ReactNode }) {

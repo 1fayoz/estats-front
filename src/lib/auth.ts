@@ -1,10 +1,19 @@
 // Session helpers.
 //
 // The credential a seller types is their Uzum Seller API token. It is sent to the
-// backend once, exchanged for a JWT, and never stored in the browser again — what
-// persists on the device is the JWT, not the Uzum token.
+// backend once, exchanged for a JWT, and never stored in the browser again. The JWT
+// itself lives in next-auth's httpOnly cookie; the tab only holds it in memory.
 
 export const AUTH_STORAGE_KEY = "mystats-auth";
+
+// Set by `AuthSessionProvider` from `useSession`; read by every API helper.
+let accessToken: string | null = null;
+
+export const getAccessToken = () => accessToken;
+
+export const setAccessToken = (token: string | null) => {
+  accessToken = token;
+};
 
 /** Minimum length a token must have to be worth sending to the backend. */
 export const MIN_TOKEN_LENGTH = 10;
