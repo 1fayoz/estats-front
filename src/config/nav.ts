@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { BarChart3, ListChecks, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Rocket, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, ListChecks, Boxes, Building2, FileSignature, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Rocket, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -93,6 +93,14 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/finance" as Route,
         icon: Wallet,
         description: "Uzum komissiya va to'lovlari",
+      },
+      {
+        label: "Hujjatlar (Didox)",
+        action: "didox.view",
+        href: "/documents" as Route,
+        icon: FileSignature,
+        description: "Hisob-faktura va dalolatnomalar — E-IMZO bilan qabul",
+        badge: "Yangi",
       },
     ],
   },
