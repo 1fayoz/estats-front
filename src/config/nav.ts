@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { BarChart3, ListChecks, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Rocket, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, FileSpreadsheet, ListChecks, Boxes, Building2, FileText, LayoutDashboard, PackagePlus, Wallet, Calculator, Megaphone, Rocket, Plug, Receipt, SearchCheck, Share2, Store, Target, Settings, Users, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -86,6 +86,15 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: Calculator,
         description: "FIFO bo'yicha tovar kesimida",
         badge: "FIFO",
+      },
+      {
+        label: "Hisobotlar",
+        // Tannarx va sof foyda bor — backend `page("pnl")`.
+        action: "pnl.view",
+        href: "/reports" as Route,
+        icon: FileSpreadsheet,
+        description: "Oylik yopish, aylanma soliq, komissioner hisoboti",
+        badge: "Yangi",
       },
       {
         label: "Moliya",

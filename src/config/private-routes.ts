@@ -27,6 +27,7 @@ export const PRIVATE_ROUTE_SEGMENTS = [
   "intakes",
   "pnl",
   "finance",
+  "reports",
   "settings",
   "login",
 ] as const;
