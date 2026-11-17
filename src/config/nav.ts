@@ -108,6 +108,14 @@ export const NAV_GROUPS: NavGroup[] = [
         badge: "Yangi",
       },
       {
+        label: "Reklama",
+        action: "pnl.view",
+        href: "/ads" as Route,
+        icon: BarChart3,
+        description: "Xarajat, DRR, ROAS, TACoS va reklamadan keyingi foyda",
+        badge: "Yangi",
+      },
+      {
         label: "Bust TOP",
         action: "pnl.view",
         href: "/bust" as Route,

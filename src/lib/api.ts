@@ -1071,8 +1071,118 @@ export interface BustCampaignRow {
   stoppedAt: string | null;
   lastCheckedAt: string | null;
   createdAt: string;
-  actions: { at: string; action: string; query?: string; value?: number; why: string }[];
+  actions: BustAction[];
+  pending?: number;
+  manual?: number;
 }
+
+export type BustActionStatus =
+  | "pending_approval" | "manual" | "executing" | "executed" | "done" | "rejected" | "failed";
+
+/** Avto-rejim yoki sotuvchi amali — kim, qachon, nega va holati. */
+export interface BustAction {
+  id?: string;
+  at: string;
+  by?: string;
+  action: string;
+  kind?: "reduce" | "increase";
+  auto?: boolean;
+  query?: string | null;
+  value?: number | null;
+  words?: string[];
+  why: string;
+  status?: BustActionStatus;
+  instructions?: string;
+  error?: string;
+  decidedBy?: string;
+  decidedAt?: string;
+}
+
+export interface AdKpis {
+  spend: number | null;
+  adRevenue: number | null;
+  impressions: number | null;
+  clicks: number | null;
+  orders: number | null;
+  ctr: number | null;
+  cpo: number | null;
+  drr: number | null;
+  roas: number | null;
+  tacos: number | null;
+  profitAfterAds: number | null;
+  verdict: "ok" | "loss" | "no_spend" | "no_cost" | "no_stats";
+}
+
+export interface AdProductRow extends AdKpis {
+  productId: string;
+  title: string;
+  image: string | null;
+  own: boolean;
+  commission: number | null;
+  status: string | null;
+  issued: number;
+  ownRevenue: number | null;
+  unitProfit: number | null;
+  unitProfitAfterAds: number | null;
+  prevSpend?: number | null;
+  prevDrr?: number | null;
+}
+
+export interface AdCampaignRow extends AdKpis {
+  kind: "cpo" | "bust";
+  id: string | number;
+  name: string;
+  status: string | null;
+  commission: number | null;
+  statsAvailable?: boolean;
+  autopilot?: boolean;
+}
+
+export interface AdMetrics {
+  from: string;
+  to: string;
+  coverage: { from: string; to: string } | null;
+  syncedAt: string | null;
+  error: string | null;
+  summary: AdKpis & { ownRevenue: number | null };
+  previous: (AdKpis & { from: string; to: string; complete: boolean }) | null;
+  daily: { date: string; spend: number; adRevenue: number; orders: number }[];
+  campaigns: AdCampaignRow[];
+  products: AdProductRow[];
+  lossCount: number;
+}
+
+export interface AdCapabilities {
+  liveWrite: boolean;
+  bustStats: boolean;
+  categoryTargeting: boolean;
+  blocked: Record<string, string>;
+}
+
+export const fetchAdMetrics = (from: string, to: string) =>
+  request<AdMetrics>(`/ads/metrics?from=${from}&to=${to}`);
+export const fetchAdCapabilities = () => request<AdCapabilities>("/ads/capabilities");
+
+export interface BustChangeInput {
+  kind: "pause" | "resume" | "bid" | "budget" | "minus";
+  query?: string;
+  value?: number;
+  words?: string[];
+  confirm: true;
+}
+
+type BustActionResult = { action: BustAction; campaign: BustCampaignRow };
+
+export const decideBustAction = (campaignId: number, actionId: string, decision: "approve" | "reject") =>
+  request<BustActionResult>(`/ads/bust/campaigns/${campaignId}/actions/${actionId}/decision`, {
+    method: "POST", body: JSON.stringify({ decision }),
+  });
+export const markBustActionDone = (campaignId: number, actionId: string) =>
+  request<BustActionResult>(`/ads/bust/campaigns/${campaignId}/actions/${actionId}/done`, { method: "POST" });
+export const changeBustCampaign = (campaignId: number, body: BustChangeInput) =>
+  request<BustActionResult>(`/ads/bust/campaigns/${campaignId}/change`, { method: "POST", body: JSON.stringify(body) });
+export const checkBustCampaign = (campaignId: number) =>
+  request<{ new: BustAction[]; campaign: BustCampaignRow }>(`/ads/bust/campaigns/${campaignId}/check`, { method: "POST" });
 
 export const createBustBulk = (body: {
   name: string; weeklyAmount: number; uniform: boolean; minus: string[]; confirm: true;

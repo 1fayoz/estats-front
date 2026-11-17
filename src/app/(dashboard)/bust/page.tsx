@@ -16,6 +16,7 @@ import {
   type BustCampaignRow, type BustShopRow,
 } from "@/lib/api";
 import { formatDate, formatNumber } from "@/lib/format";
+import { BustActions } from "@/features/ads/bust-actions";
 import { BustBulk } from "@/features/ads/bust-bulk";
 
 /**
@@ -141,15 +142,17 @@ export default function BustPage() {
               Hali eStats orqali kampaniya yaratilmagan — tovar sahifasidagi «Bust TOP rejasi»dan yarating.
             </p>
           ) : null}
-          {campaigns.map((c) => <CampaignRow key={c.id} c={c} onUpdate={update} />)}
+          {campaigns.map((c) => <CampaignRow key={c.id} c={c} onUpdate={update}
+                                       onReplace={(row) => setCampaigns((list) => list.map((x) => (x.id === row.id ? row : x)))} />)}
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function CampaignRow({ c, onUpdate }: {
+function CampaignRow({ c, onUpdate, onReplace }: {
   c: BustCampaignRow;
+  onReplace: (row: BustCampaignRow) => void;
   onUpdate: (id: number, body: { autopilot?: boolean; maxWeeklyAmount?: number; stop?: boolean }) => Promise<void>;
 }) {
   const [cap, setCap] = React.useState(String(c.maxWeeklyAmount));
@@ -162,6 +165,8 @@ function CampaignRow({ c, onUpdate }: {
           haftasiga {formatNumber(c.weeklyAmount)} so&apos;m · {formatDate(c.createdAt)}
         </span>
         {c.stoppedAt ? <Badge variant="destructive">to&apos;xtatilgan</Badge> : null}
+        {c.pending ? <Badge variant="outline">{c.pending} ta tasdiq kutmoqda</Badge> : null}
+        {c.manual ? <Badge variant="outline">{c.manual} ta kabinetda bajarish kerak</Badge> : null}
       </div>
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <label className="flex items-center gap-2">
@@ -177,15 +182,7 @@ function CampaignRow({ c, onUpdate }: {
           <OctagonX className="h-3.5 w-3.5" />To&apos;xtatish
         </Button>
       </div>
-      {c.actions.length ? (
-        <ul className="text-muted-foreground space-y-1 text-xs">
-          {c.actions.slice().reverse().map((a, i) => (
-            <li key={i}>{formatDate(a.at)} · {a.action}{a.query ? ` «${a.query}»` : ""} — {a.why}</li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-muted-foreground text-xs">Avto-rejim hali hech narsa qilmagan.</p>
-      )}
+      <BustActions campaign={c} onChange={onReplace} />
     </div>
   );
 }
