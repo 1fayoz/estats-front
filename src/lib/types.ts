@@ -2215,6 +2215,36 @@ export interface AiAudit {
   findings: AiAuditFinding[];
 }
 
+/** Asl suratdagi bitta topilma — Uzum surat talabi (AI'siz, backend `image_check.py`). */
+export interface AiSourceFinding {
+  /** unreadable | format | file_size | resolution | aspect | blur | duplicate */
+  code: string;
+  /** block — Uzum qabul qilmaydi; warn — qabul qiladi, lekin zaif. */
+  severity: "block" | "warn";
+  reason: string;
+  fix: string;
+  /** Biz o'zimiz tuzatamiz (masalan 5 MB dan katta fayl yuborishda siqiladi). */
+  autoFixable: boolean;
+}
+
+export interface AiSourceImageCheck {
+  url: string;
+  score: number;
+  width: number;
+  height: number;
+  format: string;
+  sizeBytes: number;
+  findings: AiSourceFinding[];
+}
+
+export interface AiSourceCheck {
+  /** Tayyorlik 0-100. */
+  score: number;
+  blocking: number;
+  warnings: number;
+  images: AiSourceImageCheck[];
+}
+
 export interface AiCategoryLevel {
   depth: number;
   /** Avtomatika shu darajada tanlagan nom (ishonchli bo'lmasa ham). */
@@ -2367,6 +2397,8 @@ export interface AiDraft extends AiDraftRow {
   imageHistoryIndexes: number[];
   /** Joylashdan oldingi tekshiruv — matn, rasm, MXIK to'liqmi. */
   audit: AiAudit | null;
+  /** Asl suratlar tekshiruvi — format, hajm, o'lcham, nisbat, xiralik, takror. Eski backendda yo'q. */
+  sourceCheck?: AiSourceCheck | null;
   /** Uzum'ga avtomatik joylash holati. Hali boshlanmagan bo'lsa `null`. */
   uzumPublish: AiUzumPublish | null;
   /** Uzum turkumi — endi qoralamaning O'Z maydoni, joylash paytida topiladigan narsa emas. */

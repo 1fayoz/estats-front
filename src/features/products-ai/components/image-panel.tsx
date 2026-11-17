@@ -10,6 +10,7 @@ import { formatEta, useImageJob } from "@/features/products-ai/use-image-job";
 import { ImageSettingsPanel } from "@/features/products-ai/components/image-settings-panel";
 import { VariantsPanel } from "@/features/products-ai/components/variants-panel";
 import { SourcesPanel } from "@/features/products-ai/components/sources-panel";
+import { SourceCheckDot, SourceCheckPanel } from "@/features/products-ai/components/source-check-panel";
 import { ApiError, excludeAiImage, mediaUrl, patchAiDraft, redoAiImages, revertAiImage } from "@/lib/api";
 import { imageCostText, sessionsForImage } from "@/features/products-ai/workspace/lib";
 import type { AiChatSession, AiDraft } from "@/lib/types";
@@ -473,6 +474,7 @@ export function ImagePanel({
       )}
 
       {intelligencePlan && !locked && <SourcesPanel draft={draft} onChange={onChange} working={working} />}
+      <SourceCheckPanel check={draft.sourceCheck} />
       {intelligencePlan && <VariantsPanel draft={draft} onChange={onChange} locked={locked} />}
       {intelligencePlan && !locked && <ImageSettingsPanel draft={draft} onChange={onChange} disabled={working} />}
 
@@ -556,13 +558,15 @@ export function ImagePanel({
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Asl suratlar</p>
           <div className="flex flex-wrap gap-2">
             {draft.sourceImages.map((url, index) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={url}
-                src={mediaUrl(url)}
-                alt={`Asl surat ${index + 1}`}
-                className="h-20 w-16 rounded-lg border object-cover opacity-80"
-              />
+              <span key={url} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={mediaUrl(url)}
+                  alt={`Asl surat ${index + 1}`}
+                  className="h-20 w-16 rounded-lg border object-cover opacity-80"
+                />
+                <SourceCheckDot check={draft.sourceCheck} url={url} />
+              </span>
             ))}
           </div>
         </section>

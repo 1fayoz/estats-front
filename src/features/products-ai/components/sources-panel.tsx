@@ -5,6 +5,7 @@ import { AlertTriangle, Check, ImagePlus, Images, Loader2, RefreshCw } from "luc
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { SourceCheckDot } from "@/features/products-ai/components/source-check-panel";
 import { ApiError, mediaUrl, regenerateAiDraft, saveAiSources, uploadAiSources } from "@/lib/api";
 import { formatUsd } from "@/lib/format";
 import type { AiDraft } from "@/lib/types";
@@ -133,6 +134,7 @@ export function SourcesPanel({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={mediaUrl(c.url)} alt={c.label} className="h-full w-full object-cover" />
+              <SourceCheckDot check={draft.sourceCheck} url={c.url} />
               {on && (
                 <span className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                   {chosen.indexOf(c.url) + 1}
