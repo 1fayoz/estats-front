@@ -14,6 +14,7 @@ import { AiEngineSwitch, type AiReadiness } from "@/features/integrations/compon
 import { AiApiKeys } from "@/features/integrations/components/ai-api-keys";
 import { AiSessionsDialog } from "@/features/integrations/components/ai-sessions-dialog";
 import { LensExtensionCard } from "@/features/integrations/components/lens-extension-card";
+import { CabinetRunnerCard } from "@/features/integrations/components/cabinet-runner-card";
 import { NetworkPanel } from "@/features/integrations/components/network-panel";
 import styles from "@/features/integrations/components/integrations.module.css";
 import { TelegramDialog } from "@/features/social/components/telegram-dialog";
@@ -281,7 +282,7 @@ function IntegrationsWorkspace() {
             </div>
           )}
 
-          {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard /></div>}
+          {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard />{hasShop ? <CabinetRunnerCard /> : null}</div>}
 
           {selected === "didox" && <div className={cn(styles.panel, "space-y-4")}><DidoxConnectCard /></div>}
 

@@ -2032,6 +2032,45 @@ export const connectAiWorker = (body: { name: string; userAgent: string; version
     shopScoped: false,
   });
 
+// ── Kabinet vazifalari sotuvchi brauzerida (eStats Lens) ────────────────────
+// Backend: `src/api/cabinet_runner/router.py` (EXTENSION_RUNNER.md).
+
+export type CabinetRunner = {
+  deviceId: number;
+  name: string;
+  revoked: boolean;
+  version: string;
+  lastSeenAt: string;
+  online: boolean;
+  cabinetLoggedIn: boolean;
+};
+
+export type CabinetTaskRow = {
+  id: number;
+  kind: string;
+  status: "queued" | "claimed" | "done" | "failed" | "expired";
+  attempts: number;
+  createdAt: string;
+  finishedAt: string | null;
+  error: string | null;
+  resultStatus: string | null;
+  via: string;
+};
+
+export type CabinetRunnerStatus = {
+  /** Shu do'kon uchun kengaytma yo'li yoqilganmi (bayroq + ro'yxat). */
+  enabled: boolean;
+  flag: boolean;
+  paired: boolean;
+  online: boolean;
+  runners: CabinetRunner[];
+  pending: number;
+  tasks: CabinetTaskRow[];
+};
+
+/** Faol do'kon (X-Shop-Id) bo'yicha. */
+export const fetchCabinetRunnerStatus = () => request<CabinetRunnerStatus>("/cabinet-runner/shop/status");
+
 // ── Didox (EHF/EDO) ──────────────────────────────────────────────────────────
 //
 // Imzo FAQAT brauzerda (E-IMZO): `prepareDidoxSign` imzolanadigan base64 ni
