@@ -2,12 +2,13 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, CircleCheck, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
+import { AlertCircle, CircleCheck, FileSignature, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
 import { toast } from "sonner";
 import { NetworkIcon } from "@/components/brand/network-icons";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
+import { DidoxConnectCard } from "@/features/didox/components/didox-connect-card";
 import { AiWebAccounts } from "@/features/integrations/components/ai-web-accounts";
 import { AiEngineSwitch, type AiReadiness } from "@/features/integrations/components/ai-engine-switch";
 import { AiApiKeys } from "@/features/integrations/components/ai-api-keys";
@@ -170,6 +171,8 @@ function IntegrationsWorkspace() {
     { value: "yandex", label: "Yandex Market", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
     { value: "wb", label: "Wildberries", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
     { value: "ozon", label: "Ozon", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
+    // Didox — do'konga bog'liq (STIR), ruxsati `didox.view` (backend `page("didox")`).
+    { value: "didox", label: "Didox (EHF)", action: "didox.view", icon: <FileSignature />, detail: "Hisob-faktura va dalolatnomalar", connected: false },
     { value: "extension", label: "Brauzer kengaytmasi", action: "integrations.tab.extension", icon: <Puzzle />, detail: "Bozorlar ustida tahlil", connected: false },
     { value: "ai", label: "AI", action: "integrations.tab.ai", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : webLive ? `${webLive} ta brauzer hisobi${aiConfigured ? ` · ${aiConfigured} kalit` : ""}` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: webLive > 0 || aiConfigured > aiBroken },
     ...PLATFORM_ORDER.map((platform) => {
@@ -280,7 +283,9 @@ function IntegrationsWorkspace() {
 
           {selected === "extension" && <div className={cn(styles.panel, "space-y-4")}><LensExtensionCard /></div>}
 
-          {(selected === "extension" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-5")}>
+          {selected === "didox" && <div className={cn(styles.panel, "space-y-4")}><DidoxConnectCard /></div>}
+
+          {(selected === "extension" || selected === "didox" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-5")}>
             <AiEngineSwitch readiness={aiReadiness(webAccounts, aiKey, openAiKey)} />
             <AiWebAccounts accounts={webAccounts} onChanged={load} onOpenSessions={openSessions} />
             <AiApiKeys

@@ -1862,3 +1862,82 @@ export const connectAiWorker = (body: { name: string; userAgent: string; version
     body: JSON.stringify({ name: body.name, userAgent: body.userAgent, version: body.version ?? "" }),
     shopScoped: false,
   });
+
+// ── Didox (EHF/EDO) ──────────────────────────────────────────────────────────
+//
+// Imzo FAQAT brauzerda (E-IMZO): `prepareDidoxSign` imzolanadigan base64 ni
+// beradi, brauzer imzolaydi, `submitDidoxSign` faqat tayyor PKCS#7 ni
+// uzatadi. Server hech qachon imzolamaydi va kalitni ko'rmaydi.
+
+export const fetchDidoxConnection = () =>
+  request<import("@/features/didox/types").DidoxConnection>("/didox/connection");
+
+export const fetchDidoxChallenge = (taxId: string) =>
+  request<{ dataToSignB64: string }>(`/didox/connect/challenge${qs({ taxId })}`);
+
+export const connectDidox = (payload: import("@/features/didox/types").DidoxConnectInput) =>
+  request<import("@/features/didox/types").DidoxConnection>("/didox/connect", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const disconnectDidox = () => request<void>("/didox/connection", { method: "DELETE" });
+
+export const fetchDidoxDocuments = (filters: import("@/features/didox/types").DidoxDocumentFilters) =>
+  request<import("@/features/didox/types").DidoxDocumentList>(`/didox/documents${qs({ ...filters })}`);
+
+export const fetchDidoxStats = (direction: "incoming" | "outgoing") =>
+  request<Record<string, number>>(`/didox/documents/stats${qs({ direction })}`);
+
+export const fetchDidoxDocument = (id: string, direction: "incoming" | "outgoing") =>
+  request<import("@/features/didox/types").DidoxDocumentDetail>(
+    `/didox/documents/${encodeURIComponent(id)}${qs({ direction })}`,
+  );
+
+export const prepareDidoxSign = (id: string, action: import("@/features/didox/types").DidoxSignAction, comment?: string) =>
+  request<import("@/features/didox/types").DidoxPrepareResult>(`/didox/documents/${encodeURIComponent(id)}/sign/prepare`, {
+    method: "POST",
+    body: JSON.stringify({ action, comment: comment || undefined }),
+  });
+
+export const submitDidoxSign = (
+  id: string,
+  payload: { action: import("@/features/didox/types").DidoxSignAction; pkcs7: string; signatureHex: string; comment?: string },
+) =>
+  request<import("@/features/didox/types").DidoxSignResult>(`/didox/documents/${encodeURIComponent(id)}/sign`, {
+    method: "POST",
+    body: JSON.stringify({ ...payload, comment: payload.comment || undefined }),
+  });
+
+export const fetchDidoxUzumMonthly = (months = 6) =>
+  request<import("@/features/didox/types").DidoxUzumMonthly>(`/didox/uzum/monthly${qs({ months })}`);
+
+export const fetchDidoxReconcile = (period: string) =>
+  request<import("@/features/didox/types").DidoxReconcile>(`/didox/uzum/monthly/${period}/reconcile`);
+
+/**
+ * Hujjat PDF'i (blob). `request` ishlatilmaydi — u javobni JSON deb o'qiydi.
+ * Sarlavhalar aynan o'sha: token, do'kon va hisob tanlovi.
+ */
+export async function fetchDidoxPdf(id: string): Promise<Blob> {
+  const persisted = readPersisted();
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/didox/documents/${encodeURIComponent(id)}/pdf`, {
+      cache: "no-store",
+      headers: {
+        ...(persisted.accessToken ? { Authorization: `Bearer ${persisted.accessToken}` } : {}),
+        ...(persisted.activeShopId ? { "X-Shop-Id": String(persisted.activeShopId) } : {}),
+        ...(persisted.workspaceId ? { "X-Workspace-Id": String(persisted.workspaceId) } : {}),
+      },
+    });
+  } catch {
+    throw new ApiError("Serverga ulanib bo'lmadi. Backend ishlayaptimi?", 0);
+  }
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = (body && (body.detail ?? body.message)) || "PDF olinmadi";
+    throw new ApiError(typeof detail === "string" ? detail : "PDF olinmadi", response.status);
+  }
+  return response.blob();
+}

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:eimzo": "node --test tests/eimzo-core.test.mjs"
   },
   "dependencies": {
     "@novnc/novnc": "^1.7.0",
