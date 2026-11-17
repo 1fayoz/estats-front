@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useUserStore } from "@/stores/user-store";
 import { ApiError, SESSION_EXPIRED_EVENT, fetchMe } from "@/lib/api";
+import { AUTH_STORAGE_KEY } from "@/lib/auth";
+import { sessionScopeChanged } from "@/lib/session-scope";
 import { rememberReturn } from "@/lib/lens";
 import { ALL_NAV_ITEMS, visibleNav } from "@/config/nav";
 import { SetPasswordGate } from "@/features/auth/components/set-password";
@@ -97,6 +99,22 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
   }, [router, signOut]);
+
+  // Boshqa oynada do'kon/hisob almashsa, chiqilsa yoki boshqa odam kirsa:
+  // localStorage umumiy, ya'ni shu oynaning keyingi so'rovlari YANGI
+  // `X-Shop-Id` bilan ketadi, ekranda esa ESKI do'kon ma'lumoti (qoralama,
+  // forma) turibdi — saqlash boshqa do'konga yozilib ketardi. Shu sabab
+  // oyna to'liq qayta yuklanadi (shop-switcher bilan bir xil yo'l).
+  React.useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.storageArea !== window.localStorage) return;
+      // `key === null` — localStorage.clear().
+      if (event.key !== null && event.key !== AUTH_STORAGE_KEY) return;
+      if (sessionScopeChanged(event.oldValue, event.newValue)) window.location.reload();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   // Ruxsati yo'q sahifa. Menyudan yashiringan bo'lsa ham manzilni
   // qo'lda yozish yoki eski xatcho'p qolishi mumkin — u holda

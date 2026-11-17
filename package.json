@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:eimzo": "node --test tests/eimzo-core.test.mjs"
+    "test:eimzo": "node --test tests/eimzo-core.test.mjs",
+    "test:session": "node --test tests/session-scope.test.mjs"
   },
   "dependencies": {
     "@novnc/novnc": "^1.7.0",

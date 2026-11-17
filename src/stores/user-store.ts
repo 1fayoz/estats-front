@@ -5,6 +5,23 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 import { AUTH_STORAGE_KEY } from "@/lib/auth";
 import type { Me, Shop, Workspace } from "@/lib/types";
+import { useBroadcastStore } from "@/stores/broadcast-store";
+import { useModerationJobStore } from "@/stores/moderation-job-store";
+import { useSeoJobStore } from "@/stores/seo-job-store";
+
+/**
+ * Xotiradagi (persist'siz) fon do'konlarini tozalaydi.
+ *
+ * Chiqish SPA ichida bo'ladi (sahifa qayta yuklanmaydi): tozalanmasa,
+ * shu oynada boshqa odam kirganda panelda oldingi foydalanuvchining
+ * e'lonlari / SEO / moderatsiya ishlari (tovar nomlari bilan) qolardi —
+ * yangi foydalanuvchining birinchi so'rovi xato bersa, abadiy.
+ */
+function resetSessionStores() {
+  useBroadcastStore.setState({ items: [], dismissed: [] });
+  useSeoJobStore.setState({ jobs: [] });
+  useModerationJobStore.setState({ jobs: [], dismissed: new Set() });
+}
 
 interface AuthState {
   /** Backend-issued JWT — the only credential kept on this device. */
@@ -68,13 +85,15 @@ export const useUserStore = create<AuthState>()(
       // Hisob almashganda do'kon tanlovi ham bekor qilinadi: eski
       // do'kon yangi hisobda umuman yo'q va u 404 berardi.
       setWorkspace: (workspaceId) => set({ workspaceId, activeShopId: null }),
-      signOut: () =>
+      signOut: () => {
+        resetSessionStores();
         set({
           accessToken: null,
           user: null,
           activeShopId: null,
           workspaceId: null,
-        }),
+        });
+      },
       setHydrated: (value) => set({ hydrated: value }),
     }),
     {
