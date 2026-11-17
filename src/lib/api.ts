@@ -767,6 +767,65 @@ export const deleteGoal = (id: number) =>
 export const fetchFinanceReport = <T>(from: string, to: string) =>
   request<T>(`/finance/orders${qs({ from, to })}`);
 
+// ── hisobotlar (oylik yopish) ────────────────────────────────────────────────
+// Tiplar `features/reports/types.ts` da — shu yerda generik: boshqa bo'limlar
+// bilan `types.ts` ni bo'lishmaslik uchun (xuddi `fetchFinanceReport` kabi).
+
+type ReportParams = { month?: string; from?: string; to?: string; basis?: string; taxRate?: number };
+
+export const fetchMonthlyReport = <T>(p: ReportParams) =>
+  request<T>(`/reports/monthly${qs(p)}`);
+
+export const fetchCommissionerReport = <T>(period: string) =>
+  request<T>(`/reports/commissioner/${period}`);
+
+export function uploadCommissionerReport<T>(period: string, file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  return request<T>(`/reports/commissioner/${period}`, { method: "POST", body: form });
+}
+
+export const deleteCommissionerReport = (period: string) =>
+  request<void>(`/reports/commissioner/${period}`, { method: "DELETE" });
+
+/** Ikkilik faylni (Excel/CSV) token va do'kon sarlavhasi bilan yuklab oladi. */
+async function downloadFile(path: string, fallbackName: string) {
+  const persisted = readPersisted();
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      cache: "no-store",
+      headers: {
+        ...(persisted.accessToken ? { Authorization: `Bearer ${persisted.accessToken}` } : {}),
+        ...(persisted.activeShopId ? { "X-Shop-Id": String(persisted.activeShopId) } : {}),
+        ...(persisted.workspaceId ? { "X-Workspace-Id": String(persisted.workspaceId) } : {}),
+      },
+    });
+  } catch {
+    throw new ApiError("Serverga ulanib bo'lmadi. Backend ishlayaptimi?", 0);
+  }
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = (body && (body.detail ?? body.message)) || "Fayl chiqmadi";
+    throw new ApiError(typeof detail === "string" ? detail : "Fayl chiqmadi", response.status);
+  }
+  const matched = /filename="?([^"]+)"?/.exec(response.headers.get("Content-Disposition") || "");
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = matched?.[1] || fallbackName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+export const downloadMonthlyReport = (p: ReportParams, format: "xlsx" | "csv") =>
+  downloadFile(`/reports/monthly/export${qs({ ...p, format })}`, `estats-hisobot.${format}`);
+
+export const downloadCommissionerFile = (period: string) =>
+  downloadFile(`/reports/commissioner/${period}/file`, `komissioner-${period}.xlsx`);
+
 // ── doimiy to'lovlar (recurring expenses) ────────────────────────────────────
 
 export const fetchExpenses = (includeInactive = false) =>

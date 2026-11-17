@@ -28,6 +28,7 @@ export const PRIVATE_ROUTE_SEGMENTS = [
   "pnl",
   "finance",
   "documents",
+  "reports",
   "settings",
   "login",
 ] as const;
