@@ -276,3 +276,17 @@ export function visibleNav(actions: string[] | undefined): NavGroup[] {
       .filter((item) => !item.children || item.children.length > 0),
   })).filter((group) => group.items.length > 0);
 }
+
+/**
+ * Ruxsat bo'yicha birinchi ochiq sahifa yoki `null`.
+ *
+ * `null` — bu hisobda HECH QAYSI bo'lim ochiq emas (masalan, egasi a'zoni
+ * birorta ruxsat belgilamasdan taklif qilgan yoki oxirgi ruxsatini olib
+ * tashlagan). Ilgari bu holda "/market" qaytarilardi — u esa o'zi
+ * `market.view` talab qiladi, ya'ni AuthGuard odamni yopiq sahifaga
+ * yo'naltirib, cheksiz "Sessiya tekshirilmoqda..." ekranida qoldirardi.
+ */
+export function firstAllowedPath(actions: string[] | undefined): string | null {
+  const first = visibleNav(actions)[0]?.items[0];
+  return first?.children?.[0]?.href ?? first?.href ?? null;
+}
