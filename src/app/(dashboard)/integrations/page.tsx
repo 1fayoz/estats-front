@@ -29,6 +29,7 @@ import {
   ApiError, fetchAiKey, fetchAiWebAccounts, fetchInstagramConnectUrl, fetchOpenAiKey, fetchSocialAccounts, fetchSocialApps,
   fetchSocialConnectUrl, fetchSocialPlatforms,
 } from "@/lib/api";
+import { consumeOAuthPending, markOAuthPending, oauthErrorMessage } from "@/lib/oauth-return";
 import { aiFamily } from "@/lib/ai-accounts";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
@@ -143,7 +144,10 @@ function IntegrationsWorkspace() {
     const returnKey = `${failed}:${connected}`;
     if (handledReturn.current === returnKey) return;
     handledReturn.current = returnKey;
-    if (failed) toast.error(failed);
+    // Begona matn kabinet ichida ko'rsatilmaydi — `oauth-return.ts`.
+    const pending = consumeOAuthPending();
+    const message = oauthErrorMessage(failed, pending);
+    if (message) toast.error(message);
     if (connected) { toast.success(`${PLATFORM_LABEL[connected] ?? connected} ulandi`); void load(); }
   }, [failed, connected, load]);
 
@@ -154,6 +158,7 @@ function IntegrationsWorkspace() {
     setConnecting(true);
     try {
       const { url } = platform === "instagram" ? await fetchInstagramConnectUrl(hasAccounts) : await fetchSocialConnectUrl(platform);
+      markOAuthPending();
       window.location.href = url;
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : "Ulanib bo'lmadi. Qayta urinib ko'ring.");
