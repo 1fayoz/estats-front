@@ -12,6 +12,7 @@
 
 import { API_BASE, ApiError } from "./api";
 import { AUTH_STORAGE_KEY } from "./auth";
+import { isReturnAllowed } from "./return-path";
 
 export const LENS_BASE =
   process.env.NEXT_PUBLIC_LENS_API?.replace(/\/$/, "") || API_BASE.replace(/\/api\/v1$/, "/lens/api/v1");
@@ -111,12 +112,11 @@ export function isExtensionMessage(event: MessageEvent): event is MessageEvent<E
   return event.source === window && event.origin === window.location.origin && event.data?.source === SOURCE_EXTENSION;
 }
 
-/** Faqat shu ulash sahifasiga qaytish mumkin — ochiq yo'naltirish (open redirect) bo'lmasin. */
+/** Faqat ulash sahifalariga qaytish mumkin — ro'yxat `return-path.ts` da. */
 const RETURN_KEY = "estats:return-after-login";
-const RETURN_ALLOWED = /^\/extension\/connect(\?[^#]*)?$/;
 
 export function rememberReturn(path: string): void {
-  if (!RETURN_ALLOWED.test(path)) return;
+  if (!isReturnAllowed(path)) return;
   try {
     window.sessionStorage.setItem(RETURN_KEY, path);
   } catch {
@@ -128,7 +128,7 @@ export function consumeReturn(): string | null {
   try {
     const path = window.sessionStorage.getItem(RETURN_KEY);
     window.sessionStorage.removeItem(RETURN_KEY);
-    return path && RETURN_ALLOWED.test(path) ? path : null;
+    return isReturnAllowed(path) ? path : null;
   } catch {
     return null;
   }
