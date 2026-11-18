@@ -20,7 +20,7 @@ export const metadata: Metadata = buildMetadata({
   absoluteTitle: true,
 });
 
-const UPDATED = { uz: "2026-yil 17-sentabr", ru: "17 сентября 2026 г.", en: "September 17, 2026" };
+const UPDATED = { uz: "2026-yil 18-noyabr", ru: "18 ноября 2026 г.", en: "November 18, 2026" };
 const CONTACT = "turaqulovfayoz4@gmail.com";
 
 export default function LensPrivacyPage() {
@@ -51,7 +51,17 @@ export default function LensPrivacyPage() {
             <strong>uzum.uz sahifasidagi identifikatorlar.</strong>{" "}Ochilgan sahifadagi tovar kartochkalarining ID raqamlari, turkum ID&apos;si yoki
             do&apos;kon nomi (manzildan) va tovar sahifasining ID&apos;si eStats serveriga yuboriladi — javobda shu tovarlar bo&apos;yicha statistika
             keladi. Sahifaning to&apos;liq matni, siz yozgan qidiruv so&apos;rovlari, Uzum hisobingiz, cookie&apos;lar va boshqa saytlardagi faoliyat
-            o&apos;qilmaydi va yuborilmaydi.
+            o&apos;qilmaydi va yuborilmaydi (kabinet vazifalari — quyida, faqat siz yoqsangiz).
+          </li>
+          <li>
+            <strong>Sotuvchi kabineti vazifalari (ixtiyoriy, 1.1.0 dan).</strong>{" "}Faqat siz kengaytma oynachasida «Shu brauzerda bajarish» ni
+            yoqib, Chrome so&apos;ragan qo&apos;shimcha ruxsatni (seller.uzum.uz, api-seller.uzum.uz, analytics-seller.uzum.uz va webRequest) berganingizda
+            ishlaydi. Shunda kengaytma eStats navbatidagi SIZNING do&apos;koningiz vazifalarini (turkumlar daraxti, moderatsiya sabablari, reklama va
+            voronka statistikasi, siz alohida tasdiqlagan Bust TOP kampaniyasi) o&apos;zingiz kirgan kabinet tabida bajaradi. Buning uchun kabinet
+            ilovasining o&apos;z so&apos;rovidagi avtorizatsiya sarlavhasi brauzerning sessiya xotirasida vaqtincha ushlanadi — u eStats&apos;ga ham, boshqa
+            joyga ham YUBORILMAYDI. eStats&apos;ga faqat: kabinetga kirilganmi va qaysi Uzum do&apos;kon raqamlari ko&apos;rinayotgani (vazifa begona
+            do&apos;konga ketmasligi uchun) hamda vazifa natijasi (Uzum javobidan olingan turkumlar, sabablar, statistika) yuboriladi. Paroliningiz
+            o&apos;qilmaydi, Cloudflare yoki boshqa tekshiruvlar yechilmaydi. O&apos;chirsangiz kengaytma kabinetga umuman tegmaydi va ishchi tab yopiladi.
           </li>
           <li>
             <strong>Siz kiritgan hisob-kitob.</strong>{" "}Unit iqtisodiyot kalkulyatoriga kiritilgan qiymatlar (tannarx, qadoq hajmi, marja va h.k.)
@@ -137,6 +147,16 @@ export default function LensPrivacyPage() {
             поисковые запросы, аккаунт Uzum, cookie и активность на других сайтах не читаются и не отправляются.
           </li>
           <li>
+            <strong>Задачи кабинета продавца (необязательно, с версии 1.1.0).</strong>{" "}Работают, только если вы включили «Выполнять в этом
+            браузере» во всплывающем окне и выдали дополнительное разрешение Chrome (seller.uzum.uz, api-seller.uzum.uz,
+            analytics-seller.uzum.uz и webRequest). Тогда расширение выполняет задачи ВАШЕГО магазина из очереди eStats (дерево категорий, причины
+            модерации, статистика рекламы и воронки, отдельно подтверждённая вами кампания Bust TOP) во вкладке кабинета, где вы сами вошли. Для
+            этого заголовок авторизации из собственного запроса приложения кабинета временно хранится в сессионной памяти браузера — он НЕ
+            отправляется ни в eStats, ни куда-либо ещё. В eStats отправляются только: выполнен ли вход и какие номера магазинов Uzum видны (чтобы
+            задача не ушла в чужой магазин), а также результат задачи (категории, причины, статистика из ответа Uzum). Пароль не читается,
+            проверки Cloudflare и другие не обходятся. Если выключить, расширение не обращается к кабинету, а рабочая вкладка закрывается.
+          </li>
+          <li>
             <strong>Введённые вами расчёты.</strong>{" "}Значения калькулятора юнит-экономики (себестоимость, объём упаковки, маржа и т. п.) сохраняются
             на сервере в вашем аккаунте, чтобы не вводить их повторно. Список отслеживаемых товаров тоже хранится на сервере; при изменении цены
             или остатка уведомление приходит в Telegram-чат, привязанный к аккаунту.
@@ -215,6 +235,16 @@ export default function LensPrivacyPage() {
             <strong>Identifiers from uzum.uz pages.</strong>{" "}The IDs of product cards shown on the open page, the category ID or shop name (taken from
             the address), and the product ID on a product page are sent to the eStats server, which returns statistics for those products. The
             full page text, your search queries, your Uzum account, cookies, and activity on other websites are not read or sent.
+          </li>
+          <li>
+            <strong>Seller cabinet tasks (optional, since 1.1.0).</strong>{" "}Active only if you turn on &quot;Run in this browser&quot; in the popup
+            and grant Chrome&apos;s additional permission (seller.uzum.uz, api-seller.uzum.uz, analytics-seller.uzum.uz and webRequest). The extension
+            then runs YOUR shop&apos;s tasks from the eStats queue (category tree, moderation reasons, ad and funnel statistics, and a Bust TOP campaign
+            you explicitly confirm) inside the seller cabinet tab where you signed in yourself. To do so, the authorization header of the cabinet
+            app&apos;s own request is kept temporarily in the browser&apos;s session memory — it is NOT sent to eStats or anywhere else. Only the following
+            is sent to eStats: whether you are signed in and which Uzum shop numbers are visible (so a task never runs against another shop), and the
+            task result (categories, reasons, statistics taken from Uzum&apos;s response). Your password is not read, and Cloudflare or other checks are
+            not bypassed. When switched off, the extension does not touch the cabinet and closes the worker tab.
           </li>
           <li>
             <strong>Calculations you enter.</strong>{" "}Values entered in the unit-economics calculator (cost price, package volume, margin, etc.) are
