@@ -15,4 +15,6 @@ interface TelegramWebApp {
 
 interface Window {
   Telegram?: { WebApp?: TelegramWebApp };
+  /** Telegram mijozi (mobil/desktop) qo'yadigan ko'prik. */
+  TelegramWebviewProxy?: unknown;
 }
