@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { telegramLogin } from "@/lib/api";
 import { useUserStore } from "@/stores/user-store";
 
+import { isInsideTelegramClient, scrubTelegramLaunchParams } from "./telegram-client";
+
 /**
  * Telegram WebApp'dan kirish — qayta login qilmasdan.
  *
@@ -53,7 +55,17 @@ export function TelegramWebApp() {
     const initData = window.Telegram?.WebApp?.initData;
     if (!initData) return;
 
-    // Saqlangan token bo'lsa ham qayta kiramiz.
+    // `initData` URL'dan kelgan, lekin sahifa Telegram ichida EMAS —
+    // bu begona havola (login CSRF). Kirmaymiz va satrni o'chiramiz.
+    // Batafsil: `telegram-client.ts`.
+    if (!isInsideTelegramClient(window)) {
+      loginAttempted = true;
+      scrubTelegramLaunchParams();
+      return;
+    }
+
+    // Saqlangan token bo'lsa ham qayta kiramiz (faqat Telegram ichida —
+    // yuqoridagi tekshiruv).
     //
     // Telegram Web WebApp'ni AYNI o'sha domenda ochadi, ya'ni
     // localStorage umumiy. Brauzerda boshqa hisob saqlanib qolgan

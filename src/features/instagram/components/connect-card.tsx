@@ -12,6 +12,7 @@ import {
   ApiError, disconnectInstagram, fetchInstagramAccount, fetchInstagramChoices,
   fetchInstagramConnectUrl, selectInstagramAccount,
 } from "@/lib/api";
+import { consumeOAuthPending, markOAuthPending, oauthErrorMessage } from "@/lib/oauth-return";
 import { cn } from "@/lib/utils";
 import type { InstagramAccount, InstagramChoices } from "@/lib/types";
 
@@ -51,7 +52,10 @@ export function InstagramConnectCard() {
   React.useEffect(() => {
     const error = params.get("ig_error");
     const connected = params.get("ig_connected");
-    if (error) toast.error(error);
+    // Begona matn kabinet ichida ko'rsatilmaydi — `oauth-return.ts`.
+    const pending = error || connected ? consumeOAuthPending() : false;
+    const message = oauthErrorMessage(error, pending);
+    if (message) toast.error(message);
     if (connected) {
       toast.success("Facebook ulandi — endi akkauntni tanlang");
       void (async () => setChoices(await fetchInstagramChoices().catch(() => null)))();
@@ -62,6 +66,7 @@ export function InstagramConnectCard() {
     setBusy(true);
     try {
       const { url } = await fetchInstagramConnectUrl();
+      markOAuthPending();
       window.location.href = url;
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Ulanib bo'lmadi.");

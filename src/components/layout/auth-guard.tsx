@@ -8,8 +8,9 @@ import { ApiError, SESSION_EXPIRED_EVENT, fetchMe } from "@/lib/api";
 import { AUTH_STORAGE_KEY } from "@/lib/auth";
 import { sessionScopeChanged } from "@/lib/session-scope";
 import { rememberReturn } from "@/lib/lens";
-import { ALL_NAV_ITEMS, visibleNav } from "@/config/nav";
+import { ALL_NAV_ITEMS, firstAllowedPath } from "@/config/nav";
 import { SetPasswordGate } from "@/features/auth/components/set-password";
+import { Button } from "@/components/ui/button";
 
 /**
  * Protects the dashboard. Once the persisted session is rehydrated it sends the JWT to
@@ -126,15 +127,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     !needed ||
     user.actions === undefined ||
     user.actions.includes(needed);
-  const firstAllowed = React.useMemo(() => {
-    const groups = visibleNav(user?.actions ?? []);
-    const firstGroupItem = groups[0]?.items[0];
-    const target = firstGroupItem?.children?.[0]?.href ?? firstGroupItem?.href ?? "/market";
-    return target;
-  }, [user?.actions]);
+  // `null` — bu hisobda birorta ham bo'lim ochiq emas: yo'naltiradigan
+  // joy yo'q, quyida "ruxsat yo'q" ekrani chiqadi.
+  const firstAllowed = React.useMemo(
+    () => firstAllowedPath(user?.actions ?? []),
+    [user?.actions]
+  );
 
   React.useEffect(() => {
-    if (checked && !allowed) {
+    if (checked && !allowed && firstAllowed) {
       router.replace(firstAllowed as Parameters<typeof router.replace>[0]);
     }
   }, [checked, allowed, firstAllowed, router]);
@@ -144,6 +145,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // emailsiz (Telegram orqali kirgan) a'zo parol bilan kira olmaydi.
   if (checked && user?.email && user.hasPassword === false) {
     return <SetPasswordGate />;
+  }
+
+  // Hech qaysi bo'lim ochiq emas. Spinner o'rniga tushunarli ekran:
+  // topbar chizilmaydi, ya'ni chiqish va hisob almashtirish shu yerda
+  // bo'lmasa odam bu holatdan umuman chiqa olmasdi.
+  if (checked && accessToken && user && !allowed && firstAllowed === null) {
+    return <NoAccess />;
   }
 
   if (
@@ -163,4 +171,55 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+/** Joriy hisobda birorta ham ruxsat yo'q a'zo uchun ekran. */
+function NoAccess() {
+  const router = useRouter();
+  const user = useUserStore((s) => s.user);
+  const setWorkspace = useUserStore((s) => s.setWorkspace);
+  const signOut = useUserStore((s) => s.signOut);
+  const others = (user?.workspaces ?? []).filter((ws) => ws.id !== user?.workspace?.id);
+
+  return (
+    <div className="flex h-svh items-center justify-center bg-background p-4">
+      <div className="w-full max-w-sm space-y-4 text-center">
+        <h1 className="text-lg font-semibold">Bu hisobda ruxsatingiz yo&apos;q</h1>
+        <p className="text-sm text-muted-foreground">
+          {user?.workspace?.name ? `«${user.workspace.name}» hisobida` : "Bu hisobda"} sizga
+          birorta ham bo&apos;lim ochilmagan. Hisob egasidan ruxsat berishini so&apos;rang.
+        </p>
+        {others.length > 0 ? (
+          <div className="space-y-2">
+            {others.map((ws) => (
+              <Button
+                key={ws.id}
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setWorkspace(ws.id);
+                  // Topbar'dagi almashtirgich bilan bir xil yo'l: to'liq
+                  // qayta yuklash, AuthGuard yangi hisob ruxsatiga qarab
+                  // yo'naltiradi.
+                  window.location.assign("/warehouse");
+                }}
+              >
+                «{ws.name}» hisobiga o&apos;tish
+              </Button>
+            ))}
+          </div>
+        ) : null}
+        <Button
+          variant="ghost"
+          className="w-full"
+          onClick={() => {
+            signOut();
+            router.push("/");
+          }}
+        >
+          Chiqish
+        </Button>
+      </div>
+    </div>
+  );
 }

@@ -556,7 +556,18 @@ export const submitUzumSms = (code: string) =>
 export const fetchUzumLoginStatus = (shopId?: number) =>
   request<UzumLoginStatus>("/market/uzum-login/status", shopHeader(shopId));
 
-/** VNC ko'prigining WebSocket manzili — brauzer o'zi shu bilan ulanadi. */
+/**
+ * VNC ko'prigining WebSocket manzili — brauzer o'zi shu bilan ulanadi.
+ *
+ * DIQQAT (audit #37): sessiya JWT'si `?token=` da ketadi, chunki brauzer
+ * WebSocket'iga `Authorization` sarlavhasini qo'yib bo'lmaydi va backend
+ * (`product_ai/vnc.py`) hozircha faqat shu yo'lni qabul qiladi. Query satri
+ * nginx access log'iga tushadi — backend tomonda VNC `location` lariga
+ * `access_log off;` (yoki `$args` siz log_format) qo'yilishi kerak. To'g'ri
+ * yechim — backend qisqa muddatli, bir martalik VNC "ticket" endpointi;
+ * u paydo bo'lganda shu ikki funksiya (`marketLoginVncUrl` ham) JWT
+ * o'rniga ticket'ni qo'yadi.
+ */
 export function uzumLoginVncUrl(shopId: number): string {
   const persisted = readPersisted();
   const token = persisted.accessToken ?? "";
@@ -586,7 +597,8 @@ export const fetchMarketLoginStatus = () =>
 export const fetchMarketAutoRefresh = () =>
   request<MarketAutoRefresh>("/market/token/auto-refresh", { shopScoped: false });
 
-/** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz. */
+/** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz.
+ *  `?token=` haqida — `uzumLoginVncUrl` dagi izohga qarang (audit #37). */
 export function marketLoginVncUrl(): string {
   const persisted = readPersisted();
   const token = persisted.accessToken ?? "";

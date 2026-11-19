@@ -13,6 +13,8 @@ import { ApiError, fetchMarketTokenStatus, fetchMarketUploader, updateMarketToke
 import { cn } from "@/lib/utils";
 import type { MarketTokenStatus, MarketUploader } from "@/lib/types";
 
+import { safeBookmarklet } from "./bookmarklet";
+
 /**
  * Uzum market token — short-lived, so replacing it is a routine action.
  *
@@ -28,6 +30,16 @@ export function MarketTokenCard({ collapsible = false }: { collapsible?: boolean
   const [forbidden, setForbidden] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
+  // `href` React orqali BERILMAYDI: React 19 `javascript:` havolani
+  // xato tashlaydigan satrga almashtiradi va tortilgan xatcho'p ishlamasdi.
+  // Shu sabab atribut DOM'ga to'g'ridan-to'g'ri, tekshiruvdan keyin qo'yiladi.
+  const bookmarklet = safeBookmarklet(uploader?.bookmarklet);
+  const bookmarkletRef = React.useCallback(
+    (el: HTMLAnchorElement | null) => {
+      if (el && bookmarklet) el.setAttribute("href", bookmarklet);
+    },
+    [bookmarklet]
+  );
 
   const load = React.useCallback(async () => {
     try {
@@ -146,14 +158,16 @@ export function MarketTokenCard({ collapsible = false }: { collapsible?: boolean
             <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><MousePointerClick className="size-4 text-muted-foreground" /> Xatcho&apos;p orqali yangilash</span><ChevronDown className="size-4 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none" /></summary>
             <div className="space-y-3 border-t p-4">
             <p className="text-xs leading-relaxed text-muted-foreground">Kompyuterda quyidagi tugmani brauzeringizning xatcho&apos;plar qatoriga torting. Keyin Uzum saytida ko&apos;rsatmalarga amal qiling.</p>
+            {bookmarklet ? (
             <a
-              href={uploader.bookmarklet}
+              ref={bookmarkletRef}
               onClick={(event) => event.preventDefault()}
               draggable
               className="inline-flex min-h-11 cursor-grab items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
             >
               <MousePointerClick className="h-3.5 w-3.5" /> eStats: token
             </a>
+            ) : null}
             <ol className="ml-4 list-decimal space-y-2 text-xs leading-relaxed text-muted-foreground">
               {uploader.instructions.map((line) => (
                 <li key={line} className="break-words">{line}</li>
