@@ -74,10 +74,11 @@ export function UzumVncDialog({
     // qotib qolgan edi (hech qanday xato chiqmasdan). Aniq dinamik
     // import shu muammoni chetlab o'tadi.
     import("@novnc/novnc")
-      .then(({ default: RFBCtor }) => {
+      .then(async ({ default: RFBCtor }) => {
+        const url = await uzumLoginVncUrl(shopId);
         if (cancelled || !targetRef.current) return;
         try {
-          rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
+          rfb = new RFBCtor(targetRef.current, url, { shared: true });
           // Buni tashxis paytida vaqtincha olib tashlagandim (gumon
           // qilingan sabab boshqa bo'lib chiqdi — VNC_PASSWORD) va
           // qaytarishni unutgandim: buning YO'QLIGI aynan shu — pastki

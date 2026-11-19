@@ -51,10 +51,11 @@ export function AiWebVncDialog({
     let rfb: RFB | null = null;
 
     import("@novnc/novnc")
-      .then(({ default: RFBCtor }) => {
+      .then(async ({ default: RFBCtor }) => {
+        const url = await uzumLoginVncUrl(shopId);
         if (cancelled || !targetRef.current) return;
         try {
-          rfb = new RFBCtor(targetRef.current, uzumLoginVncUrl(shopId), { shared: true });
+          rfb = new RFBCtor(targetRef.current, url, { shared: true });
           rfb.scaleViewport = true;
           rfb.addEventListener("connect", () => setConnecting(false));
           rfb.addEventListener("disconnect", (e) => {

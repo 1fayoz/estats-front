@@ -557,22 +557,29 @@ export const fetchUzumLoginStatus = (shopId?: number) =>
   request<UzumLoginStatus>("/market/uzum-login/status", shopHeader(shopId));
 
 /**
- * VNC ko'prigining WebSocket manzili — brauzer o'zi shu bilan ulanadi.
+ * VNC WebSocket'i uchun autentifikatsiya qismi (`ticket=…` yoki `token=…`).
  *
- * DIQQAT (audit #37): sessiya JWT'si `?token=` da ketadi, chunki brauzer
- * WebSocket'iga `Authorization` sarlavhasini qo'yib bo'lmaydi va backend
- * (`product_ai/vnc.py`) hozircha faqat shu yo'lni qabul qiladi. Query satri
- * nginx access log'iga tushadi — backend tomonda VNC `location` lariga
- * `access_log off;` (yoki `$args` siz log_format) qo'yilishi kerak. To'g'ri
- * yechim — backend qisqa muddatli, bir martalik VNC "ticket" endpointi;
- * u paydo bo'lganda shu ikki funksiya (`marketLoginVncUrl` ham) JWT
- * o'rniga ticket'ni qo'yadi.
+ * Brauzer WebSocket'iga `Authorization` sarlavhasini qo'yib bo'lmaydi. Ilgari
+ * sessiya JWT'si `?token=` da ketardi va nginx/uvicorn log'iga tushardi
+ * (audit #37/#51). Endi avval `POST /auth/ws-ticket` dan 60 soniyalik BIR
+ * MARTALIK chipta olinadi. Eski backend (endpoint yo'q) yoki Redis ishlamasa
+ * — eski `?token=` yo'liga qaytiladi, oyna ishlashda davom etadi.
  */
-export function uzumLoginVncUrl(shopId: number): string {
-  const persisted = readPersisted();
-  const token = persisted.accessToken ?? "";
+async function vncAuthQuery(): Promise<string> {
+  try {
+    const { ticket } = await request<{ ticket: string }>("/auth/ws-ticket", { method: "POST", shopScoped: false });
+    if (ticket) return `ticket=${encodeURIComponent(ticket)}`;
+  } catch {
+    /* eski backend yoki chipta berilmadi — pastdagi zaxira */
+  }
+  const token = readPersisted().accessToken ?? "";
+  return `token=${encodeURIComponent(token)}`;
+}
+
+/** VNC ko'prigining WebSocket manzili — brauzer o'zi shu bilan ulanadi. */
+export async function uzumLoginVncUrl(shopId: number): Promise<string> {
   const wsBase = API_BASE.replace(/^http/, "ws");
-  return `${wsBase}/product-ai/uzum-login-vnc?token=${encodeURIComponent(token)}&shop_id=${shopId}`;
+  return `${wsBase}/product-ai/uzum-login-vnc?${await vncAuthQuery()}&shop_id=${shopId}`;
 }
 
 // ── Uzum MIJOZ (bozor) hisobiga o'z sessiyasi bilan kirish ────────────────────
@@ -597,13 +604,10 @@ export const fetchMarketLoginStatus = () =>
 export const fetchMarketAutoRefresh = () =>
   request<MarketAutoRefresh>("/market/token/auto-refresh", { shopScoped: false });
 
-/** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz.
- *  `?token=` haqida — `uzumLoginVncUrl` dagi izohga qarang (audit #37). */
-export function marketLoginVncUrl(): string {
-  const persisted = readPersisted();
-  const token = persisted.accessToken ?? "";
+/** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz. */
+export async function marketLoginVncUrl(): Promise<string> {
   const wsBase = API_BASE.replace(/^http/, "ws");
-  return `${wsBase}/product-ai/market-login-vnc?token=${encodeURIComponent(token)}`;
+  return `${wsBase}/product-ai/market-login-vnc?${await vncAuthQuery()}`;
 }
 
 // ── Uzum moderatsiya operatoriga Telegram orqali yozish ───────────────────────
@@ -885,7 +889,10 @@ export const unpayExpense = (id: number, periodKey: string) =>
 export const fetchInstagramAccount = () => request<InstagramAccount>("/instagram/account");
 
 export const fetchInstagramConnectUrl = (add = false) =>
-  request<{ url: string }>(`/instagram/connect${qs({ add: add || undefined })}`);
+  // `credentials: "include"` — backend OAuth boshlanishini shu brauzerga
+  // bog'laydigan nonce cookie qo'yadi (audit #18/#32); usiz callback
+  // «havola eskirgan» deb qaytaradi.
+  request<{ url: string }>(`/instagram/connect${qs({ add: add || undefined })}`, { credentials: "include" });
 
 export const fetchInstagramChoices = () => request<InstagramChoices>("/instagram/choices");
 
@@ -970,7 +977,7 @@ export const deleteSocialApp = (platform: string) =>
 
 /** OAuth bilan ulanadigan tarmoqning login sahifasi. */
 export const fetchSocialConnectUrl = (platform: string) =>
-  request<{ url: string }>(`/social/connect/${platform}`);
+  request<{ url: string }>(`/social/connect/${platform}`, { credentials: "include" });
 
 export const fetchSocialPlatforms = () =>
   request<SocialPlatformRow[]>("/social/platforms");
