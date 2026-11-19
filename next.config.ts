@@ -44,6 +44,15 @@ const nextConfig: NextConfig = {
     // AVIF ham o'chirilgan: GHSA-2xp9-vwfh-vxw4 aynan AVIF yo'lida.
     // next 16.4.6+ ga o'tilgach qayta ko'rib chiqilsin.
     formats: ["image/webp"],
+    // next 16.2.12 hali ham optimizator advisory'lari oralig'ida — shu
+    // sababli `/_next/image` faqat aniq ma'lum fayllarni qabul qiladi
+    // (`?url=` ga istalgan o'z yo'limizni — redirect, API, SVG — berib
+    // bo'lmaydi). Yangi `next/image` manbasi qo'shilsa, shu yerga ham.
+    localPatterns: [
+      { pathname: "/logo.png", search: "" },
+      { pathname: "/logo-mark.png", search: "" },
+      { pathname: "/shots/**", search: "" },
+    ],
   },
   typedRoutes: false,
 
