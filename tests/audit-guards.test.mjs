@@ -8,7 +8,8 @@ import { isInsideTelegramClient, stripTelegramHash } from "../src/features/teleg
 import { firstAllowedPath } from "../src/config/nav.ts";
 import { safeBookmarklet } from "../src/features/settings/bookmarklet.ts";
 import { isReturnAllowed } from "../src/lib/return-path.ts";
-import { GENERIC_OAUTH_ERROR, oauthErrorMessage } from "../src/lib/oauth-return.ts";
+import { GENERIC_OAUTH_ERROR, oauthErrorMessage, oauthReturnTab } from "../src/lib/oauth-return.ts";
+import { buildVncUrl } from "../src/lib/vnc-url.ts";
 import { buildCsp } from "../src/config/csp.ts";
 
 // ── #36 Telegram: hash'dagi initData oddiy brauzerda login qilmaydi ──────────
@@ -110,6 +111,30 @@ test("odam o'zi ulashni boshlagan — provayder matni (qisqartirilgan)", () => {
   assert.equal(oauthErrorMessage("x".repeat(500), true).length, 201);
 });
 
+test("#50: backend'ning yangi state xabari — boshqa brauzerda ham o'zi", () => {
+  const text = "Ulanish havolasi eskirgan yoki boshqa brauzerda ochilgan.";
+  // Boshqa brauzerda `pending` belgisi yo'q — baribir aniq izoh chiqadi.
+  assert.equal(oauthErrorMessage(text, false), text);
+});
+
+// ── #51 Instagram'dan qaytish Instagram tabini ochadi ────────────────────────
+
+const getter = (query) => {
+  const params = new URLSearchParams(query);
+  return (key) => params.get(key);
+};
+
+test("#51: ?ig_connected / ?ig_error — Instagram tabi", () => {
+  assert.equal(oauthReturnTab(getter("ig_connected=1")), "instagram");
+  assert.equal(oauthReturnTab(getter("ig_error=Facebook+kod+qaytarmadi.")), "instagram");
+});
+
+test("#51: tab aniq berilgan yoki ig_* yo'q — tegilmaydi", () => {
+  assert.equal(oauthReturnTab(getter("tab=ai&ig_connected=1")), null);
+  assert.equal(oauthReturnTab(getter("net_connected=tiktok")), null);
+  assert.equal(oauthReturnTab(getter("")), null);
+});
+
 test("xato yo'q — hech narsa", () => {
   assert.equal(oauthErrorMessage(null, true), null);
   assert.equal(oauthErrorMessage("   ", false), null);
@@ -136,4 +161,28 @@ test("dev rejimda HMR uchun eval va websocket", () => {
   const { reportOnly } = buildCsp({ apiUrls: [], dev: true });
   assert.match(reportOnly, /'unsafe-eval'/);
   assert.match(reportOnly, /connect-src [^;]* ws: wss:/);
+});
+
+// ── #48/#49 VNC WebSocket manzili ────────────────────────────────────────────
+
+test("#49: manzilda faqat bir martalik chipta — JWT (token=) yo'q", () => {
+  const url = buildVncUrl("https://api.estats.uz/api/v1", "/product-ai/uzum-login-vnc", { ticket: "t/1+2", shopId: 7 });
+  const parsed = new URL(url);
+  assert.equal(parsed.protocol, "wss:");
+  assert.equal(parsed.pathname, "/api/v1/product-ai/uzum-login-vnc");
+  assert.equal(parsed.searchParams.get("ticket"), "t/1+2");
+  assert.equal(parsed.searchParams.get("shop_id"), "7");
+  assert.equal(parsed.searchParams.has("token"), false);
+});
+
+test("#48: joriy workspace `workspace_id` bilan yuboriladi", () => {
+  const url = new URL(buildVncUrl("http://127.0.0.1:8000/api/v1", "/product-ai/uzum-login-vnc", { ticket: "a", workspaceId: 42, shopId: 3 }));
+  assert.equal(url.protocol, "ws:");
+  assert.equal(url.searchParams.get("workspace_id"), "42");
+});
+
+test("#48: workspace tanlanmagan — parametr qo'shilmaydi (backend o'zi tanlaydi)", () => {
+  const url = new URL(buildVncUrl("https://api.estats.uz/api/v1", "/product-ai/market-login-vnc", { ticket: "a", workspaceId: null }));
+  assert.equal(url.searchParams.has("workspace_id"), false);
+  assert.equal(url.searchParams.has("shop_id"), false);
 });

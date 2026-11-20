@@ -5,6 +5,7 @@
 // the browser — every later call carries only the JWT.
 
 import { AUTH_STORAGE_KEY } from "./auth";
+import { buildVncUrl, VNC_TICKET_ERROR } from "./vnc-url";
 import type {
   Funnel,
   AdPlan,
@@ -557,29 +558,28 @@ export const fetchUzumLoginStatus = (shopId?: number) =>
   request<UzumLoginStatus>("/market/uzum-login/status", shopHeader(shopId));
 
 /**
- * VNC WebSocket'i uchun autentifikatsiya qismi (`ticket=…` yoki `token=…`).
+ * VNC WebSocket manzili: bir martalik chipta + joriy workspace — `vnc-url.ts`.
  *
- * Brauzer WebSocket'iga `Authorization` sarlavhasini qo'yib bo'lmaydi. Ilgari
- * sessiya JWT'si `?token=` da ketardi va nginx/uvicorn log'iga tushardi
- * (audit #37/#51). Endi avval `POST /auth/ws-ticket` dan 60 soniyalik BIR
- * MARTALIK chipta olinadi. Eski backend (endpoint yo'q) yoki Redis ishlamasa
- * — eski `?token=` yo'liga qaytiladi, oyna ishlashda davom etadi.
+ * Chipta olinmasa (Redis, rate-limit, tarmoq) — XATO tashlanadi va oyna
+ * "ulanib bo'lmadi" holatini ko'rsatadi. Ilgari bu holda sessiya JWT'si
+ * `?token=` bilan yuborilardi va log'larga tushardi (audit #49).
  */
-async function vncAuthQuery(): Promise<string> {
+async function vncUrl(path: string, shopId?: number): Promise<string> {
+  let ticket = "";
   try {
-    const { ticket } = await request<{ ticket: string }>("/auth/ws-ticket", { method: "POST", shopScoped: false });
-    if (ticket) return `ticket=${encodeURIComponent(ticket)}`;
-  } catch {
-    /* eski backend yoki chipta berilmadi — pastdagi zaxira */
+    ({ ticket } = await request<{ ticket: string }>("/auth/ws-ticket", { method: "POST", shopScoped: false }));
+  } catch (err) {
+    // Sessiya tugagan bo'lsa — o'sha xato (qayta kirish oqimi ishlaydi).
+    if (err instanceof ApiError && err.isAuthError) throw err;
+    throw new Error(VNC_TICKET_ERROR);
   }
-  const token = readPersisted().accessToken ?? "";
-  return `token=${encodeURIComponent(token)}`;
+  if (!ticket) throw new Error(VNC_TICKET_ERROR);
+  return buildVncUrl(API_BASE, path, { ticket, workspaceId: readPersisted().workspaceId, shopId });
 }
 
 /** VNC ko'prigining WebSocket manzili — brauzer o'zi shu bilan ulanadi. */
-export async function uzumLoginVncUrl(shopId: number): Promise<string> {
-  const wsBase = API_BASE.replace(/^http/, "ws");
-  return `${wsBase}/product-ai/uzum-login-vnc?${await vncAuthQuery()}&shop_id=${shopId}`;
+export function uzumLoginVncUrl(shopId: number): Promise<string> {
+  return vncUrl("/product-ai/uzum-login-vnc", shopId);
 }
 
 // ── Uzum MIJOZ (bozor) hisobiga o'z sessiyasi bilan kirish ────────────────────
@@ -605,9 +605,8 @@ export const fetchMarketAutoRefresh = () =>
   request<MarketAutoRefresh>("/market/token/auto-refresh", { shopScoped: false });
 
 /** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz. */
-export async function marketLoginVncUrl(): Promise<string> {
-  const wsBase = API_BASE.replace(/^http/, "ws");
-  return `${wsBase}/product-ai/market-login-vnc?${await vncAuthQuery()}`;
+export function marketLoginVncUrl(): Promise<string> {
+  return vncUrl("/product-ai/market-login-vnc");
 }
 
 // ── Uzum moderatsiya operatoriga Telegram orqali yozish ───────────────────────
