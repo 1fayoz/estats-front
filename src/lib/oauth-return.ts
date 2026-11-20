@@ -21,6 +21,11 @@ export const GENERIC_OAUTH_ERROR = "Ulanib bo'lmadi. Qayta urinib ko'ring.";
 
 /** Backend (`social/router.py`, `instagram/router.py`) yuboradigan o'zgarmas xabarlar. */
 const KNOWN_MESSAGES = new Set([
+  // State/nonce mos kelmadi — oqim boshqa brauzer/oynada tugagan (audit #50).
+  // Aynan shu holatda bu oynada `pending` belgisi yo'q, shuning uchun matn
+  // ro'yxatda bo'lishi shart, aks holda umumiy xabar chiqadi.
+  "Ulanish havolasi eskirgan yoki boshqa brauzerda ochilgan.",
+  // Eski backend matnlari (orqaga moslik uchun).
   "Ulanish havolasi eskirgan.",
   "Ulanish havolasi mos kelmadi.",
   "Tarmoq kod qaytarmadi.",
@@ -58,4 +63,19 @@ export function consumeOAuthPending(now: number = Date.now()): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * OAuth'dan qaytganda qaysi tab ochilishi kerak (audit #51).
+ *
+ * Instagram callback'i `/integrations?ig_connected=1` (yoki `?ig_error=`)
+ * ga `tab` siz qaytaradi; natijani o'qiydigan `InstagramConnectCard` esa
+ * faqat Instagram tabida turadi. Sukutdagi Uzum tabida odam na xabarni,
+ * na akkaunt tanlash bosqichini ko'rardi. `tab` aniq berilgan bo'lsa —
+ * tegilmaydi. `null` — tabni o'zgartirish shart emas.
+ */
+export function oauthReturnTab(get: (key: string) => string | null): string | null {
+  if (get("tab")) return null;
+  if (get("ig_error") || get("ig_connected")) return "instagram";
+  return null;
 }

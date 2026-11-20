@@ -29,7 +29,7 @@ import {
   ApiError, fetchAiKey, fetchAiWebAccounts, fetchInstagramConnectUrl, fetchOpenAiKey, fetchSocialAccounts, fetchSocialApps,
   fetchSocialConnectUrl, fetchSocialPlatforms,
 } from "@/lib/api";
-import { consumeOAuthPending, markOAuthPending, oauthErrorMessage } from "@/lib/oauth-return";
+import { consumeOAuthPending, markOAuthPending, oauthErrorMessage, oauthReturnTab } from "@/lib/oauth-return";
 import { aiFamily } from "@/lib/ai-accounts";
 import { PLATFORM_LABEL, PLATFORM_ORDER } from "@/lib/platforms";
 import { useAutoRefresh } from "@/lib/use-auto-refresh";
@@ -136,6 +136,16 @@ function IntegrationsWorkspace() {
   useAutoRefresh(load);
 
   const params = useSearchParams();
+  // Instagram'dan qaytish (`?ig_*`) — natijani o'qiydigan karta Instagram
+  // tabida, shu tab bir marta ochiladi (audit #51).
+  const returnTabDone = React.useRef(false);
+  React.useEffect(() => {
+    if (returnTabDone.current) return;
+    const next = oauthReturnTab((key) => params.get(key));
+    if (!next) return;
+    returnTabDone.current = true;
+    setTab(next);
+  }, [params, setTab]);
   const handledReturn = React.useRef<string | null>(null);
   const failed = params.get("net_error");
   const connected = params.get("net_connected");
