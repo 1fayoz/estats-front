@@ -2,7 +2,8 @@
 
 /**
  * «eStats AI» — Gemini/ChatGPT vazifalari sotuvchining O'Z brauzerida
- * (backend §9.53). Karta: kengaytma onlaynmi, qaysi saytga kirilgan va limit
+ * (backend §9.53). 2026-11 dan bajaruvchi — eStats Lens kengaytmasi (1.2.0+,
+ * popup → «AI'ni ulash»); alohida «eStats AI» kengaytmasi kerak emas. Karta: kengaytma onlaynmi, qaysi saytga kirilgan va limit
  * AYNAN qachon tiklanadi (Gemini `/usage` sahifasidan yoki xabar matnidan —
  * taxmin bo'lsa «taxminan» deb yoziladi).
  */
@@ -119,7 +120,7 @@ export function AiWorkerCard({ onOpenHistory }: { onOpenHistory?: () => void }) 
               {status!.online ? <CheckCircle2 className="size-4" /> : <TriangleAlert className="size-4" />}
               {status!.online
                 ? `Kengaytma onlayn${status!.version ? ` (v${status!.version})` : ""} — vazifalarni qabul qilyapti`
-                : "Kengaytma onlayn emas — Chrome'ni oching (kengaytma o'rnatilgan va ulangan bo'lishi kerak)"}
+                : "Kengaytma onlayn emas — Chrome'ni oching (eStats Lens o'rnatilgan, AI ulangan va saytlarga ruxsat berilgan bo'lishi kerak)"}
             </p>
             <div className="grid gap-2 md:grid-cols-2">
               <ProviderRow id="gemini_web" p={status!.providers.gemini_web} online={status!.online} />
@@ -129,8 +130,9 @@ export function AiWorkerCard({ onOpenHistory }: { onOpenHistory?: () => void }) 
               <p className="flex items-start gap-2 rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
                 <PlugZap className="mt-0.5 size-4 shrink-0" />
                 <span>
-                  Ulash: kengaytma belgisini bosing → «eStats&apos;ga ulash». Gemini va ChatGPT&apos;ga shu brauzerda oddiy kirgan bo&apos;lsangiz
-                  yetarli — parol hech qayerga kiritilmaydi.
+                  Ulash: eStats Lens kengaytmasi belgisini bosing → «eStats AI» bo&apos;limi → «AI&apos;ni ulash» (Chrome Gemini va ChatGPT
+                  saytlariga ruxsat so&apos;raydi). Gemini va ChatGPT&apos;ga shu brauzerda oddiy kirgan bo&apos;lsangiz yetarli — parol hech qayerga
+                  kiritilmaydi. Alohida «eStats AI» kengaytmasi endi kerak emas.
                 </span>
               </p>
             ) : null}
