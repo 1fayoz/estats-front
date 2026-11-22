@@ -20,7 +20,7 @@ export const metadata: Metadata = buildMetadata({
   absoluteTitle: true,
 });
 
-const UPDATED = { uz: "2026-yil 18-noyabr", ru: "18 ноября 2026 г.", en: "November 18, 2026" };
+const UPDATED = { uz: "2026-yil 22-noyabr", ru: "22 ноября 2026 г.", en: "November 22, 2026" };
 const CONTACT = "turaqulovfayoz4@gmail.com";
 
 export default function LensPrivacyPage() {
@@ -36,8 +36,9 @@ export default function LensPrivacyPage() {
         <h2>O&apos;zbekcha</h2>
         <p>Oxirgi yangilanish: {UPDATED.uz}</p>
         <p>
-          eStats Lens — eStats (estats.uz) xizmatining brauzer kengaytmasi. U uzum.uz sahifalarida Uzum Market bozor tahlilini ko&apos;rsatadi.
-          Kengaytmaning yagona vazifasi shu va quyidagi ma&apos;lumot faqat shu vazifa uchun ishlatiladi.
+          eStats Lens — eStats (estats.uz) xizmatining brauzer kengaytmasi. U Uzum Market sotuvchisi uchun asbob: uzum.uz sahifalarida bozor
+          tahlilini ko&apos;rsatadi va — faqat siz yoqsangiz — eStats&apos;dagi Uzum e&apos;lonlaringiz uchun vazifalarni shu brauzerda bajaradi. Quyidagi
+          ma&apos;lumot faqat shu vazifa uchun ishlatiladi.
         </p>
 
         <h2>Kengaytma nima bilan ishlaydi</h2>
@@ -62,6 +63,17 @@ export default function LensPrivacyPage() {
             joyga ham YUBORILMAYDI. eStats&apos;ga faqat: kabinetga kirilganmi va qaysi Uzum do&apos;kon raqamlari ko&apos;rinayotgani (vazifa begona
             do&apos;konga ketmasligi uchun) hamda vazifa natijasi (Uzum javobidan olingan turkumlar, sabablar, statistika) yuboriladi. Paroliningiz
             o&apos;qilmaydi, Cloudflare yoki boshqa tekshiruvlar yechilmaydi. O&apos;chirsangiz kengaytma kabinetga umuman tegmaydi va ishchi tab yopiladi.
+          </li>
+          <li>
+            <strong>eStats AI vazifalari (ixtiyoriy, 1.2.0 dan).</strong>{" "}Faqat siz kengaytma oynachasida «AI&apos;ni ulash» ni bosib, Chrome
+            so&apos;ragan qo&apos;shimcha ruxsatni (gemini.google.com, chatgpt.com, ular rasm saqlaydigan *.googleusercontent.com va *.oaiusercontent.com
+            hamda cookies) berganingizda va estats.uz/extension/ai-connect sahifasida ulaganingizda ishlaydi. Buning uchun eStats ALOHIDA AI tokeni
+            beradi (Lens tokenidan mustaqil). Shunda kengaytma eStats navbatidagi SIZNING vazifalaringizni (tovar kartochkasi matni, tovar rasmini
+            yasash va tekshirish) Gemini va ChatGPT&apos;ning qadalgan tabida, o&apos;zingiz kirgan hisob bilan bajaradi: promptni yozadi, tovar suratlarini
+            biriktiradi va javobni o&apos;qiydi. eStats&apos;ga faqat: shu saytlarga kirilganmi, Gemini hisobingiz email&apos;i, Gemini limit holati (foiz va
+            tiklanish vaqti) hamda vazifa natijasi (javob matni, yasalgan rasmlar va suhbat manzili) yuboriladi. Google/OpenAI parollaringiz va
+            cookie qiymatlari o&apos;qilmaydi va yuborilmaydi (cookies ruxsati faqat ChatGPT&apos;ga kirilganini bilish uchun). «AI&apos;ni uzish» token va
+            ruxsatlarni olib tashlaydi, ishchi tablar yopiladi.
           </li>
           <li>
             <strong>Siz kiritgan hisob-kitob.</strong>{" "}Unit iqtisodiyot kalkulyatoriga kiritilgan qiymatlar (tannarx, qadoq hajmi, marja va h.k.)
@@ -130,8 +142,9 @@ export default function LensPrivacyPage() {
         <h2>Русский</h2>
         <p>Последнее обновление: {UPDATED.ru}</p>
         <p>
-          eStats Lens — расширение браузера сервиса eStats (estats.uz). Оно показывает аналитику рынка Uzum Market на страницах uzum.uz. Это
-          единственное назначение расширения, и данные ниже используются только для него.
+          eStats Lens — расширение браузера сервиса eStats (estats.uz). Это инструмент продавца Uzum Market: показывает аналитику рынка на
+          страницах uzum.uz и — только если вы включите — выполняет в этом браузере задачи eStats для ваших объявлений Uzum. Данные ниже
+          используются только для этого.
         </p>
 
         <h2>С какими данными работает расширение</h2>
@@ -155,6 +168,17 @@ export default function LensPrivacyPage() {
             отправляется ни в eStats, ни куда-либо ещё. В eStats отправляются только: выполнен ли вход и какие номера магазинов Uzum видны (чтобы
             задача не ушла в чужой магазин), а также результат задачи (категории, причины, статистика из ответа Uzum). Пароль не читается,
             проверки Cloudflare и другие не обходятся. Если выключить, расширение не обращается к кабинету, а рабочая вкладка закрывается.
+          </li>
+          <li>
+            <strong>Задачи eStats AI (необязательно, с версии 1.2.0).</strong>{" "}Работают, только если вы нажали «Подключить AI» во всплывающем окне,
+            выдали дополнительное разрешение Chrome (gemini.google.com, chatgpt.com, их файловые домены *.googleusercontent.com и *.oaiusercontent.com,
+            а также cookies) и подключили браузер на странице estats.uz/extension/ai-connect. Для этого eStats выдаёт ОТДЕЛЬНЫЙ токен AI (независимо
+            от токена Lens). Расширение выполняет ВАШИ задачи из очереди eStats (текст карточки товара, генерация и проверка изображения товара) в
+            закреплённой вкладке Gemini и ChatGPT с аккаунтом, в который вы вошли сами: вводит запрос, прикрепляет фото товара и читает ответ. В eStats
+            отправляются только: выполнен ли вход на эти сайты, email аккаунта Gemini, состояние лимита Gemini (процент и время восстановления) и
+            результат задачи (текст ответа, созданные изображения и адрес диалога). Пароли Google/OpenAI и значения cookie не читаются и не
+            отправляются (разрешение cookies нужно только чтобы узнать, выполнен ли вход в ChatGPT). «Отключить AI» удаляет токен и разрешения,
+            рабочие вкладки закрываются.
           </li>
           <li>
             <strong>Введённые вами расчёты.</strong>{" "}Значения калькулятора юнит-экономики (себестоимость, объём упаковки, маржа и т. п.) сохраняются
@@ -220,8 +244,9 @@ export default function LensPrivacyPage() {
         <h2>English</h2>
         <p>Last updated: {UPDATED.en}</p>
         <p>
-          eStats Lens is the browser extension of the eStats service (estats.uz). It shows Uzum Market analytics on uzum.uz pages. This is the
-          extension&apos;s single purpose, and the data described below is used only for it.
+          eStats Lens is the browser extension of the eStats service (estats.uz). It is a tool for Uzum Market sellers: it shows market analytics on
+          uzum.uz pages and — only if you turn it on — runs eStats tasks for your Uzum listings in this browser. This is the extension&apos;s single
+          purpose, and the data described below is used only for it.
         </p>
 
         <h2>Data the extension handles</h2>
@@ -245,6 +270,17 @@ export default function LensPrivacyPage() {
             is sent to eStats: whether you are signed in and which Uzum shop numbers are visible (so a task never runs against another shop), and the
             task result (categories, reasons, statistics taken from Uzum&apos;s response). Your password is not read, and Cloudflare or other checks are
             not bypassed. When switched off, the extension does not touch the cabinet and closes the worker tab.
+          </li>
+          <li>
+            <strong>eStats AI tasks (optional, since 1.2.0).</strong>{" "}Active only if you click &quot;Connect AI&quot; in the popup, grant Chrome&apos;s
+            additional permission (gemini.google.com, chatgpt.com, their file domains *.googleusercontent.com and *.oaiusercontent.com, and cookies)
+            and connect the browser on estats.uz/extension/ai-connect. eStats then issues a SEPARATE AI token (independent of the Lens token). The
+            extension runs YOUR tasks from the eStats queue (product card text, product image generation and checks) in a pinned Gemini and ChatGPT
+            tab with the account you signed in to yourself: it types the prompt, attaches the product photos and reads the answer. Only the
+            following is sent to eStats: whether you are signed in to these sites, your Gemini account email, the Gemini limit status (percentage
+            and reset time), and the task result (answer text, generated images and the conversation URL). Your Google/OpenAI passwords and cookie
+            values are not read or sent (the cookies permission is used only to tell whether you are signed in to ChatGPT). &quot;Disconnect AI&quot;
+            removes the token and the permissions and closes the worker tabs.
           </li>
           <li>
             <strong>Calculations you enter.</strong>{" "}Values entered in the unit-economics calculator (cost price, package volume, margin, etc.) are

@@ -2,7 +2,8 @@
  * Kirgandan keyin qaytish mumkin bo'lgan manzillar — sof qism (testlanadi).
  *
  * Faqat kengaytmalarni ulash sahifalari: Lens (`/extension/connect`) va
- * eStats AI (`/extension/ai-connect`). Ikkalasi ham kengaytma bergan
+ * eStats AI (`/extension/ai-connect`, 1.2.0 dan ikkalasini ham eStats Lens
+ * ochadi). Ikkalasi ham kengaytma bergan
  * `?state=` ni kutadi — kirish oralig'ida u yo'qolsa ulash buziladi.
  * Ro'yxat qat'iy va faqat shu kelib chiqishdagi yo'l, ya'ni ochiq
  * yo'naltirish (open redirect) bo'lmaydi.

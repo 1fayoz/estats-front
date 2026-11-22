@@ -59,6 +59,11 @@ export default async function LensPage() {
           e&apos;lonlar (bir xil tovarni kim sotyapti) va o&apos;xshash tovarlar, narx oralig&apos;i va tushumi bilan. Suratlar to&apos;g&apos;ridan-to&apos;g&apos;ri
           solishtiriladi — sun&apos;iy intellektsiz.
         </li>
+        <li>
+          <strong>eStats AI vazifalari (ixtiyoriy)</strong>{" "}— kartochka matni, tovar rasmini yasash va tekshirish server emas, shu brauzerda,
+          Gemini va ChatGPT&apos;dagi o&apos;z hisoblaringiz bilan bajariladi. Kengaytma oynachasidagi «AI&apos;ni ulash» bilan yoqiladi — alohida
+          «eStats AI» kengaytmasi endi kerak emas.
+        </li>
       </ul>
 
       <h2>Qanday ulanadi</h2>
@@ -70,13 +75,14 @@ export default async function LensPage() {
 
       <h2>Ma&apos;lumotlar va maxfiylik</h2>
       <p>
-        Kengaytma faqat uzum.uz sahifalarida va eStats&apos;ning ulash sahifasida ishlaydi. U sahifadagi tovar, turkum va do&apos;kon
+        Kengaytma uzum.uz sahifalarida, eStats&apos;ning ulash sahifalarida va — faqat siz yoqsangiz — sotuvchi kabinetida (seller.uzum.uz)
+        hamda gemini.google.com va chatgpt.com&apos;da ishlaydi. U sahifadagi tovar, turkum va do&apos;kon
         identifikatorlarini eStats serveriga yuboradi va shu tovarlar bo&apos;yicha tahlilni oladi. Uzum parolingiz, sotuvchi kabineti tokeni
         yoki boshqa saytlardagi faoliyatingiz o&apos;qilmaydi va yuborilmaydi.
       </p>
       <p>
-        <strong>Limited Use.</strong>{" "}eStats Lens foydalanuvchi ma&apos;lumotidan faqat kengaytmaning yagona vazifasi — uzum.uz&apos;da bozor tahlilini
-        ko&apos;rsatish uchun foydalanadi; ma&apos;lumot sotilmaydi, reklama yoki kredit baholash uchun ishlatilmaydi va Chrome Web Store User Data
+        <strong>Limited Use.</strong>{" "}eStats Lens foydalanuvchi ma&apos;lumotidan faqat kengaytmaning yagona vazifasi — Uzum sotuvchisiga bozor tahlili
+        va o&apos;z e&apos;lonlari bo&apos;yicha eStats vazifalari uchun foydalanadi; ma&apos;lumot sotilmaydi, reklama yoki kredit baholash uchun ishlatilmaydi va Chrome Web Store User Data
         Policy, jumladan Limited Use talablariga amal qiladi. The use of information received from eStats Lens adheres to the Chrome Web Store User
         Data Policy, including the Limited Use requirements.
       </p>
