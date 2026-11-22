@@ -105,7 +105,7 @@ export const SOURCE_PAGE = "estats-front";
 export const SOURCE_EXTENSION = "estats-lens-extension";
 
 export type ExtensionMessage =
-  | { source: typeof SOURCE_EXTENSION; type: "lens:ready"; version: string }
+  | { source: typeof SOURCE_EXTENSION; type: "lens:ready"; version: string; connected?: boolean }
   | { source: typeof SOURCE_EXTENSION; type: "lens:connected"; ok: boolean };
 
 export function isExtensionMessage(event: MessageEvent): event is MessageEvent<ExtensionMessage> {

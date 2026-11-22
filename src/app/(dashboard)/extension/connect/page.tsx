@@ -48,6 +48,17 @@ function ConnectFlow() {
   const validState = STATE_RE.test(state);
 
   const [phase, setPhase] = React.useState<Phase>("detecting");
+  // Ulangandan keyin sahifa yangilansa yoki qayta ochilsa yana «Shu brauzerni
+  // ulash» chiqmasin: (1) shu `state` bilan ulanish shu tabda eslab qolinadi,
+  // (2) Lens 1.2.1+ `lens:ready` da `connected` ni o'zi aytadi.
+  const doneKey = `lens-connected:${state}`;
+  React.useEffect(() => {
+    try {
+      if (validState && sessionStorage.getItem(doneKey)) setPhase("connected");
+    } catch {
+      /* saqlash o'chirilgan */
+    }
+  }, [doneKey, validState]);
   const [error, setError] = React.useState<string | null>(null);
   const [extensionVersion, setExtensionVersion] = React.useState<string | null>(version);
   const [release, setRelease] = React.useState<LensRelease | null>(null);
@@ -63,11 +74,23 @@ function ConnectFlow() {
       if (!isExtensionMessage(event)) return;
       if (event.data.type === "lens:ready") {
         setExtensionVersion(event.data.version);
-        setPhase((current) => (current === "detecting" || current === "missing" ? "ready" : current));
+        const already = event.data.connected === true;
+        setPhase((current) =>
+          current === "detecting" || current === "missing" || (already && current === "ready")
+            ? (already ? "connected" : "ready")
+            : current,
+        );
       }
       if (event.data.type === "lens:connected") {
         if (timeout.current) clearTimeout(timeout.current);
-        if (event.data.ok) setPhase("connected");
+        if (event.data.ok) {
+          setPhase("connected");
+          try {
+            sessionStorage.setItem(doneKey, "1");
+          } catch {
+            /* saqlash o'chirilgan */
+          }
+        }
         else {
           setError("Kengaytma tokenni qabul qilmadi — ulash havolasi eskirgan. Kengaytma oynachasidan «eStats'ga ulash» ni qayta bosing.");
           setPhase("failed");
@@ -81,7 +104,7 @@ function ConnectFlow() {
       window.removeEventListener("message", onMessage);
       clearTimeout(missing);
     };
-  }, []);
+  }, [doneKey]);
 
   const connect = async () => {
     setPhase("connecting");
