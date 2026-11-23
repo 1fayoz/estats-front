@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle2, KeyRound, Loader2, MonitorSmartphone, Pencil, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -169,17 +170,21 @@ export function UzumSellerLoginCard() {
 
   // `?connect=uzum` (Telegram xabari yoki tepadagi banner havolasi) — oynani DARHOL ochadi,
   // sotuvchi tugma qidirib o'tirmasin. Parametr bir marta ishlatiladi.
-  const autoOpened = React.useRef(false);
+  //
+  // `useSearchParams` — `window.location` EMAS (2026-11-23): ilova ichidagi
+  // o'tishda karta URL almashmasdan OLDIN o'rnatilardi va eski manzilni
+  // o'qib jim qolardi; /integrations ning o'zida banner bosilsa esa effekt
+  // umuman qayta ishlamasdi — «Hozir o'tish» hech narsa qilmasdi.
+  const searchParams = useSearchParams();
+  const wantsConnect = searchParams.get("connect") === "uzum";
   React.useEffect(() => {
-    if (autoOpened.current || typeof window === "undefined") return;
+    if (!wantsConnect) return;
     const url = new URL(window.location.href);
-    if (url.searchParams.get("connect") !== "uzum") return;
-    autoOpened.current = true;
     url.searchParams.delete("connect");
     window.history.replaceState(window.history.state, "", url.toString());
     void onVnc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [wantsConnect, searchParams]);
 
   const onClear = async () => {
     if (busy) return;
