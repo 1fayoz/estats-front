@@ -142,7 +142,21 @@ function ConnectFlow() {
       </div>
 
       <section className="rounded-2xl border bg-card p-5">
-        {!validState ? (
+        {!validState && phase === "ready" ? (
+          // Kengaytma O'RNATILGAN, faqat sahifa to'g'ridan-to'g'ri ochilgan (havolasiz) —
+          // «o'rnating» deyish noto'g'ri (2026-11-23).
+          <Status icon={<PlugZap className="size-5 text-primary" />} title={`eStats Lens o'rnatilgan${version ? ` (${version})` : ""}`}>
+            <p>
+              {permitted === false
+                ? "Gemini va ChatGPT saytlariga ruxsat berilmagan — AI vazifalari shu sababli ishlamayapti. "
+                : ""}
+              Ulash uchun brauzer panelidagi eStats Lens belgisini bosing va «eStats AI» bo&apos;limida «AI&apos;ni ulash» ni tanlang —
+              kengaytma bu sahifani to&apos;g&apos;ri havola bilan o&apos;zi ochadi.
+            </p>
+          </Status>
+        ) : !validState && phase === "detecting" ? (
+          <Status icon={<Loader2 className="size-5 animate-spin text-primary" />} title="Kengaytma qidirilmoqda…" />
+        ) : !validState ? (
           <Status icon={<XCircle className="size-5 text-[var(--bad)]" />} title="Havola noto'g'ri">
             <p>
               Bu sahifani kengaytma o&apos;zi ochadi. Brauzer panelidagi eStats Lens belgisini bosing va «eStats AI» bo&apos;limida «AI&apos;ni ulash» ni
