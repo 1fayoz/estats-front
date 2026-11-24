@@ -181,7 +181,12 @@ export function UzumSellerLoginCard() {
     if (!wantsConnect) return;
     const url = new URL(window.location.href);
     url.searchParams.delete("connect");
-    window.history.replaceState(window.history.state, "", url.toString());
+    // Holat `null` — `window.history.state` EMAS (2026-11-24). Next o'zining
+    // ichki holati (`__NA`) bilan kelgan chaqiruvni «o'zimniki» deb router'ga
+    // SINXRONLAMAYDI: `useSearchParams` da `connect=uzum` qolib ketardi —
+    // tab almashganda manzilga qaytib yozilar (`?connect=uzum&tab=…`) va
+    // karta har qayta chizilganda oyna O'ZI ochilardi.
+    window.history.replaceState(null, "", url.toString());
     void onVnc();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wantsConnect, searchParams]);

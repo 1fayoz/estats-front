@@ -975,6 +975,29 @@ export interface UzumLoginStatus {
   mine: boolean;
   shopId: number | null;
   startedAt: number | null;
+  /** Oyna qachon o'zi yopiladi (unix ms) — faqat o'z sessiyasi uchun. */
+  expiresAt?: number | null;
+  /**
+   * Shu sessiyada Cloudflare «Verify you are human» sahifasi necha marta keldi
+   * va asosiy oyna HOZIR ham shundami. `complete` javobida `challenged` —
+   * kabinet ochilmagan, do'kon «ulandi» deb yozilmagan.
+   */
+  challengeCount?: number;
+  challenged?: boolean;
+  /** Shu do'kon uchun kabinet amallari kengaytma orqali bajarilishi yoqilgan. */
+  extensionEnabled?: boolean;
+}
+
+/** Uzum (Cloudflare) tekshiruvi holati — banner uchun (`challenge.py`). */
+export interface UzumChallenge {
+  pending: boolean;
+  since: number | null;
+  /** Shu do'kon uchun kabinet amallari kengaytma orqali bajarilishi yoqilgan. */
+  extensionEnabled?: boolean;
+  /** Hozir onlayn va kabinetga kirgan kengaytma bor. */
+  extensionOnline?: boolean;
+  /** Server brauzeri yana necha soniya urinmaydi (pauza). */
+  cooldown?: number | null;
 }
 
 export interface UzumLoginStart {
