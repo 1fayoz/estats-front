@@ -120,7 +120,10 @@ export function AiGenerationTray({
                     <div
                       className={cn(
                         "mt-0.5 truncate text-[11px]",
-                        row.error ? "text-destructive" : "text-muted-foreground",
+                        // `--bad`/`--warn` — yuzaga qarab almashadigan tokenlar
+                        // (globals.css): sayt rangidagi (to'q) panelda qattiq
+                        // yozilgan qizil/sariq deyarli o'qilmasdi.
+                        row.error ? "text-[color:var(--bad)]" : "text-muted-foreground",
                       )}
                     >
                       {row.error ?? (isRunning
@@ -141,9 +144,9 @@ export function AiGenerationTray({
                   <span
                     className={cn(
                       "shrink-0 text-[11px] font-semibold tabular-nums",
-                      row.error ? "text-destructive"
+                      row.error ? "text-[color:var(--bad)]"
                         : isRunning ? "text-primary"
-                          : liveEdit ? "text-amber-600 dark:text-amber-400"
+                          : liveEdit ? "text-[color:var(--warn)]"
                             : "text-[color:var(--ok)]",
                     )}
                   >

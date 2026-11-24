@@ -474,11 +474,20 @@
  * o'z rangini shu tokenlardan oladi va ular qorong'i qolsa
  * oq fonda oq matn chiqadi. */
 .air-surface {
-  color-scheme: light;
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 10px 34px rgba(16, 12, 60, 0.18);
   color: #333;
+}
+
+/* Tokenlar `.air-tray` bilan UMUMIY (burchakdagi fon ishlari paneli,
+   `BroadcastTray`). Panel `.air-surface` dan TASHQARIDA, shell'ning o'zida
+   turadi: tokensiz u `:root` rangini (oq karta) va shell'ning OQ matnini
+   meros olardi — «Fon ishlari · N» tugmasi oq fonda oq matn bo'lib,
+   umuman o'qilmasdi (2026-11-24). */
+.air-surface,
+.air-tray {
+  color-scheme: light;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.21 0.02 270);
@@ -577,8 +586,14 @@
    Sayt rangidagi rejimda ularning oq bo'lib qolmasligi uchun rejim
    `html` ga ham yoziladi va portalning o'ziga xuddi shu tokenlar beriladi. */
 html[data-surface="tinted"] [data-air-portal],
-body:has(.air-shell[data-surface="tinted"]) [data-air-portal] {
+body:has(.air-shell[data-surface="tinted"]) [data-air-portal],
+.air-shell[data-surface="tinted"] .air-tray {
   color-scheme: dark;
+  /* Matn rangi ham SHU YERDA: tokenlar almashadi, lekin `color` `body` dan
+     HISOBLANGAN qiymat bo'lib meros keladi (to'q) — rang klassi yo'q
+     element (modal sarlavhasi, «Bekor qilish») to'q fonda to'q matn bo'lib
+     ko'rinmasdi (2026-11-24, Uzum kabineti oynasi). */
+  color: var(--foreground);
   --background: oklch(0.24 0.055 279);
   --foreground: oklch(0.99 0 0);
   --card: oklch(0.28 0.055 279);
@@ -598,9 +613,16 @@ body:has(.air-shell[data-surface="tinted"]) [data-air-portal] {
   --ring: oklch(0.86 0.09 235);
 }
 
+/* Burchakdagi panel: matn rangi tokendan (oq rejimda to'q, sayt rangida oq)
+   — shell'ning oq matni emas. */
+.air-tray {
+  color: var(--foreground);
+}
+
 .air-shell[data-surface="tinted"] .air-surface,
 .air-shell[data-surface="tinted"] .air-table-wrap,
-.air-shell[data-surface="tinted"] .air-modal {
+.air-shell[data-surface="tinted"] .air-modal,
+.air-shell[data-surface="tinted"] .air-tray {
   /* Shaffof fonda to'q rang yo'qoladi — ochiq tuslar. */
   --ok: #6ee7a8;
   --bad: #ff9b96;

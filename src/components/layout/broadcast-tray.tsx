@@ -105,9 +105,12 @@ export function BroadcastTray() {
     fixes.some((f) => f.status !== "fix_pending");
 
   // Slot HAR DOIM chiziladi (bo'sh bo'lsa ham) — sahifa bo'limlari unga portal qiladi.
+  // `air-tray` — panel `.air-surface` dan tashqarida turadi, rang tokenlari va
+  // matn rangini shu klass beradi (globals.css): usiz karta har doim oq,
+  // pastdagi tugma matni esa oq fonda oq edi.
   return (
     <div className={cn(
-      "pointer-events-none fixed bottom-20 right-4 z-50 flex max-h-[calc(100vh-7rem)] w-[min(23rem,calc(100vw-2rem))] flex-col items-end gap-2 overflow-y-auto lg:bottom-6",
+      "air-tray pointer-events-none fixed bottom-20 right-4 z-50 flex max-h-[calc(100vh-7rem)] w-[min(23rem,calc(100vw-2rem))] flex-col items-end gap-2 overflow-y-auto lg:bottom-6",
       empty && "hidden",
     )}>
       <div ref={setNode} className="flex w-full flex-col gap-2 empty:hidden" />
@@ -173,7 +176,7 @@ export function BroadcastTray() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="pointer-events-auto inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs shadow-lg transition-colors hover:bg-accent"
+        className="pointer-events-auto inline-flex shrink-0 items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs text-card-foreground shadow-lg transition-colors hover:bg-accent hover:text-accent-foreground"
       >
         {busy ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
