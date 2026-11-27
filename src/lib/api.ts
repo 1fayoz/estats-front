@@ -5,7 +5,7 @@
 // the browser — every later call carries only the JWT.
 
 import { AUTH_STORAGE_KEY } from "./auth";
-import { buildVncUrl, VNC_TICKET_ERROR } from "./vnc-url";
+import type { CabinetExtensionSummary } from "./cabinet-extension";
 import type {
   Funnel,
   AdPlan,
@@ -42,7 +42,6 @@ import type {
   MarketTokenStatus,
   MarketUploader,
   MarketAutoRefresh,
-  MarketLoginSession,
   TelegramOperatorStatus,
   TelegramAccountStatus,
   TelegramLoginStep,
@@ -51,10 +50,6 @@ import type {
   ComplaintJob,
   ShopRequestPreview,
   UzumCredentials,
-  UzumAutoLoginResult,
-  UzumChallenge,
-  UzumLoginStart,
-  UzumLoginStatus,
   BroadcastResult,
   BulkValidationResult,
   ChangeImpact,
@@ -508,107 +503,27 @@ export const updateMarketToken = (token: string) =>
     body: JSON.stringify({ token }),
   });
 
-// ── Uzum sotuvchi kabinetiga o'z sessiyasi bilan kirish ───────────────────────
+// ── Uzum sotuvchi kabineti — endi FAQAT sotuvchi brauzerida (eStats Lens) ────
 //
-// `shopId` — do'kon bir nechta bo'lsa QAYSI biriga kiriladi. Berilmasa —
-// faol do'kon (`X-Shop-Id` odatdagidek). Har bir chaqiruv o'sha bitta
-// do'konni maqsad qiladi, chunki server tomonida ekran BITTA — bir vaqtda
-// faqat bitta login sessiyasi bo'ladi.
-const shopHeader = (shopId?: number) =>
-  shopId ? { headers: { "X-Shop-Id": String(shopId) } } : {};
-
-export const startUzumLogin = (shopId?: number) =>
-  request<UzumLoginStart>("/market/uzum-login/start", { method: "POST", ...shopHeader(shopId) });
-
-/** Uzum (Cloudflare) tekshiruvi holati va ishlaydigan yo'l (`challenge.py`). */
-export const fetchUzumChallenge = (shopId?: number) =>
-  request<UzumChallenge>("/market/uzum-login/challenge", shopHeader(shopId));
-
-export const completeUzumLogin = (shopId?: number) =>
-  request<UzumLoginStatus>("/market/uzum-login/complete", {
-    method: "POST",
-    ...shopHeader(shopId),
-  });
-
-// Kabinetga AVTOMATIK kirish: login/parol saytda kiritiladi va
-// serverda shifrlangan holda saqlanadi; brauzer fonda ochiladi.
-// VNC oynasi (pastda) zaxira bo'lib qoladi.
+// 2026-11-24 dan serverdagi brauzer O'CHIRILDI: kabinetga kirish, VNC oynasi
+// va saqlangan parol bilan avtomatik kirish yo'q. Sotuvchi seller.uzum.uz ga
+// o'z brauzerida kiradi, kabinet vazifalarini eStats Lens bajaradi
+// (`fetchCabinetExtensionSummary`). Ilgari saqlangan parol faqat O'CHIRILADI.
 
 export const fetchUzumCredentials = () =>
   request<UzumCredentials>("/market/uzum-seller/credentials");
 
-export const saveUzumCredentials = (login: string, password: string) =>
-  request<UzumCredentials>("/market/uzum-seller/credentials", {
-    method: "PUT",
-    body: JSON.stringify({ login, password }),
-  });
-
 export const clearUzumCredentials = () =>
   request<UzumCredentials>("/market/uzum-seller/credentials", { method: "DELETE" });
 
-export const startUzumAutoLogin = () =>
-  request<UzumAutoLoginResult>("/market/uzum-seller/auto-login", { method: "POST" });
-
-export const submitUzumSms = (code: string) =>
-  request<UzumAutoLoginResult>("/market/uzum-seller/sms", {
-    method: "POST",
-    body: JSON.stringify({ code }),
-  });
-
-export const fetchUzumLoginStatus = (shopId?: number) =>
-  request<UzumLoginStatus>("/market/uzum-login/status", shopHeader(shopId));
-
-/**
- * VNC WebSocket manzili: bir martalik chipta + joriy workspace — `vnc-url.ts`.
- *
- * Chipta olinmasa (Redis, rate-limit, tarmoq) — XATO tashlanadi va oyna
- * "ulanib bo'lmadi" holatini ko'rsatadi. Ilgari bu holda sessiya JWT'si
- * `?token=` bilan yuborilardi va log'larga tushardi (audit #49).
- */
-async function vncUrl(path: string, shopId?: number): Promise<string> {
-  let ticket = "";
-  try {
-    ({ ticket } = await request<{ ticket: string }>("/auth/ws-ticket", { method: "POST", shopScoped: false }));
-  } catch (err) {
-    // Sessiya tugagan bo'lsa — o'sha xato (qayta kirish oqimi ishlaydi).
-    if (err instanceof ApiError && err.isAuthError) throw err;
-    throw new Error(VNC_TICKET_ERROR);
-  }
-  if (!ticket) throw new Error(VNC_TICKET_ERROR);
-  return buildVncUrl(API_BASE, path, { ticket, workspaceId: readPersisted().workspaceId, shopId });
-}
-
-/** VNC ko'prigining WebSocket manzili — brauzer o'zi shu bilan ulanadi. */
-export function uzumLoginVncUrl(shopId: number): Promise<string> {
-  return vncUrl("/product-ai/uzum-login-vnc", shopId);
-}
-
-// ── Uzum MIJOZ (bozor) hisobiga o'z sessiyasi bilan kirish ────────────────────
+// ── Uzum MIJOZ (bozor) tokeni ────────────────────────────────────────────────
 //
-// Yuqoridagi sotuvchi-kabinet loginidan farqli: BITTA, APP darajasidagi
-// hisob — do'konga bog'liq emas, shuning uchun `X-Shop-Id` yubormaydi.
-// Bir marta ulangach bozor tokeni har ~3 daqiqada o'zi yangilanadi
-// (`/market/token/auto-refresh`), qo'lda qayta kirish shart emas.
-
-export const startMarketLogin = () =>
-  request<UzumLoginStart>("/market/uzum-market-login/start", { method: "POST", shopScoped: false });
-
-export const completeMarketLogin = () =>
-  request<MarketAutoRefresh>("/market/uzum-market-login/complete", {
-    method: "POST",
-    shopScoped: false,
-  });
-
-export const fetchMarketLoginStatus = () =>
-  request<MarketLoginSession>("/market/uzum-market-login/status", { shopScoped: false });
+// APP darajasida BITTA token (do'konga bog'liq emas). Uni administrator
+// brauzeridagi eStats Lens (kabinet vazifalari yoqilgan) o'zi yangilaydi —
+// server brauzer ochmaydi; qo'lda kiritish (`updateMarketToken`) zaxira.
 
 export const fetchMarketAutoRefresh = () =>
   request<MarketAutoRefresh>("/market/token/auto-refresh", { shopScoped: false });
-
-/** VNC ko'prigining WebSocket manzili — bozor (mijoz) hisobi uchun, do'konsiz. */
-export function marketLoginVncUrl(): Promise<string> {
-  return vncUrl("/product-ai/market-login-vnc");
-}
 
 // ── Uzum moderatsiya operatoriga Telegram orqali yozish ───────────────────────
 //
@@ -1565,20 +1480,9 @@ export const clearOpenAiKey = () =>
 export const fetchAiWebAccounts = () =>
   request<AiWebAccountState[]>("/product-ai/web-ai/accounts", { shopScoped: false });
 
-// Gemini / ChatGPT hisobiga kirish — FAQAT oyna orqali (sotuvchi kabinetidagi
-// «Oyna orqali kirish» kabi): ekran `estats-publish`da ochiladi, sotuvchi VNC
-// oynasida o'zi kiradi, «Kirdim, saqlash» sessiyani saqlaydi.
-export const startAiWebLogin = (provider: string) =>
-  request<{ status: "ready" | "busy" | string; message?: string | null }>(
-    `/product-ai/web-ai/accounts/${provider}/login/start`,
-    { method: "POST", shopScoped: false },
-  );
-
-export const completeAiWebLogin = (provider: string) =>
-  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${provider}/login/complete`, {
-    method: "POST",
-    shopScoped: false,
-  });
+// Gemini / ChatGPT hisoblari endi sotuvchi brauzerida (eStats Lens AI) — serverdagi
+// brauzer hisobiga kirish, tekshirish va hisob qo'shish yo'llari olib tashlandi
+// (2026-11-24). Holat `fetchAiWorkerStatus` dan.
 
 export type AiEngine = "api" | "web" | "mixed";
 export type AiWay = "web" | "api";
@@ -1599,25 +1503,6 @@ export const setAiProviderMode = (provider: string, mode: AiProviderMode) =>
   request<{ provider: string; mode: string }>(`/product-ai/web-ai/accounts/${provider}/mode`, {
     method: "POST",
     body: JSON.stringify({ mode }),
-    shopScoped: false,
-  });
-
-export const verifyAiWebAccount = (provider: string) =>
-  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${provider}/verify`, {
-    method: "POST",
-    shopScoped: false,
-  });
-
-/** Oilaga yangi hisob joyi (keyingi raqam) — keyin «Oyna orqali kirish». */
-export const addAiWebAccount = (family: "gemini_web" | "chatgpt_web") =>
-  request<AiWebAccountState>(`/product-ai/web-ai/accounts/${family}/add`, {
-    method: "POST",
-    shopScoped: false,
-  });
-
-export const deleteAiWebAccount = (provider: string) =>
-  request<void>(`/product-ai/web-ai/accounts/${provider}`, {
-    method: "DELETE",
     shopScoped: false,
   });
 
@@ -2062,6 +1947,8 @@ export type CabinetRunner = {
   lastSeenAt: string;
   online: boolean;
   cabinetLoggedIn: boolean;
+  /** Versiya `minVersion` dan eski — yangi vazifa turlari unga berilmaydi. */
+  outdated?: boolean;
 };
 
 export type CabinetTaskRow = {
@@ -2080,6 +1967,10 @@ export type CabinetRunnerStatus = {
   /** Shu do'kon uchun kengaytma yo'li yoqilganmi (bayroq + ro'yxat). */
   enabled: boolean;
   flag: boolean;
+  /** Serverdagi brauzer yoqilganmi (favqulodda zaxira; sukut — yo'q, hammasi kengaytmada). */
+  serverBrowser?: boolean;
+  /** Hamma vazifa turlari uchun kerakli eng past kengaytma versiyasi. */
+  minVersion?: string;
   paired: boolean;
   online: boolean;
   runners: CabinetRunner[];
@@ -2089,6 +1980,13 @@ export type CabinetRunnerStatus = {
 
 /** Faol do'kon (X-Shop-Id) bo'yicha. */
 export const fetchCabinetRunnerStatus = () => request<CabinetRunnerStatus>("/cabinet-runner/shop/status");
+
+/**
+ * Faol do'kon uchun kengaytma holatining QISQA ko'rinishi — har sahifadagi
+ * banner va Uzum kartasi uchun (vazifalar ro'yxatisiz, yengil).
+ */
+export const fetchCabinetExtensionSummary = () =>
+  request<CabinetExtensionSummary>("/cabinet-runner/shop/summary");
 
 // ── Didox (EHF/EDO) ──────────────────────────────────────────────────────────
 //

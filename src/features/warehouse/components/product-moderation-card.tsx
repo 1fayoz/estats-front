@@ -33,6 +33,7 @@ import type {
   ComplaintJob,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { UZUM_PUBLISH_PAUSED, UZUM_PUBLISH_PAUSED_TEXT } from "@/lib/uzum-publish";
 import { isDismissed, moderationJobActive, useModerationJobStore } from "@/stores/moderation-job-store";
 import { jobIsActive } from "./job-progress";
 import { ModerationJobProgress } from "./moderation-job-progress";
@@ -210,15 +211,18 @@ export function ProductModerationCard({
     if (!targetDraftId) return;
     setApplyingFix(true);
     setFeedback({
-      message: "To'g'rilangan nom va tavsif Uzum'ga yuborilmoqda…",
+      message: UZUM_PUBLISH_PAUSED ? "To'g'rilangan nom va tavsif qoralamaga yozilmoqda…" : "To'g'rilangan nom va tavsif Uzum'ga yuborilmoqda…",
       tone: "neutral",
     });
     try {
-      const res = await applyProductFix(product.id, targetDraftId, true);
+      // Avtomatik Uzum'ga yuborish to'xtatilgan (`lib/uzum-publish.ts`) — faqat qoralama.
+      const res = await applyProductFix(product.id, targetDraftId, !UZUM_PUBLISH_PAUSED);
       setFixProposal((prev) => (prev ? { ...prev, applied: true } : null));
       setFeedback({
-        message: res.uzumPush?.message || res.message || "✓ To'g'rilab kelindi! Kartochka Uzum'da yangilandi va qayta tekshiruvga yuborildi.",
-        tone: res.uzumPush?.ok === false ? "warning" : "success",
+        message: UZUM_PUBLISH_PAUSED
+          ? `${res.message || "✓ To'g'rilangan nom va tavsif qoralamaga yozildi."} ${UZUM_PUBLISH_PAUSED_TEXT}`
+          : res.uzumPush?.message || res.message || "✓ To'g'rilab kelindi! Kartochka Uzum'da yangilandi va qayta tekshiruvga yuborildi.",
+        tone: UZUM_PUBLISH_PAUSED || res.uzumPush?.ok === false ? "warning" : "success",
       });
       await onReload();
     } catch (err) {
@@ -252,15 +256,19 @@ export function ProductModerationCard({
       if (targetDraftId) {
         setFixStep("applying");
         setFeedback({
-          message: "2/2: To'g'rilangan nom va tavsif Uzum'ga yuborilmoqda…",
+          message: UZUM_PUBLISH_PAUSED
+            ? "2/2: To'g'rilangan nom va tavsif qoralamaga yozilmoqda…"
+            : "2/2: To'g'rilangan nom va tavsif Uzum'ga yuborilmoqda…",
           tone: "neutral",
         });
-        const res = await applyProductFix(product.id, targetDraftId, true);
+        const res = await applyProductFix(product.id, targetDraftId, !UZUM_PUBLISH_PAUSED);
         setFixStep("done");
         setFixProposal((prev) => (prev ? { ...prev, applied: true } : null));
         setFeedback({
-          message: res.uzumPush?.message || res.message || "✓ To'g'rilab kelindi! Kartochka Uzum'da yangilandi va qayta tekshiruvga yuborildi.",
-          tone: res.uzumPush?.ok === false ? "warning" : "success",
+          message: UZUM_PUBLISH_PAUSED
+          ? `${res.message || "✓ To'g'rilangan nom va tavsif qoralamaga yozildi."} ${UZUM_PUBLISH_PAUSED_TEXT}`
+          : res.uzumPush?.message || res.message || "✓ To'g'rilab kelindi! Kartochka Uzum'da yangilandi va qayta tekshiruvga yuborildi.",
+          tone: UZUM_PUBLISH_PAUSED || res.uzumPush?.ok === false ? "warning" : "success",
         });
         await onReload();
       } else {

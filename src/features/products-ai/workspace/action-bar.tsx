@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import type { AiDraft } from "@/lib/types";
+import { UZUM_PUBLISH_PAUSED, UZUM_PUBLISH_PAUSED_SHORT, UZUM_PUBLISH_PAUSED_TEXT } from "@/lib/uzum-publish";
 
 import { FAILED_PUBLISH, RETRY_REASON_LABEL, draftShop, retryTimeText } from "./lib";
 import styles from "./workspace.module.css";
@@ -150,6 +151,23 @@ export function ActionBar({
         {spin("retry", RefreshCw)} To&apos;xtagan joydan davom ettirish
       </button>
     );
+  } else if (UZUM_PUBLISH_PAUSED && ((live && (editMode || !locked || linked)) || (locked && !live))) {
+    // Avtomatik joylash/yangilash to'xtatilgan (`lib/uzum-publish.ts`) — asosiy
+    // amal paketni nusxalash: sotuvchi kabinetda qo'lda to'ldiradi.
+    if (!dirty) {
+      status = <span title={UZUM_PUBLISH_PAUSED_TEXT}>{UZUM_PUBLISH_PAUSED_SHORT} — matnni nusxalab, kabinetda to&apos;ldiring</span>;
+    }
+    primary = (
+      <button
+        type="button"
+        className={cn(styles.btn, styles.btnPrimary)}
+        onClick={h.onCopy}
+        disabled={busy === "copy"}
+        title={UZUM_PUBLISH_PAUSED_TEXT}
+      >
+        {spin("copy", Copy)} Uzum uchun matnni nusxalash
+      </button>
+    );
   } else if (live && (editMode || !locked || linked)) {
     primary = (
       <>
@@ -196,7 +214,7 @@ export function ActionBar({
   } else if (locked && live) {
     primary = (
       <button type="button" className={cn(styles.btn, styles.btnPrimary)} onClick={h.onToggleEdit}
-        title="Matn/rasmni o'zgartirib, keyin «Uzum'da yangilash» bilan tirik tovarga ko'chirish.">
+        title={UZUM_PUBLISH_PAUSED ? "Matn/rasmni o'zgartirib, keyin nusxalab kabinetdagi tovarga qo'lda ko'chirish." : "Matn/rasmni o'zgartirib, keyin «Uzum'da yangilash» bilan tirik tovarga ko'chirish."}>
         <Pencil className="size-4" aria-hidden /> Tahrirlash
       </button>
     );
@@ -207,7 +225,7 @@ export function ActionBar({
         className={cn(styles.btn, styles.btnPrimary, blocked > 0 && styles.btnWarn)}
         onClick={h.onApprove}
         disabled={busy === "approve"}
-        title={blocked ? `Tayyorlik tabida ${blocked} ta to'sib turgan kamchilik bor` : "Kartochka tayyor — Uzum'ga joylash uchun tasdiqlang."}
+        title={blocked ? `Tayyorlik tabida ${blocked} ta to'sib turgan kamchilik bor` : UZUM_PUBLISH_PAUSED ? "Kartochka tayyor — tasdiqlang, keyin matnni nusxalab kabinetda joylang." : "Kartochka tayyor — Uzum'ga joylash uchun tasdiqlang."}
       >
         {spin("approve", Check)} Tasdiqlash{blocked ? ` (${blocked})` : ""}
       </button>
@@ -227,7 +245,7 @@ export function ActionBar({
           </span>
         )}
         {live && locked && draft.imagesOutOfSync && (
-          <span className={cn(styles.chip, styles.chipWarn)} title="Rasmlar qayta yasalgan. «Tahrirlash» → «Uzum'da yangilash» bilan ko'chiring.">
+          <span className={cn(styles.chip, styles.chipWarn)} title={UZUM_PUBLISH_PAUSED ? "Rasmlar qayta yasalgan — yangilarini kabinetda qo'lda almashtiring." : "Rasmlar qayta yasalgan. «Tahrirlash» → «Uzum'da yangilash» bilan ko'chiring."}>
             <AlertTriangle className="size-3" aria-hidden /> Yangi rasmlar Uzum&apos;ga ko&apos;chirilmagan
           </span>
         )}
@@ -276,7 +294,7 @@ export function ActionBar({
                 <Unlink className="size-4" /> Bog&apos;lanishni bekor qilish
               </DropdownMenuItem>
             )}
-            {live && locked && !publishing && !["published", "queued", "running"].includes(publishStatus ?? "") && (
+            {!UZUM_PUBLISH_PAUSED && live && locked && !publishing && !["published", "queued", "running"].includes(publishStatus ?? "") && (
               <DropdownMenuItem onSelect={() => h.onPublish(undefined, true)} disabled={busy === "publish"}>
                 <Upload className="size-4" /> Uzum&apos;da chala qolgan tovarni davom ettirish
               </DropdownMenuItem>

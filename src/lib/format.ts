@@ -119,6 +119,14 @@ export function formatDate(input: Date | string | number): string {
   return `${day} ${UZ_MONTHS_SHORT[date.getMonth()]}`;
 }
 
+/** «24 noy, 14:05» — mahalliy vaqt, Intl'siz (Chrome uz-UZ oy nomini buzadi, §10). */
+export function formatDateTime(input: Date | string | number): string {
+  const date = input instanceof Date ? input : new Date(input);
+  if (Number.isNaN(date.getTime())) return "—";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${formatDate(date)}, ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 export function formatDelta(value: number): string {
   const sign = value > 0 ? "+" : "";
   return `${sign}${uz(value, 1)}%`;

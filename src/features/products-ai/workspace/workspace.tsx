@@ -37,6 +37,7 @@ import {
   verifyAiDraftUzum,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { UZUM_PUBLISH_PAUSED, UZUM_PUBLISH_PAUSED_TEXT } from "@/lib/uzum-publish";
 import type { AiDraft } from "@/lib/types";
 
 import { ActionBar } from "./action-bar";
@@ -212,11 +213,14 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
         act("approve", async () => {
           if (!draft) return;
           apply(await approveAiDraft(draft.id));
-          toast.success("Tasdiqlandi — Uzum'ga ko'chirishga tayyor.");
+          toast.success(UZUM_PUBLISH_PAUSED
+            ? "Tasdiqlandi — matnni nusxalab, seller.uzum.uz da joylang."
+            : "Tasdiqlandi — Uzum'ga ko'chirishga tayyor.");
         }),
       ),
     onPublish: (categoryManualPath?: string[], resume?: boolean) =>
-      guardSplit(() =>
+      // Avtomatik joylash to'xtatilgan (`lib/uzum-publish.ts`) — backend ham rad etadi.
+      UZUM_PUBLISH_PAUSED ? toast.info(UZUM_PUBLISH_PAUSED_TEXT) : guardSplit(() =>
         act("publish", async () => {
           if (!draft) return;
           const resuming = draft.uzumPublish?.status === "stopped";
@@ -247,7 +251,7 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
       }),
     onToggleEdit: () => setEditMode((v) => !v),
     onEditUzum: (replaceImages: boolean) =>
-      guardSplit(() =>
+      UZUM_PUBLISH_PAUSED ? toast.info(UZUM_PUBLISH_PAUSED_TEXT) : guardSplit(() =>
         act("editUzum", async () => {
           if (!draft) return;
           try {
@@ -270,6 +274,11 @@ export function DraftWorkspace({ draftId }: { draftId: number | null }) {
     onRepublishNew: () =>
       act("republishNew", async () => {
         if (!draft) return;
+        if (UZUM_PUBLISH_PAUSED) {
+          setPermBanned(null);
+          toast.info(UZUM_PUBLISH_PAUSED_TEXT);
+          return;
+        }
         apply(await republishAiDraftNew(draft.id));
         setPermBanned(null);
         toast.success("Yangi tovar sifatida joylash boshlandi — eski (bloklangan) e'lon tegilmaydi.");

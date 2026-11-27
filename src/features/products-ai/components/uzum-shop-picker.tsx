@@ -120,7 +120,7 @@ export function UzumShopPicker({
             onClick={sync}
             disabled={syncing || disabled}
             className="inline-flex min-h-8 items-center gap-1 rounded-md px-1.5 text-xs text-[color:var(--air-label)] transition-colors hover:text-[color:var(--air-head)] disabled:opacity-60"
-            title="Uzum kabinetidagi do'konlar ro'yxatini qayta oladi (serverda brauzer ochiladi)."
+            title="Uzum kabinetidagi do'konlar ro'yxatini brauzeringizdagi eStats Lens orqali qayta oladi."
           >
             <RefreshCw className={cn("size-3", syncing && "animate-spin")} aria-hidden />
             {syncing ? "Olinmoqda…" : "Uzumdan yangilash"}

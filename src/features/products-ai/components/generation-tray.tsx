@@ -42,8 +42,10 @@ export function AiGenerationTray({
   // kutmoqda». Foydalanuvchi: «tahrirlashni bosib qilingan, lekin yangidek
   // ko'rsatyapti» (§9.66).
   const liveWaiting = attention.filter((row) => row.productId && !row.error).length;
+  // Avtomatik yangilash to'xtatilgan (`lib/uzum-publish.ts`) — «Uzum'da yangilanadi»
+  // deb va'da berilmaydi: o'zgarish kabinetga qo'lda ko'chiriladi.
   const idleLabel = liveWaiting === attention.length && attention.length > 0
-    ? `${attention.length} ta kartochka Uzum'da yangilanishni kutmoqda`
+    ? `${attention.length} ta kartochka o'zgarishi Uzum'ga ko'chirilmagan`
     : `${rows.length} ta kartochka tayyor`;
 
   return (
@@ -83,7 +85,7 @@ export function AiGenerationTray({
           <div className="max-h-[60vh] space-y-1.5 overflow-y-auto border-t p-2">
             {ordered.map((row) => {
               const isRunning = row.progress < 100 && !row.error;
-              // Tirik Uzum tovari tahriri (yakunlangan) — «Uzum'da yangilash» kutyapti.
+              // Tirik Uzum tovari tahriri (yakunlangan) — o'zgarish kabinetga ko'chirilmagan.
               const liveEdit = Boolean(row.productId) && !isRunning && !row.error;
               return (
                 <button
@@ -129,7 +131,7 @@ export function AiGenerationTray({
                       {row.error ?? (isRunning
                         ? <JobLine draftId={row.id} fallback={row.stageLabel} />
                         : liveEdit
-                          ? `Uzum'da · ${row.productId} — «Uzum'da yangilash» kutilyapti`
+                          ? `Uzum'da · ${row.productId} — o'zgarishni kabinetga qo'lda ko'chiring`
                           : row.stageLabel)}
                     </div>
                     {isRunning && (
@@ -150,7 +152,7 @@ export function AiGenerationTray({
                             : "text-[color:var(--ok)]",
                     )}
                   >
-                    {row.error ? "Xato" : isRunning ? `${row.progress}%` : liveEdit ? "Yangilash" : "Tayyor"}
+                    {row.error ? "Xato" : isRunning ? `${row.progress}%` : liveEdit ? "Qo'lda" : "Tayyor"}
                   </span>
                 </button>
               );

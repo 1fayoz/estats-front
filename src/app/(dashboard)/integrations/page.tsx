@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, CircleCheck, FileSignature, Link2, Puzzle, ShieldCheck, ShoppingBag, Sparkles, Store } from "lucide-react";
 import { toast } from "sonner";
 import { NetworkIcon } from "@/components/brand/network-icons";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppKeysCard } from "@/features/integrations/components/app-keys-card";
 import { DidoxConnectCard } from "@/features/didox/components/didox-connect-card";
-import { AiWebAccounts } from "@/features/integrations/components/ai-web-accounts";
+import { AiWorkerCard } from "@/features/integrations/components/ai-worker-card";
 import { AiEngineSwitch, type AiReadiness } from "@/features/integrations/components/ai-engine-switch";
 import { AiApiKeys } from "@/features/integrations/components/ai-api-keys";
 import { AiSessionsDialog } from "@/features/integrations/components/ai-sessions-dialog";
@@ -136,6 +136,14 @@ function IntegrationsWorkspace() {
   useAutoRefresh(load);
 
   const params = useSearchParams();
+  const router = useRouter();
+  // Eski havolalar (`?connect=uzum` — Telegram xabari, avvalgi banner) endi server
+  // oynasini OCHMAYDI (2026-11-24, serverdagi brauzer o'chirildi): kabinet sotuvchi
+  // brauzerida, eStats Lens orqali — kengaytma tabiga o'tiladi.
+  const legacyConnect = params.get("connect") === "uzum";
+  React.useEffect(() => {
+    if (legacyConnect) router.replace("/integrations?tab=extension", { scroll: false });
+  }, [legacyConnect, router]);
   // Instagram'dan qaytish (`?ig_*`) — natijani o'qiydigan karta Instagram
   // tabida, shu tab bir marta ochiladi (audit #51).
   const returnTabDone = React.useRef(false);
@@ -189,7 +197,7 @@ function IntegrationsWorkspace() {
     { value: "ozon", label: "Ozon", action: "integrations.tab.uzum", icon: <Store />, detail: "Tez kunda", connected: false },
     // Didox — do'konga bog'liq (STIR), ruxsati `didox.view` (backend `page("didox")`).
     { value: "didox", label: "Didox (EHF)", action: "didox.view", icon: <FileSignature />, detail: "Hisob-faktura va dalolatnomalar", connected: false },
-    { value: "extension", label: "Brauzer kengaytmasi", action: "integrations.tab.extension", icon: <Puzzle />, detail: "Bozorlar ustida tahlil", connected: false },
+    { value: "extension", label: "Brauzer kengaytmasi", action: "integrations.tab.extension", icon: <Puzzle />, detail: "Kabinet vazifalari va bozor tahlili", connected: false },
     { value: "ai", label: "AI", action: "integrations.tab.ai", icon: <Sparkles />, detail: aiBroken ? `${aiBroken} ta kalit ishlamayapti` : webLive ? `${webLive} ta brauzer hisobi${aiConfigured ? ` · ${aiConfigured} kalit` : ""}` : aiStates.length ? `${aiConfigured}/${aiStates.length} kalit kiritilgan` : "Matn va tovar rasmlari", connected: webLive > 0 || aiConfigured > aiBroken },
     ...PLATFORM_ORDER.map((platform) => {
       const mine = accounts.filter((account) => account.platform === platform);
@@ -303,7 +311,9 @@ function IntegrationsWorkspace() {
 
           {(selected === "extension" || selected === "didox" || selected === "yandex" || selected === "wb" || selected === "ozon") ? null : selected !== "uzum" && loading ? <IntegrationsSkeleton /> : selected === "ai" ? <div className={cn(styles.panel, "space-y-5")}>
             <AiEngineSwitch readiness={aiReadiness(webAccounts, aiKey, openAiKey)} />
-            <AiWebAccounts accounts={webAccounts} onChanged={load} onOpenSessions={openSessions} />
+            {/* Gemini/ChatGPT endi sotuvchi brauzerida (eStats Lens AI) — server hisoblari va
+                ularning oynasi (VNC) yo'q, 2026-11-24. */}
+            <AiWorkerCard onOpenHistory={() => openSessions(null)} />
             <AiApiKeys
               gemini={aiKey}
               openai={openAiKey}

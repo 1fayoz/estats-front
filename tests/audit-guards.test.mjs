@@ -9,7 +9,6 @@ import { firstAllowedPath } from "../src/config/nav.ts";
 import { safeBookmarklet } from "../src/features/settings/bookmarklet.ts";
 import { isReturnAllowed } from "../src/lib/return-path.ts";
 import { GENERIC_OAUTH_ERROR, oauthErrorMessage, oauthReturnTab } from "../src/lib/oauth-return.ts";
-import { buildVncUrl } from "../src/lib/vnc-url.ts";
 import { buildCsp } from "../src/config/csp.ts";
 
 // ── #36 Telegram: hash'dagi initData oddiy brauzerda login qilmaydi ──────────
@@ -161,28 +160,4 @@ test("dev rejimda HMR uchun eval va websocket", () => {
   const { reportOnly } = buildCsp({ apiUrls: [], dev: true });
   assert.match(reportOnly, /'unsafe-eval'/);
   assert.match(reportOnly, /connect-src [^;]* ws: wss:/);
-});
-
-// ── #48/#49 VNC WebSocket manzili ────────────────────────────────────────────
-
-test("#49: manzilda faqat bir martalik chipta — JWT (token=) yo'q", () => {
-  const url = buildVncUrl("https://api.estats.uz/api/v1", "/product-ai/uzum-login-vnc", { ticket: "t/1+2", shopId: 7 });
-  const parsed = new URL(url);
-  assert.equal(parsed.protocol, "wss:");
-  assert.equal(parsed.pathname, "/api/v1/product-ai/uzum-login-vnc");
-  assert.equal(parsed.searchParams.get("ticket"), "t/1+2");
-  assert.equal(parsed.searchParams.get("shop_id"), "7");
-  assert.equal(parsed.searchParams.has("token"), false);
-});
-
-test("#48: joriy workspace `workspace_id` bilan yuboriladi", () => {
-  const url = new URL(buildVncUrl("http://127.0.0.1:8000/api/v1", "/product-ai/uzum-login-vnc", { ticket: "a", workspaceId: 42, shopId: 3 }));
-  assert.equal(url.protocol, "ws:");
-  assert.equal(url.searchParams.get("workspace_id"), "42");
-});
-
-test("#48: workspace tanlanmagan — parametr qo'shilmaydi (backend o'zi tanlaydi)", () => {
-  const url = new URL(buildVncUrl("https://api.estats.uz/api/v1", "/product-ai/market-login-vnc", { ticket: "a", workspaceId: null }));
-  assert.equal(url.searchParams.has("workspace_id"), false);
-  assert.equal(url.searchParams.has("shop_id"), false);
 });

@@ -3,7 +3,7 @@
 /*
  * Butun AI ishlarining YAGONA almashtirgichi (§9.55): rasm, matn, tekshiruvlar,
  * joylash/tahrirlashdan oldingi tekshiruv, avto javob — hammasi shu rejimda.
- *   - «Brauzer» — serverdagi brauzerda sotuvchining Gemini/ChatGPT hisobi;
+ *   - «Brauzer» — sotuvchining O'Z brauzerida (eStats Lens AI) Gemini/ChatGPT hisobi;
  *     limit/xato bo'lsa API kaliti zaxira;
  *   - «Aralash» — har AI o'z yo'li bilan (masalan Gemini brauzerda, OpenAI
  *     API'da), zaxirasiz: sotuvchi aniq tanlagan;
@@ -185,7 +185,7 @@ function warningsOf(engine: AiEngine, split: Split, r: AiReadiness): string[] {
     const ok = ways.some((w) => (w === "web" ? r[ai.web] > 0 : r[ai.api]));
     if (!ok) {
       out.push(ways.includes("web")
-        ? `${ai.name}: brauzer hisobi ulanmagan va API kaliti ishlamayapti — pastda hisob qo‘shing.`
+        ? `${ai.name}: brauzerda kirilmagan (eStats Lens AI) va API kaliti ishlamayapti — brauzeringizda shu saytga kiring yoki kalit kiriting.`
         : `${ai.name}: API kaliti yo‘q yoki mablag‘ tugagan.`);
     }
   }

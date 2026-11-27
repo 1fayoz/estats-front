@@ -969,53 +969,11 @@ export interface MarketUploader {
   instructions: string[];
 }
 
-/** Uzum sotuvchi kabinetiga o'z sessiyasi bilan kirish holati. Ekran bitta — bir vaqtda bitta do'kon. */
-export interface UzumLoginStatus {
-  active: boolean;
-  mine: boolean;
-  shopId: number | null;
-  startedAt: number | null;
-  /** Oyna qachon o'zi yopiladi (unix ms) — faqat o'z sessiyasi uchun. */
-  expiresAt?: number | null;
-  /**
-   * Shu sessiyada Cloudflare «Verify you are human» sahifasi necha marta keldi
-   * va asosiy oyna HOZIR ham shundami. `complete` javobida `challenged` —
-   * kabinet ochilmagan, do'kon «ulandi» deb yozilmagan.
-   */
-  challengeCount?: number;
-  challenged?: boolean;
-  /** Shu do'kon uchun kabinet amallari kengaytma orqali bajarilishi yoqilgan. */
-  extensionEnabled?: boolean;
-}
-
-/** Uzum (Cloudflare) tekshiruvi holati — banner uchun (`challenge.py`). */
-export interface UzumChallenge {
-  pending: boolean;
-  since: number | null;
-  /** Shu do'kon uchun kabinet amallari kengaytma orqali bajarilishi yoqilgan. */
-  extensionEnabled?: boolean;
-  /** Hozir onlayn va kabinetga kirgan kengaytma bor. */
-  extensionOnline?: boolean;
-  /** Server brauzeri yana necha soniya urinmaydi (pauza). */
-  cooldown?: number | null;
-}
-
-export interface UzumLoginStart {
-  status: string;
-  shopId: number | null;
-}
-
 export interface MarketTokenStatus {
   configured: boolean;
   expiresAt: string | null;
   expiresInMinutes: number | null;
   isExpired: boolean;
-}
-
-/** Uzum MIJOZ (bozor) hisobiga o'z sessiyasi bilan kirish holati — do'konga bog'liq emas. */
-export interface MarketLoginSession {
-  active: boolean;
-  startedAt: number | null;
 }
 
 /**
@@ -1124,12 +1082,6 @@ export interface UzumCredentials {
   waitingCode: boolean;
 }
 
-/** `status`: ok · sms_required · bad_credentials · captcha · bad_code · expired · error. */
-export interface UzumAutoLoginResult {
-  status: string;
-  message: string | null;
-}
-
 export interface ShopRequestPreview {
   kind: string;
   title: string;
@@ -1157,6 +1109,15 @@ export interface MarketAutoRefresh {
   /** Oxirgi muvaffaqiyatli tokenning turi: session (shaxsiy) | anonymous (mehmon, avtomatik tiklangan). */
   lastMode: string | null;
   intervalSeconds: number;
+  /**
+   * Tokenni kim yangilaydi: `extension` — administrator brauzeridagi eStats Lens
+   * (2026-11-24 dan; server brauzer ochmaydi), `server` — eski yo'l.
+   */
+  source?: "extension" | "server";
+  /** Kengaytma oxirgi marta yangi token yuborgan vaqt. */
+  extensionPushedAt?: string | null;
+  /** Token yo'q yoki tugayapti — administrator brauzeridan yangisi kutilmoqda. */
+  wanted?: boolean;
 }
 
 // ── reja (plan) ──────────────────────────────────────────────────────────────

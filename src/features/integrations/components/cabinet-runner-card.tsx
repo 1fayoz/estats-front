@@ -41,6 +41,8 @@ const KIND_LABEL: Record<string, string> = {
   funnel: "Voronka",
   bust_insights: "Bust narxlari",
   bust_create: "Bust kampaniyasi yaratish",
+  card_read: "Kartochka nusxasi",
+  cabinet_shops: "Kabinet do'konlari",
 };
 
 const STATUS_LABEL: Record<CabinetTaskRow["status"], string> = {
@@ -93,9 +95,9 @@ export function CabinetRunnerCard() {
           <div className="min-w-0 flex-1 space-y-1.5">
             <h3 className="text-base font-semibold tracking-tight">Sotuvchi kabineti vazifalari — shu do&apos;kon</h3>
             <p className="text-sm text-muted-foreground">
-              Turkumlar, moderatsiya sabablari, reklama va voronka statistikasi hamda siz tasdiqlagan Bust kampaniyasi
-              server o&apos;rniga <b>sizning brauzeringizda</b>, o&apos;zingiz kirgan seller.uzum.uz sessiyasi bilan bajariladi.
-              Uzum tokeni eStats&apos;ga yuborilmaydi.
+              Turkumlar, moderatsiya sabablari, reklama va voronka statistikasi, kartochka nusxasi hamda siz tasdiqlagan Bust
+              kampaniyasi <b>sizning brauzeringizda</b>, o&apos;zingiz kirgan seller.uzum.uz sessiyasi bilan bajariladi — server
+              brauzer ochmaydi. Kengaytma oflayn bo&apos;lsa bu ishlar kutadi. Uzum tokeni eStats&apos;ga yuborilmaydi.
             </p>
           </div>
           <Button variant="outline" size="sm" className="shrink-0 gap-1.5 rounded-lg" disabled={loading} onClick={() => void load()}>
@@ -117,11 +119,19 @@ export function CabinetRunnerCard() {
               </Badge>
               <Badge variant="secondary" className="gap-1.5 rounded-lg px-2.5 py-1">
                 {data.online ? <CheckCircle2 className="size-3.5 text-[var(--ok)]" /> : <XCircle className="size-3.5 text-muted-foreground" />}
-                {data.online ? "Onlayn, kabinetga kirilgan" : "Hozir oflayn"}
+                {/* `data.online` = onlayn VA kabinetga kirilgan. Kengaytma onlayn, faqat
+                    kirilmagan bo'lsa «oflayn» deyish yolg'on — qator «onlayn» deydi. */}
+                {data.online
+                  ? "Onlayn, kabinetga kirilgan"
+                  : data.runners.some((r) => r.online)
+                    ? "Onlayn, kabinetga kirilmagan"
+                    : "Hozir oflayn"}
               </Badge>
               <Badge variant="secondary" className="gap-1.5 rounded-lg px-2.5 py-1">
                 <ServerCog className="size-3.5" />
-                {data.enabled ? "Kengaytma yo'li yoqilgan" : "Hozircha server bajaradi"}
+                {data.serverBrowser === false
+                  ? "Faqat kengaytma — server brauzer ochmaydi"
+                  : data.enabled ? "Kengaytma yo'li yoqilgan" : "Hozircha server bajaradi"}
               </Badge>
               {data.pending ? (
                 <Badge className="gap-1.5 rounded-lg px-2.5 py-1">
@@ -152,6 +162,11 @@ export function CabinetRunnerCard() {
                       <p className="truncate text-sm font-medium">
                         {runner.name}
                         {runner.revoked ? <span className="ml-2 text-xs text-[var(--bad)]">uzilgan</span> : null}
+                        {runner.outdated ? (
+                          <span className="ml-2 text-xs text-[var(--warn)]">
+                            eski versiya{data.minVersion ? ` — kamida ${data.minVersion}` : ""}, chrome://extensions → «Yangilash»
+                          </span>
+                        ) : null}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         oxirgi aloqa {shortDate(runner.lastSeenAt)}
@@ -174,7 +189,11 @@ export function CabinetRunnerCard() {
                   {data.tasks.map((task) => (
                     <div key={task.id} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-3 py-2 text-sm">
                       <span className="min-w-0 flex-1 truncate">{KIND_LABEL[task.kind] ?? task.kind}</span>
-                      <span className={statusTone(task.status)}>{STATUS_LABEL[task.status] ?? task.status}</span>
+                      <span className={statusTone(task.status)}>
+                        {task.status === "expired" && data.serverBrowser === false
+                          ? "kengaytma olmadi"
+                          : STATUS_LABEL[task.status] ?? task.status}
+                      </span>
                       <span className="text-xs text-muted-foreground">{shortDate(task.createdAt)}</span>
                       {task.error ? <span className="w-full truncate text-xs text-muted-foreground">{task.error}</span> : null}
                     </div>

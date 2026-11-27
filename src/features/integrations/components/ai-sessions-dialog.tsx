@@ -72,8 +72,8 @@ const CLOSE_REASON: Record<string, string> = {
 
 /** Xato turiga qarab sotuvchiga aniq keyingi qadam. */
 const STATUS_HINT: Record<string, string> = {
-  needs_auth: "Hisobga kirilmagan — Integratsiyalar → «Oyna orqali kirish».",
-  captcha: "Sayt «robot emasligingizni» tekshiryapti — «Oyna orqali kirish»da bir marta o'zingiz o'ting.",
+  needs_auth: "Hisobga kirilmagan — brauzeringizda shu saytga kiring (eStats Lens shu sessiyadan foydalanadi).",
+  captcha: "Sayt «robot emasligingizni» tekshiryapti — brauzeringizda shu saytni ochib, bir marta o'zingiz o'ting.",
   chat_lost: "Vazifaning suhbati saytda topilmadi — kontekst aralashmasligi uchun savol yuborilmadi. Yangi suhbat oching.",
 };
 

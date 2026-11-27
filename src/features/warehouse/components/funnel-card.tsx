@@ -71,7 +71,7 @@ export function FunnelCard({
         onClick={() => void sync()}
         disabled={busy}
         className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--air-ctl-line)] px-2.5 py-1 text-xs text-[color:var(--air-head)] transition hover:bg-black/[.04] disabled:opacity-50"
-        title="Uzumdan darhol yangilaydi (~30 soniya). Jadval buni har 3 soatda o'zi ham qiladi."
+        title="Uzumdan darhol yangilaydi — brauzeringizdagi eStats Lens orqali (~30 soniya). Jadval buni har 3 soatda o'zi ham qiladi."
       >
         {busy ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
